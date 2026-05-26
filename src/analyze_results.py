@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Summarize vLLM lifecycle benchmark output directories."""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import statistics
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
+
+def fnum(value: str | None) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def stats(vals: list[float]) -> dict[str, float | None]:
+    if not vals:
+        return {"avg": None, "min": None, "max": None}
+    return {"avg": statistics.mean(vals), "min": min(vals), "max": max(vals)}
+
+
+def fmt(v: float | None) -> str:
+    return "n/a" if v is None else f"{v:.4f}"
+
+
+def load_rows(result_dir: Path) -> list[dict[str, str]]:
+    with (result_dir / "summary.csv").open(newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def load_nested(result_dir: Path) -> list[dict[str, Any]]:
+    with (result_dir / "summary.json").open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def event_memory(root: Path, event_log: str) -> dict[str, float | int | None]:
+    path = Path(event_log)
+    if not path.is_absolute():
+        path = root / path
+    gpu: list[float] = []
+    cpu: list[float] = []
+    if not path.exists():
+        return {"gpu_min_mib": None, "gpu_avg_mib": None, "gpu_max_mib": None, "cpu_min_mib": None, "cpu_max_mib": None, "events": 0}
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            obj = json.loads(line)
+            if obj.get("gpu_used_mib") is not None:
+                gpu.append(float(obj["gpu_used_mib"]))
+            if obj.get("cpu_used_mib") is not None:
+                cpu.append(float(obj["cpu_used_mib"]))
+    return {
+        "gpu_min_mib": min(gpu) if gpu else None,
+        "gpu_avg_mib": statistics.mean(gpu) if gpu else None,
+        "gpu_max_mib": max(gpu) if gpu else None,
+        "cpu_min_mib": min(cpu) if cpu else None,
+        "cpu_max_mib": max(cpu) if cpu else None,
+        "events": len(gpu),
+    }
+
+
+def build_report(result_dir: Path, repo_root: Path) -> str:
+    rows = load_rows(result_dir)
+    nested = load_nested(result_dir)
+    by = defaultdict(list)
+    for r in rows:
+        by[(r["method"], r["prompt_name"], r["ok"])].append(r)
+
+    lines = [
+        "# Qwen2.5-0.5B vLLM lifecycle benchmark results",
+        "",
+        f"Result directory: `{result_dir}`",
+        "",
+        "## Summary by method / prompt / success",
+        "",
+        "| method | prompt | ok | n | startup avg s | evict avg s | restore avg s | TTFT before avg s | TTFT after avg s | latency before avg s | latency after avg s |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    metric_fields = [
+        "startup_to_health_s",
+        "evict_latency_s",
+        "restore_latency_s",
+        "ttft_before_s",
+        "ttft_after_s",
+        "latency_before_s",
+        "latency_after_s",
+    ]
+    for key in sorted(by):
+        vs = by[key]
+        agg = {field: stats([v for r in vs if (v := fnum(r.get(field))) is not None]) for field in metric_fields}
+        lines.append(
+            f"| {key[0]} | {key[1]} | {key[2]} | {len(vs)} | "
+            f"{fmt(agg['startup_to_health_s']['avg'])} | {fmt(agg['evict_latency_s']['avg'])} | {fmt(agg['restore_latency_s']['avg'])} | "
+            f"{fmt(agg['ttft_before_s']['avg'])} | {fmt(agg['ttft_after_s']['avg'])} | "
+            f"{fmt(agg['latency_before_s']['avg'])} | {fmt(agg['latency_after_s']['avg'])} |"
+        )
+
+    lines += ["", "## Successful run memory envelopes", "", "| run_id | gpu min MiB | gpu avg MiB | gpu max MiB | cpu min MiB | cpu max MiB | samples |", "|---|---:|---:|---:|---:|---:|---:|"]
+    nested_by_id = {r["run_id"]: r for r in nested}
+    for r in rows:
+        if r.get("ok") != "True":
+            continue
+        info = nested_by_id.get(r["run_id"], {})
+        mem = event_memory(repo_root, info.get("event_log", ""))
+        lines.append(
+            f"| {r['run_id']} | {fmt(mem['gpu_min_mib'])} | {fmt(mem['gpu_avg_mib'])} | {fmt(mem['gpu_max_mib'])} | "
+            f"{fmt(mem['cpu_min_mib'])} | {fmt(mem['cpu_max_mib'])} | {mem['events']} |"
+        )
+
+    failed = [r for r in rows if r.get("ok") != "True"]
+    lines += ["", "## Failures", ""]
+    if not failed:
+        lines.append("No failed rows.")
+    else:
+        lines.append(f"Failed rows: {len(failed)}")
+        lines.append("")
+        lines.append("Observed primary cause: this installed vLLM 0.6.3.post1 API server does not recognize `--enable-sleep-mode`, so Sleep L1/L2 rows fail before serving starts.")
+
+    return "\n".join(lines) + "\n"
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("result_dir", type=Path)
+    p.add_argument("--repo-root", type=Path, default=Path.cwd())
+    p.add_argument("--out", type=Path, default=None)
+    args = p.parse_args()
+    report = build_report(args.result_dir, args.repo_root)
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(report, encoding="utf-8")
+    print(report)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
