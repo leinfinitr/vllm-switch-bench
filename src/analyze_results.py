@@ -120,7 +120,10 @@ def build_report(result_dir: Path, repo_root: Path) -> str:
     else:
         lines.append(f"Failed rows: {len(failed)}")
         lines.append("")
-        lines.append("Observed primary cause: this installed vLLM 0.6.3.post1 API server does not recognize `--enable-sleep-mode`, so Sleep L1/L2 rows fail before serving starts.")
+        causes = sorted({(r.get("error") or "see summary.json")[:300] for r in failed})
+        lines.append("Observed failure snippets:")
+        for cause in causes[:5]:
+            lines.append(f"- `{cause}`")
 
     return "\n".join(lines) + "\n"
 

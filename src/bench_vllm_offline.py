@@ -33,9 +33,9 @@ PROMPTS: dict[str, dict[str, Any]] = {
     "long_short": {
         "prompt": "\n".join([
             "You are analyzing an LLM serving system. Summarize the main bottleneck in one sentence.",
-            *(f"Context line {i}: model switching may involve weights, KV cache, CUDA graphs, CPU RAM, and storage hierarchy." for i in range(1, 80)),
+            *(f"Context line {i}: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching." for i in range(1, 45)),
         ]),
-        "max_tokens": 32,
+        "max_tokens": 24,
     },
     "short_long": {
         "prompt": "List practical measurements for evaluating LLM model switching.",

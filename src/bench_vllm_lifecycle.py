@@ -41,9 +41,9 @@ PROMPTS: dict[str, dict[str, Any]] = {
     "long_short": {
         "prompt": "\n".join([
             "You are analyzing an LLM serving system. Summarize the main bottleneck in one sentence.",
-            *(f"Context line {i}: model switching may involve weights, KV cache, CUDA graphs, CPU RAM, and storage hierarchy." for i in range(1, 80)),
+            *(f"Context line {i}: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching." for i in range(1, 45)),
         ]),
-        "max_tokens": 32,
+        "max_tokens": 24,
     },
     "short_long": {
         "prompt": "List practical measurements for evaluating LLM model switching.",
@@ -247,8 +247,15 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
     if args.enable_sleep_mode:
         cmd.append("--enable-sleep-mode")
     env = os.environ.copy()
+    python_bin_dir = str(Path(args.python).resolve().parent)
+    env["PATH"] = python_bin_dir + os.pathsep + env.get("PATH", "")
     env.setdefault("CUDA_VISIBLE_DEVICES", args.cuda_visible_devices)
     env.setdefault("VLLM_USE_V1", args.vllm_use_v1)
+    if args.cuda_home:
+        env["CUDA_HOME"] = args.cuda_home
+        env["PATH"] = str(Path(args.cuda_home) / "bin") + os.pathsep + env["PATH"]
+    if args.enable_server_dev_mode:
+        env["VLLM_SERVER_DEV_MODE"] = "1"
     if args.compat_sitecustomize:
         compat_path = str(Path(args.compat_sitecustomize).resolve().parent)
         env["PYTHONPATH"] = compat_path + os.pathsep + env.get("PYTHONPATH", "")
@@ -367,14 +374,37 @@ def call_sleep(args: argparse.Namespace, level: int) -> dict[str, Any]:
         return {"ok": False, "latency_s": time.perf_counter() - t0, "error": repr(exc)}
 
 
-def call_wake(args: argparse.Namespace) -> dict[str, Any]:
+def call_wake(args: argparse.Namespace, tags: list[str] | None = None) -> dict[str, Any]:
     url = f"http://{args.host}:{args.port}/wake_up"
+    if tags:
+        url += "?" + "&".join(f"tags={tag}" for tag in tags)
     t0 = time.perf_counter()
     try:
         r = post_json(url, {}, timeout_s=300)
         return {"ok": r.status_code == 200, "status": r.status_code, "latency_s": time.perf_counter() - t0, "body": r.text[:500]}
     except Exception as exc:
         return {"ok": False, "latency_s": time.perf_counter() - t0, "error": repr(exc)}
+
+
+def call_rpc(args: argparse.Namespace, method: str, kwargs: dict[str, Any] | None = None) -> dict[str, Any]:
+    url = f"http://{args.host}:{args.port}/collective_rpc"
+    payload: dict[str, Any] = {"method": method}
+    if kwargs:
+        payload["kwargs"] = kwargs
+    t0 = time.perf_counter()
+    try:
+        r = post_json(url, payload, timeout_s=300)
+        return {"ok": r.status_code == 200, "status": r.status_code, "latency_s": time.perf_counter() - t0, "body": r.text[:500]}
+    except Exception as exc:
+        return {"ok": False, "latency_s": time.perf_counter() - t0, "error": repr(exc)}
+
+
+def combine_restore_steps(*steps: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ok": all(bool(step.get("ok")) for step in steps),
+        "status": "+".join(str(step.get("status", "error")) for step in steps),
+        "latency_s": sum(float(step.get("latency_s") or 0.0) for step in steps),
+    }
 
 
 def find_free_port(host: str = "127.0.0.1") -> int:
@@ -433,9 +463,18 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                 event_log.write(make_event(ctx, "evict_end", start_ts, proc.pid, extra=sleep_result))
                 time.sleep(args.idle_s)
                 event_log.write(make_event(ctx, "restore_begin", start_ts, proc.pid))
-                wake_result = call_wake(args)
-                summary["restore"] = wake_result
-                event_log.write(make_event(ctx, "restore_end", start_ts, proc.pid, extra=wake_result))
+                if method == "sleep_l2":
+                    wake_weights = call_wake(args, tags=["weights"])
+                    event_log.write(make_event(ctx, "wake_weights_end", start_ts, proc.pid, extra=wake_weights))
+                    reload_weights = call_rpc(args, "reload_weights")
+                    event_log.write(make_event(ctx, "reload_weights_end", start_ts, proc.pid, extra=reload_weights))
+                    wake_kv = call_wake(args, tags=["kv_cache"])
+                    summary["restore"] = combine_restore_steps(wake_weights, reload_weights, wake_kv)
+                    summary["restore"]["steps"] = {"wake_weights": wake_weights, "reload_weights": reload_weights, "wake_kv_cache": wake_kv}
+                else:
+                    wake_result = call_wake(args)
+                    summary["restore"] = wake_result
+                event_log.write(make_event(ctx, "restore_end", start_ts, proc.pid, extra=summary["restore"]))
             else:
                 raise ValueError(f"unknown method: {method}")
             after = infer(args, prompt_name)
@@ -495,13 +534,15 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     p.add_argument("--port", type=int, default=18000)
     p.add_argument("--cuda-visible-devices", default="0")
     p.add_argument("--vllm-use-v1", default="1")
+    p.add_argument("--cuda-home", default="/home/ljl/cuda-13.0")
+    p.add_argument("--enable-server-dev-mode", action=argparse.BooleanOptionalAction, default=True)
     p.add_argument("--max-model-len", type=int, default=1024)
     p.add_argument("--gpu-memory-utilization", type=float, default=0.55)
     p.add_argument("--dtype", default="float16")
     p.add_argument("--load-format", default="")
     p.add_argument("--quantization", default="")
     p.add_argument("--enforce-eager", action="store_true")
-    p.add_argument("--compat-sitecustomize", default="benchmark/model-switching/vllm_compat_sitecustomize.py")
+    p.add_argument("--compat-sitecustomize", default="")
     p.add_argument("--endpoint", choices=["completion", "chat"], default="completion")
     p.add_argument("--methods", nargs="+", default=["cold_reload", "sleep_l1", "sleep_l2"])
     p.add_argument("--prompts", nargs="+", default=["short_short", "long_short", "short_long"])
