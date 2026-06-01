@@ -23,12 +23,14 @@
   - Inference: `POST /v1/chat/completions`.
   - vLLM backend uses `load_format="serverless_llm"` if no explicit `pretrained_model_name_or_path` is passed, and can use raw HF path through `backend_config.pretrained_model_name_or_path`.
   - Default config has `min_instances=0`, `keep_alive=0`, which is useful for serverless scale-to-zero restore experiments.
+  - Baseline terms are defined below: `delete_register` is deterministic redeploy; `scale_to_zero_restore` is optional true serverless idle-to-zero restore if we can observe it reliably.
 - SwapServeLLM repo: `/home/ljl/research-systems/SwapServeLLM`.
   - Router default port: `8000`.
   - Inference: `POST /v1/chat/completions`.
   - Manual lifecycle endpoints: `POST /api/swapout`, `POST /api/swapin`, body includes `model`.
   - Swap-out implementation logs stages: GPU PID lookup, model unload, CUDA PID toggle/checkpoint, container pause.
   - Swap-in implementation logs stages: container unpause, CUDA restore, server wait, model load.
+  - vLLM backend is launched inside a Podman container using `--model <model_name>` and bind-mounts `/root/.cache/huggingface` only. It does **not** currently mount `/home/ljl/models`, so local HF/ModelScope model paths must be made container-visible before using them.
 
 ## Baseline3 scope and fairness rules
 
@@ -46,13 +48,40 @@ Use the same prompt set as vLLM:
 
 Use at least 3 repeats per method after smoke tests pass.
 
+### Model format and acquisition decision
+
+Use the existing local Hugging Face/safetensors checkpoint as the primary model source:
+
+- Host path: `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`
+- Format expected by vLLM and ServerlessLLM vLLM backend: HF directory with `config.json`, tokenizer files, and `*.safetensors` weights.
+
+For SwapServeLLM, prefer its vLLM backend for fairness with the current vLLM Sleep baseline:
+
+- `container_image`: `docker.io/vllm/vllm-openai:latest` or a pinned compatible vLLM image.
+- `model_name`: ideally a container-visible path such as `/models/Qwen2.5-0.5B-Instruct`, not a remote model id.
+- Required code/config work: add a safe experiment-only bind mount from host `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct` or `/home/ljl/models` into the vLLM container, then point `model_name` at the mounted path.
+
+Do **not** use the Ollama backend as the primary Qwen2.5-0.5B baseline unless the vLLM backend is impossible. Ollama expects Ollama/GGUF-style model packaging, while current vLLM and ServerlessLLM baselines use HF/safetensors. Mixing those formats would make the comparison less fair.
+
+ModelScope is a fallback acquisition path, not the default:
+
+```bash
+cd /home/ljl/research-systems/llm-switch-bench
+uv pip install modelscope
+export MODELSCOPE_CACHE="/home/ljl/models"
+modelscope download --model Qwen/Qwen2.5-0.5B-Instruct
+```
+
+Before relying on this fallback, verify the exact ModelScope model id and check that the downloaded directory contains safetensors weights. The current host does not have `modelscope` installed yet, and downloading to `/home/ljl/models` still requires the SwapServeLLM container mount fix.
+
+
 ### Systems / methods
 
 | system | methods | lifecycle meaning |
 |---|---|---|
 | `vllm` | `cold_reload`, `sleep_l1`, `sleep_l2` | existing server harness |
-| `serverless_llm` | `delete_register`, `scale_to_zero_restore` if feasible | deregister or idle/scale-to-zero then first request/deploy restores model |
-| `swapserve_llm` | `swapout_swapin`, optionally `request_triggered_swapin` | `/api/swapout` then `/api/swapin`, and maybe first request when swapped out |
+| `serverless_llm` | `delete_register`, optional `scale_to_zero_restore` | deterministic redeploy, plus true idle-to-zero restore only if observable |
+| `swapserve_llm` | `swapout_swapin`, optionally `request_triggered_swapin` | explicit container/CUDA state swap-out and swap-in, plus optional request-triggered restore |
 
 ### Metrics to report
 
@@ -69,6 +98,27 @@ Per run:
 - system-specific stage breakdown parsed from logs when available:
   - ServerlessLLM: register/scheduler/backend-init/store-load if logs expose it
   - SwapServeLLM: SwapOut stages and SwapIn stages from logs
+
+### ServerlessLLM method definitions
+
+`delete_register` means:
+
+1. Register/deploy the model in ServerlessLLM.
+2. Run `infer_before`.
+3. Delete the model via `POST /delete`.
+4. Register/deploy the same model again via `POST /register`.
+5. Run `infer_after`.
+
+This is deterministic and easy to reproduce, but it is a heavy redeploy path. It includes controller metadata, Ray actor/backend creation, scheduler effects, and model loading. It should be reported as “ServerlessLLM redeploy / cold-ish restore”, not as the same thing as vLLM Sleep.
+
+`scale_to_zero_restore` means:
+
+1. Register the model with `min_instances=0`, `keep_alive=0`, and `target=1`.
+2. Run `infer_before`.
+3. Wait for idle autoscaling to remove all serving instances.
+4. Send the next request and measure the first request that triggers instance recreation/model restore.
+
+This is closer to true serverless serving. However, it is only a formal baseline if we can reliably observe and verify scale-to-zero on the local single-node setup. If not, record it as attempted/unsupported and keep `delete_register` as the deterministic ServerlessLLM baseline.
 
 ### Important fairness caveat
 
@@ -174,10 +224,15 @@ systems:
     host: 127.0.0.1
     port: 8343
     python: /home/ljl/research-systems/llm-switch-bench/.venv/bin/python
+    primary_method: delete_register
+    optional_methods: [scale_to_zero_restore]
   swapserve_llm:
     repo: /home/ljl/research-systems/SwapServeLLM
     host: 127.0.0.1
     port: 8000
+    backend: vllm
+    host_model_path: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
+    container_model_path: /models/Qwen2.5-0.5B-Instruct
 ```
 
 **Tests:**
@@ -226,12 +281,14 @@ Start with `--connect-existing` because it is easier and safer for smoke tests. 
   4. delete model
   5. register/deploy model again
   6. infer after
+  7. report as deterministic ServerlessLLM redeploy / cold-ish restore
 
-- `idle_restore` / `scale_to_zero_restore`:
+- `scale_to_zero_restore`:
   1. register with `min_instances=0`, `keep_alive=0`, `target=1`
   2. infer before
-  3. idle long enough for scale-to-zero if supported
-  4. infer after and treat first request as restore
+  3. wait and poll until no active serving instance remains, if ServerlessLLM exposes enough state to prove this
+  4. send the first post-idle request
+  5. report request latency as restore+inference only if scale-to-zero was verified
 
 If scale-to-zero behavior is not easy to trigger deterministically, keep it as “attempted/unsupported” and use `delete_register` as the main ServerlessLLM baseline.
 
@@ -248,7 +305,7 @@ def test_summary_row_has_system_serverless_llm(): ...
 
 **Implementation details:**
 
-Register payload should set:
+Register payload should set for deterministic `delete_register`:
 
 ```json
 {
@@ -313,6 +370,34 @@ git commit -m "bench: add serverlessllm lifecycle adapter"
 
 Start with `--connect-existing` because SwapServeLLM likely needs podman containers, sudo, model container config, and custom CUDA checkpoint tooling. Starting it automatically before understanding its config is risky on the shared server.
 
+**Model format / container visibility:**
+
+Use SwapServeLLM's vLLM backend first. It expects `model_name` to be usable by the vLLM OpenAI container. The current launcher only bind-mounts `/root/.cache/huggingface`, so a host path like `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct` is not visible inside the container by default.
+
+Implementation should therefore add an experiment-scoped way to mount the local model directory into the vLLM container. Preferred config for Qwen2.5-0.5B:
+
+```json
+{
+  "backend_name": "vllm-qwen2p5-0p5b",
+  "model_name": "/models/Qwen2.5-0.5B-Instruct",
+  "container_image": "docker.io/vllm/vllm-openai:latest",
+  "initialization_timeout": "10m",
+  "gpu_memory_utilization": "0.45",
+  "container_port": "8000"
+}
+```
+
+And add a bind mount:
+
+```text
+/home/ljl/models/hf/Qwen2.5-0.5B-Instruct -> /models/Qwen2.5-0.5B-Instruct
+```
+
+If adding model-path mounts to SwapServeLLM code is too intrusive, create a minimal experiment patch in `llm-switch-bench/patches/swapserve_mount_local_models.patch` and document it clearly rather than silently modifying upstream behavior.
+
+ModelScope fallback: only use if the existing local HF checkpoint is missing or incomplete. Install `modelscope` into the local `.venv`, download to `/home/ljl/models`, validate safetensors, then mount the resulting directory into the vLLM container.
+
+
 **SwapServeLLM methods:**
 
 - `swapout_swapin`:
@@ -369,7 +454,7 @@ Implement `parse_swapserve_stage_logs(text: str) -> dict[str, float]` in the ada
   --out-dir results/baseline3_smoke/swapserve_llm
 ```
 
-Need one manual discovery step before smoke: inspect SwapServeLLM config to find the configured model name and backend container image. If no config exists, add an example config under `configs/swapserve_qwen2p5_0p5b.example.yaml` but do not modify SwapServeLLM itself without approval.
+Need one manual discovery step before smoke: verify Podman/NVIDIA container runtime works and confirm the vLLM container can see the local HF checkpoint. If no config exists, add an example config under `configs/swapserve_qwen2p5_0p5b.example.json`. Do not permanently modify SwapServeLLM itself without approval; prefer a clearly documented experiment patch if a mount change is required.
 
 **Commit:**
 
@@ -486,7 +571,7 @@ git commit -m "bench: add baseline3 comparative analysis"
 - ServerlessLLM may require installing its package into `.venv` or setting `PYTHONPATH=/home/ljl/research-systems/ServerlessLLM`.
 - ServerlessLLM may require Ray resources and a working local storage path.
 - ServerlessLLM vLLM backend may need a compatible vLLM version with `serverless_llm` load format; if incompatible, fall back to `pretrained_model_name_or_path` raw HF mode but label it as “SLLM scheduler + vLLM backend, not SLLM fast-loader format”.
-- SwapServeLLM may require Podman, sudo, NVIDIA container runtime, and a valid config. If these are unavailable, implement and report a “config/runtime blocker” row rather than fabricating results.
+- SwapServeLLM may require Podman, sudo, NVIDIA container runtime, a valid config, and a model mount so the vLLM container can see `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`. If these are unavailable, implement and report a “config/runtime blocker” row rather than fabricating results.
 
 **Verification:**
 
@@ -549,7 +634,7 @@ git commit -m "bench: add baseline3 serverless and swapserve comparison"
 ## Open questions for review before execution
 
 1. Should `ServerlessLLM` and `SwapServeLLM` be added as git submodules now, or should this repo record their external path + commit SHA in result metadata? My recommendation: path + SHA first, submodules later only if we need exact snapshot vendoring.
-2. For ServerlessLLM, should the primary baseline be `delete_register` or true scale-to-zero restore? My recommendation: implement both if feasible, but report `delete_register` as deterministic and `scale_to_zero_restore` only if we can reliably observe scale-to-zero.
-3. For SwapServeLLM, do you already have a working config/container image for Qwen2.5-0.5B? If yes, provide or point me to it before smoke. If no, the first implementation should include config discovery and may initially report a runtime blocker rather than performance numbers.
+2. For ServerlessLLM, `delete_register` is now the deterministic primary baseline. `scale_to_zero_restore` remains optional and will only be reported as a real performance datapoint if scale-to-zero can be verified.
+3. For SwapServeLLM, use the vLLM backend with HF/safetensors Qwen2.5-0.5B. Primary model source is the existing `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`; ModelScope download is fallback only. The implementation must make this host path visible inside the vLLM container.
 4. Should the full Baseline3 commit include raw event/server logs, or only `summary.json`, `summary.csv`, phase-memory CSV, and markdown report? My recommendation: commit summaries and docs; keep bulky logs untracked or archived separately unless a bug needs evidence.
 
