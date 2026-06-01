@@ -19,10 +19,9 @@ Current harness measures:
 - vLLM Sleep level 1: infer -> sleep(level=1) -> wake_up -> infer.
 - vLLM Sleep level 2: infer -> sleep(level=2) -> wake_up -> infer.
 
-The preferred Sleep Mode path is the in-process vLLM Python API because it is
-available in vLLM versions that support `LLM(..., enable_sleep_mode=True)` even
-when a particular OpenAI server build does not expose `/sleep` or
-`--enable-sleep-mode`.
+The maintained benchmark path is the server lifecycle harness in `src/bench_vllm_lifecycle.py`.
+The earlier offline Python-API prototype and legacy compatibility shims were removed once
+server-mode Sleep Mode was running reliably in the dedicated environment.
 
 ## Environment policy
 

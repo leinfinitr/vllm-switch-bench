@@ -1,6 +1,6 @@
 # vLLM model lifecycle benchmark notes
 
-This directory contains the first-stage measurement harness for local model
+This directory contains the standalone benchmark harness for local model
 switching experiments on the IPADS shared server.
 
 Scope:
@@ -10,13 +10,8 @@ Scope:
 
 Current host selection:
 - GPU: NVIDIA GeForce RTX 3080, 10 GiB HBM.
-- Local full Hugging Face checkpoint available: Qwen/Qwen2.5-0.5B-Instruct
-  config/tokenizer only in HF cache; weights are not fully cached.
-- Local model files under /home/ljl/models are mostly GGUF. vLLM can support GGUF
-  in some versions, but Sleep Mode experiments are more reliable with HF-format
-  models. Therefore the default plan is to start with the small Qwen HF model,
-  using local cache/download if needed, then only scale up if HBM and dependency
-  constraints allow it.
+- Local full Hugging Face checkpoint available at `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`.
+- Benchmarks run from `/home/ljl/research-systems/llm-switch-bench` with a dedicated uv venv.
 
 Why no drop_caches:
 - This is a shared public lab server. The harness intentionally does not run
@@ -32,17 +27,22 @@ Outputs per run directory:
 Basic command:
 
 ```bash
-cd /home/ljl/research-systems/prism-research
-uv pip install pytest psutil requests matplotlib pandas
-.venv/bin/python -m pytest benchmark/model-switching/tests -q
-.venv/bin/python benchmark/model-switching/bench_vllm_lifecycle.py \
-  --model Qwen/Qwen2.5-0.5B-Instruct \
+cd /home/ljl/research-systems/llm-switch-bench
+.venv/bin/python -m pytest tests -q
+PATH=$PWD/.venv/bin:/home/ljl/cuda-13.0/bin:$PATH \
+CUDA_HOME=/home/ljl/cuda-13.0 \
+.venv/bin/python src/bench_vllm_lifecycle.py \
+  --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct \
   --python .venv/bin/python \
+  --workdir /home/ljl/research-systems/llm-switch-bench \
   --methods cold_reload sleep_l1 sleep_l2 \
   --prompts short_short long_short short_long \
-  --repeats 3
+  --repeats 3 \
+  --ready-timeout-s 360 \
+  --gpu-memory-utilization 0.45 \
+  --max-model-len 1024 \
+  --port 0
 ```
 
-If vLLM import fails because the checked-out environment has mismatched torch and
-vLLM versions, create a dedicated uv environment outside system Python and record
-that in this document before running measurements.
+The maintained code path is server-mode Sleep Mode. The older offline prototype
+and compatibility shim were removed after the dedicated environment proved stable.

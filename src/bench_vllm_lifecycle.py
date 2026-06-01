@@ -176,23 +176,6 @@ class Sampler:
             time.sleep(self.interval_s)
 
 
-def wait_http_ok(url: str, timeout_s: float) -> float:
-    sess = requests.Session()
-    sess.trust_env = False
-    start = time.perf_counter()
-    last = None
-    while time.perf_counter() - start < timeout_s:
-        try:
-            r = sess.get(url, timeout=2)
-            if r.status_code == 200:
-                return time.perf_counter() - start
-            last = f"HTTP {r.status_code}: {r.text[:120]}"
-        except Exception as exc:
-            last = repr(exc)
-        time.sleep(0.5)
-    raise TimeoutError(f"{url} not ready after {timeout_s}s; last={last}")
-
-
 def wait_process_http_ok(proc: subprocess.Popen[str], url: str, timeout_s: float, log_path: Path) -> float:
     sess = requests.Session()
     sess.trust_env = False
@@ -256,11 +239,6 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
         env["PATH"] = str(Path(args.cuda_home) / "bin") + os.pathsep + env["PATH"]
     if args.enable_server_dev_mode:
         env["VLLM_SERVER_DEV_MODE"] = "1"
-    if args.compat_sitecustomize:
-        compat_path = str(Path(args.compat_sitecustomize).resolve().parent)
-        env["PYTHONPATH"] = compat_path + os.pathsep + env.get("PYTHONPATH", "")
-        env["PYTHONSTARTUP"] = str(Path(args.compat_sitecustomize).resolve())
-        env["VLLM_BENCH_COMPAT_SITECUSTOMIZE"] = str(Path(args.compat_sitecustomize).resolve())
     log_f = log_path.open("w", encoding="utf-8", buffering=1)
     proc = subprocess.Popen(cmd, stdout=log_f, stderr=subprocess.STDOUT, text=True, env=env, cwd=args.workdir)
     return proc
@@ -542,7 +520,6 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     p.add_argument("--load-format", default="")
     p.add_argument("--quantization", default="")
     p.add_argument("--enforce-eager", action="store_true")
-    p.add_argument("--compat-sitecustomize", default="")
     p.add_argument("--endpoint", choices=["completion", "chat"], default="completion")
     p.add_argument("--methods", nargs="+", default=["cold_reload", "sleep_l1", "sleep_l2"])
     p.add_argument("--prompts", nargs="+", default=["short_short", "long_short", "short_long"])
@@ -550,7 +527,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     p.add_argument("--ready-timeout-s", type=float, default=240)
     p.add_argument("--idle-s", type=float, default=2)
     p.add_argument("--sample-interval-s", type=float, default=0.5)
-    p.add_argument("--out-dir", default="benchmark/model-switching/results")
+    p.add_argument("--out-dir", default="results")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
     unknown_prompts = sorted(set(args.prompts) - set(PROMPTS))

@@ -28,6 +28,20 @@ def test_parse_args_rejects_unknown_prompt():
         raise AssertionError("parse_args should reject unknown prompt names")
 
 
+def test_parse_args_rejects_removed_compat_sitecustomize_flag():
+    try:
+        bench.parse_args(["--model", "dummy", "--compat-sitecustomize", "legacy.py"])
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("legacy compat-sitecustomize flag should be removed")
+
+
+def test_parse_args_default_out_dir_is_repo_local_results():
+    args = bench.parse_args(["--model", "dummy"])
+    assert args.out_dir == "results"
+
+
 def test_write_summary_csv_flattens_nested_metrics(tmp_path):
     out = tmp_path / "summary.csv"
     bench.write_summary_csv(out, [
