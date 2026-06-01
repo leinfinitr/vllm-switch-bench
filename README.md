@@ -17,7 +17,14 @@ Current harness measures:
 
 - vLLM cold reload: infer -> stop process -> restart -> infer.
 - vLLM Sleep level 1: infer -> sleep(level=1) -> wake_up -> infer.
-- vLLM Sleep level 2: infer -> sleep(level=2) -> wake_up -> infer.
+- vLLM Sleep level 2: infer -> sleep(level=2) -> wake_up(tags=[weights]) -> collective_rpc(reload_weights) -> wake_up(tags=[kv_cache]) -> infer.
+
+Baseline3 development adds shared `benchlib/` utilities and external-system config via:
+
+- `configs/baseline3.local.example.yaml`
+- `src/benchlib/config.py`
+
+The baseline3 config records external ServerlessLLM / SwapServeLLM repo paths and commit metadata without vendoring them into this repository.
 
 The maintained benchmark path is the server lifecycle harness in `src/bench_vllm_lifecycle.py`.
 The earlier offline Python-API prototype and legacy compatibility shims were removed once
