@@ -11,7 +11,10 @@ import importlib.util
 import sys
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "src" / "bench_vllm_lifecycle.py"
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+sys.path.insert(0, str(SRC))
+MODULE_PATH = SRC / "bench_vllm_lifecycle.py"
 spec = importlib.util.spec_from_file_location("bench_vllm_lifecycle", MODULE_PATH)
 assert spec is not None and spec.loader is not None
 bench = importlib.util.module_from_spec(spec)
