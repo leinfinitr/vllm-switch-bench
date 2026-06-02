@@ -393,7 +393,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--scale-zero-timeout", type=float, default=120.0)
     parser.add_argument("--scale-zero-poll-interval", type=float, default=1.0)
     parser.add_argument("--idle-gpu-buffer-mib", type=int, default=300)
-    parser.add_argument("--out-dir", default="results/baseline3_smoke/serverless_llm")
+    parser.add_argument("--out-dir", default="results/tmp/serverless_llm")
     return parser.parse_args(argv)
 
 

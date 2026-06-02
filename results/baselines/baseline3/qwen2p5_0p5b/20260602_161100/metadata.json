@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-06-02T03:13:17.112959+00:00",
+  "created_at": "2026-06-02T08:20:57.053850+00:00",
   "config": "/home/ljl/research-systems/llm-switch-bench/configs/baseline3.local.yaml",
   "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
   "systems": [
@@ -9,7 +9,7 @@
   ],
   "repos": {
     "vllm": {
-      "source": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457"
+      "source": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457"
     },
     "serverless_llm": {
       "repo_path": "/home/ljl/research-systems/ServerlessLLM",
@@ -26,7 +26,7 @@
   },
   "artifacts": {
     "vllm": {
-      "run_dir": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457"
+      "run_dir": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457"
     },
     "serverless_llm": {
       "command": [
@@ -47,14 +47,18 @@
         "--repeats",
         "3",
         "--out-dir",
-        "results/baseline3/qwen2p5_0p5b/20260602_111317/serverless_llm",
+        "results/baselines/serverless_llm/qwen2p5_0p5b",
         "--methods",
         "scale_to_zero_restore"
       ],
       "returncode": 0,
-      "stdout": "results/baseline3/qwen2p5_0p5b/20260602_111317/serverless_llm/20260602_111317\n",
+      "stdout": "results/baselines/serverless_llm/qwen2p5_0p5b/20260602_111748\n",
       "stderr": "",
-      "run_dir": "results/baseline3/qwen2p5_0p5b/20260602_111317/serverless_llm/20260602_111317"
+      "run_dir": "results/baselines/serverless_llm/qwen2p5_0p5b/20260602_111748"
+    },
+    "swapserve_llm": {
+      "run_dir": "results/baselines/swapserve_llm/qwen2p5_0p5b/20260602_160715",
+      "note": "Executed against /tmp experiment copy of SwapServeLLM with rootless-podman compatibility patches; benchmarked through router at http://127.0.0.1:8000"
     }
   }
 }

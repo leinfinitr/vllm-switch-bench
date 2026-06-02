@@ -15,5 +15,7 @@ systems:
     host: 127.0.0.1
     port: 8000
     backend: vllm
+    api_key: dummy
+    log_dir: /tmp/swapserve-exp/logs
     host_model_path: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
     container_model_path: /models/Qwen2.5-0.5B-Instruct

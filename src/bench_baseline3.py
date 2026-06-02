@@ -172,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     if "vllm" in args.systems:
-        latest_vllm = Path("results/qwen2p5_0p5b_clean_hbm_main/20260601_185457")
+        latest_vllm = Path("results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457")
         if latest_vllm.exists():
             rows.extend(normalize_rows(read_summary_rows(latest_vllm), "vllm"))
             metadata["repos"]["vllm"] = {"source": str(latest_vllm)}

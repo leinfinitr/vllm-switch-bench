@@ -5,8 +5,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185457_cold_reload_short_short_0_c70cfe03.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185457_cold_reload_short_short_0_c70cfe03.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185457_cold_reload_short_short_0_c70cfe03.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185457_cold_reload_short_short_0_c70cfe03.events.jsonl",
     "port": 48539,
     "startup_to_health_s": 15.021379953017458,
     "infer_before": {
@@ -46,8 +46,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185531_cold_reload_short_short_1_711aec86.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185531_cold_reload_short_short_1_711aec86.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185531_cold_reload_short_short_1_711aec86.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185531_cold_reload_short_short_1_711aec86.events.jsonl",
     "port": 49917,
     "startup_to_health_s": 15.019911176059395,
     "infer_before": {
@@ -87,8 +87,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185604_cold_reload_short_short_2_a51918c2.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185604_cold_reload_short_short_2_a51918c2.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185604_cold_reload_short_short_2_a51918c2.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185604_cold_reload_short_short_2_a51918c2.events.jsonl",
     "port": 54043,
     "startup_to_health_s": 15.01878226408735,
     "infer_before": {
@@ -128,8 +128,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185637_cold_reload_long_short_0_d91558af.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185637_cold_reload_long_short_0_d91558af.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185637_cold_reload_long_short_0_d91558af.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185637_cold_reload_long_short_0_d91558af.events.jsonl",
     "port": 52797,
     "startup_to_health_s": 15.020216416101903,
     "infer_before": {
@@ -169,8 +169,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185710_cold_reload_long_short_1_f2c29870.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185710_cold_reload_long_short_1_f2c29870.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185710_cold_reload_long_short_1_f2c29870.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185710_cold_reload_long_short_1_f2c29870.events.jsonl",
     "port": 45215,
     "startup_to_health_s": 15.020511493086815,
     "infer_before": {
@@ -210,8 +210,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185744_cold_reload_long_short_2_91d1cb62.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185744_cold_reload_long_short_2_91d1cb62.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185744_cold_reload_long_short_2_91d1cb62.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185744_cold_reload_long_short_2_91d1cb62.events.jsonl",
     "port": 37545,
     "startup_to_health_s": 15.020495482953265,
     "infer_before": {
@@ -251,8 +251,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185817_cold_reload_short_long_0_635b94a4.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185817_cold_reload_short_long_0_635b94a4.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185817_cold_reload_short_long_0_635b94a4.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185817_cold_reload_short_long_0_635b94a4.events.jsonl",
     "port": 55857,
     "startup_to_health_s": 15.521339009981602,
     "infer_before": {
@@ -292,8 +292,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185851_cold_reload_short_long_1_2728b453.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185851_cold_reload_short_long_1_2728b453.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185851_cold_reload_short_long_1_2728b453.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185851_cold_reload_short_long_1_2728b453.events.jsonl",
     "port": 35443,
     "startup_to_health_s": 15.020124601200223,
     "infer_before": {
@@ -333,8 +333,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185925_cold_reload_short_long_2_3933218e.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185925_cold_reload_short_long_2_3933218e.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185925_cold_reload_short_long_2_3933218e.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185925_cold_reload_short_long_2_3933218e.events.jsonl",
     "port": 40147,
     "startup_to_health_s": 15.019608692033216,
     "infer_before": {
@@ -374,8 +374,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185959_sleep_l1_short_short_0_f575f853.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_185959_sleep_l1_short_short_0_f575f853.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185959_sleep_l1_short_short_0_f575f853.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_185959_sleep_l1_short_short_0_f575f853.events.jsonl",
     "port": 33511,
     "startup_to_health_s": 15.020390687976032,
     "infer_before": {
@@ -420,8 +420,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190018_sleep_l1_short_short_1_ee3e056d.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190018_sleep_l1_short_short_1_ee3e056d.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190018_sleep_l1_short_short_1_ee3e056d.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190018_sleep_l1_short_short_1_ee3e056d.events.jsonl",
     "port": 58537,
     "startup_to_health_s": 15.020099390065297,
     "infer_before": {
@@ -466,8 +466,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190036_sleep_l1_short_short_2_010cda9b.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190036_sleep_l1_short_short_2_010cda9b.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190036_sleep_l1_short_short_2_010cda9b.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190036_sleep_l1_short_short_2_010cda9b.events.jsonl",
     "port": 37245,
     "startup_to_health_s": 15.020219246856868,
     "infer_before": {
@@ -512,8 +512,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190055_sleep_l1_long_short_0_69e4cfc7.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190055_sleep_l1_long_short_0_69e4cfc7.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190055_sleep_l1_long_short_0_69e4cfc7.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190055_sleep_l1_long_short_0_69e4cfc7.events.jsonl",
     "port": 56555,
     "startup_to_health_s": 15.020624657860026,
     "infer_before": {
@@ -558,8 +558,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190113_sleep_l1_long_short_1_3be455a3.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190113_sleep_l1_long_short_1_3be455a3.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190113_sleep_l1_long_short_1_3be455a3.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190113_sleep_l1_long_short_1_3be455a3.events.jsonl",
     "port": 39799,
     "startup_to_health_s": 15.020260169869289,
     "infer_before": {
@@ -604,8 +604,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190132_sleep_l1_long_short_2_2782cbc3.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190132_sleep_l1_long_short_2_2782cbc3.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190132_sleep_l1_long_short_2_2782cbc3.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190132_sleep_l1_long_short_2_2782cbc3.events.jsonl",
     "port": 52145,
     "startup_to_health_s": 15.020478792022914,
     "infer_before": {
@@ -650,8 +650,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190150_sleep_l1_short_long_0_124714d7.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190150_sleep_l1_short_long_0_124714d7.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190150_sleep_l1_short_long_0_124714d7.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190150_sleep_l1_short_long_0_124714d7.events.jsonl",
     "port": 32951,
     "startup_to_health_s": 15.020877395989373,
     "infer_before": {
@@ -696,8 +696,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190209_sleep_l1_short_long_1_4779ff73.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190209_sleep_l1_short_long_1_4779ff73.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190209_sleep_l1_short_long_1_4779ff73.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190209_sleep_l1_short_long_1_4779ff73.events.jsonl",
     "port": 52881,
     "startup_to_health_s": 15.021035962039605,
     "infer_before": {
@@ -742,8 +742,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190229_sleep_l1_short_long_2_f6259c48.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190229_sleep_l1_short_long_2_f6259c48.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190229_sleep_l1_short_long_2_f6259c48.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190229_sleep_l1_short_long_2_f6259c48.events.jsonl",
     "port": 38967,
     "startup_to_health_s": 15.02381867589429,
     "infer_before": {
@@ -788,8 +788,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190248_sleep_l2_short_short_0_830b0ccf.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190248_sleep_l2_short_short_0_830b0ccf.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190248_sleep_l2_short_short_0_830b0ccf.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190248_sleep_l2_short_short_0_830b0ccf.events.jsonl",
     "port": 43763,
     "startup_to_health_s": 15.020140622975305,
     "infer_before": {
@@ -853,8 +853,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190306_sleep_l2_short_short_1_03f9d1cf.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190306_sleep_l2_short_short_1_03f9d1cf.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190306_sleep_l2_short_short_1_03f9d1cf.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190306_sleep_l2_short_short_1_03f9d1cf.events.jsonl",
     "port": 41847,
     "startup_to_health_s": 15.020390080986544,
     "infer_before": {
@@ -918,8 +918,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190325_sleep_l2_short_short_2_dfa7687c.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190325_sleep_l2_short_short_2_dfa7687c.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190325_sleep_l2_short_short_2_dfa7687c.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190325_sleep_l2_short_short_2_dfa7687c.events.jsonl",
     "port": 59871,
     "startup_to_health_s": 15.020528495078906,
     "infer_before": {
@@ -983,8 +983,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190343_sleep_l2_long_short_0_d90c5b06.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190343_sleep_l2_long_short_0_d90c5b06.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190343_sleep_l2_long_short_0_d90c5b06.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190343_sleep_l2_long_short_0_d90c5b06.events.jsonl",
     "port": 43359,
     "startup_to_health_s": 15.522921992931515,
     "infer_before": {
@@ -1048,8 +1048,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190402_sleep_l2_long_short_1_b7c8e65f.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190402_sleep_l2_long_short_1_b7c8e65f.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190402_sleep_l2_long_short_1_b7c8e65f.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190402_sleep_l2_long_short_1_b7c8e65f.events.jsonl",
     "port": 38157,
     "startup_to_health_s": 15.019937405129895,
     "infer_before": {
@@ -1113,8 +1113,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "long_short",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190421_sleep_l2_long_short_2_5b95f150.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190421_sleep_l2_long_short_2_5b95f150.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190421_sleep_l2_long_short_2_5b95f150.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190421_sleep_l2_long_short_2_5b95f150.events.jsonl",
     "port": 43839,
     "startup_to_health_s": 15.020116697996855,
     "infer_before": {
@@ -1178,8 +1178,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 0,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190439_sleep_l2_short_long_0_c44b080b.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190439_sleep_l2_short_long_0_c44b080b.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190439_sleep_l2_short_long_0_c44b080b.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190439_sleep_l2_short_long_0_c44b080b.events.jsonl",
     "port": 46181,
     "startup_to_health_s": 15.020827277097851,
     "infer_before": {
@@ -1243,8 +1243,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 1,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190458_sleep_l2_short_long_1_98b0bfd3.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190458_sleep_l2_short_long_1_98b0bfd3.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190458_sleep_l2_short_long_1_98b0bfd3.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190458_sleep_l2_short_long_1_98b0bfd3.events.jsonl",
     "port": 50215,
     "startup_to_health_s": 15.020789263071492,
     "infer_before": {
@@ -1308,8 +1308,8 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_long",
     "repeat_index": 2,
-    "server_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190517_sleep_l2_short_long_2_966c6b73.server.log",
-    "event_log": "results/qwen2p5_0p5b_clean_hbm_main/20260601_185457/20260601_190517_sleep_l2_short_long_2_966c6b73.events.jsonl",
+    "server_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190517_sleep_l2_short_long_2_966c6b73.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457/20260601_190517_sleep_l2_short_long_2_966c6b73.events.jsonl",
     "port": 38549,
     "startup_to_health_s": 15.020382398040965,
     "infer_before": {
@@ -1384,20 +1384,20 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 0.01741210208274424,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 17.290874903090298,
+      "client_latency_s": 17.303746751975268,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 1.8506871502656481,
+      "approx_tokens_per_s": 1.8493104677660124,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 2.0512501071207225,
+      "latency_s": 2.050550946034491,
       "baseline_gpu_used_mib": 238,
       "gpu_used_mib": 238,
       "idle_gpu_threshold_mib": 538,
@@ -1407,20 +1407,20 @@
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.201082082930952,
+      "client_latency_s": 13.203646728070453,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 2.4240437108845887,
+      "approx_tokens_per_s": 2.423572870362338,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 13.201082082930952,
+      "latency_s": 13.203646728070453,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 2.0512501071207225,
-      "post_idle_request_s": 13.201082082930952,
+      "scale_to_zero_wait_s": 2.050550946034491,
+      "post_idle_request_s": 13.203646728070453,
       "baseline_gpu_used_mib": 238,
       "idle_gpu_threshold_mib": 538
     },
@@ -1433,45 +1433,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_short",
     "repeat_index": 1,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.0493922599125654,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1651993650011718,
+      "client_latency_s": 12.21112613612786,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 27.46311143069308,
+      "approx_tokens_per_s": 2.62056092478848,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.0144151640124619,
-      "baseline_gpu_used_mib": 3618,
-      "gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918,
+      "latency_s": 1.0319810688961297,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1646958531346172,
+      "client_latency_s": 12.231763103976846,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 27.474984060324797,
+      "approx_tokens_per_s": 2.616139613560372,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 1.1646958531346172,
+      "latency_s": 12.231763103976846,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.0144151640124619,
-      "post_idle_request_s": 1.1646958531346172,
-      "baseline_gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918
+      "scale_to_zero_wait_s": 1.0319810688961297,
+      "post_idle_request_s": 12.231763103976846,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1482,45 +1482,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_short",
     "repeat_index": 2,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.051186580210924,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.167447951855138,
+      "client_latency_s": 13.197830805089325,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 27.41021554678328,
+      "approx_tokens_per_s": 2.4246408726243267,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.014723406173288822,
-      "baseline_gpu_used_mib": 3618,
-      "gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918,
+      "latency_s": 2.0525030461139977,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.255433932878077,
+      "client_latency_s": 13.215935688931495,
       "approx_output_tokens": 32,
-      "approx_tokens_per_s": 2.414104295795922,
+      "approx_tokens_per_s": 2.4213192885616404,
       "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 13.255433932878077,
+      "latency_s": 13.215935688931495,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.014723406173288822,
-      "post_idle_request_s": 13.255433932878077,
-      "baseline_gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918
+      "scale_to_zero_wait_s": 2.0525030461139977,
+      "post_idle_request_s": 13.215935688931495,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1531,45 +1531,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "long_short",
     "repeat_index": 0,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.046716842101887,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1480273569468409,
+      "client_latency_s": 12.184026091126725,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 20.90542516672041,
+      "approx_tokens_per_s": 1.9697922362033111,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.01466427301056683,
-      "baseline_gpu_used_mib": 3618,
-      "gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3918,
+      "latency_s": 1.0348667290527374,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.132765721064061,
+      "client_latency_s": 12.208303287858143,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 21.187081806691374,
+      "approx_tokens_per_s": 1.965875145309453,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 1.132765721064061,
+      "latency_s": 12.208303287858143,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.01466427301056683,
-      "post_idle_request_s": 1.132765721064061,
-      "baseline_gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918
+      "scale_to_zero_wait_s": 1.0348667290527374,
+      "post_idle_request_s": 12.208303287858143,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1580,45 +1580,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "long_short",
     "repeat_index": 1,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.050430944887921,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1321495659649372,
+      "client_latency_s": 13.163355226861313,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 21.198612552171646,
+      "approx_tokens_per_s": 1.8232433590354904,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.013486245879903436,
-      "baseline_gpu_used_mib": 3658,
-      "gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958,
+      "latency_s": 2.0476431611459702,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1347380119841546,
+      "client_latency_s": 13.180069061927497,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 21.1502564878695,
+      "approx_tokens_per_s": 1.8209312779192797,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 1.1347380119841546,
+      "latency_s": 13.180069061927497,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.013486245879903436,
-      "post_idle_request_s": 1.1347380119841546,
-      "baseline_gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958
+      "scale_to_zero_wait_s": 2.0476431611459702,
+      "post_idle_request_s": 13.180069061927497,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1629,45 +1629,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "long_short",
     "repeat_index": 2,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.048899133922532,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.132099020993337,
+      "client_latency_s": 13.189551628893241,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 21.19955900937154,
+      "approx_tokens_per_s": 1.819622127823149,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.015016675926744938,
-      "baseline_gpu_used_mib": 3658,
-      "gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958,
+      "latency_s": 1.0309035759419203,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.205843938048929,
+      "client_latency_s": 13.223113998072222,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 1.8173772242492388,
+      "approx_tokens_per_s": 1.815003637078144,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 13.205843938048929,
+      "latency_s": 13.223113998072222,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.015016675926744938,
-      "post_idle_request_s": 13.205843938048929,
-      "baseline_gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958
+      "scale_to_zero_wait_s": 1.0309035759419203,
+      "post_idle_request_s": 13.223113998072222,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1678,45 +1678,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_long",
     "repeat_index": 0,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 2.051634046016261,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.7909173478838056,
+      "client_latency_s": 13.816049308050424,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 89.33968962278475,
+      "approx_tokens_per_s": 11.580734581395145,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.016001973068341613,
-      "baseline_gpu_used_mib": 3658,
-      "gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958,
+      "latency_s": 1.0322857710998505,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.878234504023567,
+      "client_latency_s": 12.849634455982596,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 11.528843957321294,
+      "approx_tokens_per_s": 12.451716081736972,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 13.878234504023567,
+      "latency_s": 12.849634455982596,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.016001973068341613,
-      "post_idle_request_s": 13.878234504023567,
-      "baseline_gpu_used_mib": 3658,
-      "idle_gpu_threshold_mib": 3958
+      "scale_to_zero_wait_s": 1.0322857710998505,
+      "post_idle_request_s": 12.849634455982596,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1727,45 +1727,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_long",
     "repeat_index": 1,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 1.0305741319898516,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.7990016881376505,
+      "client_latency_s": 12.846964435884729,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 88.93821559758182,
+      "approx_tokens_per_s": 12.45430395627785,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.014032154809683561,
-      "baseline_gpu_used_mib": 3618,
-      "gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918,
+      "latency_s": 1.0332296560518444,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.795879608951509,
+      "client_latency_s": 13.870893829967827,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 89.0928318371035,
+      "approx_tokens_per_s": 11.53494518531479,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 1.795879608951509,
+      "latency_s": 13.870893829967827,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.014032154809683561,
-      "post_idle_request_s": 1.795879608951509,
-      "baseline_gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918
+      "scale_to_zero_wait_s": 1.0332296560518444,
+      "post_idle_request_s": 13.870893829967827,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1776,45 +1776,45 @@
     "registered_model_name": "qwen2p5-0p5b",
     "prompt_name": "short_long",
     "repeat_index": 2,
-    "startup_to_health_s": 0.0,
+    "startup_to_health_s": 1.0326924188993871,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.7941564910579473,
+      "client_latency_s": 13.87672271183692,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 89.17839708934974,
+      "approx_tokens_per_s": 11.530099961103867,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.01595313986763358,
-      "baseline_gpu_used_mib": 3618,
-      "gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918,
+      "latency_s": 1.0351697369478643,
+      "baseline_gpu_used_mib": 238,
+      "gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538,
       "body": "verified scale-to-zero for qwen2p5-0p5b"
     },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.790034380974248,
+      "client_latency_s": 13.869970072060823,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 89.38375804431088,
+      "approx_tokens_per_s": 11.535713427550816,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 1.790034380974248,
+      "latency_s": 13.869970072060823,
       "body": "first post-idle request end-to-end latency"
     },
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 0.01595313986763358,
-      "post_idle_request_s": 1.790034380974248,
-      "baseline_gpu_used_mib": 3618,
-      "idle_gpu_threshold_mib": 3918
+      "scale_to_zero_wait_s": 1.0351697369478643,
+      "post_idle_request_s": 13.869970072060823,
+      "baseline_gpu_used_mib": 238,
+      "idle_gpu_threshold_mib": 538
     },
     "ok": true
   },
@@ -1824,8 +1824,349 @@
     "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "ok": false,
-    "unsupported": true,
-    "error": "podman missing on host; SwapServeLLM router not started"
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.14824228594079614,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 215.8628342575607,
+      "output_prefix": "GPU memory is crucial for Large Language Models (LLMs) because it directly impacts the performance and scalability of th"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4448067541234195,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4272213811054826,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.0928226059768349,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 344.74360704746886,
+      "output_prefix": "GPU memory is crucial for Large Language Models (LLMs) because it directly impacts the performance and scalability of th"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08687702380120754,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 368.33674313271325,
+      "output_prefix": "GPU memory is crucial for Large Language Model (LLM) serving because it directly impacts the performance and scalability"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.44359752302989364,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.43526411708444357,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.0935606409329921,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 342.02416401698576,
+      "output_prefix": "GPU memory is crucial for Large Language Models (LLMs) because it directly impacts the performance and scalability of th"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08825993491336703,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 362.5654157960814,
+      "output_prefix": "GPU memory is crucial for Large Language Model (LLM) serving because it directly impacts the performance and scalability"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4436450880020857,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4162987479940057,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.09367143712006509,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 341.61961195261057,
+      "output_prefix": "GPU memory is crucial for Large Language Models (LLMs) because it directly impacts the performance and scalability of th"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08676118799485266,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 276.62138514543926,
+      "output_prefix": "The main bottleneck affecting switching in an LLM serving system is the combination of weights, CUDA graphs, CPU RAM, an"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.43872790690511465,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4226450230926275,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08704719599336386,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 275.71249970911947,
+      "output_prefix": "The main bottleneck affecting switching in an LLM serving system is the combination of weights, CUDA graphs, CPU RAM, an"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.06907943589612842,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 347.42611442409145,
+      "output_prefix": "The main bottleneck in the LLM serving system is the impact of various factors such as weights, CUDA graphs, CPU RAM"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.44164285785518587,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4357504560612142,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08712296397425234,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 275.4727216017671,
+      "output_prefix": "The main bottleneck affecting switching in an LLM serving system is the combination of weights, CUDA graphs, CPU RAM, an"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.06985374819487333,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 343.574978010434,
+      "output_prefix": "The main bottleneck in the LLM serving system is the impact of various factors such as weights, CUDA graphs, CPU RAM"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4425066791009158,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4317711340263486,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.08720304514281452,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 275.21974674960745,
+      "output_prefix": "The main bottleneck affecting switching in an LLM serving system is the combination of weights, CUDA graphs, CPU RAM, an"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.4045613829512149,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 395.4900461156818,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4449553699232638,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.42936603887937963,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.40923808701336384,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 390.97045235375447,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.40428188210353255,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 395.76346871519115,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4492026458028704,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.43766426597721875,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.4094181030523032,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 390.79854751698656,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "stage_breakdown": {},
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.40397935383953154,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 396.05984434431053,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4495645849965513,
+      "body": ""
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.43821626994758844,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 0.40918053803034127,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 391.02544018878973,
+      "output_prefix": "Evaluating the performance of large language models (LLMs) involves several key metrics and considerations to ensure tha"
+    },
+    "stage_breakdown": {},
+    "ok": true
   }
 ]

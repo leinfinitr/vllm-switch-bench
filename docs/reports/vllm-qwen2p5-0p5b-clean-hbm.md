@@ -1,6 +1,6 @@
 # Qwen2.5-0.5B vLLM lifecycle benchmark results
 
-Result directory: `results/qwen2p5_0p5b_clean_hbm_main/20260601_185457`
+Result directory: `results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457`
 
 ## Summary by method / prompt / success
 

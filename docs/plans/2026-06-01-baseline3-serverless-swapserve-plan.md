@@ -263,7 +263,7 @@ git commit -m "bench: add baseline3 external system config"
 **Files:**
 - Create: `src/bench_serverless_llm.py`
 - Create: `tests/test_bench_serverless_llm.py`
-- Create: `docs/baseline3_serverless_llm_notes.md`
+- Create: `docs/systems/serverlessllm.md`
 
 **Adapter modes:**
 
@@ -342,13 +342,13 @@ PYTHONPATH=/home/ljl/research-systems/ServerlessLLM:$PYTHONPATH \
   --methods delete_register \
   --prompts short_short \
   --repeats 1 \
-  --out-dir results/baseline3_smoke/serverless_llm
+  --out-dir results/tmp/serverless_llm
 ```
 
 **Commit:**
 
 ```bash
-git add src/bench_serverless_llm.py tests/test_bench_serverless_llm.py docs/baseline3_serverless_llm_notes.md
+git add src/bench_serverless_llm.py tests/test_bench_serverless_llm.py docs/systems/serverlessllm.md
 git commit -m "bench: add serverlessllm lifecycle adapter"
 ```
 
@@ -361,7 +361,7 @@ git commit -m "bench: add serverlessllm lifecycle adapter"
 **Files:**
 - Create: `src/bench_swapserve_llm.py`
 - Create: `tests/test_bench_swapserve_llm.py`
-- Create: `docs/baseline3_swapserve_llm_notes.md`
+- Create: `docs/systems/swapservellm.md`
 
 **Adapter modes:**
 
@@ -451,7 +451,7 @@ Implement `parse_swapserve_stage_logs(text: str) -> dict[str, float]` in the ada
   --methods swapout_swapin \
   --prompts short_short \
   --repeats 1 \
-  --out-dir results/baseline3_smoke/swapserve_llm
+  --out-dir results/tmp/swapserve_llm
 ```
 
 Need one manual discovery step before smoke: verify Podman/NVIDIA container runtime works and confirm the vLLM container can see the local HF checkpoint. If no config exists, add an example config under `configs/swapserve_qwen2p5_0p5b.example.json`. Do not permanently modify SwapServeLLM itself without approval; prefer a clearly documented experiment patch if a mount change is required.
@@ -459,7 +459,7 @@ Need one manual discovery step before smoke: verify Podman/NVIDIA container runt
 **Commit:**
 
 ```bash
-git add src/bench_swapserve_llm.py tests/test_bench_swapserve_llm.py docs/baseline3_swapserve_llm_notes.md
+git add src/bench_swapserve_llm.py tests/test_bench_swapserve_llm.py docs/systems/swapservellm.md
 git commit -m "bench: add swapservellm lifecycle adapter"
 ```
 
@@ -482,7 +482,7 @@ git commit -m "bench: add swapservellm lifecycle adapter"
   --systems vllm serverless_llm swapserve_llm \
   --prompts short_short long_short short_long \
   --repeats 3 \
-  --out-dir results/baseline3/qwen2p5_0p5b
+  --out-dir results/baselines/baseline3/qwen2p5_0p5b
 ```
 
 **Implementation:**
@@ -577,13 +577,13 @@ git commit -m "bench: add baseline3 comparative analysis"
 
 ```bash
 .venv/bin/python -m pytest tests -q
-.venv/bin/python src/bench_baseline3.py --config configs/baseline3.local.yaml --systems vllm serverless_llm swapserve_llm --prompts short_short --repeats 1 --out-dir results/baseline3_smoke/qwen2p5_0p5b
+.venv/bin/python src/bench_baseline3.py --config configs/baseline3.local.yaml --systems vllm serverless_llm swapserve_llm --prompts short_short --repeats 1 --out-dir results/tmp/baseline3/qwen2p5_0p5b
 ```
 
 **Commit smoke artifacts only if useful and not huge:**
 
 ```bash
-git add docs results/baseline3_smoke/*/summary.csv results/baseline3_smoke/*/summary.json
+git add docs results/tmp/*/summary.csv results/tmp/*/summary.json
 git commit -m "bench: record baseline3 smoke results"
 ```
 
@@ -608,11 +608,11 @@ git commit -m "bench: record baseline3 smoke results"
   --systems vllm serverless_llm swapserve_llm \
   --prompts short_short long_short short_long \
   --repeats 3 \
-  --out-dir results/baseline3/qwen2p5_0p5b
+  --out-dir results/baselines/baseline3/qwen2p5_0p5b
 
 .venv/bin/python src/analyze_baseline3.py \
-  results/baseline3/qwen2p5_0p5b/<timestamp> \
-  --out docs/baseline3_qwen2p5_0p5b_report.md
+  results/baselines/baseline3/qwen2p5_0p5b/<timestamp> \
+  --out docs/reports/baseline3-qwen2p5-0p5b.md
 ```
 
 **Final verification:**
@@ -625,7 +625,7 @@ git status --short
 **Commit:**
 
 ```bash
-git add src tests configs docs results/baseline3/qwen2p5_0p5b
+git add src tests configs docs results/baselines/baseline3/qwen2p5_0p5b
 git commit -m "bench: add baseline3 serverless and swapserve comparison"
 ```
 

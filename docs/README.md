@@ -1,48 +1,33 @@
-# vLLM model lifecycle benchmark notes
+# Documentation index
 
-This directory contains the standalone benchmark harness for local model
-switching experiments on the IPADS shared server.
+This directory is organized by purpose.
 
-Scope:
-- vLLM cold reload: infer -> stop process -> restart -> infer.
-- vLLM Sleep level 1: infer -> /sleep?level=1 -> /wake_up -> infer.
-- vLLM Sleep level 2: infer -> /sleep?level=2 -> /wake_up -> infer.
+## Baseline reproduction guides
 
-Current host selection:
-- GPU: NVIDIA GeForce RTX 3080, 10 GiB HBM.
-- Local full Hugging Face checkpoint available at `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`.
-- Benchmarks run from `/home/ljl/research-systems/llm-switch-bench` with a dedicated uv venv.
+- `baselines/baseline1-vllm-cold-reload.md`
+- `baselines/baseline2-vllm-sleep-mode.md`
+- `baselines/baseline3-engine-checkpoint-hotswap.md`
 
-Why no drop_caches:
-- This is a shared public lab server. The harness intentionally does not run
-  system-wide cache flushing or driver-level changes.
+These are the entry points for rerunning baseline1-3.
 
-Outputs per run directory:
-- metadata.json: command/environment metadata.
-- summary.json: nested per-run summary.
-- summary.csv: flattened table for plotting.
-- *.events.jsonl: timestamped state samples and lifecycle events.
-- *.server.log: vLLM server logs for later breakdown parsing.
+## External system setup notes
 
-Basic command:
+- `systems/serverlessllm.md`
+- `systems/swapservellm.md`
 
-```bash
-cd /home/ljl/research-systems/llm-switch-bench
-.venv/bin/python -m pytest tests -q
-PATH=$PWD/.venv/bin:/home/ljl/cuda-13.0/bin:$PATH \
-CUDA_HOME=/home/ljl/cuda-13.0 \
-.venv/bin/python src/bench_vllm_lifecycle.py \
-  --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct \
-  --python .venv/bin/python \
-  --workdir /home/ljl/research-systems/llm-switch-bench \
-  --methods cold_reload sleep_l1 sleep_l2 \
-  --prompts short_short long_short short_long \
-  --repeats 3 \
-  --ready-timeout-s 360 \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 1024 \
-  --port 0
-```
+These notes record the exact local runtime assumptions that were discovered while getting baseline3 to run.
 
-The maintained code path is server-mode Sleep Mode. The older offline prototype
-and compatibility shim were removed after the dedicated environment proved stable.
+## Reports
+
+- `reports/baseline3-qwen2p5-0p5b.md`
+- `reports/vllm-qwen2p5-0p5b-clean-hbm.md`
+- `reports/vllm-qwen2p5-0p5b-clean-hbm-memory.md`
+
+## Archive
+
+- `archive/migration.md`: historical note about moving this harness out of an earlier prototype location.
+- `plans/`: implementation plans kept for auditability; they may contain old paths from before the repository cleanup.
+
+## Result data policy
+
+Only curated future-baseline data should be tracked under `../results/baselines/`. Transient experiments should go to `results/tmp/` or a new ignored runtime directory.

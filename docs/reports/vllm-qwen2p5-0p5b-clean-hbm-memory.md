@@ -1,6 +1,6 @@
 # Phase memory summary
 
-Result directory: `results/qwen2p5_0p5b_clean_hbm_main/20260601_185457`
+Result directory: `results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457`
 
 | method | phase | gpu used avg MiB | cpu used avg MiB | proc RSS avg MiB | proc USS avg MiB |
 |---|---|---:|---:|---:|---:|

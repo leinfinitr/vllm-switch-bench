@@ -206,7 +206,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--methods", nargs="+", default=["swapout_swapin"])
     parser.add_argument("--prompts", nargs="+", default=["short_short"])
     parser.add_argument("--repeats", type=int, default=1)
-    parser.add_argument("--out-dir", default="results/baseline3_smoke/swapserve_llm")
+    parser.add_argument("--out-dir", default="results/tmp/swapserve_llm")
     return parser.parse_args(argv)
 
 
