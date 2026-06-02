@@ -10,7 +10,9 @@ Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 | serverless_llm | scale_to_zero_restore | long_short | 3 | 3 | 12.8705 | 1.3711 |
 | serverless_llm | scale_to_zero_restore | short_long | 3 | 3 | 13.5302 | 1.0336 |
 | serverless_llm | scale_to_zero_restore | short_short | 3 | 3 | 12.8838 | 1.7117 |
-| swapserve_llm | swapout_swapin | short_short | 1 | 0 | - | - |
+| swapserve_llm | swapout_swapin | long_short | 3 | 3 | 0.4301 | 0.4410 |
+| swapserve_llm | swapout_swapin | short_long | 3 | 3 | 0.4351 | 0.4479 |
+| swapserve_llm | swapout_swapin | short_short | 3 | 3 | 0.4263 | 0.4440 |
 | vllm | cold_reload | long_short | 3 | 3 | 15.0207 | 0.3143 |
 | vllm | cold_reload | short_long | 3 | 3 | 15.0208 | 0.3141 |
 | vllm | cold_reload | short_short | 3 | 3 | 15.1868 | 0.3144 |
@@ -24,7 +26,6 @@ Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 ## Unsupported / blocked rows
 
 - serverless_llm / delete_register / short_short: controller delete only removes metadata; router.shutdown remains commented in ServerlessLLM/sllm/controller.py, so delete_register does not reliably free GPU for the next register
-- swapserve_llm / swapout_swapin / short_short: podman missing on host; SwapServeLLM router not started
 
 ## Stage breakdown excerpts
 

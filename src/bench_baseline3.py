@@ -283,16 +283,42 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 models = requests.get(f"{base_url}/v1/models", timeout=5)
                 if models.status_code == 200:
-                    rows.append(
-                        make_blocker_row(
-                            "swapserve_llm",
-                            "swapout_swapin",
-                            str(config["model"]),
-                            prompts[0],
-                            0,
-                            "SwapServeLLM runtime reachable but orchestrator start path not automated in this run",
-                        )
+                    swapserve_out = out_root / "swapserve_llm"
+                    cmd = build_swapserve_cmd(
+                        repo=str(repo),
+                        model_name=str(config["model"]),
+                        base_url=base_url,
+                        prompts=list(prompts),
+                        repeats=int(repeats),
+                        out_dir=str(swapserve_out),
                     )
+                    api_key = str(config["systems"]["swapserve_llm"].get("api_key", "") or "")
+                    log_dir = str(config["systems"]["swapserve_llm"].get("log_dir", "") or "")
+                    if api_key:
+                        cmd.extend(["--api-key", api_key])
+                    if log_dir:
+                        cmd.extend(["--log-dir", log_dir])
+                    code, stdout, stderr, run_dir = _run_adapter(cmd, Path.cwd())
+                    metadata["artifacts"]["swapserve_llm"] = {
+                        "command": cmd,
+                        "returncode": code,
+                        "stdout": stdout,
+                        "stderr": stderr,
+                        "run_dir": str(run_dir) if run_dir else None,
+                    }
+                    if run_dir and (run_dir / "summary.json").exists():
+                        rows.extend(read_summary_rows(run_dir))
+                    else:
+                        rows.append(
+                            make_blocker_row(
+                                "swapserve_llm",
+                                "swapout_swapin",
+                                str(config["model"]),
+                                prompts[0],
+                                0,
+                                f"adapter failed before writing summary (exit {code})",
+                            )
+                        )
                 else:
                     rows.append(
                         make_blocker_row(
