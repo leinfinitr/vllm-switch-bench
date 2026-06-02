@@ -1,0 +1,458 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+import requests
+
+from benchlib.schema import PROMPTS, write_summary_csv
+
+SYSTEM_NAME = "serverless_llm"
+
+
+def build_register_payload(
+    model_path: Path,
+    prompt_model_name: str,
+    registered_model_name: str,
+    max_model_len: int,
+    gpu_memory_utilization: float,
+) -> dict[str, Any]:
+    return {
+        "model": registered_model_name,
+        "backend": "vllm",
+        "num_gpus": 1,
+        "auto_scaling_config": {
+            "metric": "concurrency",
+            "target": 1,
+            "min_instances": 0,
+            "max_instances": 1,
+            "keep_alive": 0,
+        },
+        "backend_config": {
+            "pretrained_model_name_or_path": str(model_path),
+            "torch_dtype": "float16",
+            "max_model_len": max_model_len,
+            "gpu_memory_utilization": gpu_memory_utilization,
+            "enforce_eager": True,
+            "load_format": "auto",
+        },
+        "benchmark_metadata": {
+            "prompt_model_name": prompt_model_name,
+            "source_model_path": str(model_path),
+        },
+    }
+
+
+def infer(base_url: str, model_name: str, prompt_name: str) -> dict[str, Any]:
+    prompt = PROMPTS[prompt_name]
+    payload = {
+        "model": model_name,
+        "messages": [{"role": "user", "content": prompt["prompt"]}],
+        "max_tokens": int(prompt["max_tokens"]),
+        "temperature": 0,
+    }
+    started_at = time.perf_counter()
+    last_error = ""
+    while True:
+        response = requests.post(
+            f"{base_url}/v1/chat/completions", json=payload, timeout=300
+        )
+        total = time.perf_counter() - started_at
+        if response.status_code != 200:
+            return {
+                "ok": False,
+                "status": response.status_code,
+                "error": response.text[:500],
+                "client_latency_s": total,
+            }
+        try:
+            data = response.json()
+        except Exception as exc:
+            return {
+                "ok": False,
+                "status": response.status_code,
+                "error": f"invalid json: {exc}; {response.text[:300]}",
+                "client_latency_s": total,
+            }
+        if data.get("choices"):
+            content = data["choices"][0]["message"]["content"]
+            usage = data.get("usage") or {}
+            completion_tokens = usage.get("completion_tokens") or max(
+                1, len(content.split())
+            )
+            return {
+                "ok": True,
+                "status": response.status_code,
+                "ttft_s": None,
+                "client_latency_s": total,
+                "approx_output_tokens": completion_tokens,
+                "approx_tokens_per_s": completion_tokens / total
+                if total > 0
+                else None,
+                "output_prefix": content[:120],
+            }
+        last_error = json.dumps(data, ensure_ascii=False)[:500]
+        if total >= 300:
+            return {
+                "ok": False,
+                "status": response.status_code,
+                "error": f"no choices in response after retries: {last_error}",
+                "client_latency_s": total,
+            }
+        time.sleep(1)
+
+
+def _request_ok(
+    client, method: str, url: str, payload: dict[str, Any] | None = None
+) -> requests.Response:
+    return client.request(method, url, json=payload, timeout=300)
+
+
+def _source_model(payload: dict[str, Any]) -> str:
+    return str(
+        payload.get("benchmark_metadata", {}).get(
+            "source_model_path", payload["model"]
+        )
+    )
+
+
+def query_gpu_used_mib() -> int | None:
+    try:
+        output = subprocess.check_output(
+            [
+                "nvidia-smi",
+                "--query-gpu=memory.used",
+                "--format=csv,noheader,nounits",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return None
+    if not output:
+        return None
+    first_line = output.splitlines()[0].strip()
+    try:
+        return int(first_line)
+    except ValueError:
+        return None
+
+
+def wait_for_scale_to_zero(
+    base_url: str,
+    client,
+    model_name: str,
+    baseline_gpu_used_mib: int | None,
+    timeout_s: float,
+    poll_interval_s: float,
+    idle_gpu_buffer_mib: int,
+    idle_gpu_threshold_mib_override: int | None = None,
+) -> dict[str, Any]:
+    threshold_mib: int | None = idle_gpu_threshold_mib_override
+    if threshold_mib is None and baseline_gpu_used_mib is not None:
+        threshold_mib = max(500, baseline_gpu_used_mib + idle_gpu_buffer_mib)
+
+    started_at = time.perf_counter()
+    last_gpu_used_mib = query_gpu_used_mib()
+    last_models_error = None
+    while True:
+        elapsed_s = time.perf_counter() - started_at
+        models_response = _request_ok(client, "GET", f"{base_url}/v1/models")
+        if models_response.status_code != 200:
+            last_models_error = (
+                f"models failed: {models_response.status_code} "
+                f"{models_response.text[:200]}"
+            )
+        else:
+            last_models_error = None
+
+        last_gpu_used_mib = query_gpu_used_mib()
+        if threshold_mib is not None and last_gpu_used_mib is not None:
+            if last_gpu_used_mib <= threshold_mib:
+                return {
+                    "ok": True,
+                    "status": 200,
+                    "latency_s": elapsed_s,
+                    "baseline_gpu_used_mib": baseline_gpu_used_mib,
+                    "gpu_used_mib": last_gpu_used_mib,
+                    "idle_gpu_threshold_mib": threshold_mib,
+                    "body": f"verified scale-to-zero for {model_name}",
+                }
+
+        if elapsed_s >= timeout_s:
+            error = (
+                last_models_error
+                or f"timed out waiting for GPU memory to return to idle; "
+                f"baseline={baseline_gpu_used_mib}, last={last_gpu_used_mib}, "
+                f"threshold={threshold_mib}"
+            )
+            return {
+                "ok": False,
+                "status": 408,
+                "latency_s": elapsed_s,
+                "baseline_gpu_used_mib": baseline_gpu_used_mib,
+                "gpu_used_mib": last_gpu_used_mib,
+                "idle_gpu_threshold_mib": threshold_mib,
+                "body": error,
+            }
+        time.sleep(poll_interval_s)
+
+
+def run_delete_register(
+    base_url: str,
+    client,
+    payload: dict[str, Any],
+    prompt_name: str,
+    repeat_index: int,
+) -> dict[str, Any]:
+    model_name = payload["model"]
+    row: dict[str, Any] = {
+        "system": SYSTEM_NAME,
+        "method": "delete_register",
+        "model": _source_model(payload),
+        "registered_model_name": model_name,
+        "prompt_name": prompt_name,
+        "repeat_index": repeat_index,
+        "startup_to_health_s": 0.0,
+    }
+    health = _request_ok(client, "GET", f"{base_url}/health")
+    if health.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"health check failed: {health.status_code} {health.text[:200]}"
+        )
+        return row
+
+    register_response = _request_ok(client, "POST", f"{base_url}/register", payload)
+    if register_response.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"register failed: {register_response.status_code} "
+            f"{register_response.text[:200]}"
+        )
+        return row
+
+    row["infer_before"] = infer(base_url, model_name, prompt_name)
+
+    evict_start = time.perf_counter()
+    delete_response = _request_ok(
+        client, "POST", f"{base_url}/delete", {"model": model_name}
+    )
+    row["evict"] = {
+        "ok": delete_response.status_code == 200,
+        "status": delete_response.status_code,
+        "latency_s": time.perf_counter() - evict_start,
+        "body": delete_response.text[:200],
+    }
+    if delete_response.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"delete failed: {delete_response.status_code} {delete_response.text[:200]}"
+        )
+        return row
+
+    restore_start = time.perf_counter()
+    restore_response = _request_ok(client, "POST", f"{base_url}/register", payload)
+    row["restore"] = {
+        "ok": restore_response.status_code == 200,
+        "status": restore_response.status_code,
+        "latency_s": time.perf_counter() - restore_start,
+        "body": restore_response.text[:200],
+    }
+    if restore_response.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"restore register failed: {restore_response.status_code} "
+            f"{restore_response.text[:200]}"
+        )
+        return row
+
+    row["infer_after"] = infer(base_url, model_name, prompt_name)
+    row["ok"] = bool(row["infer_before"].get("ok")) and bool(
+        row["infer_after"].get("ok")
+    )
+    return row
+
+
+def run_scale_to_zero_restore(
+    base_url: str,
+    client,
+    payload: dict[str, Any],
+    prompt_name: str,
+    repeat_index: int,
+    scale_zero_timeout_s: float,
+    scale_zero_poll_interval_s: float,
+    idle_gpu_buffer_mib: int,
+) -> dict[str, Any]:
+    model_name = payload["model"]
+    row: dict[str, Any] = {
+        "system": SYSTEM_NAME,
+        "method": "scale_to_zero_restore",
+        "model": _source_model(payload),
+        "registered_model_name": model_name,
+        "prompt_name": prompt_name,
+        "repeat_index": repeat_index,
+        "startup_to_health_s": 0.0,
+    }
+    health = _request_ok(client, "GET", f"{base_url}/health")
+    if health.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"health check failed: {health.status_code} {health.text[:200]}"
+        )
+        return row
+
+    baseline_idle = wait_for_scale_to_zero(
+        base_url=base_url,
+        client=client,
+        model_name=model_name,
+        baseline_gpu_used_mib=None,
+        timeout_s=scale_zero_timeout_s,
+        poll_interval_s=scale_zero_poll_interval_s,
+        idle_gpu_buffer_mib=idle_gpu_buffer_mib,
+        idle_gpu_threshold_mib_override=538,
+    )
+    if not baseline_idle.get("ok"):
+        row["ok"] = False
+        row["error"] = baseline_idle.get("body", "failed to reach baseline idle GPU state")
+        return row
+    row["startup_to_health_s"] = baseline_idle.get("latency_s", 0.0)
+    baseline_gpu_used_mib = query_gpu_used_mib()
+
+    register_response = _request_ok(client, "POST", f"{base_url}/register", payload)
+    if register_response.status_code != 200:
+        row["ok"] = False
+        row["error"] = (
+            f"register failed: {register_response.status_code} "
+            f"{register_response.text[:200]}"
+        )
+        return row
+
+    row["infer_before"] = infer(base_url, model_name, prompt_name)
+    if not row["infer_before"].get("ok"):
+        row["ok"] = False
+        row["error"] = row["infer_before"].get("error", "infer_before failed")
+        return row
+
+    row["evict"] = wait_for_scale_to_zero(
+        base_url=base_url,
+        client=client,
+        model_name=model_name,
+        baseline_gpu_used_mib=baseline_gpu_used_mib,
+        timeout_s=scale_zero_timeout_s,
+        poll_interval_s=scale_zero_poll_interval_s,
+        idle_gpu_buffer_mib=idle_gpu_buffer_mib,
+        idle_gpu_threshold_mib_override=538,
+    )
+    if not row["evict"].get("ok"):
+        row["ok"] = False
+        row["error"] = row["evict"].get("body", "scale-to-zero verification failed")
+        return row
+
+    row["infer_after"] = infer(base_url, model_name, prompt_name)
+    row["restore"] = {
+        "ok": bool(row["infer_after"].get("ok")),
+        "status": row["infer_after"].get("status"),
+        "latency_s": row["infer_after"].get("client_latency_s"),
+        "body": "first post-idle request end-to-end latency",
+    }
+    row["stage_breakdown"] = {
+        "scale_to_zero_wait_s": row["evict"].get("latency_s"),
+        "post_idle_request_s": row["infer_after"].get("client_latency_s"),
+        "baseline_gpu_used_mib": baseline_gpu_used_mib,
+        "idle_gpu_threshold_mib": row["evict"].get("idle_gpu_threshold_mib"),
+    }
+    row["ok"] = bool(row["infer_before"].get("ok")) and bool(
+        row["infer_after"].get("ok")
+    )
+    return row
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", required=True)
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--registered-model-name", default="qwen2p5-0p5b")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8343")
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        default=["delete_register"],
+        choices=["delete_register", "scale_to_zero_restore"],
+    )
+    parser.add_argument("--prompts", nargs="+", default=["short_short"])
+    parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument("--max-model-len", type=int, default=1024)
+    parser.add_argument("--gpu-memory-utilization", type=float, default=0.45)
+    parser.add_argument("--scale-zero-timeout", type=float, default=120.0)
+    parser.add_argument("--scale-zero-poll-interval", type=float, default=1.0)
+    parser.add_argument("--idle-gpu-buffer-mib", type=int, default=300)
+    parser.add_argument("--out-dir", default="results/baseline3_smoke/serverless_llm")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    out_dir = Path(args.out_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    rows: list[dict[str, Any]] = []
+    payload = build_register_payload(
+        Path(args.model),
+        Path(args.model).name,
+        args.registered_model_name,
+        args.max_model_len,
+        args.gpu_memory_utilization,
+    )
+    client = requests.Session()
+    for method in args.methods:
+        for prompt_name in args.prompts:
+            for repeat_index in range(args.repeats):
+                if method == "delete_register":
+                    row = run_delete_register(
+                        args.base_url, client, payload, prompt_name, repeat_index
+                    )
+                elif method == "scale_to_zero_restore":
+                    row = run_scale_to_zero_restore(
+                        args.base_url,
+                        client,
+                        payload,
+                        prompt_name,
+                        repeat_index,
+                        args.scale_zero_timeout,
+                        args.scale_zero_poll_interval,
+                        args.idle_gpu_buffer_mib,
+                    )
+                else:
+                    raise ValueError(f"unsupported method: {method}")
+                rows.append(row)
+    (out_dir / "summary.json").write_text(
+        json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    write_summary_csv(out_dir / "summary.csv", rows)
+    (out_dir / "metadata.json").write_text(
+        json.dumps(
+            {
+                "system": SYSTEM_NAME,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "repo": args.repo,
+                "base_url": args.base_url,
+                "methods": args.methods,
+                "registered_model_name": args.registered_model_name,
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    print(out_dir)
+    return 0 if all(row.get("ok") for row in rows) else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

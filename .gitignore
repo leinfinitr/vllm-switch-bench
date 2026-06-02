@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 results/tmp/
+runtime/
 .env
 *.log
 *.jsonl
