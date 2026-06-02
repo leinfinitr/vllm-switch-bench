@@ -29,7 +29,6 @@ Adapters:
 Config:
 
 - `configs/baseline3.local.yaml`
-- `configs/baseline3.local.example.yaml`
 
 ## Environment prerequisites
 

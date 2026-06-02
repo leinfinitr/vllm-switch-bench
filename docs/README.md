@@ -25,7 +25,6 @@ These notes record the exact local runtime assumptions that were discovered whil
 
 ## Archive
 
-- `archive/migration.md`: historical note about moving this harness out of an earlier prototype location.
 - `plans/`: implementation plans kept for auditability; they may contain old paths from before the repository cleanup.
 
 ## Result data policy

@@ -35,7 +35,7 @@ configs/                 Machine-local configs and examples.
 docs/baselines/          How to reproduce baseline1/2/3.
 docs/systems/            ServerlessLLM and SwapServeLLM setup notes.
 docs/reports/            Curated result reports.
-docs/archive/            Historical notes not used as current baseline.
+docs/plans/              Implementation plans kept for auditability.
 results/baselines/       Curated baseline result data kept for future comparison.
 src/                     Benchmark harnesses and analysis scripts.
 tests/                   Unit tests for benchmark logic.
@@ -47,12 +47,12 @@ Only future-baseline data is kept under `results/baselines/`:
 
 - `results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457`
   - Clean-HBM vLLM cold reload + sleep_l1 + sleep_l2 source run.
+- `results/baselines/serverless_llm/qwen2p5_0p5b/20260602_111748`
+  - Standalone ServerlessLLM checkpoint/hotswap run.
 - `results/baselines/swapserve_llm/qwen2p5_0p5b/20260602_160715`
   - Standalone SwapServeLLM swapout/swapin run.
 - `results/baselines/baseline3/qwen2p5_0p5b/20260602_161100`
   - Merged baseline3 comparison run used by `docs/reports/baseline3-qwen2p5-0p5b.md`.
-
-Older duplicate or pre-clean-HBM results were removed from git to avoid confusing future comparisons.
 
 ## Environment policy
 
