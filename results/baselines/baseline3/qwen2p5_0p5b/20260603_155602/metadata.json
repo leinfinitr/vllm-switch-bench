@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-06-03T07:56:02.071446+00:00",
+  "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+  "prompts": [
+    "short_short",
+    "long_short",
+    "short_long"
+  ],
+  "repeats": 3,
+  "schema": "baseline_metric_schema_simplified",
+  "artifacts": {
+    "vllm": {
+      "run_dir": "/home/ljl/research-systems/llm-switch-bench/results/baselines/vllm/qwen2p5_0p5b_simplified_schema/20260603_150331"
+    },
+    "swapserve_llm": {
+      "run_dir": "/home/ljl/research-systems/llm-switch-bench/results/baselines/swapserve_llm/qwen2p5_0p5b_simplified_schema/20260603_155353"
+    },
+    "serverless_llm": {
+      "attempt": "results/baselines/serverless_llm/qwen2p5_0p5b_simplified_schema (no summary written; timeout before first row)"
+    }
+  },
+  "reuse_policy": "Reused no old ServerlessLLM rows because their latency_after_s semantics are inconsistent with the new second-active-request rule. vLLM and SwapServeLLM rows are fresh runs under the simplified schema.",
+  "repos": {
+    "llm-switch-bench": {
+      "path": "/home/ljl/research-systems/llm-switch-bench",
+      "branch": "master",
+      "commit": "9eb8c3ae07091875b7ec886a9bf366b63a2e3a0a",
+      "status": "?? results/baselines/swapserve_llm/qwen2p5_0p5b_simplified_schema/\n?? results/baselines/vllm/qwen2p5_0p5b_simplified_schema/"
+    },
+    "SwapServeLLM": {
+      "path": "/home/ljl/research-systems/SwapServeLLM",
+      "branch": "fix/local-rootless-swapserve",
+      "commit": "fab88529b3866ca42f45a5b8fe383cd35939fb51",
+      "status": "M pkg/podman/client.go"
+    },
+    "ServerlessLLM": {
+      "path": "/home/ljl/research-systems/ServerlessLLM",
+      "branch": "main",
+      "commit": "9f50241baa5386e06a9321c51f19a9ef5f964c2b",
+      "status": ""
+    }
+  }
+}

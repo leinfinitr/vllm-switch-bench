@@ -83,14 +83,14 @@ cat > /tmp/swapserve-exp/config.json <<'JSON'
   "service_ready_timeout": 180,
   "backend_response_timeout": 300,
   "max_waiting_requests": 16,
-  "backend_configs": [
+  "model_list": [
     {
       "backend_name": "vllm-qwen2p5-0p5b",
       "model_name": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
       "container_image": "docker.io/vllm/vllm-openai:latest",
       "initialization_timeout": "5m",
       "container_port": "8001",
-      "gpu_memory_utilization": 0.45
+      "gpu_memory_utilization": "0.45"
     }
   ]
 }
