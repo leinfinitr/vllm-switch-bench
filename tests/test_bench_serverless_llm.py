@@ -227,3 +227,8 @@ def test_scale_to_zero_restore_sequence_records_wait_and_restore(monkeypatch):
         ("GET", "/health"),
         ("POST", "/register"),
     ]
+
+
+def test_serverless_docker_compose_mounts_host_models():
+    compose = (Path(__file__).resolve().parents[1].parent / "ServerlessLLM" / "examples" / "docker" / "docker-compose.yml").read_text(encoding="utf-8")
+    assert "${HOST_MODEL_FOLDER:-/home/ljl/models}:/host-models" in compose
