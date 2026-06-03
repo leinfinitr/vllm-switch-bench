@@ -11,6 +11,7 @@ from typing import Any
 
 import requests
 
+from benchlib.resources import query_gpu_memory_used_mib
 from benchlib.schema import PROMPTS, write_summary_csv
 
 SYSTEM_NAME = "serverless_llm"
@@ -123,25 +124,7 @@ def _source_model(payload: dict[str, Any]) -> str:
 
 
 def query_gpu_used_mib() -> int | None:
-    try:
-        output = subprocess.check_output(
-            [
-                "nvidia-smi",
-                "--query-gpu=memory.used",
-                "--format=csv,noheader,nounits",
-            ],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
-    except Exception:
-        return None
-    if not output:
-        return None
-    first_line = output.splitlines()[0].strip()
-    try:
-        return int(first_line)
-    except ValueError:
-        return None
+    return query_gpu_memory_used_mib()
 
 
 def wait_for_scale_to_zero(
@@ -219,7 +202,7 @@ def run_delete_register(
         "registered_model_name": model_name,
         "prompt_name": prompt_name,
         "repeat_index": repeat_index,
-        "startup_to_health_s": 0.0,
+        "startup_latency_s": 0.0,
     }
     health = _request_ok(client, "GET", f"{base_url}/health")
     if health.status_code != 200:
@@ -238,6 +221,8 @@ def run_delete_register(
         )
         return row
 
+    row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
+    row["memory_cpu_used_ready_mib"] = None
     row["infer_before"] = infer(base_url, model_name, prompt_name)
 
     evict_start = time.perf_counter()
@@ -256,6 +241,9 @@ def run_delete_register(
             f"delete failed: {delete_response.status_code} {delete_response.text[:200]}"
         )
         return row
+
+    row["memory_gpu_used_evict_mib"] = query_gpu_used_mib()
+    row["memory_cpu_used_evict_mib"] = None
 
     restore_start = time.perf_counter()
     restore_response = _request_ok(client, "POST", f"{base_url}/register", payload)
@@ -298,7 +286,7 @@ def run_scale_to_zero_restore(
         "registered_model_name": model_name,
         "prompt_name": prompt_name,
         "repeat_index": repeat_index,
-        "startup_to_health_s": 0.0,
+        "startup_latency_s": 0.0,
     }
     health = _request_ok(client, "GET", f"{base_url}/health")
     if health.status_code != 200:
@@ -322,7 +310,7 @@ def run_scale_to_zero_restore(
         row["ok"] = False
         row["error"] = baseline_idle.get("body", "failed to reach baseline idle GPU state")
         return row
-    row["startup_to_health_s"] = baseline_idle.get("latency_s", 0.0)
+    row["startup_latency_s"] = baseline_idle.get("latency_s", 0.0)
     baseline_gpu_used_mib = query_gpu_used_mib()
 
     register_response = _request_ok(client, "POST", f"{base_url}/register", payload)
@@ -334,6 +322,8 @@ def run_scale_to_zero_restore(
         )
         return row
 
+    row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
+    row["memory_cpu_used_ready_mib"] = None
     row["infer_before"] = infer(base_url, model_name, prompt_name)
     if not row["infer_before"].get("ok"):
         row["ok"] = False
@@ -355,20 +345,34 @@ def run_scale_to_zero_restore(
         row["error"] = row["evict"].get("body", "scale-to-zero verification failed")
         return row
 
-    row["infer_after"] = infer(base_url, model_name, prompt_name)
+    row["memory_gpu_used_evict_mib"] = row["evict"].get("gpu_used_mib", row["evict"].get("idle_gpu_threshold_mib"))
+    row["memory_cpu_used_evict_mib"] = None
+
+    restore_trigger_request = infer(base_url, model_name, prompt_name)
+    infer_after = infer(base_url, model_name, prompt_name)
+    row["infer_after"] = infer_after
+    first_latency = restore_trigger_request.get("client_latency_s")
+    second_latency = infer_after.get("client_latency_s")
+    restore_latency_s = None
+    if first_latency is not None and second_latency is not None:
+        restore_latency_s = max(0.0, float(first_latency) - float(second_latency))
     row["restore"] = {
-        "ok": bool(row["infer_after"].get("ok")),
-        "status": row["infer_after"].get("status"),
-        "latency_s": row["infer_after"].get("client_latency_s"),
-        "body": "first post-idle request end-to-end latency",
+        "ok": bool(restore_trigger_request.get("ok")) and bool(infer_after.get("ok")),
+        "status": restore_trigger_request.get("status"),
+        "latency_s": restore_latency_s,
+        "body": "estimated from first post-idle request minus second active request",
     }
+    row["restore_latency_estimated"] = True
+    row["ttft_available"] = False
+    row["tpot_available"] = False
     row["stage_breakdown"] = {
         "scale_to_zero_wait_s": row["evict"].get("latency_s"),
-        "post_idle_request_s": row["infer_after"].get("client_latency_s"),
+        "first_post_evict_request_s": first_latency,
+        "second_active_request_s": second_latency,
         "baseline_gpu_used_mib": baseline_gpu_used_mib,
         "idle_gpu_threshold_mib": row["evict"].get("idle_gpu_threshold_mib"),
     }
-    row["ok"] = bool(row["infer_before"].get("ok")) and bool(
+    row["ok"] = bool(row["infer_before"].get("ok")) and bool(restore_trigger_request.get("ok")) and bool(
         row["infer_after"].get("ok")
     )
     return row

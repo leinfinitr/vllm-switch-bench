@@ -28,8 +28,10 @@ NUMERIC_FIELDS = [
     "restore_latency_s",
     "latency_before_s",
     "latency_after_s",
-    "tokens_per_s_before",
-    "tokens_per_s_after",
+    "memory_gpu_used_ready_mib",
+    "memory_gpu_used_evict_mib",
+    "tpot_before_s",
+    "tpot_after_s",
 ]
 
 
@@ -111,6 +113,10 @@ def _ratio(after: float | None, before: float | None) -> float | None:
     return after / before
 
 
+def _bar_values(values: list[float | None]) -> list[float]:
+    return [0.0 if value is None else value for value in values]
+
+
 def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | Path, title: str = "Baseline3 switch comparison") -> Path:
     if not aggregated:
         raise ValueError("no aggregated rows to plot")
@@ -121,46 +127,45 @@ def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | P
 
     evict = [row.get("evict_latency_s") for row in aggregated]
     restore = [row.get("restore_latency_s") for row in aggregated]
+    memory_ready = [row.get("memory_gpu_used_ready_mib") for row in aggregated]
+    memory_evict = [row.get("memory_gpu_used_evict_mib") for row in aggregated]
     latency_before = [row.get("latency_before_s") for row in aggregated]
     latency_after = [row.get("latency_after_s") for row in aggregated]
-    tps_before = [row.get("tokens_per_s_before") for row in aggregated]
-    tps_after = [row.get("tokens_per_s_after") for row in aggregated]
-    latency_ratio = [_ratio(a, b) for a, b in zip(latency_after, latency_before)]
-    throughput_ratio = [_ratio(a, b) for a, b in zip(tps_after, tps_before)]
+    tpot_before = [row.get("tpot_before_s") for row in aggregated]
+    tpot_after = [row.get("tpot_after_s") for row in aggregated]
 
     fig, axes = plt.subplots(2, 2, figsize=(15, 10.5), constrained_layout=False)
     fig.suptitle(title)
 
     ax = axes[0][0]
-    ax.bar([i - width / 2 for i in x], evict, width=width, label="evict", color="#4E79A7")
-    ax.bar([i + width / 2 for i in x], restore, width=width, label="restore", color="#F28E2B")
+    ax.bar([i - width / 2 for i in x], _bar_values(evict), width=width, label="evict", color="#4E79A7")
+    ax.bar([i + width / 2 for i in x], _bar_values(restore), width=width, label="restore", color="#F28E2B")
     ax.set_title("Switch overhead")
     ax.set_ylabel("seconds")
     ax.set_xticks(x, labels, rotation=12, ha="right")
     ax.legend()
 
     ax = axes[0][1]
-    ax.bar([i - width / 2 for i in x], latency_before, width=width, label="before switch", color="#59A14F")
-    ax.bar([i + width / 2 for i in x], latency_after, width=width, label="after switch", color="#E15759")
+    ax.bar([i - width / 2 for i in x], _bar_values(memory_ready), width=width, label="ready", color="#59A14F")
+    ax.bar([i + width / 2 for i in x], _bar_values(memory_evict), width=width, label="evicted", color="#E15759")
+    ax.set_title("GPU memory footprint")
+    ax.set_ylabel("MiB")
+    ax.set_xticks(x, labels, rotation=12, ha="right")
+    ax.legend()
+
+    ax = axes[1][0]
+    ax.bar([i - width / 2 for i in x], _bar_values(latency_before), width=width, label="before switch", color="#76B7B2")
+    ax.bar([i + width / 2 for i in x], _bar_values(latency_after), width=width, label="after switch", color="#EDC948")
     ax.set_title("Inference client latency")
     ax.set_ylabel("seconds")
     ax.set_xticks(x, labels, rotation=12, ha="right")
     ax.legend()
 
-    ax = axes[1][0]
-    ax.bar([i - width / 2 for i in x], tps_before, width=width, label="before switch", color="#76B7B2")
-    ax.bar([i + width / 2 for i in x], tps_after, width=width, label="after switch", color="#EDC948")
-    ax.set_title("Inference throughput")
-    ax.set_ylabel("tokens / second")
-    ax.set_xticks(x, labels, rotation=12, ha="right")
-    ax.legend()
-
     ax = axes[1][1]
-    ax.bar([i - width / 2 for i in x], latency_ratio, width=width, label="latency after / before", color="#B07AA1")
-    ax.bar([i + width / 2 for i in x], throughput_ratio, width=width, label="throughput after / before", color="#FF9DA7")
-    ax.axhline(1.0, color="#666666", linestyle="--", linewidth=1)
-    ax.set_title("Relative post-switch impact")
-    ax.set_ylabel("ratio")
+    ax.bar([i - width / 2 for i in x], _bar_values(tpot_before), width=width, label="before switch", color="#B07AA1")
+    ax.bar([i + width / 2 for i in x], _bar_values(tpot_after), width=width, label="after switch", color="#FF9DA7")
+    ax.set_title("TPOT")
+    ax.set_ylabel("seconds / output token")
     ax.set_xticks(x, labels, rotation=12, ha="right")
     ax.legend()
 

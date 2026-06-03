@@ -37,3 +37,22 @@ def test_stage_breakdown_parser_handles_missing_logs():
     ]
     report = build_report(rows, metadata={"model": "qwen"})
     assert "swapout.pause_container_s" in report
+
+
+def test_report_includes_startup_latency_and_estimated_restore_note():
+    rows = [
+        {
+            "system": "serverless_llm",
+            "method": "scale_to_zero_restore",
+            "prompt_name": "short_short",
+            "ok": True,
+            "startup_latency_s": 0.6,
+            "restore_latency_estimated": True,
+            "restore": {"latency_s": 10.0},
+            "evict": {"latency_s": 2.5},
+        }
+    ]
+    report = build_report(rows, metadata={"model": "qwen"})
+    assert "mean_startup_s" in report
+    assert "restore_latency_estimated" in report
+    assert "startup_to_health_s" not in report

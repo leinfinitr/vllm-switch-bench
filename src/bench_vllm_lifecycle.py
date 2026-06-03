@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from benchlib.http import parse_openai_stream_response
+from benchlib.resources import process_tree_rss_mib, query_gpu_memory_used_mib
 from benchlib.sampling import Sampler, make_event, run_cmd
 from benchlib.schema import JsonlLogger, PROMPTS, write_summary_csv
 
@@ -176,6 +177,7 @@ def infer(args: argparse.Namespace, prompt_name: str) -> dict[str, Any]:
         "error": None,
         "ttft_s": parsed["ttft_s"],
         "client_latency_s": total,
+        "completion_tokens": completion_tokens,
         "approx_output_tokens": approx_tokens,
         "approx_tokens_per_s": (approx_tokens / total) if total > 0 else None,
         "output_prefix": output[:120],
@@ -280,8 +282,10 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
         proc = start_vllm(args, server_log)
         with Sampler(event_log, ctx, start_ts, lambda: proc.pid if proc else None, args.sample_interval_s):
             ready_s = wait_process_http_ok(proc, f"http://{args.host}:{args.port}/health", args.ready_timeout_s, server_log)
-            summary["startup_to_health_s"] = ready_s
-            event_log.write(make_event(ctx, "api_ready", start_ts, proc.pid, extra={"startup_to_health_s": ready_s}))
+            summary["startup_latency_s"] = ready_s
+            summary["memory_gpu_used_ready_mib"] = query_gpu_memory_used_mib()
+            summary["memory_cpu_used_ready_mib"] = process_tree_rss_mib(proc.pid if proc else None)
+            event_log.write(make_event(ctx, "api_ready", start_ts, proc.pid, extra={"startup_latency_s": ready_s}))
             before = infer(args, prompt_name)
             summary["infer_before"] = before
             event_log.write(make_event(ctx, "infer_before_end", start_ts, proc.pid, extra=before))
@@ -289,6 +293,8 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
             if method == "cold_reload":
                 event_log.write(make_event(ctx, "evict_begin", start_ts, proc.pid))
                 summary["evict"] = {"ok": True, "latency_s": stop_process(proc)}
+                summary["memory_gpu_used_evict_mib"] = query_gpu_memory_used_mib()
+                summary["memory_cpu_used_evict_mib"] = None
                 proc = None
                 event_log.write(make_event(ctx, "evict_end", start_ts, None, extra=summary["evict"]))
                 time.sleep(args.idle_s)
@@ -306,6 +312,8 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                 event_log.write(make_event(ctx, "evict_begin", start_ts, proc.pid))
                 sleep_result = call_sleep(args, level)
                 summary["evict"] = sleep_result
+                summary["memory_gpu_used_evict_mib"] = query_gpu_memory_used_mib()
+                summary["memory_cpu_used_evict_mib"] = process_tree_rss_mib(proc.pid if proc else None)
                 event_log.write(make_event(ctx, "evict_end", start_ts, proc.pid, extra=sleep_result))
                 time.sleep(args.idle_s)
                 event_log.write(make_event(ctx, "restore_begin", start_ts, proc.pid))

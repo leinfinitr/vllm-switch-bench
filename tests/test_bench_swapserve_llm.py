@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_swapserve_llm import auth_headers, parse_swapserve_stage_logs, run_swapout_swapin
+from bench_swapserve_llm import auth_headers, infer, parse_swapserve_stage_logs, run_swapout_swapin
 
 
 class FakeResponse:
@@ -157,3 +157,47 @@ def test_stage_breakdown_can_be_read_from_log_dir(monkeypatch, tmp_path: Path):
     )
     assert row["stage_breakdown"]["swapout.pause_container_s"] == pytest.approx(0.034)
     assert row["stage_breakdown"]["swapin.load_model_s"] == pytest.approx(0.056)
+
+
+class FakeStreamResponse:
+    status_code = 200
+    text = "OK"
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+    def iter_lines(self, decode_unicode=True):
+        yield 'data: {"choices": [{"delta": {"content": "hello"}}]}'
+        yield 'data: {"choices": [{"delta": {"content": " world"}}], "usage": {"completion_tokens": 2}}'
+        yield 'data: [DONE]'
+
+
+def test_swapserve_infer_uses_streaming_and_completion_tokens(monkeypatch):
+    calls = []
+
+    def fake_post(url, json=None, headers=None, timeout=None, stream=False):
+        calls.append({"url": url, "json": json, "headers": headers, "stream": stream})
+        return FakeStreamResponse()
+
+    monkeypatch.setattr("bench_swapserve_llm.requests.post", fake_post)
+    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
+    row = infer("http://127.0.0.1:8000", "qwen", "short_short", api_key="dummy")
+    assert calls[0]["stream"] is True
+    assert calls[0]["json"]["stream"] is True
+    assert row["ttft_s"] == pytest.approx(0.1)
+    assert row["completion_tokens"] == 2
+    assert row["client_latency_s"] == pytest.approx(0.3)
+
+
+def test_swapserve_records_ready_and_evict_memory(monkeypatch):
+    fake = FakeClient()
+    samples = iter([1000, 600])
+    monkeypatch.setattr("bench_swapserve_llm.query_gpu_memory_used_mib", lambda: next(samples))
+    monkeypatch.setattr("bench_swapserve_llm.infer", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
+    row = run_swapout_swapin("http://127.0.0.1:8000", fake, "qwen", "short_short", 0)
+    assert row["memory_gpu_used_ready_mib"] == 1000
+    assert row["memory_gpu_used_evict_mib"] == 600

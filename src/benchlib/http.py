@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 def parse_openai_stream_response(response, started_at: float, now_fn: Callable[[], float]) -> dict[str, Any]:
     first_chunk_s = None
+    completed_at = None
     chunks: list[str] = []
     completion_tokens = None
     for raw in response.iter_lines(decode_unicode=True):
@@ -18,6 +19,10 @@ def parse_openai_stream_response(response, started_at: float, now_fn: Callable[[
             continue
         data = line[6:]
         if data.strip() == "[DONE]":
+            try:
+                completed_at = now_fn()
+            except Exception:
+                completed_at = None
             break
         chunks.append(data)
     text_parts: list[str] = []
@@ -40,5 +45,6 @@ def parse_openai_stream_response(response, started_at: float, now_fn: Callable[[
         "ttft_s": first_chunk_s,
         "output_text": output_text,
         "completion_tokens": completion_tokens,
+        "completed_at": completed_at,
         "chunks": chunks,
     }

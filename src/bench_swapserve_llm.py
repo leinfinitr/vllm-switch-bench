@@ -11,6 +11,8 @@ from typing import Any
 
 import requests
 
+from benchlib.http import parse_openai_stream_response
+from benchlib.resources import query_gpu_memory_used_mib
 from benchlib.schema import PROMPTS, write_summary_csv
 
 SYSTEM_NAME = "swapserve_llm"
@@ -56,31 +58,40 @@ def infer(base_url: str, model_name: str, prompt_name: str, api_key: str | None 
         "messages": [{"role": "user", "content": prompt["prompt"]}],
         "max_tokens": int(prompt["max_tokens"]),
         "temperature": 0,
+        "stream": True,
     }
     started_at = time.perf_counter()
-    response = requests.post(
-        f"{base_url}/v1/chat/completions",
-        json=payload,
-        headers=auth_headers(api_key) or None,
-        timeout=300,
-    )
-    total = time.perf_counter() - started_at
-    if response.status_code != 200:
-        return {
-            "ok": False,
-            "status": response.status_code,
-            "error": response.text[:500],
-            "client_latency_s": total,
-        }
-    data = response.json()
-    content = data["choices"][0]["message"]["content"]
-    usage = data.get("usage") or {}
-    completion_tokens = usage.get("completion_tokens") or max(1, len(content.split()))
+    status = None
+    try:
+        with requests.post(
+            f"{base_url}/v1/chat/completions",
+            json=payload,
+            headers=auth_headers(api_key) or None,
+            timeout=300,
+            stream=True,
+        ) as response:
+            status = response.status_code
+            if response.status_code != 200:
+                total = time.perf_counter() - started_at
+                return {
+                    "ok": False,
+                    "status": response.status_code,
+                    "error": response.text[:500],
+                    "client_latency_s": total,
+                }
+            parsed = parse_openai_stream_response(response, started_at=started_at, now_fn=time.perf_counter)
+            total = (parsed["completed_at"] or time.perf_counter()) - started_at
+    except Exception as exc:
+        return {"ok": False, "status": status, "error": repr(exc), "client_latency_s": time.perf_counter() - started_at}
+
+    content = parsed["output_text"]
+    completion_tokens = parsed["completion_tokens"] or max(1, len(content.split()))
     return {
         "ok": True,
-        "status": response.status_code,
-        "ttft_s": None,
+        "status": status,
+        "ttft_s": parsed["ttft_s"],
         "client_latency_s": total,
+        "completion_tokens": completion_tokens,
         "approx_output_tokens": completion_tokens,
         "approx_tokens_per_s": completion_tokens / total if total > 0 else None,
         "output_prefix": content[:120],
@@ -147,6 +158,9 @@ def run_swapout_swapin(
         row["error"] = f"models failed: {models_response.status_code} {models_response.text[:200]}"
         return row
 
+    row["memory_gpu_used_ready_mib"] = query_gpu_memory_used_mib()
+    row["memory_cpu_used_ready_mib"] = None
+
     row["infer_before"] = infer(base_url, model_name, prompt_name, api_key=api_key)
 
     evict_start = time.perf_counter()
@@ -161,6 +175,9 @@ def run_swapout_swapin(
         row["ok"] = False
         row["error"] = f"swapout failed: {swapout_response.status_code} {swapout_response.text[:200]}"
         return row
+
+    row["memory_gpu_used_evict_mib"] = query_gpu_memory_used_mib()
+    row["memory_cpu_used_evict_mib"] = None
 
     restore_start = time.perf_counter()
     swapin_response = _request(client, "POST", f"{base_url}/api/swapin", {"model": model_name}, api_key=api_key)

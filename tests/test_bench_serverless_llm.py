@@ -174,7 +174,14 @@ def test_scale_to_zero_restore_sequence_records_wait_and_restore(monkeypatch):
                 "status": 200,
                 "client_latency_s": 11.2,
                 "approx_tokens_per_s": 2.2,
-                "output_prefix": "after",
+                "output_prefix": "first post evict",
+            },
+            {
+                "ok": True,
+                "status": 200,
+                "client_latency_s": 1.2,
+                "approx_tokens_per_s": 3.2,
+                "output_prefix": "second active",
             },
         ]
     )
@@ -204,10 +211,16 @@ def test_scale_to_zero_restore_sequence_records_wait_and_restore(monkeypatch):
     )
     assert row["ok"] is True
     assert row["method"] == "scale_to_zero_restore"
-    assert row["startup_to_health_s"] == pytest.approx(0.6)
+    assert row["startup_latency_s"] == pytest.approx(0.6)
     assert row["evict"]["ok"] is True
     assert row["evict"]["latency_s"] == pytest.approx(2.5)
-    assert row["restore"]["latency_s"] == pytest.approx(11.2)
+    assert row["restore"]["latency_s"] == pytest.approx(10.0)
+    assert row["infer_after"]["client_latency_s"] == pytest.approx(1.2)
+    assert row["restore_latency_estimated"] is True
+    assert row["ttft_available"] is False
+    assert row["tpot_available"] is False
+    assert row["memory_gpu_used_ready_mib"] == 238
+    assert row["memory_gpu_used_evict_mib"] == 538
     assert row["stage_breakdown"]["baseline_gpu_used_mib"] == 238
     assert row["stage_breakdown"]["idle_gpu_threshold_mib"] == 538
     assert [call[:2] for call in fake.calls] == [

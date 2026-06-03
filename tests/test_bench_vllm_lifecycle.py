@@ -75,3 +75,31 @@ def test_dry_run_creates_output_directory(tmp_path):
     created = [p for p in tmp_path.iterdir() if p.is_dir()]
     assert len(created) == 1
     assert (created[0] / "metadata.json").exists()
+
+
+def test_write_summary_csv_uses_new_vllm_metric_fields(tmp_path):
+    out = tmp_path / "summary.csv"
+    bench.write_summary_csv(out, [
+        {
+            "system": "vllm",
+            "run_id": "r1",
+            "method": "sleep_l1",
+            "model": "m",
+            "prompt_name": "short_short",
+            "repeat_index": 0,
+            "ok": True,
+            "startup_latency_s": 1.5,
+            "memory_gpu_used_ready_mib": 1000,
+            "memory_gpu_used_evict_mib": 500,
+            "evict": {"latency_s": 0.25},
+            "restore": {"latency_s": 0.75},
+            "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.8, "completion_tokens": 8},
+            "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.9, "completion_tokens": 9},
+        }
+    ])
+    rows = list(csv.DictReader(out.open()))
+    assert rows[0]["startup_latency_s"] == "1.5"
+    assert rows[0]["memory_gpu_used_ready_mib"] == "1000"
+    assert rows[0]["memory_gpu_used_evict_mib"] == "500"
+    assert rows[0]["output_tokens_before"] == "8"
+    assert "startup_to_health_s" not in rows[0]

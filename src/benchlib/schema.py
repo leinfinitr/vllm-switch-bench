@@ -65,7 +65,51 @@ class JsonlLogger:
 SummaryWriter = Callable[[Path, list[dict[str, Any]]], None]
 
 
+def _nested(row: dict[str, Any], key: str) -> dict[str, Any]:
+    value = row.get(key)
+    return value if isinstance(value, dict) else {}
+
+
+def _first_present(*values: Any) -> Any:
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def _output_tokens(infer: dict[str, Any]) -> int | None:
+    value = _first_present(infer.get("completion_tokens"), infer.get("output_tokens"), infer.get("approx_output_tokens"))
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _tpot(latency_s: Any, ttft_s: Any, output_tokens: int | None) -> float | None:
+    if latency_s is None or ttft_s is None or output_tokens is None:
+        return None
+    try:
+        return (float(latency_s) - float(ttft_s)) / max(output_tokens - 1, 1)
+    except (TypeError, ValueError):
+        return None
+
+
 def flatten_summary_row(row: dict[str, Any]) -> dict[str, Any]:
+    before = _nested(row, "infer_before")
+    after = _nested(row, "infer_after")
+    output_tokens_before = _output_tokens(before)
+    output_tokens_after = _output_tokens(after)
+    latency_before = before.get("client_latency_s")
+    latency_after = after.get("client_latency_s")
+    ttft_before = before.get("ttft_s")
+    ttft_after = after.get("ttft_s")
+    tpot_before = _tpot(latency_before, ttft_before, output_tokens_before)
+    tpot_after = _tpot(latency_after, ttft_after, output_tokens_after)
+    ttft_available = ttft_before is not None and ttft_after is not None
+    tpot_available = tpot_before is not None and tpot_after is not None
+
     return {
         "system": row.get("system"),
         "run_id": row.get("run_id"),
@@ -74,15 +118,24 @@ def flatten_summary_row(row: dict[str, Any]) -> dict[str, Any]:
         "prompt_name": row.get("prompt_name"),
         "repeat_index": row.get("repeat_index"),
         "ok": row.get("ok"),
-        "startup_to_health_s": row.get("startup_to_health_s"),
-        "evict_latency_s": (row.get("evict") or {}).get("latency_s"),
-        "restore_latency_s": (row.get("restore") or {}).get("latency_s"),
-        "ttft_before_s": (row.get("infer_before") or {}).get("ttft_s"),
-        "ttft_after_s": (row.get("infer_after") or {}).get("ttft_s"),
-        "latency_before_s": (row.get("infer_before") or {}).get("client_latency_s"),
-        "latency_after_s": (row.get("infer_after") or {}).get("client_latency_s"),
-        "tokens_per_s_before": (row.get("infer_before") or {}).get("approx_tokens_per_s"),
-        "tokens_per_s_after": (row.get("infer_after") or {}).get("approx_tokens_per_s"),
+        "startup_latency_s": _first_present(row.get("startup_latency_s"), row.get("startup_to_health_s")),
+        "memory_gpu_used_ready_mib": row.get("memory_gpu_used_ready_mib"),
+        "memory_cpu_used_ready_mib": row.get("memory_cpu_used_ready_mib"),
+        "memory_gpu_used_evict_mib": row.get("memory_gpu_used_evict_mib"),
+        "memory_cpu_used_evict_mib": row.get("memory_cpu_used_evict_mib"),
+        "evict_latency_s": _nested(row, "evict").get("latency_s"),
+        "restore_latency_s": _nested(row, "restore").get("latency_s"),
+        "restore_latency_estimated": bool(row.get("restore_latency_estimated", False)),
+        "ttft_before_s": ttft_before,
+        "ttft_after_s": ttft_after,
+        "latency_before_s": latency_before,
+        "latency_after_s": latency_after,
+        "output_tokens_before": output_tokens_before,
+        "output_tokens_after": output_tokens_after,
+        "tpot_before_s": tpot_before,
+        "tpot_after_s": tpot_after,
+        "ttft_available": bool(row.get("ttft_available", ttft_available)),
+        "tpot_available": bool(row.get("tpot_available", tpot_available)),
         "error": row.get("error"),
     }
 

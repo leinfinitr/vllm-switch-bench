@@ -87,3 +87,50 @@ def test_event_logger_writes_jsonl(tmp_path):
     data = json.loads(path.read_text().strip())
     assert data["system"] == "vllm"
     assert data["event"] == "run_start"
+
+
+def test_summary_csv_uses_baseline_metric_schema(tmp_path):
+    out = tmp_path / "summary.csv"
+    write_summary_csv(
+        out,
+        [
+            {
+                "system": "vllm",
+                "method": "sleep_l1",
+                "model": "qwen",
+                "prompt_name": "short_short",
+                "repeat_index": 0,
+                "ok": True,
+                "startup_latency_s": 1.5,
+                "memory_gpu_used_ready_mib": 4000,
+                "memory_cpu_used_ready_mib": 12000,
+                "evict": {"latency_s": 0.2},
+                "restore": {"latency_s": 0.1},
+                "memory_gpu_used_evict_mib": 900,
+                "memory_cpu_used_evict_mib": 13000,
+                "infer_before": {
+                    "ttft_s": 0.05,
+                    "client_latency_s": 0.25,
+                    "completion_tokens": 11,
+                },
+                "infer_after": {
+                    "ttft_s": 0.04,
+                    "client_latency_s": 0.24,
+                    "completion_tokens": 11,
+                },
+            }
+        ],
+    )
+    rows = list(csv.DictReader(out.open()))
+    row = rows[0]
+    header = out.read_text().splitlines()[0]
+    assert "startup_latency_s" in header
+    assert "startup_to_health_s" not in header
+    assert "memory_gpu_used_ready_mib" in header
+    assert "memory_gpu_used_evict_mib" in header
+    assert "tpot_before_s" in header
+    assert "tokens_per_s_before" not in header
+    assert row["output_tokens_before"] == "11"
+    assert row["tpot_before_s"] == "0.02"
+    assert row["ttft_available"] == "True"
+    assert row["tpot_available"] == "True"

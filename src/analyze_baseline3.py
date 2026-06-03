@@ -15,7 +15,6 @@ def group_rows(rows: list[dict[str, Any]]) -> dict[tuple[str, str, str], list[di
     return grouped
 
 
-
 def _fmt_float(value: Any) -> str:
     if value is None:
         return "-"
@@ -32,6 +31,12 @@ def _extract_latency(row: dict[str, Any], key: str) -> float | None:
     return float(value)
 
 
+def _extract_float(row: dict[str, Any], key: str) -> float | None:
+    value = row.get(key)
+    if value is None:
+        return None
+    return float(value)
+
 
 def build_report(rows: list[dict[str, Any]], metadata: dict[str, Any]) -> str:
     grouped = group_rows(rows)
@@ -42,16 +47,27 @@ def build_report(rows: list[dict[str, Any]], metadata: dict[str, Any]) -> str:
         "",
         "## Aggregated rows",
         "",
-        "| system | method | prompt | n | ok_runs | mean_restore_s | mean_evict_s |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "| system | method | prompt | n | ok_runs | mean_startup_s | mean_restore_s | mean_evict_s | estimated_restore_runs |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for (system, method, prompt), items in sorted(grouped.items()):
         ok_items = [r for r in items if r.get("ok")]
+        startup_vals = [lat for lat in (_extract_float(r, "startup_latency_s") for r in ok_items) if lat is not None]
         restore_vals = [lat for lat in (_extract_latency(r, "restore") for r in ok_items) if lat is not None]
         evict_vals = [lat for lat in (_extract_latency(r, "evict") for r in ok_items) if lat is not None]
+        estimated = sum(1 for r in ok_items if r.get("restore_latency_estimated"))
         lines.append(
-            f"| {system} | {method} | {prompt} | {len(items)} | {len(ok_items)} | {_fmt_float(mean(restore_vals) if restore_vals else None)} | {_fmt_float(mean(evict_vals) if evict_vals else None)} |"
+            f"| {system} | {method} | {prompt} | {len(items)} | {len(ok_items)} | "
+            f"{_fmt_float(mean(startup_vals) if startup_vals else None)} | "
+            f"{_fmt_float(mean(restore_vals) if restore_vals else None)} | "
+            f"{_fmt_float(mean(evict_vals) if evict_vals else None)} | {estimated} |"
         )
+
+    if any(r.get("restore_latency_estimated") for r in rows):
+        lines.extend([
+            "",
+            "Note: rows with restore_latency_estimated=True estimate restore latency as first post-evict request latency minus second active request latency.",
+        ])
 
     unsupported = [r for r in rows if r.get("unsupported")]
     lines.extend(["", "## Unsupported / blocked rows", ""])
@@ -72,13 +88,11 @@ def build_report(rows: list[dict[str, Any]], metadata: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("run_dir")
     parser.add_argument("--out", required=True)
     return parser.parse_args(argv)
-
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -90,7 +104,6 @@ def main(argv: list[str] | None = None) -> int:
     Path(args.out).write_text(report, encoding="utf-8")
     print(args.out)
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
