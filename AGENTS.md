@@ -1,0 +1,1 @@
+Use `results/` to retain the latest curated outputs for each relevant system/method, not only the single newest timestamped run.
