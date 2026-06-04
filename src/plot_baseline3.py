@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 
 DEFAULT_METHOD_SPECS: list[tuple[str, str, str]] = [
+    ("vllm", "cold_reload", "vLLM Cold"),
     ("vllm", "sleep_l1", "vLLM Sleep L1"),
     ("vllm", "sleep_l2", "vLLM Sleep L2"),
     ("swapserve_llm", "swapout_swapin", "SwapServeLLM"),
@@ -24,14 +25,15 @@ DEFAULT_LABELS: dict[tuple[str, str], str] = {
 
 
 NUMERIC_FIELDS = [
+    "startup_latency_s",
     "evict_latency_s",
     "restore_latency_s",
     "latency_before_s",
     "latency_after_s",
     "memory_gpu_used_ready_mib",
     "memory_gpu_used_evict_mib",
-    "tpot_before_s",
-    "tpot_after_s",
+    "ttft_before_s",
+    "ttft_after_s",
 ]
 
 
@@ -123,23 +125,25 @@ def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | P
 
     labels = [row["label"] for row in aggregated]
     x = list(range(len(labels)))
-    width = 0.36
+    width = 0.24
 
+    startup = [row.get("startup_latency_s") for row in aggregated]
     evict = [row.get("evict_latency_s") for row in aggregated]
     restore = [row.get("restore_latency_s") for row in aggregated]
     memory_ready = [row.get("memory_gpu_used_ready_mib") for row in aggregated]
     memory_evict = [row.get("memory_gpu_used_evict_mib") for row in aggregated]
     latency_before = [row.get("latency_before_s") for row in aggregated]
     latency_after = [row.get("latency_after_s") for row in aggregated]
-    tpot_before = [row.get("tpot_before_s") for row in aggregated]
-    tpot_after = [row.get("tpot_after_s") for row in aggregated]
+    ttft_before = [row.get("ttft_before_s") for row in aggregated]
+    ttft_after = [row.get("ttft_after_s") for row in aggregated]
 
     fig, axes = plt.subplots(2, 2, figsize=(15, 10.5), constrained_layout=False)
     fig.suptitle(title)
 
     ax = axes[0][0]
-    ax.bar([i - width / 2 for i in x], _bar_values(evict), width=width, label="evict", color="#4E79A7")
-    ax.bar([i + width / 2 for i in x], _bar_values(restore), width=width, label="restore", color="#F28E2B")
+    ax.bar([i - width for i in x], _bar_values(startup), width=width, label="startup", color="#9C755F")
+    ax.bar(x, _bar_values(evict), width=width, label="evict", color="#4E79A7")
+    ax.bar([i + width for i in x], _bar_values(restore), width=width, label="restore", color="#F28E2B")
     ax.set_title("Switch overhead")
     ax.set_ylabel("seconds")
     ax.set_xticks(x, labels, rotation=12, ha="right")
@@ -162,10 +166,10 @@ def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | P
     ax.legend()
 
     ax = axes[1][1]
-    ax.bar([i - width / 2 for i in x], _bar_values(tpot_before), width=width, label="before switch", color="#B07AA1")
-    ax.bar([i + width / 2 for i in x], _bar_values(tpot_after), width=width, label="after switch", color="#FF9DA7")
-    ax.set_title("TPOT")
-    ax.set_ylabel("seconds / output token")
+    ax.bar([i - width / 2 for i in x], _bar_values(ttft_before), width=width, label="before switch", color="#76B7B2")
+    ax.bar([i + width / 2 for i in x], _bar_values(ttft_after), width=width, label="after switch", color="#EDC948")
+    ax.set_title("TTFT")
+    ax.set_ylabel("seconds")
     ax.set_xticks(x, labels, rotation=12, ha="right")
     ax.legend()
 
@@ -186,7 +190,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--method",
         dest="method_specs",
         action="append",
-        help="Method selection in system:method[:label] form. Repeatable. Defaults to vLLM sleep_l1/sleep_l2 + SwapServeLLM + ServerlessLLM.",
+        help="Method selection in system:method[:label] form. Repeatable. Defaults to vLLM cold/sleep_l1/sleep_l2 + SwapServeLLM + ServerlessLLM.",
     )
     return parser.parse_args(argv)
 
