@@ -4,14 +4,12 @@ This document records the verified path used for the baseline3 ServerlessLLM com
 
 ## What ServerlessLLM measures here
 
-The maintained baseline3 row uses `scale_to_zero_restore`:
+The maintained baseline3 rows now include both ServerlessLLM methods:
 
-1. Register Qwen2.5-0.5B with ServerlessLLM.
-2. Send an inference request.
-3. Wait until GPU memory returns to the idle threshold, indicating scale-to-zero.
-4. Send another request and measure the restore path.
+- `delete_register`: register the model, run inference, delete the model/router, register again, then run inference after restore.
+- `scale_to_zero_restore`: register the model, run inference, wait until GPU memory returns to the idle threshold, then use the first post-idle request to estimate restore latency and the second active request as `latency_after_s`.
 
-`delete_register` is not used as a valid baseline row because, in the current ServerlessLLM checkout, controller delete removes metadata but does not reliably stop the runtime/router. The benchmark records this as an unsupported row rather than fabricating performance numbers.
+`scale_to_zero_restore` is the closer serverless-serving baseline. `delete_register` is kept as a deterministic lifecycle comparison now that the local ServerlessLLM checkout has a router cleanup fix.
 
 ## Verified runtime assumptions
 
@@ -21,6 +19,7 @@ The maintained baseline3 row uses `scale_to_zero_restore`:
 - Raw HF checkpoint is at `/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`.
 - ServerlessLLM Docker Compose exposes the controller on `127.0.0.1:8343`.
 - The Docker Compose worker uses `/models` as `STORAGE_PATH` and mounts `${MODEL_FOLDER}:/models`.
+- The worker also mounts `${HOST_MODEL_FOLDER:-/home/ljl/models}:/host-models`, which is the path used by the benchmark payload.
 
 ## Important architecture detail
 
@@ -39,12 +38,15 @@ Keep the writable model store separate from the raw Hugging Face checkpoint dire
 ```bash
 cd /home/ljl/research-systems/ServerlessLLM/examples/docker
 export MODEL_FOLDER=/home/ljl/research-systems/llm-switch-bench/runtime/serverlessllm-models
+export HOST_MODEL_FOLDER=/home/ljl/models
 mkdir -p "$MODEL_FOLDER"
 export http_proxy=http://127.0.0.1:7890
 export https_proxy=http://127.0.0.1:7890
+export no_proxy=127.0.0.1,localhost
+export NO_PROXY=127.0.0.1,localhost
 
 docker compose up -d
-curl http://127.0.0.1:8343/health
+curl --noproxy '*' http://127.0.0.1:8343/health
 ```
 
 Expected health response:
@@ -52,6 +54,8 @@ Expected health response:
 ```json
 {"status":"ok"}
 ```
+
+If the Docker image cannot be rebuilt because external downloads time out, the last validated run used `docker compose create`, copied patched ServerlessLLM Python files into the created containers, and then ran `docker compose start`. This is a validation workaround, not a replacement for rebuilding the image when network access is available.
 
 ## Run the adapter directly
 
@@ -65,19 +69,27 @@ python src/bench_serverless_llm.py \
   --registered-model-name qwen2p5-0p5b \
   --base-url http://127.0.0.1:8343 \
   --prompts short_short long_short short_long \
-  --repeats 3 \
-  --methods scale_to_zero_restore \
+  --repeats 1 \
+  --max-model-len 2048 \
+  --methods delete_register scale_to_zero_restore \
   --out-dir results/baselines/serverless_llm/qwen2p5_0p5b
 ```
 
+Use `--max-model-len 2048` for the current prompt set; `long_short` exceeds 512 tokens after chat templating.
+
 ## Current result source
 
-ServerlessLLM rows in the curated baseline3 result come from:
+ServerlessLLM rows in the curated baseline3 report come from:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260602_161100`
+`results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528`
+
+The merged baseline3 result that includes these rows is:
+
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
 
 ## Known pitfalls
 
 - Do not use local Python startup as the default path unless all ServerlessLLM Python dependencies and store components are installed; the verified path here is Docker Compose.
 - Do not point the writable ServerlessLLM model store at the raw HF checkpoint directory.
-- Do not interpret `delete_register` as reliable scale-down; it is kept as an unsupported row in reports.
+- Do not use controller `/health` alone as model readiness; verify worker registration or run an inference request.
+- ServerlessLLM currently does not expose external streaming TTFT for these rows, so `ttft_available=false` and `tpot_available=false` are expected.

@@ -11,9 +11,9 @@ Conceptual definition:
 
 Current comparison systems:
 
-- vLLM: imported from the clean-HBM Baseline1/2 source run.
-- ServerlessLLM: real Docker Compose runtime, measured with `scale_to_zero_restore`.
-- SwapServeLLM: rootless podman + CUDA checkpoint runtime, measured with `swapout_swapin`.
+- vLLM: imported from the clean-HBM Baseline1/2 source run; raw result files have been summarized into reports and pruned.
+- ServerlessLLM: real Docker Compose runtime, measured with `delete_register` and `scale_to_zero_restore`.
+- SwapServeLLM: rootless podman + CUDA checkpoint runtime, measured with `swapout_swapin`; raw result files have been summarized into reports and pruned.
 
 ## Current implementation
 
@@ -70,12 +70,15 @@ The verified local path uses the Docker Compose file in ServerlessLLM and a writ
 ```bash
 cd /home/ljl/research-systems/ServerlessLLM/examples/docker
 export MODEL_FOLDER=/home/ljl/research-systems/llm-switch-bench/runtime/serverlessllm-models
+export HOST_MODEL_FOLDER=/home/ljl/models
 mkdir -p "$MODEL_FOLDER"
 export http_proxy=http://127.0.0.1:7890
 export https_proxy=http://127.0.0.1:7890
+export no_proxy=127.0.0.1,localhost
+export NO_PROXY=127.0.0.1,localhost
 
 docker compose up -d
-curl http://127.0.0.1:8343/health
+curl --noproxy '*' http://127.0.0.1:8343/health
 ```
 
 Important: ServerlessLLM writes its own `vllm/<model>/rank_*` state under `MODEL_FOLDER`. Keep this store separate from the raw Hugging Face checkpoint.
@@ -171,7 +174,21 @@ python src/bench_baseline3.py \
   --systems vllm serverless_llm swapserve_llm \
   --prompts short_short long_short short_long \
   --repeats 3 \
-  --out-dir results/baselines/baseline3/qwen2p5_0p5b
+  --out-dir results/tmp/baseline3/qwen2p5_0p5b
+```
+
+If only ServerlessLLM needs to be rerun for the curated report:
+
+```bash
+python src/bench_serverless_llm.py \
+  --repo /home/ljl/research-systems/ServerlessLLM \
+  --model /host-models/hf/Qwen2.5-0.5B-Instruct \
+  --registered-model-name qwen2p5-0p5b \
+  --methods delete_register scale_to_zero_restore \
+  --prompts short_short long_short short_long \
+  --repeats 1 \
+  --max-model-len 2048 \
+  --out-dir results/baselines/serverless_llm/qwen2p5_0p5b
 ```
 
 If only SwapServeLLM needs to be rerun:
@@ -185,22 +202,28 @@ python src/bench_swapserve_llm.py \
   --log-dir /tmp/swapserve-exp/logs \
   --prompts short_short long_short short_long \
   --repeats 3 \
-  --out-dir results/baselines/swapserve_llm/qwen2p5_0p5b
+  --out-dir results/tmp/swapserve_llm/qwen2p5_0p5b
 ```
 
-Analyze a baseline3 run:
+Analyze a full baseline3 run:
 
 ```bash
 python src/analyze_baseline3.py \
-  results/baselines/baseline3/qwen2p5_0p5b/<timestamp> \
+  results/tmp/baseline3/qwen2p5_0p5b/<timestamp> \
   --out docs/reports/baseline3-qwen2p5-0p5b.md
 ```
 
 ## Curated result
 
-Current baseline3 result:
+The latest tracked merged baseline3 result is:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260602_161100`
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
+
+It is assembled from the latest per-system result directories:
+
+- `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
+- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528`
+- `results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
 
 Report:
 
@@ -208,7 +231,7 @@ Report:
 
 ## Known interpretation caveats
 
-- `serverless_llm/delete_register` is intentionally marked unsupported because controller delete removes metadata but does not reliably stop the router/runtime.
-- ServerlessLLM `scale_to_zero_restore` measures a real external runtime path; the first conversion/register cost is distinct from raw-HF vLLM cold reload.
+- ServerlessLLM `scale_to_zero_restore` measures a real external runtime path; restore latency is estimated from the first post-idle request minus a second active request.
+- ServerlessLLM has no external streaming TTFT in this API path, so its TPOT fields are intentionally unavailable.
 - SwapServeLLM `swapout_swapin` uses CUDA checkpoint/restore and podman-managed containers; it is a system-level hotswap baseline, not a vLLM Sleep Mode policy.
 - SwapServeLLM detailed stage timings are emitted on router stdout; `swapout.log` and `swapin.log` contain summary rows only.

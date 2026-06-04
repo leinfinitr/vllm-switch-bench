@@ -2,8 +2,6 @@
 
 Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 
-ServerlessLLM rerun: `results/baseline3/serverless_llm_full_fixed/20260604_150528`.
-
 ## Aggregated rows
 
 | system | method | prompt | n | ok_runs | mean_startup_s | mean_restore_s | mean_evict_s | estimated_restore_runs |
@@ -27,17 +25,14 @@ ServerlessLLM rerun: `results/baseline3/serverless_llm_full_fixed/20260604_15052
 | vllm | sleep_l2 | short_long | 3 | 3 | 15.3550 | 0.2431 | 0.0596 | 0 |
 | vllm | sleep_l2 | short_short | 3 | 3 | 15.5217 | 0.2525 | 0.0637 | 0 |
 
-## ServerlessLLM validation notes
+Note: rows with restore_latency_estimated=True estimate restore latency as first post-evict request latency minus second active request latency.
 
-- `delete_register` now completes for all three prompts after fixing ServerlessLLM router cleanup.
-- `scale_to_zero_restore` now uses the second active request as `latency_after_s`, with `restore_latency_s` estimated from `first_post_evict_request_s - second_active_request_s`.
-- ServerlessLLM still has no external streaming TTFT in the current API path, so `ttft_available=false` and `tpot_available=false` for these rows.
-- The Docker image rebuild path was blocked by a `github.com` timeout while downloading Miniforge; the successful validation used the existing image with patched installed Python files copied into the created containers before start.
+## Unsupported / blocked rows
+
+- None
 
 ## Stage breakdown excerpts
 
-| method | prompt | scale_to_zero_wait_s | first_post_evict_request_s | second_active_request_s | baseline_gpu_used_mib | idle_gpu_threshold_mib |
-|---|---|---:|---:|---:|---:|---:|
-| scale_to_zero_restore | short_short | 2.0494 | 13.2021 | 1.1750 | 233 | 538 |
-| scale_to_zero_restore | long_short | 1.0338 | 13.1857 | 1.1455 | 233 | 538 |
-| scale_to_zero_restore | short_long | 2.0536 | 13.8445 | 1.7998 | 233 | 538 |
+- serverless_llm / scale_to_zero_restore / short_short: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.202136278850958, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 2.04938465799205, "second_active_request_s": 1.1750383209437132}
+- serverless_llm / scale_to_zero_restore / long_short: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.1857134019956, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 1.0337874540127814, "second_active_request_s": 1.1455164120998234}
+- serverless_llm / scale_to_zero_restore / short_long: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.8444864009507, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 2.053593240911141, "second_active_request_s": 1.7997578410431743}

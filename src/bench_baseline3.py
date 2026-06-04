@@ -14,6 +14,8 @@ import requests
 from benchlib.config import collect_repo_metadata, load_baseline3_config
 from benchlib.schema import write_summary_csv
 
+DEFAULT_VLLM_RESULT = Path("results/baselines/vllm/qwen2p5_0p5b/20260603_150331")
+
 
 def build_serverless_cmd(
     repo: str,
@@ -172,7 +174,7 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     if "vllm" in args.systems:
-        latest_vllm = Path("results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457")
+        latest_vllm = DEFAULT_VLLM_RESULT
         if latest_vllm.exists():
             rows.extend(normalize_rows(read_summary_rows(latest_vllm), "vllm"))
             metadata["repos"]["vllm"] = {"source": str(latest_vllm)}
@@ -202,17 +204,13 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             healthy = False
         if healthy:
-            rows.append(
-                make_blocker_row(
-                    "serverless_llm",
-                    "delete_register",
-                    str(config["model"]),
-                    prompts[0],
-                    0,
-                    "controller delete only removes metadata; router.shutdown remains commented in ServerlessLLM/sllm/controller.py, so delete_register does not reliably free GPU for the next register",
-                )
-            )
             serverless_out = out_root / "serverless_llm"
+            serverless_methods = list(config["systems"]["serverless_llm"].get("optional_methods", []))
+            primary_method = config["systems"]["serverless_llm"].get("primary_method")
+            if primary_method and primary_method not in serverless_methods:
+                serverless_methods.insert(0, str(primary_method))
+            if not serverless_methods:
+                serverless_methods = ["scale_to_zero_restore"]
             cmd = build_serverless_cmd(
                 repo=str(repo),
                 model=_serverless_model_path(config),
@@ -225,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
                 prompts=list(prompts),
                 repeats=int(repeats),
                 out_dir=str(serverless_out),
-                methods=["scale_to_zero_restore"],
+                methods=serverless_methods,
             )
             code, stdout, stderr, run_dir = _run_adapter(cmd, Path.cwd())
             metadata["artifacts"]["serverless_llm"] = {

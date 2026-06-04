@@ -1,0 +1,15 @@
+{
+  "created_at": "2026-06-04T07:51:59.468127+00:00",
+  "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+  "systems": [
+    "vllm",
+    "swapserve_llm",
+    "serverless_llm"
+  ],
+  "source_results": {
+    "vllm": "results/baselines/vllm/qwen2p5_0p5b/20260603_150331",
+    "swapserve_llm": "results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353",
+    "serverless_llm": "results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528"
+  },
+  "notes": "Merged from latest manually curated per-system result directories; ServerlessLLM rows use the 20260604 full-fixed rerun."
+}

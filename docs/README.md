@@ -20,8 +20,8 @@ These notes record the exact local runtime assumptions that were discovered whil
 ## Reports
 
 - `reports/baseline3-qwen2p5-0p5b.md`
-- `reports/vllm-qwen2p5-0p5b-clean-hbm.md`
-- `reports/vllm-qwen2p5-0p5b-clean-hbm-memory.md`
+- `reports/figures/baseline3-qwen2p5-0p5b-comparison.png`
+- `reports/vllm-qwen2p5-0p5b.md`
 
 ## Archive
 
@@ -29,4 +29,4 @@ These notes record the exact local runtime assumptions that were discovered whil
 
 ## Result data policy
 
-Only curated future-baseline data should be tracked under `../results/baselines/`. Transient experiments should go to `results/tmp/` or a new ignored runtime directory.
+Keep the latest curated per-system runs and the latest merged baseline comparison under `../results/baselines/`. Older raw result directories should be pruned after their findings are reflected in `docs/reports/`. Transient experiments should go to `results/tmp/` or another ignored runtime directory.

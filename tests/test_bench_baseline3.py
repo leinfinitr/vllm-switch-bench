@@ -6,7 +6,13 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_baseline3 import build_serverless_cmd, make_blocker_row, normalize_rows, read_summary_rows
+from bench_baseline3 import (
+    DEFAULT_VLLM_RESULT,
+    build_serverless_cmd,
+    make_blocker_row,
+    normalize_rows,
+    read_summary_rows,
+)
 
 
 def test_build_serverless_command_uses_registered_model_name_when_present():
@@ -24,6 +30,24 @@ def test_build_serverless_command_uses_registered_model_name_when_present():
     assert "--registered-model-name" in cmd
     assert "qwen2p5-0p5b" in cmd
 
+def test_build_serverless_command_can_run_multiple_methods():
+    cmd = build_serverless_cmd(
+        repo="/repo/ServerlessLLM",
+        model="/models/hf/Qwen2.5-0.5B-Instruct",
+        registered_model_name="qwen2p5-0p5b",
+        base_url="http://127.0.0.1:8343",
+        prompts=["short_short"],
+        repeats=1,
+        out_dir="results/tmp/serverless",
+        methods=["delete_register", "scale_to_zero_restore"],
+    )
+
+    idx = cmd.index("--methods")
+    assert cmd[idx + 1 : idx + 3] == ["delete_register", "scale_to_zero_restore"]
+
+
+def test_default_vllm_result_points_to_latest_simplified_schema_run():
+    assert str(DEFAULT_VLLM_RESULT) == "results/baselines/vllm/qwen2p5_0p5b/20260603_150331"
 
 
 def test_normalize_rows_injects_default_system_for_legacy_rows():

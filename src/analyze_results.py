@@ -83,7 +83,7 @@ def build_report(result_dir: Path, repo_root: Path) -> str:
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     metric_fields = [
-        "startup_to_health_s",
+        "startup_latency_s",
         "evict_latency_s",
         "restore_latency_s",
         "ttft_before_s",
@@ -96,21 +96,21 @@ def build_report(result_dir: Path, repo_root: Path) -> str:
         agg = {field: stats([v for r in vs if (v := fnum(r.get(field))) is not None]) for field in metric_fields}
         lines.append(
             f"| {key[0]} | {key[1]} | {key[2]} | {len(vs)} | "
-            f"{fmt(agg['startup_to_health_s']['avg'])} | {fmt(agg['evict_latency_s']['avg'])} | {fmt(agg['restore_latency_s']['avg'])} | "
+            f"{fmt(agg['startup_latency_s']['avg'])} | {fmt(agg['evict_latency_s']['avg'])} | {fmt(agg['restore_latency_s']['avg'])} | "
             f"{fmt(agg['ttft_before_s']['avg'])} | {fmt(agg['ttft_after_s']['avg'])} | "
             f"{fmt(agg['latency_before_s']['avg'])} | {fmt(agg['latency_after_s']['avg'])} |"
         )
 
-    lines += ["", "## Successful run memory envelopes", "", "| run_id | gpu min MiB | gpu avg MiB | gpu max MiB | cpu min MiB | cpu max MiB | samples |", "|---|---:|---:|---:|---:|---:|---:|"]
-    nested_by_id = {r["run_id"]: r for r in nested}
-    for r in rows:
-        if r.get("ok") != "True":
-            continue
-        info = nested_by_id.get(r["run_id"], {})
-        mem = event_memory(repo_root, info.get("event_log", ""))
+    lines += ["", "## Ready / evicted memory", "", "| method | prompt | ready gpu avg MiB | evicted gpu avg MiB | ready cpu avg MiB | evicted cpu avg MiB |", "|---|---|---:|---:|---:|---:|"]
+    for key in sorted(by):
+        vs = by[key]
+        ready_gpu = stats([v for r in vs if (v := fnum(r.get("memory_gpu_used_ready_mib"))) is not None])
+        evict_gpu = stats([v for r in vs if (v := fnum(r.get("memory_gpu_used_evict_mib"))) is not None])
+        ready_cpu = stats([v for r in vs if (v := fnum(r.get("memory_cpu_used_ready_mib"))) is not None])
+        evict_cpu = stats([v for r in vs if (v := fnum(r.get("memory_cpu_used_evict_mib"))) is not None])
         lines.append(
-            f"| {r['run_id']} | {fmt(mem['gpu_min_mib'])} | {fmt(mem['gpu_avg_mib'])} | {fmt(mem['gpu_max_mib'])} | "
-            f"{fmt(mem['cpu_min_mib'])} | {fmt(mem['cpu_max_mib'])} | {mem['events']} |"
+            f"| {key[0]} | {key[1]} | {fmt(ready_gpu['avg'])} | {fmt(evict_gpu['avg'])} | "
+            f"{fmt(ready_cpu['avg'])} | {fmt(evict_cpu['avg'])} |"
         )
 
     failed = [r for r in rows if r.get("ok") != "True"]

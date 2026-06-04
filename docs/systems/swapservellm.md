@@ -143,15 +143,15 @@ python src/bench_swapserve_llm.py \
 
 Standalone SwapServeLLM result:
 
-`results/baselines/swapserve_llm/qwen2p5_0p5b/20260602_160715`
+`results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
 
 Merged baseline3 result:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260602_161100`
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
 
 ## Known pitfalls
 
 - `swapout.log` and `swapin.log` contain summary rows only. Detailed stage timings are printed to router stdout.
-- The router forwards client headers to the backend; benchmark requests need `Authorization: Bearer dummy` when the backend was started with `--api-key dummy`.
+- The router forwards client headers to the backend; benchmark requests need `Authorization: Bearer ***` when the backend was started with `--api-key dummy`.
 - Host ports 8000 and 8001 must be free before launching.
 - The current compatibility patch is machine-specific in its numeric groups (`44`, `992`). Revalidate on other hosts.

@@ -68,19 +68,18 @@ python src/bench_vllm_lifecycle.py \
   --gpu-memory-utilization 0.45 \
   --max-model-len 1024 \
   --port 0 \
-  --out-dir results/baselines/vllm/qwen2p5_0p5b_clean_hbm
+  --out-dir results/baselines/vllm/qwen2p5_0p5b
 ```
 
 ## Curated result
 
 Current source result directory:
 
-`results/baselines/vllm/qwen2p5_0p5b_clean_hbm/20260601_185457`
+`results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
 
 Reports:
 
-- `docs/reports/vllm-qwen2p5-0p5b-clean-hbm.md`
-- `docs/reports/vllm-qwen2p5-0p5b-clean-hbm-memory.md`
+- `docs/reports/vllm-qwen2p5-0p5b.md`
 
 Observed on Qwen2.5-0.5B:
 
