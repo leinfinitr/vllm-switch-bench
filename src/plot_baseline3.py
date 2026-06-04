@@ -125,9 +125,8 @@ def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | P
 
     labels = [row["label"] for row in aggregated]
     x = list(range(len(labels)))
-    width = 0.24
+    width = 0.36
 
-    startup = [row.get("startup_latency_s") for row in aggregated]
     evict = [row.get("evict_latency_s") for row in aggregated]
     restore = [row.get("restore_latency_s") for row in aggregated]
     memory_ready = [row.get("memory_gpu_used_ready_mib") for row in aggregated]
@@ -141,9 +140,8 @@ def render_comparison_figure(aggregated: list[dict[str, Any]], out_path: str | P
     fig.suptitle(title)
 
     ax = axes[0][0]
-    ax.bar([i - width for i in x], _bar_values(startup), width=width, label="startup", color="#9C755F")
-    ax.bar(x, _bar_values(evict), width=width, label="evict", color="#4E79A7")
-    ax.bar([i + width for i in x], _bar_values(restore), width=width, label="restore", color="#F28E2B")
+    ax.bar([i - width / 2 for i in x], _bar_values(evict), width=width, label="evict", color="#4E79A7")
+    ax.bar([i + width / 2 for i in x], _bar_values(restore), width=width, label="restore", color="#F28E2B")
     ax.set_title("Switch overhead")
     ax.set_ylabel("seconds")
     ax.set_xticks(x, labels, rotation=12, ha="right")
