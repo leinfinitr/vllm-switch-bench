@@ -147,7 +147,7 @@ Standalone SwapServeLLM result:
 
 Merged baseline3 result:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
 
 ## Known pitfalls
 

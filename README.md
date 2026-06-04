@@ -47,11 +47,11 @@ The tracked result tree keeps the latest per-system runs plus the latest merged 
 
 - `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
   - vLLM cold reload + sleep_l1 + sleep_l2 source run using the simplified schema.
-- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528`
+- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
   - Latest ServerlessLLM full-fixed rerun with `delete_register` and `scale_to_zero_restore`.
 - `results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
   - Latest SwapServeLLM swapout/swapin simplified-schema run.
-- `results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
+- `results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
   - Latest merged baseline3 comparison run used by `docs/reports/baseline3-qwen2p5-0p5b.md` and the comparison figure.
 
 Older result directories were pruned after their useful findings were reflected in reports.

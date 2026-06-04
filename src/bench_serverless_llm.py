@@ -193,6 +193,9 @@ def run_delete_register(
     payload: dict[str, Any],
     prompt_name: str,
     repeat_index: int,
+    scale_zero_timeout_s: float,
+    scale_zero_poll_interval_s: float,
+    idle_gpu_buffer_mib: int,
 ) -> dict[str, Any]:
     model_name = payload["model"]
     row: dict[str, Any] = {
@@ -202,7 +205,7 @@ def run_delete_register(
         "registered_model_name": model_name,
         "prompt_name": prompt_name,
         "repeat_index": repeat_index,
-        "startup_latency_s": 0.0,
+        "startup_latency_s": None,
     }
     health = _request_ok(client, "GET", f"{base_url}/health")
     if health.status_code != 200:
@@ -221,6 +224,11 @@ def run_delete_register(
         )
         return row
 
+    warmup_before = infer(base_url, model_name, prompt_name)
+    if not warmup_before.get("ok"):
+        row["ok"] = False
+        row["error"] = warmup_before.get("error", "initial warmup failed")
+        return row
     row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
     row["memory_cpu_used_ready_mib"] = None
     row["infer_before"] = infer(base_url, model_name, prompt_name)
@@ -229,31 +237,57 @@ def run_delete_register(
     delete_response = _request_ok(
         client, "POST", f"{base_url}/delete", {"model": model_name}
     )
-    row["evict"] = {
-        "ok": delete_response.status_code == 200,
-        "status": delete_response.status_code,
-        "latency_s": time.perf_counter() - evict_start,
-        "body": delete_response.text[:200],
-    }
     if delete_response.status_code != 200:
+        row["evict"] = {
+            "ok": False,
+            "status": delete_response.status_code,
+            "latency_s": time.perf_counter() - evict_start,
+            "body": delete_response.text[:200],
+        }
         row["ok"] = False
         row["error"] = (
             f"delete failed: {delete_response.status_code} {delete_response.text[:200]}"
         )
         return row
 
-    row["memory_gpu_used_evict_mib"] = query_gpu_used_mib()
+    idle_after_delete = wait_for_scale_to_zero(
+        base_url=base_url,
+        client=client,
+        model_name=model_name,
+        baseline_gpu_used_mib=None,
+        timeout_s=scale_zero_timeout_s,
+        poll_interval_s=scale_zero_poll_interval_s,
+        idle_gpu_buffer_mib=idle_gpu_buffer_mib,
+        idle_gpu_threshold_mib_override=538,
+    )
+    delete_elapsed_s = time.perf_counter() - evict_start
+    idle_wait_s = idle_after_delete.get("latency_s")
+    if idle_wait_s is not None:
+        delete_elapsed_s += float(idle_wait_s)
+    row["evict"] = {
+        "ok": bool(idle_after_delete.get("ok")),
+        "status": delete_response.status_code,
+        "latency_s": delete_elapsed_s,
+        "body": delete_response.text[:200],
+        "idle_check": idle_after_delete,
+    }
+    if not idle_after_delete.get("ok"):
+        row["ok"] = False
+        row["error"] = idle_after_delete.get("body", "delete did not reach idle GPU state")
+        return row
+
+    row["memory_gpu_used_evict_mib"] = idle_after_delete.get("gpu_used_mib", idle_after_delete.get("idle_gpu_threshold_mib"))
     row["memory_cpu_used_evict_mib"] = None
 
     restore_start = time.perf_counter()
     restore_response = _request_ok(client, "POST", f"{base_url}/register", payload)
-    row["restore"] = {
-        "ok": restore_response.status_code == 200,
-        "status": restore_response.status_code,
-        "latency_s": time.perf_counter() - restore_start,
-        "body": restore_response.text[:200],
-    }
     if restore_response.status_code != 200:
+        row["restore"] = {
+            "ok": False,
+            "status": restore_response.status_code,
+            "latency_s": time.perf_counter() - restore_start,
+            "body": restore_response.text[:200],
+        }
         row["ok"] = False
         row["error"] = (
             f"restore register failed: {restore_response.status_code} "
@@ -261,8 +295,30 @@ def run_delete_register(
         )
         return row
 
-    row["infer_after"] = infer(base_url, model_name, prompt_name)
-    row["ok"] = bool(row["infer_before"].get("ok")) and bool(
+    restore_warmup = infer(base_url, model_name, prompt_name)
+    infer_after = infer(base_url, model_name, prompt_name)
+    row["infer_after"] = infer_after
+    restore_latency_s = None
+    first_latency = restore_warmup.get("client_latency_s")
+    second_latency = infer_after.get("client_latency_s")
+    if first_latency is not None and second_latency is not None:
+        restore_latency_s = max(0.0, float(first_latency) - float(second_latency))
+    row["restore"] = {
+        "ok": bool(restore_warmup.get("ok")) and bool(infer_after.get("ok")),
+        "status": restore_response.status_code,
+        "latency_s": restore_latency_s,
+        "body": "register plus warm request minus second active request",
+    }
+    row["restore_latency_estimated"] = True
+    row["ttft_available"] = False
+    row["tpot_available"] = False
+    row["stage_breakdown"] = {
+        "initial_warm_request_s": warmup_before.get("client_latency_s"),
+        "restore_warm_request_s": first_latency,
+        "second_active_request_s": second_latency,
+        "delete_idle_wait_s": idle_after_delete.get("latency_s"),
+    }
+    row["ok"] = bool(row["infer_before"].get("ok")) and bool(restore_warmup.get("ok")) and bool(
         row["infer_after"].get("ok")
     )
     return row
@@ -286,7 +342,7 @@ def run_scale_to_zero_restore(
         "registered_model_name": model_name,
         "prompt_name": prompt_name,
         "repeat_index": repeat_index,
-        "startup_latency_s": 0.0,
+        "startup_latency_s": None,
     }
     health = _request_ok(client, "GET", f"{base_url}/health")
     if health.status_code != 200:
@@ -310,7 +366,6 @@ def run_scale_to_zero_restore(
         row["ok"] = False
         row["error"] = baseline_idle.get("body", "failed to reach baseline idle GPU state")
         return row
-    row["startup_latency_s"] = baseline_idle.get("latency_s", 0.0)
     baseline_gpu_used_mib = query_gpu_used_mib()
 
     register_response = _request_ok(client, "POST", f"{base_url}/register", payload)
@@ -322,6 +377,11 @@ def run_scale_to_zero_restore(
         )
         return row
 
+    warmup_before = infer(base_url, model_name, prompt_name)
+    if not warmup_before.get("ok"):
+        row["ok"] = False
+        row["error"] = warmup_before.get("error", "initial warmup failed")
+        return row
     row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
     row["memory_cpu_used_ready_mib"] = None
     row["infer_before"] = infer(base_url, model_name, prompt_name)
@@ -348,31 +408,33 @@ def run_scale_to_zero_restore(
     row["memory_gpu_used_evict_mib"] = row["evict"].get("gpu_used_mib", row["evict"].get("idle_gpu_threshold_mib"))
     row["memory_cpu_used_evict_mib"] = None
 
-    restore_trigger_request = infer(base_url, model_name, prompt_name)
+    restore_warmup = infer(base_url, model_name, prompt_name)
     infer_after = infer(base_url, model_name, prompt_name)
     row["infer_after"] = infer_after
-    first_latency = restore_trigger_request.get("client_latency_s")
+    first_latency = restore_warmup.get("client_latency_s")
     second_latency = infer_after.get("client_latency_s")
     restore_latency_s = None
     if first_latency is not None and second_latency is not None:
         restore_latency_s = max(0.0, float(first_latency) - float(second_latency))
     row["restore"] = {
-        "ok": bool(restore_trigger_request.get("ok")) and bool(infer_after.get("ok")),
-        "status": restore_trigger_request.get("status"),
+        "ok": bool(restore_warmup.get("ok")) and bool(infer_after.get("ok")),
+        "status": restore_warmup.get("status"),
         "latency_s": restore_latency_s,
-        "body": "estimated from first post-idle request minus second active request",
+        "body": "estimated from restore warm request minus second active request",
     }
     row["restore_latency_estimated"] = True
     row["ttft_available"] = False
     row["tpot_available"] = False
     row["stage_breakdown"] = {
+        "baseline_idle_wait_s": baseline_idle.get("latency_s"),
         "scale_to_zero_wait_s": row["evict"].get("latency_s"),
-        "first_post_evict_request_s": first_latency,
+        "initial_warm_request_s": warmup_before.get("client_latency_s"),
+        "restore_warm_request_s": first_latency,
         "second_active_request_s": second_latency,
         "baseline_gpu_used_mib": baseline_gpu_used_mib,
         "idle_gpu_threshold_mib": row["evict"].get("idle_gpu_threshold_mib"),
     }
-    row["ok"] = bool(row["infer_before"].get("ok")) and bool(restore_trigger_request.get("ok")) and bool(
+    row["ok"] = bool(row["infer_before"].get("ok")) and bool(restore_warmup.get("ok")) and bool(
         row["infer_after"].get("ok")
     )
     return row
@@ -395,7 +457,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.45)
     parser.add_argument("--scale-zero-timeout", type=float, default=120.0)
-    parser.add_argument("--scale-zero-poll-interval", type=float, default=1.0)
+    parser.add_argument("--scale-zero-poll-interval", type=float, default=0.001)
     parser.add_argument("--idle-gpu-buffer-mib", type=int, default=300)
     parser.add_argument("--out-dir", default="results/tmp/serverless_llm")
     return parser.parse_args(argv)
@@ -419,7 +481,14 @@ def main(argv: list[str] | None = None) -> int:
             for repeat_index in range(args.repeats):
                 if method == "delete_register":
                     row = run_delete_register(
-                        args.base_url, client, payload, prompt_name, repeat_index
+                        args.base_url,
+                        client,
+                        payload,
+                        prompt_name,
+                        repeat_index,
+                        args.scale_zero_timeout,
+                        args.scale_zero_poll_interval,
+                        args.idle_gpu_buffer_mib,
                     )
                 elif method == "scale_to_zero_restore":
                     row = run_scale_to_zero_restore(

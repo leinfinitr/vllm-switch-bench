@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from bench_serverless_llm import (
     build_register_payload,
+    parse_args,
     run_delete_register,
     run_scale_to_zero_restore,
 )
@@ -43,6 +44,17 @@ class FakeClient:
         return self.responses[(method, path)].pop(0)
 
 
+def infer_result(latency: float, tokens: int = 10, prefix: str = "ok") -> dict:
+    return {
+        "ok": True,
+        "status": 200,
+        "ttft_s": None,
+        "client_latency_s": latency,
+        "approx_output_tokens": tokens,
+        "approx_tokens_per_s": tokens / latency,
+        "output_prefix": prefix,
+    }
+
 
 def test_build_register_payload_uses_vllm_backend_and_local_model():
     payload = build_register_payload(
@@ -62,22 +74,32 @@ def test_build_register_payload_uses_vllm_backend_and_local_model():
     )
 
 
-
-def test_serverless_delete_register_sequence_records_evict_restore(monkeypatch):
+def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(monkeypatch):
     fake = FakeClient()
-    monkeypatch.setattr(
-        "bench_serverless_llm.infer",
-        lambda *args, **kwargs: {
-            "ok": True,
-            "ttft_s": 0.1,
-            "client_latency_s": 0.2,
-            "approx_tokens_per_s": 10.0,
-        },
-    )
+    infer_calls: list[str] = []
+    infer_results = iter([
+        infer_result(8.0, prefix="initial warmup"),
+        infer_result(0.8, prefix="before measured"),
+        infer_result(9.0, prefix="restore warmup"),
+        infer_result(0.9, prefix="after measured"),
+    ])
+
+    def fake_infer(base_url, model_name, prompt_name):
+        infer_calls.append(prompt_name)
+        return next(infer_results)
+
+    wait_calls = iter([
+        {"ok": True, "latency_s": 0.5, "gpu_used_mib": 240, "idle_gpu_threshold_mib": 538},
+    ])
+    gpu_values = iter([2600, 240])
+    monkeypatch.setattr("bench_serverless_llm.infer", fake_infer)
+    monkeypatch.setattr("bench_serverless_llm.wait_for_scale_to_zero", lambda *args, **kwargs: next(wait_calls))
+    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: next(gpu_values))
     monkeypatch.setattr(
         "bench_serverless_llm.time.perf_counter",
-        iter([1.0, 1.3, 2.0, 2.4, 3.0, 3.1]).__next__,
+        iter([1.0, 1.2, 2.0, 2.3]).__next__,
     )
+
     row = run_delete_register(
         base_url="http://127.0.0.1:8343",
         client=fake,
@@ -87,21 +109,30 @@ def test_serverless_delete_register_sequence_records_evict_restore(monkeypatch):
                 "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
             },
         },
-        prompt_name="short_short",
+        prompt_name="long_short",
         repeat_index=0,
+        scale_zero_timeout_s=120.0,
+        scale_zero_poll_interval_s=0.001,
+        idle_gpu_buffer_mib=300,
     )
+
     assert row["system"] == "serverless_llm"
-    assert row["model"] == "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
-    assert row["registered_model_name"] == "qwen2p5-0p5b"
-    assert row["evict"]["latency_s"] == pytest.approx(0.3)
-    assert row["restore"]["latency_s"] == pytest.approx(0.4)
+    assert row["startup_latency_s"] is None
+    assert row["memory_gpu_used_ready_mib"] == 2600
+    assert row["memory_gpu_used_evict_mib"] == 240
+    assert row["infer_before"]["client_latency_s"] == pytest.approx(0.8)
+    assert row["infer_after"]["client_latency_s"] == pytest.approx(0.9)
+    assert row["evict"]["latency_s"] == pytest.approx(0.7)
+    assert row["restore"]["latency_s"] == pytest.approx(8.1)
+    assert row["ttft_available"] is False
+    assert row["tpot_available"] is False
+    assert infer_calls == ["long_short", "long_short", "long_short", "long_short"]
     assert [call[:2] for call in fake.calls] == [
         ("GET", "/health"),
         ("POST", "/register"),
         ("POST", "/delete"),
         ("POST", "/register"),
     ]
-
 
 
 def test_non_200_register_is_failed_with_body_snippet(monkeypatch):
@@ -119,26 +150,31 @@ def test_non_200_register_is_failed_with_body_snippet(monkeypatch):
         },
         prompt_name="short_short",
         repeat_index=0,
+        scale_zero_timeout_s=120.0,
+        scale_zero_poll_interval_s=0.001,
+        idle_gpu_buffer_mib=300,
     )
     assert row["ok"] is False
     assert "boom" in row["error"]
 
 
-
 def test_summary_row_has_system_serverless_llm(monkeypatch):
     fake = FakeClient()
+    infer_results = iter([
+        infer_result(1.0),
+        infer_result(0.2),
+        infer_result(1.0),
+        infer_result(0.2),
+    ])
+    monkeypatch.setattr("bench_serverless_llm.infer", lambda *args, **kwargs: next(infer_results))
     monkeypatch.setattr(
-        "bench_serverless_llm.infer",
-        lambda *args, **kwargs: {
-            "ok": True,
-            "ttft_s": 0.1,
-            "client_latency_s": 0.2,
-            "approx_tokens_per_s": 10.0,
-        },
+        "bench_serverless_llm.wait_for_scale_to_zero",
+        lambda *args, **kwargs: {"ok": True, "latency_s": 0.1, "gpu_used_mib": 238, "idle_gpu_threshold_mib": 538},
     )
+    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: 238)
     monkeypatch.setattr(
         "bench_serverless_llm.time.perf_counter",
-        iter([1.0, 1.3, 2.0, 2.4, 3.0, 3.1]).__next__,
+        iter([1.0, 1.1, 2.0, 2.1]).__next__,
     )
     row = run_delete_register(
         base_url="http://127.0.0.1:8343",
@@ -151,49 +187,40 @@ def test_summary_row_has_system_serverless_llm(monkeypatch):
         },
         prompt_name="short_short",
         repeat_index=0,
+        scale_zero_timeout_s=120.0,
+        scale_zero_poll_interval_s=0.001,
+        idle_gpu_buffer_mib=300,
     )
     assert row["system"] == "serverless_llm"
 
 
-
-def test_scale_to_zero_restore_sequence_records_wait_and_restore(monkeypatch):
+def test_scale_to_zero_restore_warms_backend_and_subtracts_ready_request(monkeypatch):
     fake = FakeClient()
     fake.responses[("GET", "/health")] = [FakeResponse(200, {"status": "ok"})]
     fake.responses[("POST", "/register")] = [FakeResponse(200, {"status": "ok"})]
-    infer_calls = iter(
+    infer_calls: list[str] = []
+    infer_results = iter(
         [
-            {
-                "ok": True,
-                "status": 200,
-                "client_latency_s": 12.5,
-                "approx_tokens_per_s": 2.0,
-                "output_prefix": "before",
-            },
-            {
-                "ok": True,
-                "status": 200,
-                "client_latency_s": 11.2,
-                "approx_tokens_per_s": 2.2,
-                "output_prefix": "first post evict",
-            },
-            {
-                "ok": True,
-                "status": 200,
-                "client_latency_s": 1.2,
-                "approx_tokens_per_s": 3.2,
-                "output_prefix": "second active",
-            },
+            infer_result(12.5, prefix="initial warmup"),
+            infer_result(1.5, prefix="before measured"),
+            infer_result(11.2, prefix="restore warmup"),
+            infer_result(1.2, prefix="after measured"),
         ]
     )
+
+    def fake_infer(base_url, model_name, prompt_name):
+        infer_calls.append(prompt_name)
+        return next(infer_results)
+
     wait_calls = iter(
         [
             {"ok": True, "latency_s": 0.6, "body": "baseline idle", "idle_gpu_threshold_mib": 538},
-            {"ok": True, "latency_s": 2.5, "body": "scaled zero", "idle_gpu_threshold_mib": 538},
+            {"ok": True, "latency_s": 2.5, "body": "scaled zero", "gpu_used_mib": 238, "idle_gpu_threshold_mib": 538},
         ]
     )
-    monkeypatch.setattr("bench_serverless_llm.infer", lambda *args, **kwargs: next(infer_calls))
+    monkeypatch.setattr("bench_serverless_llm.infer", fake_infer)
     monkeypatch.setattr("bench_serverless_llm.wait_for_scale_to_zero", lambda *args, **kwargs: next(wait_calls))
-    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: 238)
+    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: 2600)
     row = run_scale_to_zero_restore(
         base_url="http://127.0.0.1:8343",
         client=fake,
@@ -203,30 +230,44 @@ def test_scale_to_zero_restore_sequence_records_wait_and_restore(monkeypatch):
                 "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
             },
         },
-        prompt_name="short_short",
+        prompt_name="short_long",
         repeat_index=0,
         scale_zero_timeout_s=120.0,
-        scale_zero_poll_interval_s=1.0,
+        scale_zero_poll_interval_s=0.001,
         idle_gpu_buffer_mib=300,
     )
     assert row["ok"] is True
     assert row["method"] == "scale_to_zero_restore"
-    assert row["startup_latency_s"] == pytest.approx(0.6)
+    assert row["startup_latency_s"] is None
+    assert row["memory_gpu_used_ready_mib"] == 2600
     assert row["evict"]["ok"] is True
     assert row["evict"]["latency_s"] == pytest.approx(2.5)
     assert row["restore"]["latency_s"] == pytest.approx(10.0)
+    assert row["infer_before"]["client_latency_s"] == pytest.approx(1.5)
     assert row["infer_after"]["client_latency_s"] == pytest.approx(1.2)
     assert row["restore_latency_estimated"] is True
     assert row["ttft_available"] is False
     assert row["tpot_available"] is False
-    assert row["memory_gpu_used_ready_mib"] == 238
-    assert row["memory_gpu_used_evict_mib"] == 538
-    assert row["stage_breakdown"]["baseline_gpu_used_mib"] == 238
-    assert row["stage_breakdown"]["idle_gpu_threshold_mib"] == 538
+    assert row["memory_gpu_used_evict_mib"] == 238
+    assert row["stage_breakdown"]["baseline_idle_wait_s"] == 0.6
+    assert row["stage_breakdown"]["initial_warm_request_s"] == 12.5
+    assert row["stage_breakdown"]["restore_warm_request_s"] == 11.2
+    assert row["stage_breakdown"]["second_active_request_s"] == 1.2
+    assert infer_calls == ["short_long", "short_long", "short_long", "short_long"]
     assert [call[:2] for call in fake.calls] == [
         ("GET", "/health"),
         ("POST", "/register"),
     ]
+
+
+def test_scale_to_zero_poll_interval_defaults_to_one_millisecond():
+    args = parse_args([
+        "--repo",
+        "/repo/ServerlessLLM",
+        "--model",
+        "/host-models/hf/Qwen2.5-0.5B-Instruct",
+    ])
+    assert args.scale_zero_poll_interval == pytest.approx(0.001)
 
 
 def test_serverless_docker_compose_mounts_host_models():

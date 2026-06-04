@@ -1,11 +1,11 @@
 {
   "system": "serverless_llm",
-  "created_at": "2026-06-04T07:08:18.595785+00:00",
+  "created_at": "2026-06-04T08:52:02.742916+00:00",
   "repo": "/home/ljl/research-systems/ServerlessLLM",
   "base_url": "http://127.0.0.1:8343",
   "methods": [
     "delete_register",
     "scale_to_zero_restore"
   ],
-  "registered_model_name": "qwen2p5-0p5b-full-fixed3"
+  "registered_model_name": "qwen2p5-0p5b-metrics-v2"
 }

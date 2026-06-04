@@ -1956,87 +1956,61 @@
     "system": "serverless_llm",
     "method": "delete_register",
     "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
     "prompt_name": "short_short",
     "repeat_index": 0,
-    "startup_latency_s": 0.0,
-    "memory_gpu_used_ready_mib": 233,
-    "memory_cpu_used_ready_mib": null,
-    "infer_before": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 17.299195309868082,
-      "approx_output_tokens": 32,
-      "approx_tokens_per_s": 1.8497970238966,
-      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
-    },
-    "evict": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 0.23227124591358006,
-      "body": "{\"status\":\"deleted model qwen2p5-0p5b-full-fixed3\"}"
-    },
-    "memory_gpu_used_evict_mib": 567,
-    "memory_cpu_used_evict_mib": null,
-    "restore": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 0.0045916729141026735,
-      "body": "{\"status\":\"ok\"}"
-    },
-    "infer_after": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 13.299129341961816,
-      "approx_output_tokens": 32,
-      "approx_tokens_per_s": 2.4061725528928144,
-      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
-    },
-    "ok": true
-  },
-  {
-    "system": "serverless_llm",
-    "method": "delete_register",
-    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
-    "prompt_name": "long_short",
-    "repeat_index": 0,
-    "startup_latency_s": 0.0,
+    "startup_latency_s": null,
     "memory_gpu_used_ready_mib": 2605,
     "memory_cpu_used_ready_mib": null,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1500992639921606,
-      "approx_output_tokens": 24,
-      "approx_tokens_per_s": 20.867763984729923,
-      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
+      "client_latency_s": 1.169005259172991,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 27.373700630430267,
+      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.2320837990846485,
-      "body": "{\"status\":\"deleted model qwen2p5-0p5b-full-fixed3\"}"
+      "latency_s": 1.0089163901284337,
+      "body": "{\"status\":\"deleted model qwen2p5-0p5b-metrics-v2\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.26707895612344146,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+      }
     },
-    "memory_gpu_used_evict_mib": 567,
+    "memory_gpu_used_evict_mib": 233,
     "memory_cpu_used_evict_mib": null,
-    "restore": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 0.0042764300014823675,
-      "body": "{\"status\":\"ok\"}"
-    },
     "infer_after": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.493709319038317,
-      "approx_output_tokens": 24,
-      "approx_tokens_per_s": 1.7786065664048598,
-      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
+      "client_latency_s": 1.1682018339633942,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 27.392526761777646,
+      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.36702219513245,
+      "body": "register plus warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "initial_warm_request_s": 17.31408778997138,
+      "restore_warm_request_s": 13.535224029095843,
+      "second_active_request_s": 1.1682018339633942,
+      "delete_idle_wait_s": 0.26707895612344146
     },
     "ok": true
   },
@@ -2044,73 +2018,35 @@
     "system": "serverless_llm",
     "method": "delete_register",
     "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
-    "prompt_name": "short_long",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
+    "prompt_name": "long_short",
     "repeat_index": 0,
-    "startup_latency_s": 0.0,
+    "startup_latency_s": null,
     "memory_gpu_used_ready_mib": 2645,
     "memory_cpu_used_ready_mib": null,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.800585932098329,
-      "approx_output_tokens": 160,
-      "approx_tokens_per_s": 88.85996338621982,
-      "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
+      "client_latency_s": 1.1335801649838686,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 21.171859513210105,
+      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.24779763305559754,
-      "body": "{\"status\":\"deleted model qwen2p5-0p5b-full-fixed3\"}"
-    },
-    "memory_gpu_used_evict_mib": 567,
-    "memory_cpu_used_evict_mib": null,
-    "restore": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 0.004220176953822374,
-      "body": "{\"status\":\"ok\"}"
-    },
-    "infer_after": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 13.92161942878738,
-      "approx_output_tokens": 160,
-      "approx_tokens_per_s": 11.492915807563957,
-      "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
-    },
-    "ok": true
-  },
-  {
-    "system": "serverless_llm",
-    "method": "scale_to_zero_restore",
-    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
-    "prompt_name": "short_short",
-    "repeat_index": 0,
-    "startup_latency_s": 1.0302777769975364,
-    "memory_gpu_used_ready_mib": 233,
-    "memory_cpu_used_ready_mib": null,
-    "infer_before": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 12.24416351201944,
-      "approx_output_tokens": 32,
-      "approx_tokens_per_s": 2.6134900900814753,
-      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
-    },
-    "evict": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 2.04938465799205,
-      "baseline_gpu_used_mib": 233,
-      "gpu_used_mib": 233,
-      "idle_gpu_threshold_mib": 538,
-      "body": "verified scale-to-zero for qwen2p5-0p5b-full-fixed3"
+      "latency_s": 1.0045556740369648,
+      "body": "{\"status\":\"deleted model qwen2p5-0p5b-metrics-v2\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.2641056899446994,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+      }
     },
     "memory_gpu_used_evict_mib": 233,
     "memory_cpu_used_evict_mib": null,
@@ -2118,113 +2054,61 @@
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.1750383209437132,
-      "approx_output_tokens": 32,
-      "approx_tokens_per_s": 27.233154382828733,
-      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
-    },
-    "restore": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 12.027097957907245,
-      "body": "estimated from first post-idle request minus second active request"
-    },
-    "restore_latency_estimated": true,
-    "ttft_available": false,
-    "tpot_available": false,
-    "stage_breakdown": {
-      "scale_to_zero_wait_s": 2.04938465799205,
-      "first_post_evict_request_s": 13.202136278850958,
-      "second_active_request_s": 1.1750383209437132,
-      "baseline_gpu_used_mib": 233,
-      "idle_gpu_threshold_mib": 538
-    },
-    "ok": true
-  },
-  {
-    "system": "serverless_llm",
-    "method": "scale_to_zero_restore",
-    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
-    "prompt_name": "long_short",
-    "repeat_index": 0,
-    "startup_latency_s": 1.0330877208616585,
-    "memory_gpu_used_ready_mib": 233,
-    "memory_cpu_used_ready_mib": null,
-    "infer_before": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 12.197179195005447,
+      "client_latency_s": 1.1352869560942054,
       "approx_output_tokens": 24,
-      "approx_tokens_per_s": 1.9676680662220347,
-      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
-    },
-    "evict": {
-      "ok": true,
-      "status": 200,
-      "latency_s": 1.0337874540127814,
-      "baseline_gpu_used_mib": 233,
-      "gpu_used_mib": 233,
-      "idle_gpu_threshold_mib": 538,
-      "body": "verified scale-to-zero for qwen2p5-0p5b-full-fixed3"
-    },
-    "memory_gpu_used_evict_mib": 233,
-    "memory_cpu_used_evict_mib": null,
-    "infer_after": {
-      "ok": true,
-      "status": 200,
-      "ttft_s": null,
-      "client_latency_s": 1.1455164120998234,
-      "approx_output_tokens": 24,
-      "approx_tokens_per_s": 20.951249363600194,
+      "approx_tokens_per_s": 21.140029726553554,
       "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 12.040196989895776,
-      "body": "estimated from first post-idle request minus second active request"
+      "latency_s": 13.121566268848255,
+      "body": "register plus warm request minus second active request"
     },
     "restore_latency_estimated": true,
     "ttft_available": false,
     "tpot_available": false,
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 1.0337874540127814,
-      "first_post_evict_request_s": 13.1857134019956,
-      "second_active_request_s": 1.1455164120998234,
-      "baseline_gpu_used_mib": 233,
-      "idle_gpu_threshold_mib": 538
+      "initial_warm_request_s": 1.1489971459377557,
+      "restore_warm_request_s": 14.25685322494246,
+      "second_active_request_s": 1.1352869560942054,
+      "delete_idle_wait_s": 0.2641056899446994
     },
     "ok": true
   },
   {
     "system": "serverless_llm",
-    "method": "scale_to_zero_restore",
+    "method": "delete_register",
     "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    "registered_model_name": "qwen2p5-0p5b-full-fixed3",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
     "prompt_name": "short_long",
     "repeat_index": 0,
-    "startup_latency_s": 2.0533474960830063,
-    "memory_gpu_used_ready_mib": 233,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 2645,
     "memory_cpu_used_ready_mib": null,
     "infer_before": {
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 13.837866036919877,
+      "client_latency_s": 1.7918670440558344,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 11.562476437704687,
+      "approx_tokens_per_s": 89.2923392562905,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 2.053593240911141,
-      "baseline_gpu_used_mib": 233,
-      "gpu_used_mib": 233,
-      "idle_gpu_threshold_mib": 538,
-      "body": "verified scale-to-zero for qwen2p5-0p5b-full-fixed3"
+      "latency_s": 1.0074465740472078,
+      "body": "{\"status\":\"deleted model qwen2p5-0p5b-metrics-v2\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.26893967506475747,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+      }
     },
     "memory_gpu_used_evict_mib": 233,
     "memory_cpu_used_evict_mib": null,
@@ -2232,24 +2116,200 @@
       "ok": true,
       "status": 200,
       "ttft_s": null,
-      "client_latency_s": 1.7997578410431743,
+      "client_latency_s": 1.7925946819595993,
       "approx_output_tokens": 160,
-      "approx_tokens_per_s": 88.90084896491459,
+      "approx_tokens_per_s": 89.25609431413342,
       "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
     },
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 12.044728559907526,
-      "body": "estimated from first post-idle request minus second active request"
+      "latency_s": 13.119561542058364,
+      "body": "register plus warm request minus second active request"
     },
     "restore_latency_estimated": true,
     "ttft_available": false,
     "tpot_available": false,
     "stage_breakdown": {
-      "scale_to_zero_wait_s": 2.053593240911141,
-      "first_post_evict_request_s": 13.8444864009507,
-      "second_active_request_s": 1.7997578410431743,
+      "initial_warm_request_s": 1.7843536611180753,
+      "restore_warm_request_s": 14.912156224017963,
+      "second_active_request_s": 1.7925946819595993,
+      "delete_idle_wait_s": 0.26893967506475747
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 2605,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1684719971381128,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 27.386193317748475,
+      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.3529279709327966,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1690327040851116,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 27.37305798903487,
+      "output_prefix": " GPU memory is crucial for Large Language Models (LLMs) because it allows the model to store and process large amounts o"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.065972949843854,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 0.9033492559101433,
+      "scale_to_zero_wait_s": 1.3529279709327966,
+      "initial_warm_request_s": 12.227715854067355,
+      "restore_warm_request_s": 13.235005653928965,
+      "second_active_request_s": 1.1690327040851116,
+      "baseline_gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 2645,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1402449689339846,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 21.048108655491465,
+      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.399152937112376,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1385548650287092,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 21.079353079216634,
+      "output_prefix": " The main bottleneck in the LLM serving system is the impact of weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.06463094195351,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 1.3750223380047828,
+      "scale_to_zero_wait_s": 1.399152937112376,
+      "initial_warm_request_s": 13.198495323071256,
+      "restore_warm_request_s": 13.20318580698222,
+      "second_active_request_s": 1.1385548650287092,
+      "baseline_gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-0.5B-Instruct",
+    "registered_model_name": "qwen2p5-0p5b-metrics-v2",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 2605,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.7889913821127266,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 89.43586961891704,
+      "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.0963858501054347,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-0p5b-metrics-v2"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.782602114835754,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 89.75642891276505,
+      "output_prefix": " Please provide at least 5 examples of how to evaluate the performance of a LLM model in different scenarios, such as wh"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.055508507182822,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 1.4470457299612463,
+      "scale_to_zero_wait_s": 1.0963858501054347,
+      "initial_warm_request_s": 13.848316129064187,
+      "restore_warm_request_s": 13.838110622018576,
+      "second_active_request_s": 1.782602114835754,
       "baseline_gpu_used_mib": 233,
       "idle_gpu_threshold_mib": 538
     },

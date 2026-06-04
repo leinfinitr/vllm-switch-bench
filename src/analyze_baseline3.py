@@ -66,7 +66,7 @@ def build_report(rows: list[dict[str, Any]], metadata: dict[str, Any]) -> str:
     if any(r.get("restore_latency_estimated") for r in rows):
         lines.extend([
             "",
-            "Note: rows with restore_latency_estimated=True estimate restore latency as first post-evict request latency minus second active request latency.",
+            "Note: rows with restore_latency_estimated=True estimate restore latency from a warm restore request minus a second active request.",
         ])
 
     unsupported = [r for r in rows if r.get("unsupported")]

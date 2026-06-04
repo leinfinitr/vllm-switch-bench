@@ -6,12 +6,12 @@ Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 
 | system | method | prompt | n | ok_runs | mean_startup_s | mean_restore_s | mean_evict_s | estimated_restore_runs |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| serverless_llm | delete_register | long_short | 1 | 1 | 0.0000 | 0.0043 | 0.2321 | 0 |
-| serverless_llm | delete_register | short_long | 1 | 1 | 0.0000 | 0.0042 | 0.2478 | 0 |
-| serverless_llm | delete_register | short_short | 1 | 1 | 0.0000 | 0.0046 | 0.2323 | 0 |
-| serverless_llm | scale_to_zero_restore | long_short | 1 | 1 | 1.0331 | 12.0402 | 1.0338 | 1 |
-| serverless_llm | scale_to_zero_restore | short_long | 1 | 1 | 2.0533 | 12.0447 | 2.0536 | 1 |
-| serverless_llm | scale_to_zero_restore | short_short | 1 | 1 | 1.0303 | 12.0271 | 2.0494 | 1 |
+| serverless_llm | delete_register | long_short | 1 | 1 | - | 13.1216 | 1.0046 | 1 |
+| serverless_llm | delete_register | short_long | 1 | 1 | - | 13.1196 | 1.0074 | 1 |
+| serverless_llm | delete_register | short_short | 1 | 1 | - | 12.3670 | 1.0089 | 1 |
+| serverless_llm | scale_to_zero_restore | long_short | 1 | 1 | - | 12.0646 | 1.3992 | 1 |
+| serverless_llm | scale_to_zero_restore | short_long | 1 | 1 | - | 12.0555 | 1.0964 | 1 |
+| serverless_llm | scale_to_zero_restore | short_short | 1 | 1 | - | 12.0660 | 1.3529 | 1 |
 | swapserve_llm | swapout_swapin | long_short | 3 | 3 | - | 0.4400 | 0.4456 | 0 |
 | swapserve_llm | swapout_swapin | short_long | 3 | 3 | - | 0.4382 | 0.4419 | 0 |
 | swapserve_llm | swapout_swapin | short_short | 3 | 3 | - | 0.4372 | 0.4498 | 0 |
@@ -25,7 +25,7 @@ Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 | vllm | sleep_l2 | short_long | 3 | 3 | 15.3550 | 0.2431 | 0.0596 | 0 |
 | vllm | sleep_l2 | short_short | 3 | 3 | 15.5217 | 0.2525 | 0.0637 | 0 |
 
-Note: rows with restore_latency_estimated=True estimate restore latency as first post-evict request latency minus second active request latency.
+Note: rows with restore_latency_estimated=True estimate restore latency from a warm restore request minus a second active request.
 
 ## Unsupported / blocked rows
 
@@ -33,6 +33,9 @@ Note: rows with restore_latency_estimated=True estimate restore latency as first
 
 ## Stage breakdown excerpts
 
-- serverless_llm / scale_to_zero_restore / short_short: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.202136278850958, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 2.04938465799205, "second_active_request_s": 1.1750383209437132}
-- serverless_llm / scale_to_zero_restore / long_short: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.1857134019956, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 1.0337874540127814, "second_active_request_s": 1.1455164120998234}
-- serverless_llm / scale_to_zero_restore / short_long: {"baseline_gpu_used_mib": 233, "first_post_evict_request_s": 13.8444864009507, "idle_gpu_threshold_mib": 538, "scale_to_zero_wait_s": 2.053593240911141, "second_active_request_s": 1.7997578410431743}
+- serverless_llm / delete_register / short_short: {"delete_idle_wait_s": 0.26707895612344146, "initial_warm_request_s": 17.31408778997138, "restore_warm_request_s": 13.535224029095843, "second_active_request_s": 1.1682018339633942}
+- serverless_llm / delete_register / long_short: {"delete_idle_wait_s": 0.2641056899446994, "initial_warm_request_s": 1.1489971459377557, "restore_warm_request_s": 14.25685322494246, "second_active_request_s": 1.1352869560942054}
+- serverless_llm / delete_register / short_long: {"delete_idle_wait_s": 0.26893967506475747, "initial_warm_request_s": 1.7843536611180753, "restore_warm_request_s": 14.912156224017963, "second_active_request_s": 1.7925946819595993}
+- serverless_llm / scale_to_zero_restore / short_short: {"baseline_gpu_used_mib": 233, "baseline_idle_wait_s": 0.9033492559101433, "idle_gpu_threshold_mib": 538, "initial_warm_request_s": 12.227715854067355, "restore_warm_request_s": 13.235005653928965, "scale_to_zero_wait_s": 1.3529279709327966, "second_active_request_s": 1.1690327040851116}
+- serverless_llm / scale_to_zero_restore / long_short: {"baseline_gpu_used_mib": 233, "baseline_idle_wait_s": 1.3750223380047828, "idle_gpu_threshold_mib": 538, "initial_warm_request_s": 13.198495323071256, "restore_warm_request_s": 13.20318580698222, "scale_to_zero_wait_s": 1.399152937112376, "second_active_request_s": 1.1385548650287092}
+- serverless_llm / scale_to_zero_restore / short_long: {"baseline_gpu_used_mib": 233, "baseline_idle_wait_s": 1.4470457299612463, "idle_gpu_threshold_mib": 538, "initial_warm_request_s": 13.848316129064187, "restore_warm_request_s": 13.838110622018576, "scale_to_zero_wait_s": 1.0963858501054347, "second_active_request_s": 1.782602114835754}

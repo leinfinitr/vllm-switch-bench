@@ -217,12 +217,12 @@ python src/analyze_baseline3.py \
 
 The latest tracked merged baseline3 result is:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
 
 It is assembled from the latest per-system result directories:
 
 - `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
-- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528`
+- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
 - `results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
 
 Report:
@@ -231,7 +231,8 @@ Report:
 
 ## Known interpretation caveats
 
-- ServerlessLLM `scale_to_zero_restore` measures a real external runtime path; restore latency is estimated from the first post-idle request minus a second active request.
+- ServerlessLLM `scale_to_zero_restore` measures a real external runtime path; both ServerlessLLM methods use prompt-matched warm requests so ready memory and before/after latency are measured after the backend is serving.
+- ServerlessLLM restore latency is estimated as restore warm request latency minus a second active request latency; startup latency is intentionally empty because the Docker runtime is assumed already running.
 - ServerlessLLM has no external streaming TTFT in this API path, so its TPOT fields are intentionally unavailable.
 - SwapServeLLM `swapout_swapin` uses CUDA checkpoint/restore and podman-managed containers; it is a system-level hotswap baseline, not a vLLM Sleep Mode policy.
 - SwapServeLLM detailed stage timings are emitted on router stdout; `swapout.log` and `swapin.log` contain summary rows only.

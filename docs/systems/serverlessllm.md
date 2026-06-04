@@ -6,8 +6,8 @@ This document records the verified path used for the baseline3 ServerlessLLM com
 
 The maintained baseline3 rows now include both ServerlessLLM methods:
 
-- `delete_register`: register the model, run inference, delete the model/router, register again, then run inference after restore.
-- `scale_to_zero_restore`: register the model, run inference, wait until GPU memory returns to the idle threshold, then use the first post-idle request to estimate restore latency and the second active request as `latency_after_s`.
+- `delete_register`: register the model, send a prompt-matched warm request to start the backend, measure ready latency with a second request, delete the model/router and wait for idle GPU memory, register again, then estimate restore latency from a restore warm request minus a second active request.
+- `scale_to_zero_restore`: register the model, send a prompt-matched warm request to start the backend, measure ready latency with a second request, wait until GPU memory returns to the idle threshold, then estimate restore latency from a restore warm request minus a second active request.
 
 `scale_to_zero_restore` is the closer serverless-serving baseline. `delete_register` is kept as a deterministic lifecycle comparison now that the local ServerlessLLM checkout has a router cleanup fix.
 
@@ -72,6 +72,7 @@ python src/bench_serverless_llm.py \
   --repeats 1 \
   --max-model-len 2048 \
   --methods delete_register scale_to_zero_restore \
+  --scale-zero-poll-interval 0.001 \
   --out-dir results/baselines/serverless_llm/qwen2p5_0p5b
 ```
 
@@ -81,15 +82,16 @@ Use `--max-model-len 2048` for the current prompt set; `long_short` exceeds 512 
 
 ServerlessLLM rows in the curated baseline3 report come from:
 
-`results/baselines/serverless_llm/qwen2p5_0p5b/20260604_150528`
+`results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
 
 The merged baseline3 result that includes these rows is:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_150528`
+`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
 
 ## Known pitfalls
 
 - Do not use local Python startup as the default path unless all ServerlessLLM Python dependencies and store components are installed; the verified path here is Docker Compose.
 - Do not point the writable ServerlessLLM model store at the raw HF checkpoint directory.
-- Do not use controller `/health` alone as model readiness; verify worker registration or run an inference request.
+- Do not use controller `/health` alone as model readiness; the benchmark uses a prompt-matched warm request and samples ready memory after that request completes.
+- ServerlessLLM startup latency is intentionally left empty because the external Docker runtime is assumed already running.
 - ServerlessLLM currently does not expose external streaming TTFT for these rows, so `ttft_available=false` and `tpot_available=false` are expected.
