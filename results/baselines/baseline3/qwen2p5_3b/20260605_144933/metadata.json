@@ -1,0 +1,76 @@
+{
+  "system": "baseline3",
+  "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+  "inputs": [
+    "results/baselines/vllm/qwen2p5_3b/20260605_095722",
+    "results/baselines/serverless_llm/qwen2p5_3b/20260605_111500_blocked",
+    "results/baselines/swapserve_llm/qwen2p5_3b/20260605_144933"
+  ],
+  "input_metadata": [
+    {
+      "system": "vllm",
+      "argv": [
+        "src/bench_vllm_lifecycle.py",
+        "--model",
+        "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+        "--served-model-name",
+        "qwen2p5-3b-instruct",
+        "--python",
+        ".venv/bin/python",
+        "--workdir",
+        "/home/ljl/research-systems/llm-switch-bench",
+        "--methods",
+        "cold_reload",
+        "sleep_l1",
+        "sleep_l2",
+        "--prompts",
+        "short_short",
+        "long_short",
+        "short_long",
+        "--repeats",
+        "3",
+        "--ready-timeout-s",
+        "720",
+        "--gpu-memory-utilization",
+        "0.90",
+        "--max-model-len",
+        "2048",
+        "--port",
+        "0",
+        "--out-dir",
+        "results/baselines/vllm/qwen2p5_3b"
+      ],
+      "created_at": "2026-06-05T01:57:22.254084+00:00",
+      "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+      "methods": [
+        "cold_reload",
+        "sleep_l1",
+        "sleep_l2"
+      ],
+      "prompts": [
+        "short_short",
+        "long_short",
+        "short_long"
+      ],
+      "repeats": 3,
+      "gpu": "0, NVIDIA GeForce RTX 3080, 10240 MiB, 580.95.05\n"
+    },
+    {
+      "system": "serverless_llm",
+      "created_at": "2026-06-05T03:21:54.777027+00:00",
+      "repo": "/home/ljl/research-systems/ServerlessLLM",
+      "base_url": "http://127.0.0.1:8343",
+      "methods": [
+        "delete_register",
+        "scale_to_zero_restore"
+      ],
+      "registered_model_name": "qwen2p5-3b",
+      "blocked": true
+    },
+    {
+      "system": "swapserve_llm",
+      "created_at": "2026-06-05T06:50:08.584078+00:00",
+      "repo": "/home/ljl/research-systems/SwapServeLLM"
+    }
+  ]
+}

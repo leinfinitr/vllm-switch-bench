@@ -79,7 +79,12 @@ def infer(base_url: str, model_name: str, prompt_name: str, api_key: str | None 
                     "error": response.text[:500],
                     "client_latency_s": total,
                 }
-            parsed = parse_openai_stream_response(response, started_at=started_at, now_fn=time.perf_counter)
+            parsed = parse_openai_stream_response(
+                response,
+                started_at=started_at,
+                now_fn=time.perf_counter,
+                ttft_mode="explicit",
+            )
             total = (parsed["completed_at"] or time.perf_counter()) - started_at
     except Exception as exc:
         return {"ok": False, "status": status, "error": repr(exc), "client_latency_s": time.perf_counter() - started_at}
@@ -90,6 +95,7 @@ def infer(base_url: str, model_name: str, prompt_name: str, api_key: str | None 
         "ok": True,
         "status": status,
         "ttft_s": parsed["ttft_s"],
+        "ttft_available": parsed.get("ttft_available", parsed["ttft_s"] is not None),
         "client_latency_s": total,
         "completion_tokens": completion_tokens,
         "approx_output_tokens": completion_tokens,

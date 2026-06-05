@@ -12,9 +12,9 @@ Model: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
 | serverless_llm | scale_to_zero_restore | long_short | 1 | 1 | - | 12.0646 | 1.3992 | 1 |
 | serverless_llm | scale_to_zero_restore | short_long | 1 | 1 | - | 12.0555 | 1.0964 | 1 |
 | serverless_llm | scale_to_zero_restore | short_short | 1 | 1 | - | 12.0660 | 1.3529 | 1 |
-| swapserve_llm | swapout_swapin | long_short | 3 | 3 | - | 0.4400 | 0.4456 | 0 |
-| swapserve_llm | swapout_swapin | short_long | 3 | 3 | - | 0.4382 | 0.4419 | 0 |
-| swapserve_llm | swapout_swapin | short_short | 3 | 3 | - | 0.4372 | 0.4498 | 0 |
+| swapserve_llm | swapout_swapin | long_short | 3 | 3 | - | 0.4672 | 0.4515 | 0 |
+| swapserve_llm | swapout_swapin | short_long | 3 | 3 | - | 0.4595 | 0.4452 | 0 |
+| swapserve_llm | swapout_swapin | short_short | 3 | 3 | - | 0.4578 | 0.4444 | 0 |
 | vllm | cold_reload | long_short | 3 | 3 | 15.3538 | 15.3539 | 0.3309 | 0 |
 | vllm | cold_reload | short_long | 3 | 3 | 15.1884 | 15.5205 | 0.3642 | 0 |
 | vllm | cold_reload | short_short | 3 | 3 | 15.3544 | 15.5204 | 0.3644 | 0 |

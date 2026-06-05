@@ -217,13 +217,13 @@ python src/analyze_baseline3.py \
 
 The latest tracked merged baseline3 result is:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
+`results/baselines/baseline3/qwen2p5_0p5b/20260605_145529`
 
 It is assembled from the latest per-system result directories:
 
 - `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
 - `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
-- `results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
+- `results/baselines/swapserve_llm/qwen2p5_0p5b/20260605_145529`
 
 Report:
 

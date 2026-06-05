@@ -1,6 +1,6 @@
 # Baseline3 report
 
-Model: qwen2p5_1p5b
+Model: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
 
 ## Aggregated rows
 
@@ -12,9 +12,9 @@ Model: qwen2p5_1p5b
 | serverless_llm | scale_to_zero_restore | long_short | 1 | 1 | - | 12.1172 | 1.2407 | 1 |
 | serverless_llm | scale_to_zero_restore | short_long | 1 | 1 | - | 12.0781 | 1.7509 | 1 |
 | serverless_llm | scale_to_zero_restore | short_short | 1 | 1 | - | 12.0769 | 1.1770 | 1 |
-| swapserve_llm | swapout_swapin | long_short | 3 | 3 | - | 0.7441 | 0.6718 | 0 |
-| swapserve_llm | swapout_swapin | short_long | 3 | 3 | - | 0.7401 | 0.6705 | 0 |
-| swapserve_llm | swapout_swapin | short_short | 3 | 3 | - | 0.7357 | 0.6720 | 0 |
+| swapserve_llm | swapout_swapin | long_short | 3 | 3 | - | 0.7288 | 0.6711 | 0 |
+| swapserve_llm | swapout_swapin | short_long | 3 | 3 | - | 0.7336 | 0.6711 | 0 |
+| swapserve_llm | swapout_swapin | short_short | 3 | 3 | - | 0.7362 | 0.6692 | 0 |
 | vllm | cold_reload | long_short | 3 | 3 | 17.0233 | 16.8567 | 0.3642 | 0 |
 | vllm | cold_reload | short_long | 3 | 3 | 16.6893 | 16.5227 | 0.3642 | 0 |
 | vllm | cold_reload | short_short | 3 | 3 | 20.0265 | 16.6893 | 0.3644 | 0 |

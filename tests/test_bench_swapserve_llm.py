@@ -187,7 +187,24 @@ def test_swapserve_infer_uses_streaming_and_completion_tokens(monkeypatch):
     row = infer("http://127.0.0.1:8000", "qwen", "short_short", api_key="dummy")
     assert calls[0]["stream"] is True
     assert calls[0]["json"]["stream"] is True
-    assert row["ttft_s"] == pytest.approx(0.1)
+    assert row["ttft_s"] is None
+    assert row["ttft_available"] is False
+    assert row["completion_tokens"] == 2
+    assert row["client_latency_s"] == pytest.approx(0.3)
+
+
+def test_swapserve_infer_uses_explicit_stream_ttft_when_present(monkeypatch):
+    class ExplicitTtftStreamResponse(FakeStreamResponse):
+        def iter_lines(self, decode_unicode=True):
+            yield 'data: {"choices": [{"delta": {"content": "hello"}}], "ttft_s": 0.012}'
+            yield 'data: {"choices": [{"delta": {"content": " world"}}], "usage": {"completion_tokens": 2}}'
+            yield 'data: [DONE]'
+
+    monkeypatch.setattr("bench_swapserve_llm.requests.post", lambda *args, **kwargs: ExplicitTtftStreamResponse())
+    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
+    row = infer("http://127.0.0.1:8000", "qwen", "short_short", api_key="dummy")
+    assert row["ttft_s"] == pytest.approx(0.012)
+    assert row["ttft_available"] is True
     assert row["completion_tokens"] == 2
     assert row["client_latency_s"] == pytest.approx(0.3)
 

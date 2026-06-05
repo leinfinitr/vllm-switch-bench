@@ -10,17 +10,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 1.1961617460474372,
-      "client_latency_s": 1.1962095890194178,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 1.161288073984906,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 23.407269308844743,
+      "approx_tokens_per_s": 24.111157797323536,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6761443458963186,
+      "latency_s": 0.6694662331137806,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -28,17 +29,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7357124679256231,
+      "latency_s": 0.7439414109103382,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.1984902450349182,
-      "client_latency_s": 0.19853182695806026,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.198512711096555,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 141.0353212833476,
+      "approx_tokens_per_s": 141.04890233644042,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "ok": true
@@ -54,17 +56,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.19680941617116332,
-      "client_latency_s": 0.19685209798626602,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.1981637948192656,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 142.23876852942408,
+      "approx_tokens_per_s": 141.29725374676678,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6720038561616093,
+      "latency_s": 0.6731776630040258,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -72,17 +75,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7317902750801295,
+      "latency_s": 0.7226401939988136,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.1987964198924601,
-      "client_latency_s": 0.19886749610304832,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.19779576500877738,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 140.7972672693132,
+      "approx_tokens_per_s": 141.5601592822651,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "ok": true
@@ -98,17 +102,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.1967452249955386,
-      "client_latency_s": 0.19678414007648826,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.19529771408997476,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 142.2878896089728,
+      "approx_tokens_per_s": 143.37085372694244,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6679717879742384,
+      "latency_s": 0.6650223720353097,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -116,17 +121,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7394475699402392,
+      "latency_s": 0.7421101229265332,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.19976201793178916,
-      "client_latency_s": 0.19980420591309667,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.19879635400138795,
       "completion_tokens": 28,
       "approx_output_tokens": 28,
-      "approx_tokens_per_s": 140.1371901659487,
+      "approx_tokens_per_s": 140.8476535731863,
       "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
     },
     "ok": true
@@ -142,17 +148,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.2030572488438338,
-      "client_latency_s": 0.2030851929448545,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.20282660983502865,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 93.55679616267857,
+      "approx_tokens_per_s": 93.67607147530528,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6747079889755696,
+      "latency_s": 0.667655642144382,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -160,17 +167,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7438602708280087,
+      "latency_s": 0.7258676919154823,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.20294355181977153,
-      "client_latency_s": 0.20297980797477067,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.20320392306894064,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 93.60536986201899,
+      "approx_tokens_per_s": 93.50213181442321,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "ok": true
@@ -186,17 +194,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.15443316800519824,
-      "client_latency_s": 0.1544801148120314,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.15380016597919166,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 122.99317632640846,
+      "approx_tokens_per_s": 123.5369277987034,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6713720720726997,
+      "latency_s": 0.6726478128693998,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -204,17 +213,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.746026918059215,
+      "latency_s": 0.7337097360286862,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.20120279397815466,
-      "client_latency_s": 0.20123936398886144,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.20179553423076868,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 94.4149276930315,
+      "approx_tokens_per_s": 94.15470997624774,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "ok": true
@@ -230,17 +240,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.15214702696539462,
-      "client_latency_s": 0.15218176413327456,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.15230813901871443,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 124.85070145040886,
+      "approx_tokens_per_s": 124.74710887029767,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.669192697154358,
+      "latency_s": 0.6730197388678789,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -248,17 +259,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7423716629855335,
+      "latency_s": 0.7266775511670858,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.20095381513237953,
-      "client_latency_s": 0.2009804891422391,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.2020295311231166,
       "completion_tokens": 19,
       "approx_output_tokens": 19,
-      "approx_tokens_per_s": 94.53653974617013,
+      "approx_tokens_per_s": 94.04565706001375,
       "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
     },
     "ok": true
@@ -274,17 +286,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.9420396080240607,
-      "client_latency_s": 0.9422716500703245,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.9413476169575006,
       "completion_tokens": 124,
       "approx_output_tokens": 124,
-      "approx_tokens_per_s": 131.5968701708743,
+      "approx_tokens_per_s": 131.72604653823464,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6709207168314606,
+      "latency_s": 0.6747402539476752,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -292,17 +305,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7453109370544553,
+      "latency_s": 0.7321124498266727,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.943659745156765,
-      "client_latency_s": 0.9439852731302381,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.9436898261774331,
       "completion_tokens": 127,
       "approx_output_tokens": 127,
-      "approx_tokens_per_s": 134.53599713358906,
+      "approx_tokens_per_s": 134.57811717058968,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "ok": true
@@ -318,17 +332,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.9395568449981511,
-      "client_latency_s": 0.9397210681345314,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.941326332045719,
       "completion_tokens": 120,
       "approx_output_tokens": 120,
-      "approx_tokens_per_s": 127.69746690708511,
+      "approx_tokens_per_s": 127.47970168773708,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6716803070157766,
+      "latency_s": 0.6756977960467339,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -336,17 +351,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7372714111115783,
+      "latency_s": 0.7393402720335871,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.942448248853907,
-      "client_latency_s": 0.9426216869615018,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.9428410660475492,
       "completion_tokens": 127,
       "approx_output_tokens": 127,
-      "approx_tokens_per_s": 134.73061542789105,
+      "approx_tokens_per_s": 134.69926647594193,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "ok": true
@@ -362,17 +378,18 @@
     "infer_before": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.9405617979355156,
-      "client_latency_s": 0.9407188368495554,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.9411663850769401,
       "completion_tokens": 120,
       "approx_output_tokens": 120,
-      "approx_tokens_per_s": 127.56202522942678,
+      "approx_tokens_per_s": 127.50136628624921,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "evict": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.6690479649696499,
+      "latency_s": 0.6627547210082412,
       "body": ""
     },
     "memory_gpu_used_evict_mib": 4,
@@ -380,17 +397,18 @@
     "restore": {
       "ok": true,
       "status": 200,
-      "latency_s": 0.7377962979953736,
+      "latency_s": 0.7294953069649637,
       "body": ""
     },
     "infer_after": {
       "ok": true,
       "status": 200,
-      "ttft_s": 0.9437034639995545,
-      "client_latency_s": 0.9438561529386789,
+      "ttft_s": null,
+      "ttft_available": false,
+      "client_latency_s": 0.9443253930658102,
       "completion_tokens": 127,
       "approx_output_tokens": 127,
-      "approx_tokens_per_s": 134.55440175347465,
+      "approx_tokens_per_s": 134.487540981702,
       "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
     },
     "ok": true

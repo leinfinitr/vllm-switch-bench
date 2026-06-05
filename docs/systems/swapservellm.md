@@ -143,15 +143,16 @@ python src/bench_swapserve_llm.py \
 
 Standalone SwapServeLLM result:
 
-`results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
+`results/baselines/swapserve_llm/qwen2p5_0p5b/20260605_145529`
 
 Merged baseline3 result:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
+`results/baselines/baseline3/qwen2p5_0p5b/20260605_145529`
 
 ## Known pitfalls
 
 - `swapout.log` and `swapin.log` contain summary rows only. Detailed stage timings are printed to router stdout.
+- The OpenAI-compatible stream currently does not expose an explicit TTFT/FTTF metric. The benchmark leaves `ttft_*` and derived `tpot_*` fields blank for SwapServeLLM instead of using first client chunk latency as a semantic TTFT substitute.
 - The router forwards client headers to the backend; benchmark requests need `Authorization: Bearer ***` when the backend was started with `--api-key dummy`.
 - Host ports 8000 and 8001 must be free before launching.
 - The current compatibility patch is machine-specific in its numeric groups (`44`, `992`). Revalidate on other hosts.

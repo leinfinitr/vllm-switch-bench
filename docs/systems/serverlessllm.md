@@ -86,7 +86,7 @@ ServerlessLLM rows in the curated baseline3 report come from:
 
 The merged baseline3 result that includes these rows is:
 
-`results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
+`results/baselines/baseline3/qwen2p5_0p5b/20260605_145529`
 
 ## Known pitfalls
 
