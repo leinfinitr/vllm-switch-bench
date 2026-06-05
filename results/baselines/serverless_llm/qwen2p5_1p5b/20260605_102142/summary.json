@@ -1,0 +1,365 @@
+[
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6171,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2223110899794847,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.179914640664094,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.160332349827513,
+      "body": "{\"status\":\"deleted model qwen2p5-1p5b\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.3117161998525262,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-1p5b"
+      }
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2195430838037282,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.23933539124563,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 14.129001763183624,
+      "body": "register plus warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "initial_warm_request_s": 18.402479818090796,
+      "restore_warm_request_s": 15.348544846987352,
+      "second_active_request_s": 1.2195430838037282,
+      "delete_idle_wait_s": 0.3117161998525262
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6223,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1884009081404656,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 20.195205031906006,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1844089787919074,
+      "body": "{\"status\":\"deleted model qwen2p5-1p5b\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.32045545685105026,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-1p5b"
+      }
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1810160328168422,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 20.32148534237726,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 13.370658193016425,
+      "body": "register plus warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "initial_warm_request_s": 1.2288789600133896,
+      "restore_warm_request_s": 14.551674225833267,
+      "second_active_request_s": 1.1810160328168422,
+      "delete_idle_wait_s": 0.32045545685105026
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6223,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 2.0803500588517636,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 76.91013313803111,
+      "output_prefix": " 1. **Accuracy**: How well the model performs on the specific task it was trained for.\n2. **Transferability**: How well "
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.4495626559946686,
+      "body": "{\"status\":\"deleted model qwen2p5-1p5b\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 0.5868121080566198,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "body": "verified scale-to-zero for qwen2p5-1p5b"
+      }
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 2.064707597019151,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 77.49281313779946,
+      "output_prefix": " 1. **Accuracy**: How well the model performs on the specific task it was trained for.\n2. **Transferability**: How well "
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 14.157844010042027,
+      "body": "register plus warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "initial_warm_request_s": 2.080056873848662,
+      "restore_warm_request_s": 16.222551607061177,
+      "second_active_request_s": 2.064707597019151,
+      "delete_idle_wait_s": 0.5868121080566198
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6171,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2199941989965737,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.229632916549523,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1769596000667661,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-1p5b"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2183976019732654,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.264004417091883,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.076911077136174,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 1.4233225639909506,
+      "scale_to_zero_wait_s": 1.1769596000667661,
+      "initial_warm_request_s": 13.295302756130695,
+      "restore_warm_request_s": 13.29530867910944,
+      "second_active_request_s": 1.2183976019732654,
+      "baseline_gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6223,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1802089081611484,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 20.335382858102427,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.240708993980661,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-1p5b"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.1793869389221072,
+      "approx_output_tokens": 24,
+      "approx_tokens_per_s": 20.34955552580109,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.117239099927247,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 1.227497679879889,
+      "scale_to_zero_wait_s": 1.240708993980661,
+      "initial_warm_request_s": 13.298074188875034,
+      "restore_warm_request_s": 13.296626038849354,
+      "second_active_request_s": 1.1793869389221072,
+      "baseline_gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538
+    },
+    "ok": true
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen2p5-1p5b",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6171,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 2.082151378970593,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 76.84359629946951,
+      "output_prefix": " 1. **Accuracy**: How well the model performs on the specific task it was trained for.\n2. **Transferability**: How well "
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.7509371270425618,
+      "baseline_gpu_used_mib": 233,
+      "gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538,
+      "body": "verified scale-to-zero for qwen2p5-1p5b"
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 2.078583688940853,
+      "approx_output_tokens": 160,
+      "approx_tokens_per_s": 76.9754909803648,
+      "output_prefix": " 1. **Accuracy**: How well the model performs on the specific task it was trained for.\n2. **Transferability**: How well "
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 12.078149583889171,
+      "body": "estimated from restore warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "baseline_idle_wait_s": 1.2566036169882864,
+      "scale_to_zero_wait_s": 1.7509371270425618,
+      "initial_warm_request_s": 14.157731739105657,
+      "restore_warm_request_s": 14.156733272830024,
+      "second_active_request_s": 2.078583688940853,
+      "baseline_gpu_used_mib": 233,
+      "idle_gpu_threshold_mib": 538
+    },
+    "ok": true
+  }
+]

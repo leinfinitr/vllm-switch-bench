@@ -1,0 +1,398 @@
+[
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 4,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.1961617460474372,
+      "client_latency_s": 1.1962095890194178,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 23.407269308844743,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6761443458963186,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7357124679256231,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.1984902450349182,
+      "client_latency_s": 0.19853182695806026,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 141.0353212833476,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.19680941617116332,
+      "client_latency_s": 0.19685209798626602,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 142.23876852942408,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6720038561616093,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7317902750801295,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.1987964198924601,
+      "client_latency_s": 0.19886749610304832,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 140.7972672693132,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.1967452249955386,
+      "client_latency_s": 0.19678414007648826,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 142.2878896089728,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6679717879742384,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7394475699402392,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.19976201793178916,
+      "client_latency_s": 0.19980420591309667,
+      "completion_tokens": 28,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 140.1371901659487,
+      "output_prefix": "GPU memory is crucial for large language models (LLMs) because it determines how much data can be processed and stored e"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.2030572488438338,
+      "client_latency_s": 0.2030851929448545,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 93.55679616267857,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6747079889755696,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7438602708280087,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.20294355181977153,
+      "client_latency_s": 0.20297980797477067,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 93.60536986201899,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.15443316800519824,
+      "client_latency_s": 0.1544801148120314,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 122.99317632640846,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6713720720726997,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.746026918059215,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.20120279397815466,
+      "client_latency_s": 0.20123936398886144,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 94.4149276930315,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.15214702696539462,
+      "client_latency_s": 0.15218176413327456,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 124.85070145040886,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.669192697154358,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7423716629855335,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.20095381513237953,
+      "client_latency_s": 0.2009804891422391,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 94.53653974617013,
+      "output_prefix": "The main bottleneck in this LLM serving system is the reliance on weights, KV cache, CUDA graphs, CPU RAM,"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.9420396080240607,
+      "client_latency_s": 0.9422716500703245,
+      "completion_tokens": 124,
+      "approx_output_tokens": 124,
+      "approx_tokens_per_s": 131.5968701708743,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6709207168314606,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7453109370544553,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.943659745156765,
+      "client_latency_s": 0.9439852731302381,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 134.53599713358906,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.9395568449981511,
+      "client_latency_s": 0.9397210681345314,
+      "completion_tokens": 120,
+      "approx_output_tokens": 120,
+      "approx_tokens_per_s": 127.69746690708511,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6716803070157766,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7372714111115783,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.942448248853907,
+      "client_latency_s": 0.9426216869615018,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 134.73061542789105,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 7107,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.9405617979355156,
+      "client_latency_s": 0.9407188368495554,
+      "completion_tokens": 120,
+      "approx_output_tokens": 120,
+      "approx_tokens_per_s": 127.56202522942678,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.6690479649696499,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.7377962979953736,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.9437034639995545,
+      "client_latency_s": 0.9438561529386789,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 134.55440175347465,
+      "output_prefix": "When evaluating language models (LLMs), it's important to consider various aspects that reflect their performance in dif"
+    },
+    "ok": true
+  }
+]

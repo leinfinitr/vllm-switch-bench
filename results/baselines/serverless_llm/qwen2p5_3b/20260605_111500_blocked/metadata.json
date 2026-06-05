@@ -1,0 +1,12 @@
+{
+  "system": "serverless_llm",
+  "created_at": "2026-06-05T03:21:54.777027+00:00",
+  "repo": "/home/ljl/research-systems/ServerlessLLM",
+  "base_url": "http://127.0.0.1:8343",
+  "methods": [
+    "delete_register",
+    "scale_to_zero_restore"
+  ],
+  "registered_model_name": "qwen2p5-3b",
+  "blocked": true
+}

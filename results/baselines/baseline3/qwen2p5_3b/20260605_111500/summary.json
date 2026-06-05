@@ -1,0 +1,2036 @@
+[
+  {
+    "system": "vllm",
+    "run_id": "20260605_095722_cold_reload_short_short_0_dfd4bdd7",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095722_cold_reload_short_short_0_dfd4bdd7.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095722_cold_reload_short_short_0_dfd4bdd7.events.jsonl",
+    "port": 50653,
+    "startup_latency_s": 19.5271719628945,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3415.828125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07675705407746136,
+      "client_latency_s": 0.38866482116281986,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.04150845509687,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.3644861918874085
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 41687,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.027893733000383
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07146271807141602,
+      "client_latency_s": 0.38329357001930475,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 73.05105587497793,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.3644924028776586
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_095804_cold_reload_short_short_1_94803a1d",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095804_cold_reload_short_short_1_94803a1d.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095804_cold_reload_short_short_1_94803a1d.events.jsonl",
+    "port": 33247,
+    "startup_latency_s": 19.526654924964532,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3412.5,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.0711028438527137,
+      "client_latency_s": 0.38921475782990456,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 71.93971820625727,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.36446000286377966
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 40233,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.02568602282554
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07128851395100355,
+      "client_latency_s": 0.38377654599025846,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.95912241784242,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643117668107152
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_095847_cold_reload_short_short_2_5683d3bb",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095847_cold_reload_short_short_2_5683d3bb.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095847_cold_reload_short_short_2_5683d3bb.events.jsonl",
+    "port": 54199,
+    "startup_latency_s": 19.529421763960272,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3413.2109375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07132055494002998,
+      "client_latency_s": 0.3894978279713541,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 71.88743553676319,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.3643683970440179
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 42397,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.528891688911244
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07146572298370302,
+      "client_latency_s": 0.38493209797888994,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.74010181799791,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643825219478458
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_095930_cold_reload_long_short_0_9f6ac2cf",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095930_cold_reload_long_short_0_9f6ac2cf.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_095930_cold_reload_long_short_0_9f6ac2cf.events.jsonl",
+    "port": 39643,
+    "startup_latency_s": 19.526880329940468,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3415.87890625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.18449879600666463,
+      "client_latency_s": 0.4159628141205758,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 36.060915761695775,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.36423293501138687
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 32801,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.52593492018059
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1711973629426211,
+      "client_latency_s": 0.40141484094783664,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.367826173495246,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.314189885975793
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100013_cold_reload_long_short_1_88f23e9c",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100013_cold_reload_long_short_1_88f23e9c.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100013_cold_reload_long_short_1_88f23e9c.events.jsonl",
+    "port": 57209,
+    "startup_latency_s": 19.528625540900975,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3411.5,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1716007620561868,
+      "client_latency_s": 0.40223696012981236,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.29145127578308,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.36426476505585015
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 44517,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.526123319054022
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1695592631585896,
+      "client_latency_s": 0.399311067070812,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.564698895109686,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.3138610471505672
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100056_cold_reload_long_short_2_aa91e51b",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100056_cold_reload_long_short_2_aa91e51b.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100056_cold_reload_long_short_2_aa91e51b.events.jsonl",
+    "port": 57475,
+    "startup_latency_s": 19.02778187999502,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3403.41796875,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.17120962007902563,
+      "client_latency_s": 0.40120769501663744,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.38711940551882,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.3643749258480966
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 60697,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.02612888906151
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.16987165296450257,
+      "client_latency_s": 0.399721120018512,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.52616323927371,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.3646596879698336
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100138_cold_reload_short_long_0_2ef18cea",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100138_cold_reload_short_long_0_2ef18cea.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100138_cold_reload_short_long_0_2ef18cea.events.jsonl",
+    "port": 53025,
+    "startup_latency_s": 19.527748188003898,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3398.77734375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07151481998153031,
+      "client_latency_s": 1.7177526568993926,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.26243480039778,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.3641890699509531
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 35363,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.526549437083304
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07279454311355948,
+      "client_latency_s": 1.7240232811309397,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 75.98505277380332,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.31412718794308603
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100223_cold_reload_short_long_1_0855a4ee",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100223_cold_reload_short_long_1_0855a4ee.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100223_cold_reload_short_long_1_0855a4ee.events.jsonl",
+    "port": 50375,
+    "startup_latency_s": 19.527054626960307,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3405.18359375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07187907304614782,
+      "client_latency_s": 1.7195227381307632,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.18393004933787,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.31412376603111625
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 52379,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.527412596857175
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07397874491289258,
+      "client_latency_s": 1.71981506398879,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.17098067286953,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.3139657729770988
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100309_cold_reload_short_long_2_7a0b82d1",
+    "method": "cold_reload",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100309_cold_reload_short_long_2_7a0b82d1.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100309_cold_reload_short_long_2_7a0b82d1.events.jsonl",
+    "port": 51781,
+    "startup_latency_s": 19.026386386947706,
+    "memory_gpu_used_ready_mib": 9347,
+    "memory_cpu_used_ready_mib": 3412.3828125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07136633386835456,
+      "client_latency_s": 1.717678947839886,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.26570737490998,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "latency_s": 0.3141120788641274
+    },
+    "memory_gpu_used_evict_mib": 1,
+    "memory_cpu_used_evict_mib": null,
+    "reload_port": 51273,
+    "restore": {
+      "ok": true,
+      "latency_s": 19.025076888967305
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07098976499401033,
+      "client_latency_s": 1.7175036079715937,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.27349333764349,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643744350410998
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100354_sleep_l1_short_short_0_bd5cf91d",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100354_sleep_l1_short_short_0_bd5cf91d.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100354_sleep_l1_short_short_0_bd5cf91d.events.jsonl",
+    "port": 47531,
+    "startup_latency_s": 30.039287083083764,
+    "memory_gpu_used_ready_mib": 9383,
+    "memory_cpu_used_ready_mib": 3498.390625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.3939671500120312,
+      "client_latency_s": 0.713410654803738,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 39.24808216903195,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.1417825631797314,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 1501,
+    "memory_cpu_used_evict_mib": 12732.08203125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5203181649558246,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018432606011629105,
+      "client_latency_s": 0.34099655388854444,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 82.11226676839634,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.9660687160212547
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100431_sleep_l1_short_short_1_c6333d9c",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100431_sleep_l1_short_short_1_c6333d9c.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100431_sleep_l1_short_short_1_c6333d9c.events.jsonl",
+    "port": 52589,
+    "startup_latency_s": 19.530571380862966,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3415.05078125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.0718772760592401,
+      "client_latency_s": 0.38409422617405653,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.89877871611507,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.151294315000996,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12647.14453125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5092638700734824,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018727419897913933,
+      "client_latency_s": 0.3413203170057386,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 82.03437828029803,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.9661947139538825
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100458_sleep_l1_short_short_2_b1092999",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100458_sleep_l1_short_short_2_b1092999.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100458_sleep_l1_short_short_2_b1092999.events.jsonl",
+    "port": 60199,
+    "startup_latency_s": 19.526271121110767,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3414.23828125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.0718323988839984,
+      "client_latency_s": 0.3850456529762596,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.71864981092611,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.147845851024613,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12646.3359375,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5116285369731486,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.019147480838000774,
+      "client_latency_s": 0.34192418004386127,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 81.88949958557544,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.9653773389291018
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100524_sleep_l1_long_short_0_48b86cc4",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100524_sleep_l1_long_short_0_48b86cc4.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100524_sleep_l1_long_short_0_48b86cc4.events.jsonl",
+    "port": 33177,
+    "startup_latency_s": 19.528186278883368,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3413.8125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.17253519711084664,
+      "client_latency_s": 0.40244928910396993,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.271776609163936,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.150016404921189,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12646.52734375,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5098265470005572,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.11842026305384934,
+      "client_latency_s": 0.358513668179512,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 41.83940901379895,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 1.0160785338375717
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100551_sleep_l1_long_short_1_fb4135db",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100551_sleep_l1_long_short_1_fb4135db.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100551_sleep_l1_long_short_1_fb4135db.events.jsonl",
+    "port": 33525,
+    "startup_latency_s": 19.52847426594235,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3414.640625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1719321960117668,
+      "client_latency_s": 0.4018629321362823,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.32615974372352,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.149504652014002,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12647.48046875,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5121296290308237,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.11840048595331609,
+      "client_latency_s": 0.35850666696205735,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 41.840226088703474,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.9662118589039892
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100617_sleep_l1_long_short_2_154ec5d7",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100617_sleep_l1_long_short_2_154ec5d7.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100617_sleep_l1_long_short_2_154ec5d7.events.jsonl",
+    "port": 44255,
+    "startup_latency_s": 19.526124208932742,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3410.24609375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.17244350188411772,
+      "client_latency_s": 0.4027154529467225,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.24714284054164,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.1503669971134514,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12647.3125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5134411170147359,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.11898569413460791,
+      "client_latency_s": 0.3590471891220659,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 41.77723835320271,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.9660455088596791
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100644_sleep_l1_short_long_0_0c29dc9b",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100644_sleep_l1_short_long_0_0c29dc9b.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100644_sleep_l1_short_long_0_0c29dc9b.events.jsonl",
+    "port": 50271,
+    "startup_latency_s": 19.53003325383179,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3414.0703125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07126756315119565,
+      "client_latency_s": 1.720893434016034,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.12324936023867,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.149261172162369,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12646.203125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5087595491204411,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018387380056083202,
+      "client_latency_s": 1.676743078045547,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.12765218192928,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.9665167678613216
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100713_sleep_l1_short_long_1_7f69b6fa",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100713_sleep_l1_short_long_1_7f69b6fa.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100713_sleep_l1_short_long_1_7f69b6fa.events.jsonl",
+    "port": 43733,
+    "startup_latency_s": 19.525306039955467,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3409.3671875,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07205305295065045,
+      "client_latency_s": 1.7196662619244307,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.17757171871334,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.144889986142516,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12646.125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5049047200009227,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.017468921141698956,
+      "client_latency_s": 1.67499780212529,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.20905784699124,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 1.015581598971039
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100743_sleep_l1_short_long_2_61ea7608",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100743_sleep_l1_short_long_2_61ea7608.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100743_sleep_l1_short_long_2_61ea7608.events.jsonl",
+    "port": 52743,
+    "startup_latency_s": 19.526611394947395,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3412.66796875,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07172991405241191,
+      "client_latency_s": 1.7190730338916183,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.20385953204307,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.1490651899948716,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 951,
+    "memory_cpu_used_evict_mib": 12644.4453125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.5077365739271045,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018417156068608165,
+      "client_latency_s": 1.6761227431707084,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.15656731212196,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.9663112990092486
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100812_sleep_l2_short_short_0_a860f915",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100812_sleep_l2_short_short_0_a860f915.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100812_sleep_l2_short_short_0_a860f915.events.jsonl",
+    "port": 34665,
+    "startup_latency_s": 19.525776935974136,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3418.99609375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.0707071227952838,
+      "client_latency_s": 0.3839354219380766,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.92893127354111,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18187755602411926,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3544.5234375,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.5898043049965054,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.1386372570414096,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.3961431700736284,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.05502387788146734,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018773987889289856,
+      "client_latency_s": 0.3414097528439015,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 82.01288852109063,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.36477159592323005
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100837_sleep_l2_short_short_1_a9b25d7e",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100837_sleep_l2_short_short_1_a9b25d7e.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100837_sleep_l2_short_short_1_a9b25d7e.events.jsonl",
+    "port": 33333,
+    "startup_latency_s": 19.527417201083153,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3417.80078125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07206241087988019,
+      "client_latency_s": 0.3849475800525397,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.73717630898838,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18373411404900253,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3543.62109375,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.4642050908878446,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.14059757301583886,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.2718211188912392,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.051786398980766535,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018262475030496716,
+      "client_latency_s": 0.3411819639150053,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 82.06764413541893,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643620968796313
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100902_sleep_l2_short_short_2_affda82c",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100902_sleep_l2_short_short_2_affda82c.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100902_sleep_l2_short_short_2_affda82c.events.jsonl",
+    "port": 53723,
+    "startup_latency_s": 19.52971678902395,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3417.4765625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07136144489049911,
+      "client_latency_s": 0.38418639497831464,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 72.88128982698738,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18220078595913947,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3543.33984375,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.4562774340156466,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.140752726001665,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.261405052151531,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.0541196558624506,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018526037922129035,
+      "client_latency_s": 0.34132515196688473,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 82.03321624161043,
+      "output_prefix": " \n\nGPU memory is crucial for LLM serving because it directly impacts the model's ability to handle large batch sizes and"
+    },
+    "ok": true,
+    "cleanup_s": 0.3141587858553976
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100927_sleep_l2_long_short_0_20d8b809",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100927_sleep_l2_long_short_0_20d8b809.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100927_sleep_l2_long_short_0_20d8b809.events.jsonl",
+    "port": 51889,
+    "startup_latency_s": 19.527438962832093,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3418.4765625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.17837227415293455,
+      "client_latency_s": 0.4111768251750618,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 36.48065523540542,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18203053786419332,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3545.0390625,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.6309307382907718,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.13867425313219428,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.437840178143233,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.0544163070153445,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.11974567314609885,
+      "client_latency_s": 0.35934328311122954,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 41.74281447569723,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.36456236406229436
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_100952_sleep_l2_long_short_1_a78128ec",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100952_sleep_l2_long_short_1_a78128ec.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_100952_sleep_l2_long_short_1_a78128ec.events.jsonl",
+    "port": 54569,
+    "startup_latency_s": 19.52844317886047,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3414.0390625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.17122771288268268,
+      "client_latency_s": 0.4014389659278095,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.36558050694421,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18247026903554797,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3540.66796875,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.4885855840984732,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.13871181616559625,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.2933211859781295,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.05655258195474744,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1187953120097518,
+      "client_latency_s": 0.3590670928824693,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 41.77492256275859,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.36451457696966827
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_101017_sleep_l2_long_short_2_f440dc6c",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101017_sleep_l2_long_short_2_f440dc6c.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101017_sleep_l2_long_short_2_f440dc6c.events.jsonl",
+    "port": 51907,
+    "startup_latency_s": 19.52726569585502,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3415.00390625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.16977240005508065,
+      "client_latency_s": 0.3996858859900385,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 37.52947133182944,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18236328312195837,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3541.56640625,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.4499905190896243,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.14086687099188566,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.2573306080885231,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.051793040009215474,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.1171023310162127,
+      "client_latency_s": 0.3563417471013963,
+      "completion_tokens": null,
+      "approx_output_tokens": 15,
+      "approx_tokens_per_s": 42.09442234039387,
+      "output_prefix": " \nContext line 45: weights, KV cache, CUDA graphs, CPU RAM, and storage affect switching.\nContext"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643953329883516
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_101042_sleep_l2_short_long_0_6b4922f5",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101042_sleep_l2_short_long_0_6b4922f5.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101042_sleep_l2_short_long_0_6b4922f5.events.jsonl",
+    "port": 32943,
+    "startup_latency_s": 19.527107959846035,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3418.64453125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07172390213236213,
+      "client_latency_s": 1.717113025020808,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.29084288054511,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.1821947128046304,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3544.28125,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.4524370417930186,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.1387040358968079,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.261811968870461,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.05192103702574968,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.01845879410393536,
+      "client_latency_s": 1.6742895441129804,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.24214184494733,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.3645355920307338
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_101109_sleep_l2_short_long_1_67530c70",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101109_sleep_l2_short_long_1_67530c70.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101109_sleep_l2_short_long_1_67530c70.events.jsonl",
+    "port": 44857,
+    "startup_latency_s": 19.52684834995307,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3415.83203125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07108576782047749,
+      "client_latency_s": 1.717078890884295,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.29235948066139,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.18229518015868962,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3541.46875,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.6273358771577477,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.13851503911428154,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.430817139102146,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.05800369894132018,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.018540222896263003,
+      "client_latency_s": 1.6742690938990563,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.24309752676957,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.31427817489020526
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260605_101137_sleep_l2_short_long_2_428e250d",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "server_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101137_sleep_l2_short_long_2_428e250d.server.log",
+    "event_log": "results/baselines/vllm/qwen2p5_3b/20260605_095722/20260605_101137_sleep_l2_short_long_2_428e250d.events.jsonl",
+    "port": 45217,
+    "startup_latency_s": 19.52774920896627,
+    "memory_gpu_used_ready_mib": 9359,
+    "memory_cpu_used_ready_mib": 3409.72265625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.07053771801292896,
+      "client_latency_s": 1.7166047140490264,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 76.31343367979277,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.1863116631284356,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 933,
+    "memory_cpu_used_evict_mib": 3539.95703125,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 1.665252089034766,
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.1388679021038115,
+          "body": ""
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 1.4705989779904485,
+          "body": "{\"results\":[null]}"
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.05578520894050598,
+          "body": ""
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.01873385696671903,
+      "client_latency_s": 1.6745091979391873,
+      "completion_tokens": null,
+      "approx_output_tokens": 131,
+      "approx_tokens_per_s": 78.23187842815152,
+      "output_prefix": " To evaluate the effectiveness of a language model (LLM) switching system, several practical measurements can be used to"
+    },
+    "ok": true,
+    "cleanup_s": 0.36448795488104224
+  },
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "serverless_llm",
+    "method": "scale_to_zero_restore",
+    "model": "/host-models/hf/Qwen2.5-3B-Instruct",
+    "registered_model_name": "qwen2p5-3b",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "ok": false,
+    "unsupported": true,
+    "error": "ServerlessLLM qwen2p5-3b inference did not complete: adapter warmup request timed out at 300s in the first run and a rerun with --request-timeout=900 was killed after prolonged hang; logs repeatedly showed qwen2p5-3b: 1 instances, need 1 instances with GPU memory resident but no completion.",
+    "startup_latency_s": null,
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 4,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7022025759797543,
+      "client_latency_s": 1.7022583920042962,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 17.03619153015567,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9447545770090073,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1114609201904386,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.36303012096323073,
+      "client_latency_s": 0.3630751168821007,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 79.87327870066349,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.36229665391147137,
+      "client_latency_s": 0.36233490984886885,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 80.03645028875634,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9391790968365967,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1041663188952953,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.3649064269848168,
+      "client_latency_s": 0.3649557949975133,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 79.46167836627336,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.3613205167930573,
+      "client_latency_s": 0.36136109195649624,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 80.25213739250951,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9419895019382238,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1098779139574617,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.3628232527989894,
+      "client_latency_s": 0.36286437697708607,
+      "completion_tokens": 29,
+      "approx_output_tokens": 29,
+      "approx_tokens_per_s": 79.91966652001024,
+      "output_prefix": "GPU memory is crucial for LLM serving because it determines the maximum batch size and model parallelism that can be sup"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.36909544793888927,
+      "client_latency_s": 0.36912988498806953,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 51.472397041529405,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9447667840868235,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1091154941823334,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.37406897195614874,
+      "client_latency_s": 0.3741182708181441,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 50.786078847337954,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.2786154830828309,
+      "client_latency_s": 0.27864256710745394,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 68.18771516942334,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9463185858912766,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.0966946769040078,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.3734479311387986,
+      "client_latency_s": 0.37347484403289855,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 50.8735736919575,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "long_short",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.27864015009254217,
+      "client_latency_s": 0.27868807199411094,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 68.176581308444,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9413384760264307,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1088444348424673,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.37413521111011505,
+      "client_latency_s": 0.37417602306231856,
+      "completion_tokens": 19,
+      "approx_output_tokens": 19,
+      "approx_tokens_per_s": 50.77824026376905,
+      "output_prefix": "The main bottleneck in the LLM serving system appears to be the interaction and management of weights, Key-Value (KV"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 0,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7665002890862525,
+      "client_latency_s": 1.766719562932849,
+      "completion_tokens": 128,
+      "approx_output_tokens": 128,
+      "approx_tokens_per_s": 72.4506609229555,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9489196839276701,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.0961499558761716,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7667583939619362,
+      "client_latency_s": 1.7669656430371106,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 71.87462897224691,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 1,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7671438369434327,
+      "client_latency_s": 1.7673424708191305,
+      "completion_tokens": 124,
+      "approx_output_tokens": 124,
+      "approx_tokens_per_s": 70.1618401907856,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.945654003880918,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1056946199387312,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7648786450736225,
+      "client_latency_s": 1.765109688974917,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 71.95020275128337,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "ok": true
+  },
+  {
+    "system": "swapserve_llm",
+    "method": "swapout_swapin",
+    "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "prompt_name": "short_long",
+    "repeat_index": 2,
+    "memory_gpu_used_ready_mib": 9399,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.7635530489496887,
+      "client_latency_s": 1.7637206560466439,
+      "completion_tokens": 124,
+      "approx_output_tokens": 124,
+      "approx_tokens_per_s": 70.30591810266844,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.9384041528683156,
+      "body": ""
+    },
+    "memory_gpu_used_evict_mib": 4,
+    "memory_cpu_used_evict_mib": null,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 1.1097543889191002,
+      "body": ""
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": 1.765058702090755,
+      "client_latency_s": 1.7652113009244204,
+      "completion_tokens": 127,
+      "approx_output_tokens": 127,
+      "approx_tokens_per_s": 71.94606103727729,
+      "output_prefix": "Evaluating the performance of a Large Language Model (LLM) when switching between different models or contexts is crucia"
+    },
+    "ok": true
+  }
+]

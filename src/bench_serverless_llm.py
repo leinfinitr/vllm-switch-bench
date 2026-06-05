@@ -50,7 +50,7 @@ def build_register_payload(
     }
 
 
-def infer(base_url: str, model_name: str, prompt_name: str) -> dict[str, Any]:
+def infer(base_url: str, model_name: str, prompt_name: str, timeout_s: float = 900.0) -> dict[str, Any]:
     prompt = PROMPTS[prompt_name]
     payload = {
         "model": model_name,
@@ -61,9 +61,18 @@ def infer(base_url: str, model_name: str, prompt_name: str) -> dict[str, Any]:
     started_at = time.perf_counter()
     last_error = ""
     while True:
-        response = requests.post(
-            f"{base_url}/v1/chat/completions", json=payload, timeout=300
-        )
+        try:
+            response = requests.post(
+                f"{base_url}/v1/chat/completions", json=payload, timeout=timeout_s
+            )
+        except requests.exceptions.ReadTimeout as exc:
+            total = time.perf_counter() - started_at
+            return {
+                "ok": False,
+                "status": None,
+                "error": f"request timed out after {timeout_s}s: {exc}",
+                "client_latency_s": total,
+            }
         total = time.perf_counter() - started_at
         if response.status_code != 200:
             return {
@@ -196,6 +205,7 @@ def run_delete_register(
     scale_zero_timeout_s: float,
     scale_zero_poll_interval_s: float,
     idle_gpu_buffer_mib: int,
+    request_timeout_s: float = 900.0,
 ) -> dict[str, Any]:
     model_name = payload["model"]
     row: dict[str, Any] = {
@@ -224,14 +234,14 @@ def run_delete_register(
         )
         return row
 
-    warmup_before = infer(base_url, model_name, prompt_name)
+    warmup_before = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
     if not warmup_before.get("ok"):
         row["ok"] = False
         row["error"] = warmup_before.get("error", "initial warmup failed")
         return row
     row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
     row["memory_cpu_used_ready_mib"] = None
-    row["infer_before"] = infer(base_url, model_name, prompt_name)
+    row["infer_before"] = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
 
     evict_start = time.perf_counter()
     delete_response = _request_ok(
@@ -295,8 +305,8 @@ def run_delete_register(
         )
         return row
 
-    restore_warmup = infer(base_url, model_name, prompt_name)
-    infer_after = infer(base_url, model_name, prompt_name)
+    restore_warmup = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
+    infer_after = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
     row["infer_after"] = infer_after
     restore_latency_s = None
     first_latency = restore_warmup.get("client_latency_s")
@@ -333,6 +343,7 @@ def run_scale_to_zero_restore(
     scale_zero_timeout_s: float,
     scale_zero_poll_interval_s: float,
     idle_gpu_buffer_mib: int,
+    request_timeout_s: float = 900.0,
 ) -> dict[str, Any]:
     model_name = payload["model"]
     row: dict[str, Any] = {
@@ -377,14 +388,14 @@ def run_scale_to_zero_restore(
         )
         return row
 
-    warmup_before = infer(base_url, model_name, prompt_name)
+    warmup_before = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
     if not warmup_before.get("ok"):
         row["ok"] = False
         row["error"] = warmup_before.get("error", "initial warmup failed")
         return row
     row["memory_gpu_used_ready_mib"] = query_gpu_used_mib()
     row["memory_cpu_used_ready_mib"] = None
-    row["infer_before"] = infer(base_url, model_name, prompt_name)
+    row["infer_before"] = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
     if not row["infer_before"].get("ok"):
         row["ok"] = False
         row["error"] = row["infer_before"].get("error", "infer_before failed")
@@ -408,8 +419,8 @@ def run_scale_to_zero_restore(
     row["memory_gpu_used_evict_mib"] = row["evict"].get("gpu_used_mib", row["evict"].get("idle_gpu_threshold_mib"))
     row["memory_cpu_used_evict_mib"] = None
 
-    restore_warmup = infer(base_url, model_name, prompt_name)
-    infer_after = infer(base_url, model_name, prompt_name)
+    restore_warmup = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
+    infer_after = infer(base_url, model_name, prompt_name, timeout_s=request_timeout_s)
     row["infer_after"] = infer_after
     first_latency = restore_warmup.get("client_latency_s")
     second_latency = infer_after.get("client_latency_s")
@@ -459,6 +470,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--scale-zero-timeout", type=float, default=120.0)
     parser.add_argument("--scale-zero-poll-interval", type=float, default=0.001)
     parser.add_argument("--idle-gpu-buffer-mib", type=int, default=300)
+    parser.add_argument("--request-timeout", type=float, default=900.0)
     parser.add_argument("--out-dir", default="results/tmp/serverless_llm")
     return parser.parse_args(argv)
 
@@ -489,6 +501,7 @@ def main(argv: list[str] | None = None) -> int:
                         args.scale_zero_timeout,
                         args.scale_zero_poll_interval,
                         args.idle_gpu_buffer_mib,
+                        args.request_timeout,
                     )
                 elif method == "scale_to_zero_restore":
                     row = run_scale_to_zero_restore(
@@ -500,6 +513,7 @@ def main(argv: list[str] | None = None) -> int:
                         args.scale_zero_timeout,
                         args.scale_zero_poll_interval,
                         args.idle_gpu_buffer_mib,
+                        args.request_timeout,
                     )
                 else:
                     raise ValueError(f"unsupported method: {method}")

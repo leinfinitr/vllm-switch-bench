@@ -21,6 +21,10 @@ These notes record the exact local runtime assumptions that were discovered whil
 
 - `reports/baseline3-qwen2p5-0p5b.md`
 - `reports/figures/baseline3-qwen2p5-0p5b-comparison.png`
+- `reports/baseline3-qwen2p5-1p5b.md`
+- `reports/figures/baseline3-qwen2p5-1p5b-comparison.png`
+- `reports/baseline3-qwen2p5-3b.md`
+- `reports/figures/baseline3-qwen2p5-3b-comparison.png`
 - `reports/vllm-qwen2p5-0p5b.md`
 
 ## Archive

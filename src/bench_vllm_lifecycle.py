@@ -87,6 +87,8 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
         cmd.append("--enforce-eager")
     if args.enable_sleep_mode:
         cmd.append("--enable-sleep-mode")
+    for extra in args.extra_vllm_arg:
+        cmd.extend(extra.split())
 
     env = os.environ.copy()
     python_bin_dir = str(Path(args.python).resolve().parent)
@@ -373,6 +375,12 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--load-format", default="")
     parser.add_argument("--quantization", default="")
     parser.add_argument("--enforce-eager", action="store_true")
+    parser.add_argument(
+        "--extra-vllm-arg",
+        action="append",
+        default=[],
+        help="Additional raw argument(s) appended to the vLLM API server command. Repeatable; split on whitespace.",
+    )
     parser.add_argument("--endpoint", choices=["completion", "chat"], default="completion")
     parser.add_argument("--methods", nargs="+", default=["cold_reload", "sleep_l1", "sleep_l2"])
     parser.add_argument("--prompts", nargs="+", default=["short_short", "long_short", "short_long"])

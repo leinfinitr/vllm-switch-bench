@@ -45,6 +45,16 @@ def test_parse_args_default_out_dir_is_repo_local_results():
     assert args.out_dir == "results"
 
 
+def test_parse_args_accepts_repeatable_extra_vllm_args():
+    args = bench.parse_args([
+        "--model",
+        "dummy",
+        "--extra-vllm-arg=--skip-mm-profiling",
+        "--extra-vllm-arg=--cpu-offload-gb 2",
+    ])
+    assert args.extra_vllm_arg == ["--skip-mm-profiling", "--cpu-offload-gb 2"]
+
+
 def test_write_summary_csv_flattens_nested_metrics(tmp_path):
     out = tmp_path / "summary.csv"
     bench.write_summary_csv(out, [

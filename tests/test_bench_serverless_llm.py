@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from bench_serverless_llm import (
     build_register_payload,
+    infer,
     parse_args,
     run_delete_register,
     run_scale_to_zero_restore,
@@ -84,7 +85,7 @@ def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(m
         infer_result(0.9, prefix="after measured"),
     ])
 
-    def fake_infer(base_url, model_name, prompt_name):
+    def fake_infer(base_url, model_name, prompt_name, **kwargs):
         infer_calls.append(prompt_name)
         return next(infer_results)
 
@@ -208,7 +209,7 @@ def test_scale_to_zero_restore_warms_backend_and_subtracts_ready_request(monkeyp
         ]
     )
 
-    def fake_infer(base_url, model_name, prompt_name):
+    def fake_infer(base_url, model_name, prompt_name, **kwargs):
         infer_calls.append(prompt_name)
         return next(infer_results)
 
@@ -268,6 +269,18 @@ def test_scale_to_zero_poll_interval_defaults_to_one_millisecond():
         "/host-models/hf/Qwen2.5-0.5B-Instruct",
     ])
     assert args.scale_zero_poll_interval == pytest.approx(0.001)
+
+
+def test_infer_returns_structured_timeout_error(monkeypatch):
+    def raise_timeout(*args, **kwargs):
+        raise __import__("requests").exceptions.ReadTimeout("slow request")
+
+    monkeypatch.setattr("bench_serverless_llm.requests.post", raise_timeout)
+    row = infer("http://127.0.0.1:8343", "qwen", "short_short", timeout_s=0.01)
+    assert row["ok"] is False
+    assert row["status"] is None
+    assert "timed out" in row["error"]
+    assert row["client_latency_s"] >= 0
 
 
 def test_serverless_docker_compose_mounts_host_models():

@@ -52,7 +52,17 @@ The tracked result tree keeps the latest per-system runs plus the latest merged 
 - `results/baselines/swapserve_llm/qwen2p5_0p5b/20260603_155353`
   - Latest SwapServeLLM swapout/swapin simplified-schema run.
 - `results/baselines/baseline3/qwen2p5_0p5b/20260604_164857`
-  - Latest merged baseline3 comparison run used by `docs/reports/baseline3-qwen2p5-0p5b.md` and the comparison figure.
+  - Latest merged Qwen2.5-0.5B baseline3 comparison run.
+- `results/baselines/vllm/qwen2p5_1p5b/20260604_210320`
+- `results/baselines/serverless_llm/qwen2p5_1p5b/20260605_102142`
+- `results/baselines/swapserve_llm/qwen2p5_1p5b/20260605_103756`
+- `results/baselines/baseline3/qwen2p5_1p5b/20260605_111500`
+  - Full Qwen2.5-1.5B baseline3 comparison across vLLM, ServerlessLLM, and SwapServeLLM.
+- `results/baselines/vllm/qwen2p5_3b/20260605_095722`
+- `results/baselines/swapserve_llm/qwen2p5_3b/20260605_104543`
+- `results/baselines/serverless_llm/qwen2p5_3b/20260605_111500_blocked`
+- `results/baselines/baseline3/qwen2p5_3b/20260605_111500`
+  - Qwen2.5-3B comparison; ServerlessLLM rows are tracked as blocked because 3B inference did not complete on this setup.
 
 Older result directories were pruned after their useful findings were reflected in reports.
 
@@ -88,4 +98,8 @@ python -m pytest tests -q
 
 - Baseline3 comparison: `docs/reports/baseline3-qwen2p5-0p5b.md`
 - Baseline3 comparison figure: `docs/reports/figures/baseline3-qwen2p5-0p5b-comparison.png`
+- Qwen2.5-1.5B comparison: `docs/reports/baseline3-qwen2p5-1p5b.md`
+- Qwen2.5-1.5B comparison figure: `docs/reports/figures/baseline3-qwen2p5-1p5b-comparison.png`
+- Qwen2.5-3B comparison: `docs/reports/baseline3-qwen2p5-3b.md`
+- Qwen2.5-3B comparison figure: `docs/reports/figures/baseline3-qwen2p5-3b-comparison.png`
 - vLLM lifecycle and memory summary: `docs/reports/vllm-qwen2p5-0p5b.md`
