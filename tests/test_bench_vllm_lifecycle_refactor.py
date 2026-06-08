@@ -49,11 +49,20 @@ def test_vllm_harness_uses_benchlib_summary_writer(tmp_path):
 
 def test_vllm_main_dry_run_metadata_records_system(tmp_path, monkeypatch):
     monkeypatch.setattr(bench, "run_cmd", lambda *args, **kwargs: type("CP", (), {"stdout": "0,FakeGPU,10240,999.1\n"})())
-    rc = bench.main(["--model", "dummy", "--out-dir", str(tmp_path), "--dry-run"])
+    rc = bench.main([
+        "--model",
+        "dummy",
+        "--out-dir",
+        str(tmp_path),
+        "--sleep-cpu-backup-pin-memory",
+        "false",
+        "--dry-run",
+    ])
     assert rc == 0
     created = [p for p in tmp_path.iterdir() if p.is_dir()]
     metadata = (created[0] / "metadata.json").read_text()
     assert '"system": "vllm"' in metadata
+    assert '"sleep_cpu_backup_pin_memory": "false"' in metadata
 
 
 def test_parse_args_rejects_unknown_prompt():

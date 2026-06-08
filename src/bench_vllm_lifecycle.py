@@ -103,6 +103,8 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
         env["VLLM_SERVER_DEV_MODE"] = "1"
     if getattr(args, "sleep_profile_path", None):
         env["VLLM_SLEEP_PROFILE_PATH"] = str(args.sleep_profile_path)
+    if args.sleep_cpu_backup_pin_memory != "auto":
+        env["VLLM_SLEEP_CPU_BACKUP_PIN_MEMORY"] = args.sleep_cpu_backup_pin_memory
 
     log_fh = log_path.open("w", encoding="utf-8", buffering=1)
     return subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, text=True, env=env, cwd=args.workdir)
@@ -351,6 +353,7 @@ def flatten_sleep_profile_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str,
                     "buffer_backup_s": event.get("buffer_backup_s"),
                     "restore_buffers_s": event.get("restore_buffers_s"),
                     "post_kv_cache_wake_up_s": event.get("post_kv_cache_wake_up_s"),
+                    "cpu_backup_pin_memory": event.get("cpu_backup_pin_memory"),
                     "allocation_count": event.get("allocation_count"),
                     "total_bytes": event.get("total_bytes"),
                     "backup_bytes": event.get("backup_bytes"),
@@ -543,6 +546,12 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--ready-timeout-s", type=float, default=240)
     parser.add_argument("--idle-s", type=float, default=2)
     parser.add_argument("--sample-interval-s", type=float, default=0.5)
+    parser.add_argument(
+        "--sleep-cpu-backup-pin-memory",
+        choices=["auto", "true", "false", "1", "0"],
+        default="auto",
+        help="Forwarded to VLLM_SLEEP_CPU_BACKUP_PIN_MEMORY for sleep_l1 backup allocation experiments.",
+    )
     parser.add_argument("--out-dir", default="results")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
@@ -577,6 +586,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "methods": args.methods,
         "prompts": args.prompts,
         "repeats": args.repeats,
+        "sleep_cpu_backup_pin_memory": args.sleep_cpu_backup_pin_memory,
         "gpu": read_gpu_metadata(),
     }
     (out_dir / "metadata.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
