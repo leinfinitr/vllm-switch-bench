@@ -8,6 +8,7 @@ and records enough metadata for later manual inspection.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import socket
@@ -100,6 +101,8 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
         env["PATH"] = str(Path(args.cuda_home) / "bin") + os.pathsep + env["PATH"]
     if args.enable_server_dev_mode:
         env["VLLM_SERVER_DEV_MODE"] = "1"
+    if getattr(args, "sleep_profile_path", None):
+        env["VLLM_SLEEP_PROFILE_PATH"] = str(args.sleep_profile_path)
 
     log_fh = log_path.open("w", encoding="utf-8", buffering=1)
     return subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, text=True, env=env, cwd=args.workdir)
@@ -240,12 +243,151 @@ def call_rpc(args: argparse.Namespace, method: str, kwargs: dict[str, Any] | Non
 
 
 
-def combine_restore_steps(*steps: dict[str, Any]) -> dict[str, Any]:
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows
+
+
+def collect_sleep_profile_window(
+    path: Path,
+    operation: str,
+    started_monotonic_s: float,
+    ended_monotonic_s: float,
+) -> dict[str, Any]:
+    events = [
+        event
+        for event in _read_jsonl(path)
+        if started_monotonic_s <= float(event.get("monotonic_s", -1.0)) <= ended_monotonic_s
+    ]
     return {
+        "operation": operation,
+        "started_monotonic_s": started_monotonic_s,
+        "ended_monotonic_s": ended_monotonic_s,
+        "event_count": len(events),
+        "phase_latency_s": {
+            str(event.get("phase")): event.get("latency_s")
+            for event in events
+            if event.get("latency_s") is not None
+        },
+        "events": events,
+    }
+
+
+def call_with_sleep_profile(args: argparse.Namespace, operation: str, fn) -> dict[str, Any]:
+    started_monotonic_s = time.perf_counter()
+    result = fn()
+    ended_monotonic_s = time.perf_counter()
+    profile_path = getattr(args, "sleep_profile_path", "")
+    if profile_path:
+        result["sleep_profile"] = collect_sleep_profile_window(
+            Path(profile_path), operation, started_monotonic_s, ended_monotonic_s
+        )
+    return result
+
+
+def combine_restore_steps(*steps: dict[str, Any]) -> dict[str, Any]:
+    combined = {
         "ok": all(bool(step.get("ok")) for step in steps),
         "status": "+".join(str(step.get("status", "error")) for step in steps),
         "latency_s": sum(float(step.get("latency_s") or 0.0) for step in steps),
     }
+    profiles = [step.get("sleep_profile") for step in steps if step.get("sleep_profile")]
+    if profiles:
+        combined["sleep_profile"] = {
+            "operation": "restore",
+            "event_count": sum(int(profile.get("event_count", 0)) for profile in profiles),
+            "steps": profiles,
+        }
+    return combined
+
+
+def flatten_sleep_profile_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    flat_rows: list[dict[str, Any]] = []
+
+    def append_profile(row: dict[str, Any], parent_operation: str, profile: dict[str, Any]) -> None:
+        for event in profile.get("events", []):
+            flat_rows.append(
+                {
+                    "system": row.get("system"),
+                    "run_id": row.get("run_id"),
+                    "method": row.get("method"),
+                    "model": row.get("model"),
+                    "prompt_name": row.get("prompt_name"),
+                    "repeat_index": row.get("repeat_index"),
+                    "operation": profile.get("operation", parent_operation),
+                    "phase": event.get("phase"),
+                    "pid": event.get("pid"),
+                    "latency_s": event.get("latency_s"),
+                    "copy_d2h_s": event.get("copy_d2h_s"),
+                    "copy_h2d_s": event.get("copy_h2d_s"),
+                    "create_map_s": event.get("create_map_s"),
+                    "unmap_release_s": event.get("unmap_release_s"),
+                    "metadata_s": event.get("metadata_s"),
+                    "cpu_backup_alloc_s": event.get("cpu_backup_alloc_s"),
+                    "cpu_backup_data_ptr_s": event.get("cpu_backup_data_ptr_s"),
+                    "assign_backup_s": event.get("assign_backup_s"),
+                    "discard_accounting_s": event.get("discard_accounting_s"),
+                    "loop_s": event.get("loop_s"),
+                    "loop_accounted_s": event.get("loop_accounted_s"),
+                    "loop_unaccounted_s": event.get("loop_unaccounted_s"),
+                    "logger_s": event.get("logger_s"),
+                    "gc_s": event.get("gc_s"),
+                    "empty_cache_s": event.get("empty_cache_s"),
+                    "accounted_s": event.get("accounted_s"),
+                    "unaccounted_s": event.get("unaccounted_s"),
+                    "allocator_sleep_s": event.get("allocator_sleep_s"),
+                    "allocator_wake_up_s": event.get("allocator_wake_up_s"),
+                    "buffer_backup_s": event.get("buffer_backup_s"),
+                    "restore_buffers_s": event.get("restore_buffers_s"),
+                    "post_kv_cache_wake_up_s": event.get("post_kv_cache_wake_up_s"),
+                    "allocation_count": event.get("allocation_count"),
+                    "total_bytes": event.get("total_bytes"),
+                    "backup_bytes": event.get("backup_bytes"),
+                    "discard_bytes": event.get("discard_bytes"),
+                    "bytes": event.get("bytes"),
+                    "bytes_by_tag": json.dumps(event.get("bytes_by_tag", {}), sort_keys=True),
+                    "backup_bytes_by_tag": json.dumps(event.get("backup_bytes_by_tag", {}), sort_keys=True),
+                    "discard_bytes_by_tag": json.dumps(event.get("discard_bytes_by_tag", {}), sort_keys=True),
+                    "restored_bytes_by_tag": json.dumps(event.get("restored_bytes_by_tag", {}), sort_keys=True),
+                    "remapped_without_backup_bytes_by_tag": json.dumps(
+                        event.get("remapped_without_backup_bytes_by_tag", {}),
+                        sort_keys=True,
+                    ),
+                }
+            )
+
+    for row in rows:
+        for operation in ("evict", "restore"):
+            profile = row.get(operation, {}).get("sleep_profile")
+            if not isinstance(profile, dict):
+                continue
+            if "steps" in profile:
+                for step_profile in profile["steps"]:
+                    append_profile(row, operation, step_profile)
+            else:
+                append_profile(row, operation, profile)
+    return flat_rows
+
+
+def write_sleep_profile_summary_csv(path: Path, rows: Iterable[dict[str, Any]]) -> None:
+    flat_rows = flatten_sleep_profile_rows(rows)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(flat_rows[0].keys()) if flat_rows else [])
+        if flat_rows:
+            writer.writeheader()
+            writer.writerows(flat_rows)
 
 
 
@@ -268,6 +410,7 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
     }
     event_log = JsonlLogger(out_dir / f"{run_id}.events.jsonl")
     server_log = out_dir / f"{run_id}.server.log"
+    sleep_profile_path = out_dir / f"{run_id}.sleep_profile.jsonl"
     start_ts = time.time()
     proc: subprocess.Popen[str] | None = None
     summary: dict[str, Any] = {**ctx, "server_log": str(server_log), "event_log": str(event_log.path)}
@@ -279,6 +422,10 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
         dynamic_port_mode = original_port == 0
         summary["port"] = args.port
         args.enable_sleep_mode = method.startswith("sleep_l")
+        args.sleep_profile_path = str(sleep_profile_path) if args.enable_sleep_mode else ""
+        if args.sleep_profile_path:
+            sleep_profile_path.unlink(missing_ok=True)
+            summary["sleep_profile_log"] = args.sleep_profile_path
         event_log.write(make_event(ctx, "run_start", start_ts, None))
         event_log.write(make_event(ctx, "process_start_begin", start_ts, None))
         proc = start_vllm(args, server_log)
@@ -312,7 +459,9 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
             elif method in {"sleep_l1", "sleep_l2"}:
                 level = 1 if method == "sleep_l1" else 2
                 event_log.write(make_event(ctx, "evict_begin", start_ts, proc.pid))
-                sleep_result = call_sleep(args, level)
+                sleep_result = call_with_sleep_profile(
+                    args, "sleep", lambda: call_sleep(args, level)
+                )
                 summary["evict"] = sleep_result
                 summary["memory_gpu_used_evict_mib"] = query_gpu_memory_used_mib()
                 summary["memory_cpu_used_evict_mib"] = process_tree_rss_mib(proc.pid if proc else None)
@@ -320,11 +469,17 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                 time.sleep(args.idle_s)
                 event_log.write(make_event(ctx, "restore_begin", start_ts, proc.pid))
                 if method == "sleep_l2":
-                    wake_weights = call_wake(args, tags=["weights"])
+                    wake_weights = call_with_sleep_profile(
+                        args, "wake_weights", lambda: call_wake(args, tags=["weights"])
+                    )
                     event_log.write(make_event(ctx, "wake_weights_end", start_ts, proc.pid, extra=wake_weights))
-                    reload_weights = call_rpc(args, "reload_weights")
+                    reload_weights = call_with_sleep_profile(
+                        args, "reload_weights", lambda: call_rpc(args, "reload_weights")
+                    )
                     event_log.write(make_event(ctx, "reload_weights_end", start_ts, proc.pid, extra=reload_weights))
-                    wake_kv = call_wake(args, tags=["kv_cache"])
+                    wake_kv = call_with_sleep_profile(
+                        args, "wake_kv_cache", lambda: call_wake(args, tags=["kv_cache"])
+                    )
                     summary["restore"] = combine_restore_steps(wake_weights, reload_weights, wake_kv)
                     summary["restore"]["steps"] = {
                         "wake_weights": wake_weights,
@@ -332,7 +487,7 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                         "wake_kv_cache": wake_kv,
                     }
                 else:
-                    wake_result = call_wake(args)
+                    wake_result = call_with_sleep_profile(args, "wake", lambda: call_wake(args))
                     summary["restore"] = wake_result
                 event_log.write(make_event(ctx, "restore_end", start_ts, proc.pid, extra=summary["restore"]))
             else:
@@ -391,6 +546,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--out-dir", default="results")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
+    args.sleep_profile_path = ""
     unknown_prompts = sorted(set(args.prompts) - set(PROMPTS))
     if unknown_prompts:
         raise SystemExit(f"unknown prompts: {unknown_prompts}; available={sorted(PROMPTS)}")
@@ -436,6 +592,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 rows.append(row)
                 (out_dir / "summary.json").write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
                 write_summary_csv(out_dir / "summary.csv", rows)
+                write_sleep_profile_summary_csv(out_dir / "sleep_profile_summary.csv", rows)
 
     print(out_dir)
     return 0 if all(row.get("ok") for row in rows) else 2

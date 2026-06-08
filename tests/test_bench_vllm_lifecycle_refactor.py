@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -59,3 +60,64 @@ def test_parse_args_rejects_unknown_prompt():
     with pytest.raises(SystemExit) as exc:
         bench.parse_args(["--model", "dummy", "--prompts", "missing_prompt"])
     assert "unknown prompts" in str(exc.value)
+
+
+def test_collect_sleep_profile_window_filters_by_monotonic_time(tmp_path):
+    profile = tmp_path / "sleep_profile.jsonl"
+    profile.write_text(
+        "\n".join(
+            json.dumps(row)
+            for row in [
+                {"monotonic_s": 0.5, "phase": "too_early", "latency_s": 1.0},
+                {"monotonic_s": 1.5, "phase": "allocator_sleep", "latency_s": 0.2},
+                {"monotonic_s": 2.5, "phase": "too_late", "latency_s": 3.0},
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    window = bench.collect_sleep_profile_window(profile, "sleep", 1.0, 2.0)
+
+    assert window["operation"] == "sleep"
+    assert window["event_count"] == 1
+    assert window["phase_latency_s"] == {"allocator_sleep": 0.2}
+
+
+def test_write_sleep_profile_summary_csv_flattens_nested_profiles(tmp_path):
+    out = tmp_path / "sleep_profile_summary.csv"
+    rows = [
+        {
+            "system": "vllm",
+            "run_id": "r1",
+            "method": "sleep_l1",
+            "model": "m",
+            "prompt_name": "short_short",
+            "repeat_index": 0,
+            "evict": {
+                "sleep_profile": {
+                    "operation": "sleep",
+                    "events": [
+                        {
+                            "phase": "allocator_sleep",
+                            "pid": 123,
+                            "latency_s": 0.4,
+                            "copy_d2h_s": 0.1,
+                            "cpu_backup_alloc_s": 0.25,
+                            "accounted_s": 0.39,
+                            "unaccounted_s": 0.01,
+                            "bytes_by_tag": {"weights": 1024},
+                        }
+                    ],
+                }
+            },
+        }
+    ]
+
+    bench.write_sleep_profile_summary_csv(out, rows)
+    text = out.read_text(encoding="utf-8")
+
+    assert "operation,phase" in text
+    assert "sleep,allocator_sleep" in text
+    assert "cpu_backup_alloc_s" in text
+    assert "0.25" in text
+    assert '""weights"": 1024' in text
