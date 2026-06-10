@@ -1,0 +1,43 @@
+{
+  "system": "vllm",
+  "argv": [
+    "/home/ljl/research-systems/llm-switch-bench/src/bench_vllm_lifecycle.py",
+    "--model",
+    "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "--python",
+    "/home/ljl/research-systems/llm-switch-bench/.venv/bin/python",
+    "--workdir",
+    "/home/ljl/research-systems/llm-switch-bench",
+    "--methods",
+    "sleep_l2",
+    "--prompts",
+    "short_short",
+    "--repeats",
+    "3",
+    "--port",
+    "0",
+    "--idle-s",
+    "0.2",
+    "--sample-interval-s",
+    "1",
+    "--ready-timeout-s",
+    "360",
+    "--gpu-memory-utilization",
+    "0.85",
+    "--sleep-cpu-backup-pin-memory",
+    "false",
+    "--out-dir",
+    "/home/ljl/research-systems/llm-switch-bench/results/profiling/sleep_l2_pin_compare/qwen2p5_3b/pin_false"
+  ],
+  "created_at": "2026-06-10T07:50:12.545611+00:00",
+  "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+  "methods": [
+    "sleep_l2"
+  ],
+  "prompts": [
+    "short_short"
+  ],
+  "repeats": 3,
+  "sleep_cpu_backup_pin_memory": "false",
+  "gpu": "0, NVIDIA GeForce RTX 3080, 10240 MiB, 580.95.05\n"
+}

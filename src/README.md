@@ -53,20 +53,26 @@ ServerlessLLM adapter benchmark 入口。通常由 `bench_baseline3.py` 调用�
 
 SwapServeLLM adapter benchmark 入口。通常由 `bench_baseline3.py` 调用；单独调试 SwapServeLLM 时也可以直接执行。
 
-### `run_sleep_l1_pin_compare.py`
+### `bench_vllm_pin_compare.py`
 
-sleep_l1 pinned/non-pinned CPU backup profiling 对照实验入口。默认覆盖 Qwen2.5 0.5B、1.5B、3B，并为 3B 使用 `gpu_memory_utilization=0.85`。
+vLLM sleep mode pinned/non-pinned CPU backup profiling 对照实验入口。支持 `sleep_l1` 和 `sleep_l2`，默认覆盖 Qwen2.5 0.5B、1.5B、3B，并为 3B 使用 `gpu_memory_utilization=0.85`。
 
 推荐通过脚本运行：
 
 ```bash
-scripts/run_sleep_l1_profiling.sh
+scripts/run_profiling.sh
 ```
 
 快速 dry-run：
 
 ```bash
-DRY_RUN=1 MODELS=qwen2p5_0p5b PIN_MODES=true REPEATS=1 scripts/run_sleep_l1_profiling.sh
+DRY_RUN=1 METHOD=sleep_l1 MODELS=qwen2p5_0p5b PIN_MODES=true REPEATS=1 scripts/run_profiling.sh
+```
+
+测试 `sleep_l2` 并输出到独立目录：
+
+```bash
+METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profiling.sh
 ```
 
 完整默认输出目录：
@@ -147,7 +153,7 @@ results/profiling/sleep_l1_pin_compare/
 
 ## 推荐工作流
 
-1. 用 `scripts/run_baseline3.sh` 或 `scripts/run_sleep_l1_profiling.sh` 复现实验。
+1. 用 `scripts/run_baseline3.sh` 或 `scripts/run_profiling.sh` 复现实验。
 2. 在 `results/` 中保留最新 curated 输出。
 3. 用 `src/tool/` 下的工具生成 Markdown、CSV 或图。
 4. 将最终报告放到 `docs/reports/`，将原始实验输出保留在 `results/`。

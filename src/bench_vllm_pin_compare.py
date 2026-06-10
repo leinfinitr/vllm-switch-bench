@@ -29,10 +29,12 @@ DEFAULT_MODELS = [
     ModelCase("qwen2p5_3b", "/home/ljl/models/hf/Qwen2.5-3B-Instruct", 0.85),
 ]
 PIN_MODES = ("true", "false")
+METHODS = ("sleep_l1", "sleep_l2")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run sleep_l1 pinned/non-pinned profiling comparison.")
+    parser = argparse.ArgumentParser(description="Run sleep pinned/non-pinned profiling comparison.")
+    parser.add_argument("--method", choices=METHODS, default="sleep_l1")
     parser.add_argument("--out-dir", default="results/profiling/sleep_l1_pin_compare")
     parser.add_argument("--python", default=str(DEFAULT_PYTHON))
     parser.add_argument("--cuda-home", default="/home/ljl/cuda-13.0")
@@ -62,7 +64,7 @@ def bench_command(args: argparse.Namespace, case: ModelCase, pin_mode: str, out_
         "--workdir",
         str(ROOT),
         "--methods",
-        "sleep_l1",
+        args.method,
         "--prompts",
         *args.prompts,
         "--repeats",
@@ -95,6 +97,7 @@ def run_one(args: argparse.Namespace, case: ModelCase, pin_mode: str) -> dict:
         return {
             "model_name": case.name,
             "model_path": case.path,
+            "method": args.method,
             "pin_mode": pin_mode,
             "gpu_memory_utilization": case.gpu_memory_utilization,
             "returncode": 0,
@@ -116,6 +119,7 @@ def run_one(args: argparse.Namespace, case: ModelCase, pin_mode: str) -> dict:
     return {
         "model_name": case.name,
         "model_path": case.path,
+        "method": args.method,
         "pin_mode": pin_mode,
         "gpu_memory_utilization": case.gpu_memory_utilization,
         "returncode": proc.returncode,
@@ -135,13 +139,14 @@ def main(argv: list[str] | None = None) -> int:
     with manifest_path.open("w", encoding="utf-8") as handle:
         for case in selected_models(args.models):
             for pin_mode in args.pin_modes:
-                print(f"RUN {case.name} pin={pin_mode}", flush=True)
+                print(f"RUN {args.method} {case.name} pin={pin_mode}", flush=True)
                 try:
                     result = run_one(args, case, pin_mode)
                 except Exception as exc:
                     result = {
                         "model_name": case.name,
                         "model_path": case.path,
+                        "method": args.method,
                         "pin_mode": pin_mode,
                         "gpu_memory_utilization": case.gpu_memory_utilization,
                         "returncode": -1,
