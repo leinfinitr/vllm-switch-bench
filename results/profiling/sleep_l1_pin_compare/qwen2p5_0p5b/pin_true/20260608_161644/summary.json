@@ -1,0 +1,611 @@
+[
+  {
+    "system": "vllm",
+    "run_id": "20260608_161644_sleep_l1_short_short_0_98fd6cb4",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161644_sleep_l1_short_short_0_98fd6cb4.server.log",
+    "event_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161644_sleep_l1_short_short_0_98fd6cb4.events.jsonl",
+    "port": 56729,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161644_sleep_l1_short_short_0_98fd6cb4.sleep_profile.jsonl",
+    "startup_latency_s": 15.022026064340025,
+    "memory_gpu_used_ready_mib": 5911,
+    "memory_cpu_used_ready_mib": 3321.69140625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06684205308556557,
+      "client_latency_s": 0.13391289999708533,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 194.15605218441166,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4608996380120516,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2321811.741911365,
+        "ended_monotonic_s": 2321812.202864641,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.457027112133801,
+          "worker_sleep": 0.4573370008729398,
+          "executor_sleep": 0.457398246973753
+        },
+        "events": [
+          {
+            "accounted_s": 0.45702647417783737,
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "assign_backup_s": 1.5902332961559296e-05,
+            "backup_bytes": 1048576000,
+            "backup_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_d2h_s": 0.05607799161225557,
+            "cpu_backup_alloc_count": 41,
+            "cpu_backup_alloc_s": 0.3695076182484627,
+            "cpu_backup_data_ptr_s": 4.019169136881828e-05,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 4.616100341081619e-06,
+            "discard_bytes": 3724541952,
+            "discard_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "empty_cache_s": 0.003962509799748659,
+            "gc_s": 0.00012944824993610382,
+            "latency_s": 0.457027112133801,
+            "logger_s": 0.00011081993579864502,
+            "loop_accounted_s": 0.4527947884052992,
+            "loop_s": 0.45282369619235396,
+            "loop_unaccounted_s": 2.8907787054777145e-05,
+            "metadata_s": 3.676721826195717e-05,
+            "monotonic_s": 2321812.201188182,
+            "offload_tags": [
+              "weights"
+            ],
+            "phase": "allocator_sleep",
+            "pid": 1245460,
+            "total_bytes": 4773117952,
+            "ts": 1780906620.2149882,
+            "unaccounted_s": 6.379559636116028e-07,
+            "unmap_release_s": 0.027047949843108654
+          },
+          {
+            "allocator_sleep_s": 0.45719421189278364,
+            "buffer_backup_s": 0.0,
+            "free_bytes_after_sleep": 9401663488,
+            "free_bytes_before_sleep": 4156686336,
+            "freed_bytes": 5244977152,
+            "latency_s": 0.4573370008729398,
+            "level": 1,
+            "monotonic_s": 2321812.201415835,
+            "phase": "worker_sleep",
+            "pid": 1245460,
+            "saved_buffer_bytes": 0,
+            "saved_buffer_count": 0,
+            "ts": 1780906620.215216,
+            "used_bytes_after_sleep": 953090048
+          },
+          {
+            "latency_s": 0.457398246973753,
+            "level": 1,
+            "monotonic_s": 2321812.201468599,
+            "phase": "executor_sleep",
+            "pid": 1245460,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1780906620.2152689
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 909,
+    "memory_cpu_used_evict_mib": 5210.8203125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.10611794423311949,
+      "body": "",
+      "sleep_profile": {
+        "operation": "wake",
+        "started_monotonic_s": 2321812.481305977,
+        "ended_monotonic_s": 2321812.587466062,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_wake_up": 0.10328800091519952,
+          "worker_wake_up": 0.10344437463209033,
+          "executor_wake_up": 0.10350215109065175
+        },
+        "events": [
+          {
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "bytes": 4773117952,
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_h2d_s": 0.05912096751853824,
+            "create_map_s": 0.044062893372029066,
+            "latency_s": 0.10328800091519952,
+            "monotonic_s": 2321812.586113696,
+            "phase": "allocator_wake_up",
+            "pid": 1245460,
+            "remapped_without_backup_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "restored_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "tags": null,
+            "ts": 1780906620.5999138
+          },
+          {
+            "allocator_wake_up_s": 0.10341205075383186,
+            "latency_s": 0.10344437463209033,
+            "monotonic_s": 2321812.586263294,
+            "phase": "worker_wake_up",
+            "pid": 1245460,
+            "post_kv_cache_wake_up_s": 2.9501039534807205e-05,
+            "restore_buffers_s": 0.0,
+            "restored_buffer_bytes": 0,
+            "restored_buffer_count": 0,
+            "tags": null,
+            "ts": 1780906620.6000636
+          },
+          {
+            "latency_s": 0.10350215109065175,
+            "monotonic_s": 2321812.586307656,
+            "phase": "executor_wake_up",
+            "pid": 1245460,
+            "sleeping_tags_before": [
+              "kv_cache",
+              "weights"
+            ],
+            "tags": null,
+            "ts": 1780906620.6001077
+          }
+        ]
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.009776907041668892,
+      "client_latency_s": 0.08227533614262938,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 316.0120786978906,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.46505208406597376
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260608_161701_sleep_l1_short_short_1_fcdb212a",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161701_sleep_l1_short_short_1_fcdb212a.server.log",
+    "event_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161701_sleep_l1_short_short_1_fcdb212a.events.jsonl",
+    "port": 55251,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161701_sleep_l1_short_short_1_fcdb212a.sleep_profile.jsonl",
+    "startup_latency_s": 15.022214050870389,
+    "memory_gpu_used_ready_mib": 5911,
+    "memory_cpu_used_ready_mib": 3319.6640625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06725097820162773,
+      "client_latency_s": 0.13485326617956161,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 192.80215256618357,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4574434948153794,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2321828.758183215,
+        "ended_monotonic_s": 2321829.215676555,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.4534397781826556,
+          "worker_sleep": 0.4537325641140342,
+          "executor_sleep": 0.45379231311380863
+        },
+        "events": [
+          {
+            "accounted_s": 0.4534390731714666,
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "assign_backup_s": 1.656031236052513e-05,
+            "backup_bytes": 1048576000,
+            "backup_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_d2h_s": 0.05561346700415015,
+            "cpu_backup_alloc_count": 41,
+            "cpu_backup_alloc_s": 0.36704092798754573,
+            "cpu_backup_data_ptr_s": 3.3587682992219925e-05,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 5.482695996761322e-06,
+            "discard_bytes": 3724541952,
+            "discard_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "empty_cache_s": 0.0039628660306334496,
+            "gc_s": 0.00012877490371465683,
+            "latency_s": 0.4534397781826556,
+            "logger_s": 0.00011252611875534058,
+            "loop_accounted_s": 0.4492078856565058,
+            "loop_s": 0.44923490611836314,
+            "loop_unaccounted_s": 2.7020461857318878e-05,
+            "metadata_s": 3.0357856303453445e-05,
+            "monotonic_s": 2321829.213815606,
+            "offload_tags": [
+              "weights"
+            ],
+            "phase": "allocator_sleep",
+            "pid": 1245742,
+            "total_bytes": 4773117952,
+            "ts": 1780906637.2276158,
+            "unaccounted_s": 7.050111889839172e-07,
+            "unmap_release_s": 0.02641162881627679
+          },
+          {
+            "allocator_sleep_s": 0.4536032220348716,
+            "buffer_backup_s": 0.0,
+            "free_bytes_after_sleep": 9401663488,
+            "free_bytes_before_sleep": 4156686336,
+            "freed_bytes": 5244977152,
+            "latency_s": 0.4537325641140342,
+            "level": 1,
+            "monotonic_s": 2321829.214040008,
+            "phase": "worker_sleep",
+            "pid": 1245742,
+            "saved_buffer_bytes": 0,
+            "saved_buffer_count": 0,
+            "ts": 1780906637.22784,
+            "used_bytes_after_sleep": 953090048
+          },
+          {
+            "latency_s": 0.45379231311380863,
+            "level": 1,
+            "monotonic_s": 2321829.214093492,
+            "phase": "executor_sleep",
+            "pid": 1245742,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1780906637.2278938
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 909,
+    "memory_cpu_used_evict_mib": 5208.5703125,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.10618433402851224,
+      "body": "",
+      "sleep_profile": {
+        "operation": "wake",
+        "started_monotonic_s": 2321829.497557004,
+        "ended_monotonic_s": 2321829.60378095,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_wake_up": 0.10332943033427,
+          "worker_wake_up": 0.10348434373736382,
+          "executor_wake_up": 0.103539003059268
+        },
+        "events": [
+          {
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "bytes": 4773117952,
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_h2d_s": 0.059194037690758705,
+            "create_map_s": 0.04402991710230708,
+            "latency_s": 0.10332943033427,
+            "monotonic_s": 2321829.602410269,
+            "phase": "allocator_wake_up",
+            "pid": 1245742,
+            "remapped_without_backup_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "restored_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "tags": null,
+            "ts": 1780906637.6162105
+          },
+          {
+            "allocator_wake_up_s": 0.10345243662595749,
+            "latency_s": 0.10348434373736382,
+            "monotonic_s": 2321829.602556541,
+            "phase": "worker_wake_up",
+            "pid": 1245742,
+            "post_kv_cache_wake_up_s": 2.8989277780056e-05,
+            "restore_buffers_s": 0.0,
+            "restored_buffer_bytes": 0,
+            "restored_buffer_count": 0,
+            "tags": null,
+            "ts": 1780906637.6163566
+          },
+          {
+            "latency_s": 0.103539003059268,
+            "monotonic_s": 2321829.602599945,
+            "phase": "executor_wake_up",
+            "pid": 1245742,
+            "sleeping_tags_before": [
+              "kv_cache",
+              "weights"
+            ],
+            "tags": null,
+            "ts": 1780906637.6164002
+          }
+        ]
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.009829089976847172,
+      "client_latency_s": 0.07981829904019833,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 325.73984052085353,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.46471111103892326
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260608_161718_sleep_l1_short_short_2_fe9857a9",
+    "method": "sleep_l1",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161718_sleep_l1_short_short_2_fe9857a9.server.log",
+    "event_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161718_sleep_l1_short_short_2_fe9857a9.events.jsonl",
+    "port": 40099,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling_smoke/multimodel_sleep_l1_pin_compare/qwen2p5_0p5b/pin_true/20260608_161644/20260608_161718_sleep_l1_short_short_2_fe9857a9.sleep_profile.jsonl",
+    "startup_latency_s": 15.020305912941694,
+    "memory_gpu_used_ready_mib": 5911,
+    "memory_cpu_used_ready_mib": 3316.05859375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06755213206633925,
+      "client_latency_s": 0.1348308390006423,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 192.83422244280584,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.4631855715997517,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2321845.742286325,
+        "ended_monotonic_s": 2321846.205517463,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.45944877387955785,
+          "worker_sleep": 0.45975414477288723,
+          "executor_sleep": 0.45981629099696875
+        },
+        "events": [
+          {
+            "accounted_s": 0.45944807631894946,
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "assign_backup_s": 1.524435356259346e-05,
+            "backup_bytes": 1048576000,
+            "backup_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_d2h_s": 0.05602285033091903,
+            "cpu_backup_alloc_count": 41,
+            "cpu_backup_alloc_s": 0.3725013476796448,
+            "cpu_backup_data_ptr_s": 3.9834994822740555e-05,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 4.357192665338516e-06,
+            "discard_bytes": 3724541952,
+            "discard_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "empty_cache_s": 0.003967831376940012,
+            "gc_s": 0.00012878607958555222,
+            "latency_s": 0.45944877387955785,
+            "logger_s": 0.00010884972289204597,
+            "loop_accounted_s": 0.45520891807973385,
+            "loop_s": 0.45524260913953185,
+            "loop_unaccounted_s": 3.369105979800224e-05,
+            "metadata_s": 4.0055252611637115e-05,
+            "monotonic_s": 2321846.203785459,
+            "offload_tags": [
+              "weights"
+            ],
+            "phase": "allocator_sleep",
+            "pid": 1246022,
+            "total_bytes": 4773117952,
+            "ts": 1780906654.2175856,
+            "unaccounted_s": 6.975606083869934e-07,
+            "unmap_release_s": 0.026525290682911873
+          },
+          {
+            "allocator_sleep_s": 0.45960997324436903,
+            "buffer_backup_s": 0.0,
+            "free_bytes_after_sleep": 9401663488,
+            "free_bytes_before_sleep": 4156686336,
+            "freed_bytes": 5244977152,
+            "latency_s": 0.45975414477288723,
+            "level": 1,
+            "monotonic_s": 2321846.204013696,
+            "phase": "worker_sleep",
+            "pid": 1246022,
+            "saved_buffer_bytes": 0,
+            "saved_buffer_count": 0,
+            "ts": 1780906654.2178137,
+            "used_bytes_after_sleep": 953090048
+          },
+          {
+            "latency_s": 0.45981629099696875,
+            "level": 1,
+            "monotonic_s": 2321846.204068506,
+            "phase": "executor_sleep",
+            "pid": 1246022,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1780906654.2178688
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 909,
+    "memory_cpu_used_evict_mib": 5205.3046875,
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.10600922396406531,
+      "body": "",
+      "sleep_profile": {
+        "operation": "wake",
+        "started_monotonic_s": 2321846.483579076,
+        "ended_monotonic_s": 2321846.589629645,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_wake_up": 0.10343094123527408,
+          "worker_wake_up": 0.1035991283133626,
+          "executor_wake_up": 0.10365684377029538
+        },
+        "events": [
+          {
+            "allocation_count": 65,
+            "allocations_by_tag": {
+              "kv_cache": 24,
+              "weights": 41
+            },
+            "bytes": 4773117952,
+            "bytes_by_tag": {
+              "kv_cache": 3724541952,
+              "weights": 1048576000
+            },
+            "copy_h2d_s": 0.05917969346046448,
+            "create_map_s": 0.04414416430518031,
+            "latency_s": 0.10343094123527408,
+            "monotonic_s": 2321846.588297482,
+            "phase": "allocator_wake_up",
+            "pid": 1246022,
+            "remapped_without_backup_bytes_by_tag": {
+              "kv_cache": 3724541952
+            },
+            "restored_bytes_by_tag": {
+              "weights": 1048576000
+            },
+            "tags": null,
+            "ts": 1780906654.6020977
+          },
+          {
+            "allocator_wake_up_s": 0.10356156108900905,
+            "latency_s": 0.1035991283133626,
+            "monotonic_s": 2321846.588456772,
+            "phase": "worker_wake_up",
+            "pid": 1246022,
+            "post_kv_cache_wake_up_s": 3.434810787439346e-05,
+            "restore_buffers_s": 0.0,
+            "restored_buffer_bytes": 0,
+            "restored_buffer_count": 0,
+            "tags": null,
+            "ts": 1780906654.602257
+          },
+          {
+            "latency_s": 0.10365684377029538,
+            "monotonic_s": 2321846.588500767,
+            "phase": "executor_wake_up",
+            "pid": 1246022,
+            "sleeping_tags_before": [
+              "kv_cache",
+              "weights"
+            ],
+            "tags": null,
+            "ts": 1780906654.602301
+          }
+        ]
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.009756180457770824,
+      "client_latency_s": 0.08263469720259309,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 314.6378080899426,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.46470550214871764
+  }
+]
