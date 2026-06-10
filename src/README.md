@@ -6,6 +6,40 @@
 - `src/tool/` 下的脚本只处理已有结果，不参与 benchmark 运行过程。
 - `src/benchlib/` 是 benchmark 入口共享的内部库，不建议直接命令行执行。
 
+## 当前测试环境速记
+
+当前仓库的 benchmark 环境是“两层来源”：
+
+- Python 解释器来自本仓库的 uv 虚拟环境：`/home/ljl/research-systems/llm-switch-bench/.venv/bin/python`。
+- vLLM Python 包来自用户本地源码 checkout 的 editable 安装：`/home/ljl/research-systems/vllm`。
+
+因此，vLLM lifecycle 测试不是直接调用系统 Python，也不是使用一份普通的 PyPI/wheel `vllm`。实际流程是：
+
+1. 用本仓库 `.venv/bin/python` 启动 benchmark harness。
+2. `bench_vllm_lifecycle.py` 再用 `--python .venv/bin/python` 启动 vLLM OpenAI server。
+3. 这个解释器执行 `python -m vllm.entrypoints.openai.api_server` 时，`import vllm` 解析到 `/home/ljl/research-systems/vllm/vllm`。
+
+可用下面命令快速确认当前环境：
+
+```bash
+.venv/bin/python -c "import sys, vllm; print(sys.executable); print(vllm.__file__); print(getattr(vllm, '__version__', 'unknown'))"
+```
+
+当前检查结果应类似：
+
+```text
+/home/ljl/research-systems/llm-switch-bench/.venv/bin/python
+/home/ljl/research-systems/vllm/vllm/__init__.py
+```
+
+本地 `.venv` 中的安装记录也能证明这一点：
+
+- `.venv/lib/python3.12/site-packages/vllm-0.1.dev16944+gb3269454b.dist-info/direct_url.json` 记录 `file:///home/ljl/research-systems/vllm` 且 `editable=true`。
+- `.venv/lib/python3.12/site-packages/__editable___vllm_0_1_dev16944_gb3269454b_finder.py` 将 `vllm` 映射到 `/home/ljl/research-systems/vllm/vllm`。
+- 已保留的 vLLM curated run metadata 记录了 `--python .venv/bin/python`，例如 `results/baselines/vllm/qwen2p5_0p5b/20260603_150331/metadata.json`。
+
+一句话结论：**测试进程使用本仓库 uv `.venv` 的解释器，但 vLLM 代码来自用户自己在 `/home/ljl/research-systems/vllm` 编译/安装的本地源码。**
+
 ## Benchmark 执行入口
 
 ### `bench_vllm_lifecycle.py`
