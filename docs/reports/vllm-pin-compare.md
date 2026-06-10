@@ -39,6 +39,43 @@ METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profi
 
 `sleep_l1` 的 no-pin 几乎消除了 CPU backup allocation，但 D2H/H2D 拷贝明显变慢。0.5B 和 3B 总体略有收益，1.5B 反而变慢，因此不能把 no-pin 作为稳定优化。
 
+### wake other 的含义
+
+图中的 `wake other` 不是 vLLM 原生事件，而是绘图脚本根据现有 profiling 字段计算出的残差：
+
+```text
+wake other = allocator_wake_up_s - copy_h2d_s - create_map_s
+```
+
+关键代码在 `/home/ljl/research-systems/vllm/vllm/device_allocator/cumem.py:345` 附近：
+
+`CuMemAllocator.wake_up()` 当前只细分了两段：
+
+1. `create_and_map(handle)` 计入 `create_map_s`
+2. `libcudart.cudaMemcpy(ptr, cpu_ptr, size_in_bytes)` 计入 `copy_h2d_s`
+3. 其他 wake 循环内开销都会落入 `wake other`
+
+本轮结果中，`sleep_l1` no-pin 的 `wake other` 明显增加：
+
+| model | pin wake other | no-pin wake other | restored weights |
+|---|---:|---:|---:|
+| `qwen2p5_0p5b` | 0.0001 | 0.0258 | 1.05 GB |
+| `qwen2p5_1p5b` | 0.0002 | 0.0737 | 3.25 GB |
+| `qwen2p5_3b` | 0.0002 | 0.1431 | 6.31 GB |
+
+这部分增长与 restored weight bytes 基本同向，最可能来自 `data.cpu_backup_tensor = None` 触发的大块 pageable CPU backup tensor 释放/allocator 处理成本。
+
+原因在于：wake_other 目前包含
+
+- cpu_backup_tensor.numel() / element_size() / data_ptr() 等 Python 调用
+- profiling 字典统计开销
+- data.cpu_backup_tensor = None 引发的 CPU backup tensor 引用释放
+- Python loop 的少量开销
+
+但因为 pin 模式下 residual 只有 0.1~0.2ms，这些 Python/profiling 开销可以基本排除；no-pin 多出来的几十到一百多毫秒，大概率就是 pageable CPU tensor 释放/allocator 行为。
+
+当前还没有把这段进一步拆成独立 profiling 字段。若后续需要确认，可以在 vLLM 插桩中补充 `cpu_backup_release_s`，专门包住 `data.cpu_backup_tensor = None`；同时记录 `wake_loop_unaccounted_s`，把 `wake other` 变成可直接归因的字段。
+
 ### sleep_l2
 
 | model | pin evict | no-pin evict | pin restore | no-pin restore | 结论 |
