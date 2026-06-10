@@ -91,7 +91,7 @@ def render_model(model: str, rows: list[dict[str, Any]], out_path: Path) -> Path
             ordered.append(match)
             labels.append(f"{method}\n{'pin' if pin == 'true' else 'no-pin'}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.2), constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.8))
     fig.suptitle(f"vLLM Sleep/Wake breakdown: {model}")
     stack_bars(axes[0], labels, ordered, SLEEP_COMPONENTS)
     axes[0].set_title("Sleep / evict breakdown")
@@ -103,7 +103,8 @@ def render_model(model: str, rows: list[dict[str, Any]], out_path: Path) -> Path
         handles.extend(h)
         labels_legend.extend(l)
     dedup = dict(zip(labels_legend, handles))
-    fig.legend(dedup.values(), dedup.keys(), loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.04))
+    fig.subplots_adjust(left=0.07, right=0.98, top=0.86, bottom=0.30, wspace=0.22)
+    fig.legend(dedup.values(), dedup.keys(), loc="lower center", ncol=4, bbox_to_anchor=(0.5, 0.1))
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=180, bbox_inches="tight")
     plt.close(fig)
