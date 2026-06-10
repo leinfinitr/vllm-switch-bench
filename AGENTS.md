@@ -1,1 +1,1 @@
-Use `results/` to retain the latest curated outputs for each relevant system/method, not only the single newest timestamped run.
+`results/` 用于保留每个相关系统和方法的最新 curated 输出，而不是保留所有结果。

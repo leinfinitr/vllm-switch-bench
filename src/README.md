@@ -185,6 +185,14 @@ results/profiling/sleep_l1_pin_compare/
   --out-md docs/reports/memory-summary.md
 ```
 
+### `tool/plot_vllm_pin_compare.py`
+
+从 `results/profiling/sleep_l1_pin_compare` 和 `results/profiling/sleep_l2_pin_compare` 读取 breakdown 汇总，为每个模型生成 pin/no-pin 对比图。
+
+```bash
+.venv/bin/python src/tool/plot_vllm_pin_compare.py
+```
+
 ## 推荐工作流
 
 1. 用 `scripts/run_baseline3.sh` 或 `scripts/run_profiling.sh` 复现实验。

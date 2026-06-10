@@ -1,36 +1,18 @@
-# Documentation index
+# 文档说明
 
-This directory is organized by purpose.
+这里保留会影响复现实验和理解结论的文档。
 
-## Baseline reproduction guides
+## 复现说明
 
-- `baselines/baseline1-vllm-cold-reload.md`
-- `baselines/baseline2-vllm-sleep-mode.md`
-- `baselines/baseline3-engine-checkpoint-hotswap.md`
+- `baselines/baseline1-vllm-cold-reload.md`：vLLM 冷启动。
+- `baselines/baseline2-vllm-sleep-mode.md`：vLLM Sleep Mode。
+- `baselines/baseline3-engine-checkpoint-hotswap.md`：ServerlessLLM / SwapServeLLM 系统级切换对比。
+- `systems/serverlessllm.md`：ServerlessLLM 本机运行要点。
+- `systems/swapservellm.md`：SwapServeLLM 本机运行要点。
 
-These are the entry points for rerunning baseline1-3.
+## 报告
 
-## External system setup notes
+- `reports/baseline3-qwen2p5-*.md`：Baseline3 对比结论。
+- `reports/vllm-pin-compare.md`：vLLM sleep_l1 / sleep_l2 pin/no-pin breakdown。
 
-- `systems/serverlessllm.md`
-- `systems/swapservellm.md`
-
-These notes record the exact local runtime assumptions that were discovered while getting baseline3 to run.
-
-## Reports
-
-- `reports/baseline3-qwen2p5-0p5b.md`
-- `reports/figures/baseline3-qwen2p5-0p5b-comparison.png`
-- `reports/baseline3-qwen2p5-1p5b.md`
-- `reports/figures/baseline3-qwen2p5-1p5b-comparison.png`
-- `reports/baseline3-qwen2p5-3b.md`
-- `reports/figures/baseline3-qwen2p5-3b-comparison.png`
-- `reports/vllm-qwen2p5-0p5b.md`
-
-## Archive
-
-- `plans/`: implementation plans kept for auditability; they may contain old paths from before the repository cleanup.
-
-## Result data policy
-
-Keep the latest curated per-system runs and the latest merged baseline comparison under `../results/baselines/`. Older raw result directories should be pruned after their findings are reflected in `docs/reports/`. Transient experiments should go to `results/tmp/` or another ignored runtime directory.
+`plans/` 是历史实施计划归档，可能保留当时的路径和步骤，不作为当前复现入口。

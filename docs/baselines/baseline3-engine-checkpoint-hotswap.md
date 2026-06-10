@@ -1,238 +1,32 @@
-# Baseline 3: Engine-agnostic process checkpoint / hotswap
+# Baseline3：系统级 checkpoint / hotswap
 
-Baseline 3 compares systems that treat the inference engine process as a swappable unit rather than relying only on vLLM-internal memory policy.
+Baseline3 用来对比 vLLM 内部 Sleep Mode 之外的系统级切换方案。这里的代表系统是 ServerlessLLM 和 SwapServeLLM；它们把推理引擎进程或容器作为可切换对象，而不是只修改 vLLM 内部 allocator 行为。
 
-Conceptual definition:
+## 运行入口
 
-- The inference engine process can be checkpointed and restored.
-- Swap out / swap in happens at the system layer.
-- The mechanism can be engine-agnostic: vLLM, Ollama, SGLang, TensorRT-LLM, etc.
-- This is useful as a related-system comparison, but it is not the same as vLLM's internal fine-grained Sleep Mode policy.
-
-Current comparison systems:
-
-- vLLM: imported from the clean-HBM Baseline1/2 source run; raw result files have been summarized into reports and pruned.
-- ServerlessLLM: real Docker Compose runtime, measured with `delete_register` and `scale_to_zero_restore`.
-- SwapServeLLM: rootless podman + CUDA checkpoint runtime, measured with `swapout_swapin`; raw result files have been summarized into reports and pruned.
-
-## Current implementation
-
-Driver:
-
-`src/bench_baseline3.py`
-
-Adapters:
-
-- `src/bench_serverless_llm.py`
-- `src/bench_swapserve_llm.py`
-
-Config:
-
-- `configs/baseline3.local.yaml`
-
-## Environment prerequisites
-
-Common:
+配置文件：`configs/baseline3.local.yaml`
 
 ```bash
-cd /home/ljl/research-systems/llm-switch-bench
-. .venv/bin/activate
-python -m pytest tests -q
+scripts/run_baseline3.sh
 ```
 
-External repositories:
-
-```text
-/home/ljl/research-systems/ServerlessLLM
-/home/ljl/research-systems/SwapServeLLM
-/home/ljl/models/hf/Qwen2.5-0.5B-Instruct
-```
-
-ServerlessLLM requires Docker + NVIDIA Docker.
-
-SwapServeLLM requires:
-
-- podman installed
-- user podman socket running
-- `docker.io/vllm/vllm-openai:latest` pulled into podman storage
-- `cuda-checkpoint` available in `PATH`
-- SwapServeLLM compatibility patch branch/commit that supports local rootless runtime
-
-See:
-
-- `docs/systems/serverlessllm.md`
-- `docs/systems/swapservellm.md`
-
-## Start ServerlessLLM runtime
-
-The verified local path uses the Docker Compose file in ServerlessLLM and a writable model store.
+等价直接命令：
 
 ```bash
-cd /home/ljl/research-systems/ServerlessLLM/examples/docker
-export MODEL_FOLDER=/home/ljl/research-systems/llm-switch-bench/runtime/serverlessllm-models
-export HOST_MODEL_FOLDER=/home/ljl/models
-mkdir -p "$MODEL_FOLDER"
-export http_proxy=http://127.0.0.1:7890
-export https_proxy=http://127.0.0.1:7890
-export no_proxy=127.0.0.1,localhost
-export NO_PROXY=127.0.0.1,localhost
-
-docker compose up -d
-curl --noproxy '*' http://127.0.0.1:8343/health
+.venv/bin/python src/bench_baseline3.py   --config configs/baseline3.local.yaml   --out-dir results/baselines/baseline3/qwen2p5_0p5b
 ```
 
-Important: ServerlessLLM writes its own `vllm/<model>/rank_*` state under `MODEL_FOLDER`. Keep this store separate from the raw Hugging Face checkpoint.
-
-## Start SwapServeLLM runtime
-
-Use the patched SwapServeLLM branch already pushed to the GitLab research remote:
+如果只需要生成报告：
 
 ```bash
-cd /home/ljl/research-systems/SwapServeLLM
-git checkout fix/local-rootless-swapserve
+.venv/bin/python src/tool/analyze_baseline3.py   results/baselines/baseline3/qwen2p5_0p5b/<timestamp>   --out docs/reports/baseline3-qwen2p5-0p5b.md
 ```
 
-Prepare runtime dependencies:
+## 外部系统要求
 
-```bash
-systemctl --user start podman.socket
+- ServerlessLLM 需要 Docker / NVIDIA Docker，见 `docs/systems/serverlessllm.md`。
+- SwapServeLLM 需要 rootless podman、`cuda-checkpoint` 和本机兼容 patch，见 `docs/systems/swapservellm.md`。
 
-http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890 \
-podman pull docker.io/vllm/vllm-openai:latest
+## 解释
 
-mkdir -p /tmp/cuda-checkpoint-exp
-http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890 \
-curl -L --fail \
-  https://github.com/NVIDIA/cuda-checkpoint/raw/refs/heads/main/bin/x86_64_Linux/cuda-checkpoint \
-  -o /tmp/cuda-checkpoint-exp/cuda-checkpoint
-chmod +x /tmp/cuda-checkpoint-exp/cuda-checkpoint
-```
-
-Example local config path:
-
-```bash
-mkdir -p /tmp/swapserve-exp/logs
-cat > /tmp/swapserve-exp/config.json <<'JSON'
-{
-  "openai_api_key": "dummy",
-  "swap_in_logfile": "/tmp/swapserve-exp/logs/swapin.log",
-  "swap_out_logfile": "/tmp/swapserve-exp/logs/swapout.log",
-  "cold_start_logfile": "/tmp/swapserve-exp/logs/coldstart.log",
-  "model_latency_logfile": "/tmp/swapserve-exp/logs/model_latency.log",
-  "service_ready_timeout": 180,
-  "backend_response_timeout": 300,
-  "max_waiting_requests": 16,
-  "model_list": [
-    {
-      "backend_name": "vllm-qwen2p5-0p5b",
-      "model_name": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
-      "container_image": "docker.io/vllm/vllm-openai:latest",
-      "initialization_timeout": "5m",
-      "container_port": "8001",
-      "gpu_memory_utilization": "0.45"
-    }
-  ]
-}
-JSON
-```
-
-Build and launch:
-
-```bash
-cd /home/ljl/research-systems/SwapServeLLM
-/home/ljl/program/go/bin/go build \
-  -tags 'containers_image_openpgp exclude_graphdriver_btrfs' \
-  -o /tmp/swapserve-exp/swapservellm .
-
-cd /tmp/swapserve-exp
-PATH=/tmp/cuda-checkpoint-exp:$PATH \
-SWAPSERVE_CONFIG_PATH=/tmp/swapserve-exp/config.json \
-SWAPSERVE_HF_CACHE=/home/ljl/models/hf \
-SWAPSERVE_SKIP_PULL=1 \
-OPENAI_API_KEY=dummy \
-http_proxy=http://127.0.0.1:7890 \
-https_proxy=http://127.0.0.1:7890 \
-/tmp/swapserve-exp/swapservellm
-```
-
-Verify:
-
-```bash
-curl http://127.0.0.1:8000/v1/models
-```
-
-## Run baseline3 comparison
-
-After both external runtimes are up:
-
-```bash
-cd /home/ljl/research-systems/llm-switch-bench
-. .venv/bin/activate
-
-python src/bench_baseline3.py \
-  --config configs/baseline3.local.yaml \
-  --systems vllm serverless_llm swapserve_llm \
-  --prompts short_short long_short short_long \
-  --repeats 3 \
-  --out-dir results/tmp/baseline3/qwen2p5_0p5b
-```
-
-If only ServerlessLLM needs to be rerun for the curated report:
-
-```bash
-python src/bench_serverless_llm.py \
-  --repo /home/ljl/research-systems/ServerlessLLM \
-  --model /host-models/hf/Qwen2.5-0.5B-Instruct \
-  --registered-model-name qwen2p5-0p5b \
-  --methods delete_register scale_to_zero_restore \
-  --prompts short_short long_short short_long \
-  --repeats 1 \
-  --max-model-len 2048 \
-  --out-dir results/baselines/serverless_llm/qwen2p5_0p5b
-```
-
-If only SwapServeLLM needs to be rerun:
-
-```bash
-python src/bench_swapserve_llm.py \
-  --repo /home/ljl/research-systems/SwapServeLLM \
-  --base-url http://127.0.0.1:8000 \
-  --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct \
-  --api-key dummy \
-  --log-dir /tmp/swapserve-exp/logs \
-  --prompts short_short long_short short_long \
-  --repeats 3 \
-  --out-dir results/tmp/swapserve_llm/qwen2p5_0p5b
-```
-
-Analyze a full baseline3 run:
-
-```bash
-python src/tool/analyze_baseline3.py \
-  results/tmp/baseline3/qwen2p5_0p5b/<timestamp> \
-  --out docs/reports/baseline3-qwen2p5-0p5b.md
-```
-
-## Curated result
-
-The latest tracked merged baseline3 result is:
-
-`results/baselines/baseline3/qwen2p5_0p5b/20260605_145529`
-
-It is assembled from the latest per-system result directories:
-
-- `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
-- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
-- `results/baselines/swapserve_llm/qwen2p5_0p5b/20260605_145529`
-
-Report:
-
-`docs/reports/baseline3-qwen2p5-0p5b.md`
-
-## Known interpretation caveats
-
-- ServerlessLLM `scale_to_zero_restore` measures a real external runtime path; both ServerlessLLM methods use prompt-matched warm requests so ready memory and before/after latency are measured after the backend is serving.
-- ServerlessLLM restore latency is estimated as restore warm request latency minus a second active request latency; startup latency is intentionally empty because the Docker runtime is assumed already running.
-- ServerlessLLM has no external streaming TTFT in this API path, so its TPOT fields are intentionally unavailable.
-- SwapServeLLM `swapout_swapin` uses CUDA checkpoint/restore and podman-managed containers; it is a system-level hotswap baseline, not a vLLM Sleep Mode policy.
-- SwapServeLLM detailed stage timings are emitted on router stdout; `swapout.log` and `swapin.log` contain summary rows only.
+Baseline3 的价值是提供横向参考：ServerlessLLM 和 SwapServeLLM 的切换发生在 vLLM 外部，适合作为系统方案对比；但它们不是 vLLM PR 主线里的内部优化点。当前研究主线更适合聚焦 vLLM Sleep Mode 内部路径。

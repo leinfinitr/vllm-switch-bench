@@ -1,74 +1,22 @@
 # LLM Switch Bench
 
-Standalone benchmark repository for model lifecycle / model switching baselines on the IPADS shared server aipc2.
+本仓库用于在本机复现和比较 LLM 服务生命周期相关基线，包括 vLLM 冷启动、vLLM Sleep Mode、ServerlessLLM 和 SwapServeLLM。实现仓库保持独立，本仓库只保存 benchmark harness、运行脚本、必要说明和 curated 结果。
 
-The repository intentionally stays separate from the implementation repositories:
+## 主要入口
 
-- `/home/ljl/research-systems/vllm`
-- `/home/ljl/research-systems/ServerlessLLM`
-- `/home/ljl/research-systems/SwapServeLLM`
+- `scripts/run_baseline3.sh`：按 `configs/baseline3.local.yaml` 运行 Baseline3 聚合对比。
+- `scripts/run_profiling.sh`：运行 vLLM `sleep_l1` / `sleep_l2` 的 pin/no-pin profiling 对比。
+- `src/bench_vllm_lifecycle.py`：vLLM cold reload、sleep/wake 的底层 benchmark。
+- `src/bench_vllm_pin_compare.py`：多模型 pin/no-pin profiling 矩阵。
+- `src/tool/`：只读取已有结果的报告、绘图、合并工具。
 
-This repo owns only benchmark harnesses, reproducibility notes, and curated baseline results.
+## 基线含义
 
-## Current baseline definitions
+- Baseline1：vLLM cold reload，衡量重新启动服务并加载模型的成本。
+- Baseline2：vLLM Sleep Mode，当前仓库测的是单模型 sleep/wake 近似，不包含多模型调度器。
+- Baseline3：ServerlessLLM、SwapServeLLM 等外部系统级切换方案，与 vLLM 内部 sleep mode 做横向对比。
 
-The external Feishu wiki defines three conceptual baselines. The executable state in this repo is:
-
-1. Baseline 1 — cold reload / on-demand vLLM serving.
-   - Implemented by `src/bench_vllm_lifecycle.py --methods cold_reload`.
-   - Repro doc: `docs/baselines/baseline1-vllm-cold-reload.md`.
-
-2. Baseline 2 — separate vLLM processes with vLLM Sleep Mode.
-   - Target definition: one vLLM process per model; inactive models sleep; switch by sleeping A and waking B.
-   - Current harness: single-model lifecycle approximation using `sleep_l1` and `sleep_l2` in `src/bench_vllm_lifecycle.py`.
-   - Repro doc: `docs/baselines/baseline2-vllm-sleep-mode.md`.
-
-3. Baseline 3 — engine-agnostic process checkpoint / hotswap systems.
-   - System comparison with ServerlessLLM and SwapServeLLM, plus imported vLLM baseline rows.
-   - Implemented by `src/bench_baseline3.py`, `src/bench_serverless_llm.py`, and `src/bench_swapserve_llm.py`.
-   - Repro doc: `docs/baselines/baseline3-engine-checkpoint-hotswap.md`.
-
-## Repository layout
-
-```text
-configs/                 Machine-local configs and examples.
-docs/baselines/          How to reproduce baseline1/2/3.
-docs/systems/            ServerlessLLM and SwapServeLLM setup notes.
-docs/reports/            Curated result reports and figures.
-docs/plans/              Implementation plans kept for auditability.
-results/baselines/       Curated baseline result data kept for future comparison.
-src/                     Benchmark harnesses and analysis scripts.
-tests/                   Unit tests for benchmark logic.
-```
-
-## Curated result data kept
-
-The tracked result tree keeps the latest per-system runs plus the latest merged baseline3 comparison:
-
-- `results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
-  - vLLM cold reload + sleep_l1 + sleep_l2 source run using the simplified schema.
-- `results/baselines/serverless_llm/qwen2p5_0p5b/20260604_164857`
-  - Latest ServerlessLLM full-fixed rerun with `delete_register` and `scale_to_zero_restore`.
-- `results/baselines/swapserve_llm/qwen2p5_0p5b/20260605_145529`
-  - Latest SwapServeLLM swapout/swapin run; TTFT/TPOT are unavailable because the router stream does not expose explicit TTFT.
-- `results/baselines/baseline3/qwen2p5_0p5b/20260605_145529`
-  - Latest merged Qwen2.5-0.5B baseline3 comparison run.
-- `results/baselines/vllm/qwen2p5_1p5b/20260604_210320`
-- `results/baselines/serverless_llm/qwen2p5_1p5b/20260605_102142`
-- `results/baselines/swapserve_llm/qwen2p5_1p5b/20260605_144546`
-- `results/baselines/baseline3/qwen2p5_1p5b/20260605_144546`
-  - Full Qwen2.5-1.5B baseline3 comparison across vLLM, ServerlessLLM, and SwapServeLLM.
-- `results/baselines/vllm/qwen2p5_3b/20260605_095722`
-- `results/baselines/swapserve_llm/qwen2p5_3b/20260605_144933`
-- `results/baselines/serverless_llm/qwen2p5_3b/20260605_111500_blocked`
-- `results/baselines/baseline3/qwen2p5_3b/20260605_144933`
-  - Qwen2.5-3B comparison; ServerlessLLM rows are tracked as blocked because 3B inference did not complete on this setup.
-
-Older result directories were pruned after their useful findings were reflected in reports.
-
-## Environment policy
-
-Use a local uv environment under this directory. Do not modify system Python or other project environments.
+## 常用命令
 
 ```bash
 cd /home/ljl/research-systems/llm-switch-bench
@@ -76,30 +24,26 @@ uv venv --python 3.12 .venv
 uv pip install pytest psutil requests pandas matplotlib
 ```
 
-The vLLM baselines require a vLLM build with OpenAI server Sleep Mode support. On this machine the successful runs used the local source checkout and CUDA 13 environment documented in `docs/baselines/baseline1-vllm-cold-reload.md`.
-
-## Local model
-
-The maintained small-model baseline uses:
-
-`/home/ljl/models/hf/Qwen2.5-0.5B-Instruct`
-
-It fits on the local RTX 3080 10 GiB and is useful for validating lifecycle measurement correctness before scaling to larger models.
-
-## Quick validation
+运行测试：
 
 ```bash
-cd /home/ljl/research-systems/llm-switch-bench
-. .venv/bin/activate
-python -m pytest tests -q
+uv run pytest tests -q
 ```
 
-## Reports
+运行 Baseline3：
 
-- Baseline3 comparison: `docs/reports/baseline3-qwen2p5-0p5b.md`
-- Baseline3 comparison figure: `docs/reports/figures/baseline3-qwen2p5-0p5b-comparison.png`
-- Qwen2.5-1.5B comparison: `docs/reports/baseline3-qwen2p5-1p5b.md`
-- Qwen2.5-1.5B comparison figure: `docs/reports/figures/baseline3-qwen2p5-1p5b-comparison.png`
-- Qwen2.5-3B comparison: `docs/reports/baseline3-qwen2p5-3b.md`
-- Qwen2.5-3B comparison figure: `docs/reports/figures/baseline3-qwen2p5-3b-comparison.png`
-- vLLM lifecycle and memory summary: `docs/reports/vllm-qwen2p5-0p5b.md`
+```bash
+scripts/run_baseline3.sh
+```
+
+运行 vLLM pin/no-pin profiling：
+
+```bash
+METHOD=sleep_l1 OUT_DIR=results/profiling/sleep_l1_pin_compare scripts/run_profiling.sh
+METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profiling.sh
+```
+
+## 当前结论入口
+
+- Baseline3 总结：`docs/reports/baseline3-qwen2p5-0p5b.md`、`docs/reports/baseline3-qwen2p5-1p5b.md`、`docs/reports/baseline3-qwen2p5-3b.md`
+- vLLM pin/no-pin profiling：`docs/reports/vllm-pin-compare.md`

@@ -1,100 +1,28 @@
-# Baseline 2: Separate processes + vLLM Sleep Mode
+# Baseline2：vLLM Sleep Mode
 
-Baseline 2 is the main practical vLLM baseline from the research plan.
+Baseline2 关注 vLLM 内部 sleep/wake 能力。当前仓库实现的是单模型 lifecycle 近似：启动一个 vLLM 服务，完成一次请求后调用 sleep，再 wake 并再次请求。它用于衡量 vLLM 内部显存释放和恢复成本，不包含多模型调度器。
 
-Target definition:
+## sleep level
 
-1. Each model has its own vLLM server process.
-2. Model A is awake.
-3. Model B is resident as a sleeping vLLM process.
-4. When a request for B arrives, A sleeps and B wakes.
-5. The request is served by B.
+- `sleep_l1`：权重备份到 CPU，KV cache 丢弃；wake 时把权重拷回 GPU。
+- `sleep_l2`：权重和 KV cache 都从 GPU 释放；wake 时重新加载权重。
 
-## Sleep Mode levels
-
-Level 1:
-
-- Weights are offloaded to CPU RAM.
-- KV cache is discarded.
-- Wake moves weights back to GPU.
-- Best when CPU RAM is sufficient and the same model sleeps/wakes frequently.
-
-Level 2:
-
-- Weights and KV are discarded from GPU.
-- Only small buffers remain.
-- Wake requires `reload_weights` and prefix-cache reset.
-- Best when switching to different models or when CPU RAM is tight.
-
-## Current implementation status
-
-The current repository implements a single-model lifecycle approximation, not the full separate-process multi-model scheduler.
-
-Executable harness:
-
-`src/bench_vllm_lifecycle.py --methods sleep_l1 sleep_l2`
-
-The harness starts one vLLM server, sends an inference request, calls vLLM sleep/wake endpoints, then sends another inference request. It measures the core vLLM Sleep Mode transition cost, but it does not yet run two simultaneous vLLM processes A/B and does not measure cross-model scheduler overhead.
-
-This distinction is important for interpretation:
-
-- Use current `sleep_l1` / `sleep_l2` results as the vLLM internal memory-management baseline.
-- Do not claim they are full multi-model process switching results until a separate-process A/B harness is added.
-
-## Metrics
-
-- `evict.latency_s`: sleep API time.
-- `restore.latency_s`: wake / staged restore time.
-- `infer_before.ttft_s` / `infer_after.ttft_s`: first-token latency before and after sleep/wake.
-- `infer_before.client_latency_s` / `infer_after.client_latency_s`: end-to-end request latency.
-- `phase_memory.csv`: HBM/CPU memory phase samples.
-
-## Reproduce current Sleep Mode approximation
+## 运行方式
 
 ```bash
 cd /home/ljl/research-systems/llm-switch-bench
-. .venv/bin/activate
-
-PATH=$PWD/.venv/bin:/home/ljl/cuda-13.0/bin:$PATH \
-CUDA_HOME=/home/ljl/cuda-13.0 \
-python src/bench_vllm_lifecycle.py \
-  --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct \
-  --python .venv/bin/python \
-  --workdir /home/ljl/research-systems/llm-switch-bench \
-  --methods sleep_l1 sleep_l2 \
-  --prompts short_short long_short short_long \
-  --repeats 3 \
-  --ready-timeout-s 360 \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 1024 \
-  --port 0 \
-  --out-dir results/baselines/vllm/qwen2p5_0p5b
+PATH=$PWD/.venv/bin:/home/ljl/cuda-13.0/bin:$PATH CUDA_HOME=/home/ljl/cuda-13.0 .venv/bin/python src/bench_vllm_lifecycle.py   --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct   --python .venv/bin/python   --workdir /home/ljl/research-systems/llm-switch-bench   --methods sleep_l1 sleep_l2   --prompts short_short long_short short_long   --repeats 3   --ready-timeout-s 360   --gpu-memory-utilization 0.45   --max-model-len 1024   --port 0   --out-dir results/baselines/vllm/qwen2p5_0p5b
 ```
 
-## Curated result
+## profiling 对比
 
-Current source result directory:
+```bash
+METHOD=sleep_l1 OUT_DIR=results/profiling/sleep_l1_pin_compare scripts/run_profiling.sh
+METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profiling.sh
+```
 
-`results/baselines/vllm/qwen2p5_0p5b/20260603_150331`
+详细结论见 `docs/reports/vllm-pin-compare.md`。
 
-Reports:
+## 解释
 
-- `docs/reports/vllm-qwen2p5-0p5b.md`
-
-Observed on Qwen2.5-0.5B:
-
-- Sleep L1 wake is about 0.109-0.110 s.
-- Sleep L2 staged restore is about 0.246-0.259 s.
-- Both are much faster than cold reload (~15 s), but this is for a small model and a warmed server process.
-
-## Future work for exact Baseline 2
-
-To match the target definition exactly, add a harness that:
-
-1. Starts two vLLM servers on separate ports.
-2. Loads model A and model B, or two aliases/models if GPU memory allows.
-3. Puts B to sleep.
-4. Measures A sleep + B wake + B inference under one switch operation.
-5. Records cross-process scheduling and memory interference.
-
-Until that exists, the maintained results are labeled as “single-model Sleep Mode approximation”.
+在 0.5B 上，`sleep_l1` wake 约 0.11 秒，`sleep_l2` restore 约 0.25 秒，都明显快于 cold reload。profiling 显示 `sleep_l1` 的关键瓶颈是 pinned CPU backup 分配；`sleep_l2` 没有 CPU backup，pin/no-pin 开关基本不影响 sleep 阶段。
