@@ -2,7 +2,7 @@ from pathlib import Path
 import importlib.util
 import json
 
-SRC = Path(__file__).resolve().parents[1] / "src" / "analyze_results.py"
+SRC = Path(__file__).resolve().parents[1] / "src" / "tool" / "analyze_results.py"
 spec = importlib.util.spec_from_file_location("analyze_results", SRC)
 assert spec is not None and spec.loader is not None
 analyze_results = importlib.util.module_from_spec(spec)

@@ -208,7 +208,7 @@ python src/bench_swapserve_llm.py \
 Analyze a full baseline3 run:
 
 ```bash
-python src/analyze_baseline3.py \
+python src/tool/analyze_baseline3.py \
   results/tmp/baseline3/qwen2p5_0p5b/<timestamp> \
   --out docs/reports/baseline3-qwen2p5-0p5b.md
 ```
