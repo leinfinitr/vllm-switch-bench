@@ -15,13 +15,13 @@ import matplotlib.pyplot as plt
 SLEEP_COMPONENTS = [
     ("cpu_backup_alloc_s_mean", "CPU backup alloc", "#4E79A7"),
     ("copy_d2h_s_mean", "D2H copy", "#F28E2B"),
-    ("unmap_release_s_mean", "unmap/release", "#59A14F"),
-    ("empty_cache_s_mean", "empty_cache", "#E15759"),
+    ("unmap_release_s_mean", "unmap & release", "#59A14F"),
+    ("empty_cache_s_mean", "empty cache", "#E15759"),
     ("sleep_other_s", "sleep other", "#B07AA1"),
 ]
 WAKE_COMPONENTS = [
+    ("create_map_s_mean", "create map", "#76B7B2"),
     ("copy_h2d_s_mean", "H2D copy", "#F28E2B"),
-    ("create_map_s_mean", "create/map", "#76B7B2"),
     ("reload_weights_s_mean", "reload weights", "#EDC948"),
     ("wake_other_s", "restore other", "#B07AA1"),
 ]
@@ -139,11 +139,22 @@ def stack_bars(ax: Any, labels: list[str], rows: list[dict[str, Any]], component
         vals = [float(row.get(key, 0.0)) for row in rows]
         if max(vals, default=0.0) < 0.003:
             continue
-        ax.bar(x, vals, bottom=bottoms, label=label, color=color)
+        for index, val in enumerate(vals):
+            ax.bar(
+                x[index],
+                val,
+                bottom=bottoms[index],
+                label=label if index == 0 else None,
+                color=color,
+                edgecolor="black" if rows[index]["pin_memory"] == "false" else "white",
+                linewidth=0.6 if rows[index]["pin_memory"] == "false" else 0.3,
+                hatch="//" if rows[index]["pin_memory"] == "false" else None,
+            )
         bottoms = [b + v for b, v in zip(bottoms, vals)]
     ax.set_xticks(x, labels, rotation=20, ha="right")
     ax.set_ylabel("seconds")
     ax.grid(axis="y", alpha=0.25)
+    ax.legend(loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.25))
 
 
 def render_model(model: str, rows: list[dict[str, Any]], out_path: Path) -> Path:
@@ -161,14 +172,7 @@ def render_model(model: str, rows: list[dict[str, Any]], out_path: Path) -> Path
     axes[0].set_title("Sleep / evict breakdown")
     stack_bars(axes[1], labels, ordered, WAKE_COMPONENTS)
     axes[1].set_title("Wake / restore breakdown")
-    handles, labels_legend = [], []
-    for ax in axes:
-        h, l = ax.get_legend_handles_labels()
-        handles.extend(h)
-        labels_legend.extend(l)
-    dedup = dict(zip(labels_legend, handles))
-    fig.subplots_adjust(left=0.07, right=0.98, top=0.86, bottom=0.30, wspace=0.22)
-    fig.legend(dedup.values(), dedup.keys(), loc="lower center", ncol=4, bbox_to_anchor=(0.5, 0.1))
+    fig.subplots_adjust(left=0.07, right=0.98, top=0.86, bottom=0.22, wspace=0.22)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=180, bbox_inches="tight")
     plt.close(fig)
