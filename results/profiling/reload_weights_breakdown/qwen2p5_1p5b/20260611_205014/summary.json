@@ -1,0 +1,1463 @@
+[
+  {
+    "system": "vllm",
+    "run_id": "20260611_205014_sleep_l2_short_short_0_07abc3b6",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205014_sleep_l2_short_short_0_07abc3b6.server.log",
+    "event_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205014_sleep_l2_short_short_0_07abc3b6.events.jsonl",
+    "port": 40437,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling/reload_weights_breakdown/20260611_205014/20260611_205014_sleep_l2_short_short_0_07abc3b6.sleep_profile.jsonl",
+    "startup_latency_s": 26.534567050635815,
+    "memory_gpu_used_ready_mib": 5797,
+    "memory_cpu_used_ready_mib": 3460.18359375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.37397942785173655,
+      "client_latency_s": 0.5475853099487722,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 51.13358501640495,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.11146628297865391,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2597434.111936306,
+        "ended_monotonic_s": 2597434.223448287,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.10376024199649692,
+          "worker_sleep": 0.10848659602925181,
+          "executor_sleep": 0.10855278512462974
+        },
+        "events": [
+          {
+            "accounted_s": 0.10375936003401875,
+            "allocation_count": 104,
+            "allocations_by_tag": {
+              "kv_cache": 28,
+              "weights": 76
+            },
+            "assign_backup_s": 0.0,
+            "backup_bytes": 0,
+            "backup_bytes_by_tag": {},
+            "bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "copy_d2h_s": 0.0,
+            "cpu_backup_alloc_count": 0,
+            "cpu_backup_alloc_s": 0.0,
+            "cpu_backup_data_ptr_s": 0.0,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 9.403098374605179e-06,
+            "discard_bytes": 4601151488,
+            "discard_bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "empty_cache_s": 0.0034773130901157856,
+            "gc_s": 0.0007051741704344749,
+            "latency_s": 0.10376024199649692,
+            "logger_s": 0.0001238267868757248,
+            "loop_accounted_s": 0.09943034779280424,
+            "loop_s": 0.09945304598659277,
+            "loop_unaccounted_s": 2.2698193788528442e-05,
+            "metadata_s": 1.6019679605960846e-05,
+            "monotonic_s": 2597434.22173231,
+            "offload_tags": [],
+            "phase": "allocator_sleep",
+            "pid": 1876618,
+            "total_bytes": 4601151488,
+            "ts": 1781182242.2355325,
+            "unaccounted_s": 8.819624781608582e-07,
+            "unmap_release_s": 0.09936762787401676
+          },
+          {
+            "allocator_sleep_s": 0.10412530601024628,
+            "buffer_backup_s": 0.004186544101685286,
+            "free_bytes_after_sleep": 9040953344,
+            "free_bytes_before_sleep": 4276224000,
+            "freed_bytes": 4764729344,
+            "latency_s": 0.10848659602925181,
+            "level": 2,
+            "monotonic_s": 2597434.222181936,
+            "phase": "worker_sleep",
+            "pid": 1876618,
+            "saved_buffer_bytes": 8389056,
+            "saved_buffer_count": 113,
+            "ts": 1781182242.2359822,
+            "used_bytes_after_sleep": 1313800192
+          },
+          {
+            "latency_s": 0.10855278512462974,
+            "level": 2,
+            "monotonic_s": 2597434.222243245,
+            "phase": "executor_sleep",
+            "pid": 1876618,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1781182242.2360432
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 1253,
+    "memory_cpu_used_evict_mib": 3587.74609375,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.5973343797959387,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 7,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597436.300656076,
+            "ended_monotonic_s": 2597436.386155512,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.0806454629637301,
+              "worker_wake_up": 0.0826182421296835,
+              "executor_wake_up": 0.08270943583920598
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08059403439983726,
+                "latency_s": 0.0806454629637301,
+                "monotonic_s": 2597436.382799595,
+                "phase": "allocator_wake_up",
+                "pid": 1876618,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.3965998
+              },
+              {
+                "allocator_wake_up_s": 0.08075953181833029,
+                "latency_s": 0.0826182421296835,
+                "monotonic_s": 2597436.384765643,
+                "phase": "worker_wake_up",
+                "pid": 1876618,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018546851351857185,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.3985658
+              },
+              {
+                "latency_s": 0.08270943583920598,
+                "monotonic_s": 2597436.384845858,
+                "phase": "executor_wake_up",
+                "pid": 1876618,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.398646
+              }
+            ]
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597436.416864788,
+            "ended_monotonic_s": 2597436.896486667,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.4762002476491034
+            },
+            "events": [
+              {
+                "accounted_s": 0.47609162563458085,
+                "finalize_layerwise_reload_s": 0.0015146401710808277,
+                "get_iterator_s": 1.127505674958229e-05,
+                "initialize_layerwise_reload_s": 0.0058037033304572105,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.45678402250632644,
+                "iterator_first_yield_s": 0.0011794278398156166,
+                "iterator_gap_s": 0.011006842367351055,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.4677908648736775,
+                "latency_s": 0.4762002476491034,
+                "model_load_weights_s": 0.46876200707629323,
+                "monotonic_s": 2597436.895321524,
+                "phase": "reload_weights",
+                "pid": 1876618,
+                "ts": 1781182244.9091215,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597436.923673197,
+            "ended_monotonic_s": 2597436.956037063,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.029793253168463707,
+              "worker_wake_up": 0.02995977597311139,
+              "executor_wake_up": 0.030039507895708084
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.02975501725450158,
+                "latency_s": 0.029793253168463707,
+                "monotonic_s": 2597436.954806309,
+                "phase": "allocator_wake_up",
+                "pid": 1876618,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.9686065
+              },
+              {
+                "allocator_wake_up_s": 0.02992052398622036,
+                "latency_s": 0.02995977597311139,
+                "monotonic_s": 2597436.954958714,
+                "phase": "worker_wake_up",
+                "pid": 1876618,
+                "post_kv_cache_wake_up_s": 3.4706201404333115e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.9687588
+              },
+              {
+                "latency_s": 0.030039507895708084,
+                "monotonic_s": 2597436.955029174,
+                "phase": "executor_wake_up",
+                "pid": 1876618,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.968829
+              }
+            ]
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.08545235404744744,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597436.300656076,
+            "ended_monotonic_s": 2597436.386155512,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.0806454629637301,
+              "worker_wake_up": 0.0826182421296835,
+              "executor_wake_up": 0.08270943583920598
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08059403439983726,
+                "latency_s": 0.0806454629637301,
+                "monotonic_s": 2597436.382799595,
+                "phase": "allocator_wake_up",
+                "pid": 1876618,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.3965998
+              },
+              {
+                "allocator_wake_up_s": 0.08075953181833029,
+                "latency_s": 0.0826182421296835,
+                "monotonic_s": 2597436.384765643,
+                "phase": "worker_wake_up",
+                "pid": 1876618,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018546851351857185,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.3985658
+              },
+              {
+                "latency_s": 0.08270943583920598,
+                "monotonic_s": 2597436.384845858,
+                "phase": "executor_wake_up",
+                "pid": 1876618,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182244.398646
+              }
+            ]
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.4795672679319978,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597436.416864788,
+            "ended_monotonic_s": 2597436.896486667,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.4762002476491034
+            },
+            "events": [
+              {
+                "accounted_s": 0.47609162563458085,
+                "finalize_layerwise_reload_s": 0.0015146401710808277,
+                "get_iterator_s": 1.127505674958229e-05,
+                "initialize_layerwise_reload_s": 0.0058037033304572105,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.45678402250632644,
+                "iterator_first_yield_s": 0.0011794278398156166,
+                "iterator_gap_s": 0.011006842367351055,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.4677908648736775,
+                "latency_s": 0.4762002476491034,
+                "model_load_weights_s": 0.46876200707629323,
+                "monotonic_s": 2597436.895321524,
+                "phase": "reload_weights",
+                "pid": 1876618,
+                "ts": 1781182244.9091215,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.03231475781649351,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597436.923673197,
+            "ended_monotonic_s": 2597436.956037063,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.029793253168463707,
+              "worker_wake_up": 0.02995977597311139,
+              "executor_wake_up": 0.030039507895708084
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.02975501725450158,
+                "latency_s": 0.029793253168463707,
+                "monotonic_s": 2597436.954806309,
+                "phase": "allocator_wake_up",
+                "pid": 1876618,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.9686065
+              },
+              {
+                "allocator_wake_up_s": 0.02992052398622036,
+                "latency_s": 0.02995977597311139,
+                "monotonic_s": 2597436.954958714,
+                "phase": "worker_wake_up",
+                "pid": 1876618,
+                "post_kv_cache_wake_up_s": 3.4706201404333115e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.9687588
+              },
+              {
+                "latency_s": 0.030039507895708084,
+                "monotonic_s": 2597436.955029174,
+                "phase": "executor_wake_up",
+                "pid": 1876618,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182244.968829
+              }
+            ]
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.013328022789210081,
+      "client_latency_s": 0.18569369288161397,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 150.78595059149882,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "ok": true,
+    "cleanup_s": 0.3142462237738073
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260611_205046_sleep_l2_short_short_1_47424e50",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205046_sleep_l2_short_short_1_47424e50.server.log",
+    "event_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205046_sleep_l2_short_short_1_47424e50.events.jsonl",
+    "port": 56193,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling/reload_weights_breakdown/20260611_205014/20260611_205046_sleep_l2_short_short_1_47424e50.sleep_profile.jsonl",
+    "startup_latency_s": 26.533120984677225,
+    "memory_gpu_used_ready_mib": 5797,
+    "memory_cpu_used_ready_mib": 3458.41796875,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.37312259804457426,
+      "client_latency_s": 0.5466119251213968,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 51.22464167568516,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.1118138488382101,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2597465.269681946,
+        "ended_monotonic_s": 2597465.381542713,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.10373904788866639,
+          "worker_sleep": 0.1085573062300682,
+          "executor_sleep": 0.1086232028901577
+        },
+        "events": [
+          {
+            "accounted_s": 0.10373824462294579,
+            "allocation_count": 104,
+            "allocations_by_tag": {
+              "kv_cache": 28,
+              "weights": 76
+            },
+            "assign_backup_s": 0.0,
+            "backup_bytes": 0,
+            "backup_bytes_by_tag": {},
+            "bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "copy_d2h_s": 0.0,
+            "cpu_backup_alloc_count": 0,
+            "cpu_backup_alloc_s": 0.0,
+            "cpu_backup_data_ptr_s": 0.0,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 9.288080036640167e-06,
+            "discard_bytes": 4601151488,
+            "discard_bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "empty_cache_s": 0.0035065989941358566,
+            "gc_s": 0.0006559961475431919,
+            "latency_s": 0.10373904788866639,
+            "logger_s": 0.00011881766840815544,
+            "loop_accounted_s": 0.09943408891558647,
+            "loop_s": 0.09945683181285858,
+            "loop_unaccounted_s": 2.2742897272109985e-05,
+            "metadata_s": 1.6993843019008636e-05,
+            "monotonic_s": 2597465.379698029,
+            "offload_tags": [],
+            "phase": "allocator_sleep",
+            "pid": 1877023,
+            "total_bytes": 4601151488,
+            "ts": 1781182273.3934982,
+            "unaccounted_s": 8.032657206058502e-07,
+            "unmap_release_s": 0.09936503041535616
+          },
+          {
+            "allocator_sleep_s": 0.10404158104211092,
+            "buffer_backup_s": 0.004319359082728624,
+            "free_bytes_after_sleep": 9040953344,
+            "free_bytes_before_sleep": 4276224000,
+            "freed_bytes": 4764729344,
+            "latency_s": 0.1085573062300682,
+            "level": 2,
+            "monotonic_s": 2597465.380103867,
+            "phase": "worker_sleep",
+            "pid": 1877023,
+            "saved_buffer_bytes": 8389056,
+            "saved_buffer_count": 113,
+            "ts": 1781182273.3939042,
+            "used_bytes_after_sleep": 1313800192
+          },
+          {
+            "latency_s": 0.1086232028901577,
+            "level": 2,
+            "monotonic_s": 2597465.380161325,
+            "phase": "executor_sleep",
+            "pid": 1877023,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1781182273.3939614
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 1253,
+    "memory_cpu_used_evict_mib": 3590.61328125,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.6568079106509686,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 7,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597467.45609124,
+            "ended_monotonic_s": 2597467.54140079,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.08068282902240753,
+              "worker_wake_up": 0.08262678794562817,
+              "executor_wake_up": 0.08274073014035821
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08062668656930327,
+                "latency_s": 0.08068282902240753,
+                "monotonic_s": 2597467.538343264,
+                "phase": "allocator_wake_up",
+                "pid": 1877023,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5521433
+              },
+              {
+                "allocator_wake_up_s": 0.08079595305025578,
+                "latency_s": 0.08262678794562817,
+                "monotonic_s": 2597467.540282715,
+                "phase": "worker_wake_up",
+                "pid": 1877023,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018281061202287674,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5540829
+              },
+              {
+                "latency_s": 0.08274073014035821,
+                "monotonic_s": 2597467.5403859,
+                "phase": "executor_wake_up",
+                "pid": 1877023,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5541859
+              }
+            ]
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597467.575407846,
+            "ended_monotonic_s": 2597468.114555974,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.53594223363325
+            },
+            "events": [
+              {
+                "accounted_s": 0.5358456657268107,
+                "finalize_layerwise_reload_s": 0.0033329189755022526,
+                "get_iterator_s": 1.1050142347812653e-05,
+                "initialize_layerwise_reload_s": 0.005745864938944578,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.5073163290508091,
+                "iterator_first_yield_s": 0.001116730272769928,
+                "iterator_gap_s": 0.018212967086583376,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.5255292961373925,
+                "latency_s": 0.53594223363325,
+                "model_load_weights_s": 0.526755831670016,
+                "monotonic_s": 2597468.113238475,
+                "phase": "reload_weights",
+                "pid": 1877023,
+                "ts": 1781182276.1270385,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597468.143470276,
+            "ended_monotonic_s": 2597468.175969322,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.029842569027096033,
+              "worker_wake_up": 0.030009291134774685,
+              "executor_wake_up": 0.03007538476958871
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.029787530191242695,
+                "latency_s": 0.029842569027096033,
+                "monotonic_s": 2597468.17470139,
+                "phase": "allocator_wake_up",
+                "pid": 1877023,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1885016
+              },
+              {
+                "allocator_wake_up_s": 0.0299733467400074,
+                "latency_s": 0.030009291134774685,
+                "monotonic_s": 2597468.174856459,
+                "phase": "worker_wake_up",
+                "pid": 1877023,
+                "post_kv_cache_wake_up_s": 3.116391599178314e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1886566
+              },
+              {
+                "latency_s": 0.03007538476958871,
+                "monotonic_s": 2597468.17490606,
+                "phase": "executor_wake_up",
+                "pid": 1877023,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1887064
+              }
+            ]
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.08526422176510096,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597467.45609124,
+            "ended_monotonic_s": 2597467.54140079,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.08068282902240753,
+              "worker_wake_up": 0.08262678794562817,
+              "executor_wake_up": 0.08274073014035821
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08062668656930327,
+                "latency_s": 0.08068282902240753,
+                "monotonic_s": 2597467.538343264,
+                "phase": "allocator_wake_up",
+                "pid": 1877023,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5521433
+              },
+              {
+                "allocator_wake_up_s": 0.08079595305025578,
+                "latency_s": 0.08262678794562817,
+                "monotonic_s": 2597467.540282715,
+                "phase": "worker_wake_up",
+                "pid": 1877023,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018281061202287674,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5540829
+              },
+              {
+                "latency_s": 0.08274073014035821,
+                "monotonic_s": 2597467.5403859,
+                "phase": "executor_wake_up",
+                "pid": 1877023,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182275.5541859
+              }
+            ]
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.5390876550227404,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597467.575407846,
+            "ended_monotonic_s": 2597468.114555974,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.53594223363325
+            },
+            "events": [
+              {
+                "accounted_s": 0.5358456657268107,
+                "finalize_layerwise_reload_s": 0.0033329189755022526,
+                "get_iterator_s": 1.1050142347812653e-05,
+                "initialize_layerwise_reload_s": 0.005745864938944578,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.5073163290508091,
+                "iterator_first_yield_s": 0.001116730272769928,
+                "iterator_gap_s": 0.018212967086583376,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.5255292961373925,
+                "latency_s": 0.53594223363325,
+                "model_load_weights_s": 0.526755831670016,
+                "monotonic_s": 2597468.113238475,
+                "phase": "reload_weights",
+                "pid": 1877023,
+                "ts": 1781182276.1270385,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.03245603386312723,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597468.143470276,
+            "ended_monotonic_s": 2597468.175969322,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.029842569027096033,
+              "worker_wake_up": 0.030009291134774685,
+              "executor_wake_up": 0.03007538476958871
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.029787530191242695,
+                "latency_s": 0.029842569027096033,
+                "monotonic_s": 2597468.17470139,
+                "phase": "allocator_wake_up",
+                "pid": 1877023,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1885016
+              },
+              {
+                "allocator_wake_up_s": 0.0299733467400074,
+                "latency_s": 0.030009291134774685,
+                "monotonic_s": 2597468.174856459,
+                "phase": "worker_wake_up",
+                "pid": 1877023,
+                "post_kv_cache_wake_up_s": 3.116391599178314e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1886566
+              },
+              {
+                "latency_s": 0.03007538476958871,
+                "monotonic_s": 2597468.17490606,
+                "phase": "executor_wake_up",
+                "pid": 1877023,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182276.1887064
+              }
+            ]
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.012868384830653667,
+      "client_latency_s": 0.1852482189424336,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 151.14855170996856,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "ok": true,
+    "cleanup_s": 0.3141453699208796
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260611_205117_sleep_l2_short_short_2_9f2dbd81",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205117_sleep_l2_short_short_2_9f2dbd81.server.log",
+    "event_log": "results/profiling/reload_weights_breakdown/20260611_205014/20260611_205117_sleep_l2_short_short_2_9f2dbd81.events.jsonl",
+    "port": 38115,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/profiling/reload_weights_breakdown/20260611_205014/20260611_205117_sleep_l2_short_short_2_9f2dbd81.sleep_profile.jsonl",
+    "startup_latency_s": 26.53498895885423,
+    "memory_gpu_used_ready_mib": 5797,
+    "memory_cpu_used_ready_mib": 3460.1640625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.37490583676844835,
+      "client_latency_s": 0.5485245157033205,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 51.046032033952535,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.1123028751462698,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 2597496.454963885,
+        "ended_monotonic_s": 2597496.56730321,
+        "event_count": 3,
+        "phase_latency_s": {
+          "allocator_sleep": 0.10433122096583247,
+          "worker_sleep": 0.10917735984548926,
+          "executor_sleep": 0.10926382802426815
+        },
+        "events": [
+          {
+            "accounted_s": 0.10432994831353426,
+            "allocation_count": 104,
+            "allocations_by_tag": {
+              "kv_cache": 28,
+              "weights": 76
+            },
+            "assign_backup_s": 0.0,
+            "backup_bytes": 0,
+            "backup_bytes_by_tag": {},
+            "bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "copy_d2h_s": 0.0,
+            "cpu_backup_alloc_count": 0,
+            "cpu_backup_alloc_s": 0.0,
+            "cpu_backup_data_ptr_s": 0.0,
+            "cpu_backup_pin_memory": true,
+            "discard_accounting_s": 9.652692824602127e-06,
+            "discard_bytes": 4601151488,
+            "discard_bytes_by_tag": {
+              "kv_cache": 1350565888,
+              "weights": 3250585600
+            },
+            "empty_cache_s": 0.0033619259484112263,
+            "gc_s": 0.0008096056990325451,
+            "latency_s": 0.10433122096583247,
+            "logger_s": 0.00011124741286039352,
+            "loop_accounted_s": 0.10002045938745141,
+            "loop_s": 0.1000471692532301,
+            "loop_unaccounted_s": 2.6709865778684616e-05,
+            "metadata_s": 1.9171275198459625e-05,
+            "monotonic_s": 2597496.565708848,
+            "offload_tags": [],
+            "phase": "allocator_sleep",
+            "pid": 1877433,
+            "total_bytes": 4601151488,
+            "ts": 1781182304.579509,
+            "unaccounted_s": 1.2726522982120514e-06,
+            "unmap_release_s": 0.09994841180741787
+          },
+          {
+            "allocator_sleep_s": 0.10465584136545658,
+            "buffer_backup_s": 0.0043487269431352615,
+            "free_bytes_after_sleep": 9040953344,
+            "free_bytes_before_sleep": 4276224000,
+            "freed_bytes": 4764729344,
+            "latency_s": 0.10917735984548926,
+            "level": 2,
+            "monotonic_s": 2597496.566109019,
+            "phase": "worker_sleep",
+            "pid": 1877433,
+            "saved_buffer_bytes": 8389056,
+            "saved_buffer_count": 113,
+            "ts": 1781182304.579909,
+            "used_bytes_after_sleep": 1313800192
+          },
+          {
+            "latency_s": 0.10926382802426815,
+            "level": 2,
+            "monotonic_s": 2597496.566188601,
+            "phase": "executor_sleep",
+            "pid": 1877433,
+            "sleeping_tags": [
+              "kv_cache",
+              "weights"
+            ],
+            "ts": 1781182304.5799887
+          }
+        ]
+      }
+    },
+    "memory_gpu_used_evict_mib": 1253,
+    "memory_cpu_used_evict_mib": 3587.37890625,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.5952556347474456,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 7,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597498.63883893,
+            "ended_monotonic_s": 2597498.724392952,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.08067346597090364,
+              "worker_wake_up": 0.08268908504396677,
+              "executor_wake_up": 0.0827870462089777
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08061464037746191,
+                "latency_s": 0.08067346597090364,
+                "monotonic_s": 2597498.721162388,
+                "phase": "allocator_wake_up",
+                "pid": 1877433,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7349625
+              },
+              {
+                "allocator_wake_up_s": 0.08078872924670577,
+                "latency_s": 0.08268908504396677,
+                "monotonic_s": 2597498.723170614,
+                "phase": "worker_wake_up",
+                "pid": 1877433,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018970207311213017,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7369707
+              },
+              {
+                "latency_s": 0.0827870462089777,
+                "monotonic_s": 2597498.723253561,
+                "phase": "executor_wake_up",
+                "pid": 1877433,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7370536
+              }
+            ]
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597498.759253768,
+            "ended_monotonic_s": 2597499.237146679,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.4747878219932318
+            },
+            "events": [
+              {
+                "accounted_s": 0.4747060192748904,
+                "finalize_layerwise_reload_s": 0.0015182038769125938,
+                "get_iterator_s": 9.789131581783295e-06,
+                "initialize_layerwise_reload_s": 0.005543698091059923,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.4563402095809579,
+                "iterator_first_yield_s": 0.001121015753597021,
+                "iterator_gap_s": 0.010325664188712835,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.4666658737696707,
+                "latency_s": 0.4747878219932318,
+                "model_load_weights_s": 0.4676343281753361,
+                "monotonic_s": 2597499.236092778,
+                "phase": "reload_weights",
+                "pid": 1877433,
+                "ts": 1781182307.249893,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597499.264022559,
+            "ended_monotonic_s": 2597499.295954466,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.02953592874109745,
+              "worker_wake_up": 0.02970033884048462,
+              "executor_wake_up": 0.029765506740659475
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.02950268518179655,
+                "latency_s": 0.02953592874109745,
+                "monotonic_s": 2597499.294959892,
+                "phase": "allocator_wake_up",
+                "pid": 1877433,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.3087602
+              },
+              {
+                "allocator_wake_up_s": 0.029652800410985947,
+                "latency_s": 0.02970033884048462,
+                "monotonic_s": 2597499.295117954,
+                "phase": "worker_wake_up",
+                "pid": 1877433,
+                "post_kv_cache_wake_up_s": 4.3544918298721313e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.308918
+              },
+              {
+                "latency_s": 0.029765506740659475,
+                "monotonic_s": 2597499.295168168,
+                "phase": "executor_wake_up",
+                "pid": 1877433,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.3089685
+              }
+            ]
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.08551103807985783,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 2597498.63883893,
+            "ended_monotonic_s": 2597498.724392952,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.08067346597090364,
+              "worker_wake_up": 0.08268908504396677,
+              "executor_wake_up": 0.0827870462089777
+            },
+            "events": [
+              {
+                "allocation_count": 76,
+                "allocations_by_tag": {
+                  "weights": 76
+                },
+                "bytes": 3250585600,
+                "bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.08061464037746191,
+                "latency_s": 0.08067346597090364,
+                "monotonic_s": 2597498.721162388,
+                "phase": "allocator_wake_up",
+                "pid": 1877433,
+                "remapped_without_backup_bytes_by_tag": {
+                  "weights": 3250585600
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7349625
+              },
+              {
+                "allocator_wake_up_s": 0.08078872924670577,
+                "latency_s": 0.08268908504396677,
+                "monotonic_s": 2597498.723170614,
+                "phase": "worker_wake_up",
+                "pid": 1877433,
+                "post_kv_cache_wake_up_s": 0.0,
+                "restore_buffers_s": 0.0018970207311213017,
+                "restored_buffer_bytes": 8389056,
+                "restored_buffer_count": 113,
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7369707
+              },
+              {
+                "latency_s": 0.0827870462089777,
+                "monotonic_s": 2597498.723253561,
+                "phase": "executor_wake_up",
+                "pid": 1877433,
+                "sleeping_tags_before": [
+                  "kv_cache",
+                  "weights"
+                ],
+                "tags": [
+                  "weights"
+                ],
+                "ts": 1781182306.7370536
+              }
+            ]
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.4778487547300756,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 2597498.759253768,
+            "ended_monotonic_s": 2597499.237146679,
+            "event_count": 1,
+            "phase_latency_s": {
+              "reload_weights": 0.4747878219932318
+            },
+            "events": [
+              {
+                "accounted_s": 0.4747060192748904,
+                "finalize_layerwise_reload_s": 0.0015182038769125938,
+                "get_iterator_s": 9.789131581783295e-06,
+                "initialize_layerwise_reload_s": 0.005543698091059923,
+                "is_checkpoint_format": true,
+                "iterator_consumer_s": 0.4563402095809579,
+                "iterator_first_yield_s": 0.001121015753597021,
+                "iterator_gap_s": 0.010325664188712835,
+                "iterator_tensor_bytes": 3087428608,
+                "iterator_tensor_count": 338,
+                "iterator_total_s": 0.4666658737696707,
+                "latency_s": 0.4747878219932318,
+                "model_load_weights_s": 0.4676343281753361,
+                "monotonic_s": 2597499.236092778,
+                "phase": "reload_weights",
+                "pid": 1877433,
+                "ts": 1781182307.249893,
+                "weights_from_disk": true,
+                "weights_path": null
+              }
+            ]
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.03189584193751216,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 2597499.264022559,
+            "ended_monotonic_s": 2597499.295954466,
+            "event_count": 3,
+            "phase_latency_s": {
+              "allocator_wake_up": 0.02953592874109745,
+              "worker_wake_up": 0.02970033884048462,
+              "executor_wake_up": 0.029765506740659475
+            },
+            "events": [
+              {
+                "allocation_count": 28,
+                "allocations_by_tag": {
+                  "kv_cache": 28
+                },
+                "bytes": 1350565888,
+                "bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "copy_h2d_s": 0.0,
+                "create_map_s": 0.02950268518179655,
+                "latency_s": 0.02953592874109745,
+                "monotonic_s": 2597499.294959892,
+                "phase": "allocator_wake_up",
+                "pid": 1877433,
+                "remapped_without_backup_bytes_by_tag": {
+                  "kv_cache": 1350565888
+                },
+                "restored_bytes_by_tag": {},
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.3087602
+              },
+              {
+                "allocator_wake_up_s": 0.029652800410985947,
+                "latency_s": 0.02970033884048462,
+                "monotonic_s": 2597499.295117954,
+                "phase": "worker_wake_up",
+                "pid": 1877433,
+                "post_kv_cache_wake_up_s": 4.3544918298721313e-05,
+                "restore_buffers_s": 0.0,
+                "restored_buffer_bytes": 0,
+                "restored_buffer_count": 0,
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.308918
+              },
+              {
+                "latency_s": 0.029765506740659475,
+                "monotonic_s": 2597499.295168168,
+                "phase": "executor_wake_up",
+                "pid": 1877433,
+                "sleeping_tags_before": [
+                  "kv_cache"
+                ],
+                "tags": [
+                  "kv_cache"
+                ],
+                "ts": 1781182307.3089685
+              }
+            ]
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.012647754047065973,
+      "client_latency_s": 0.18476172909140587,
+      "completion_tokens": null,
+      "approx_output_tokens": 28,
+      "approx_tokens_per_s": 151.54653584210482,
+      "output_prefix": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models, allowin"
+    },
+    "ok": true,
+    "cleanup_s": 0.31408932711929083
+  }
+]

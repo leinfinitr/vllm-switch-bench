@@ -92,6 +92,8 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
         cmd.extend(extra.split())
 
     env = os.environ.copy()
+    workdir = str(Path(args.workdir).resolve())
+    env["PYTHONPATH"] = workdir + os.pathsep + env.get("PYTHONPATH", "")
     python_bin_dir = str(Path(args.python).resolve().parent)
     env["PATH"] = python_bin_dir + os.pathsep + env.get("PATH", "")
     env.setdefault("CUDA_VISIBLE_DEVICES", args.cuda_visible_devices)
@@ -353,6 +355,19 @@ def flatten_sleep_profile_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str,
                     "buffer_backup_s": event.get("buffer_backup_s"),
                     "restore_buffers_s": event.get("restore_buffers_s"),
                     "post_kv_cache_wake_up_s": event.get("post_kv_cache_wake_up_s"),
+                    "get_iterator_s": event.get("get_iterator_s"),
+                    "iterator_first_yield_s": event.get("iterator_first_yield_s"),
+                    "iterator_total_s": event.get("iterator_total_s"),
+                    "iterator_gap_s": event.get("iterator_gap_s"),
+                    "iterator_consumer_s": event.get("iterator_consumer_s"),
+                    "initialize_layerwise_reload_s": event.get("initialize_layerwise_reload_s"),
+                    "model_load_weights_s": event.get("model_load_weights_s"),
+                    "finalize_layerwise_reload_s": event.get("finalize_layerwise_reload_s"),
+                    "is_checkpoint_format": event.get("is_checkpoint_format"),
+                    "weights_from_disk": event.get("weights_from_disk"),
+                    "weights_path": event.get("weights_path"),
+                    "iterator_tensor_count": event.get("iterator_tensor_count"),
+                    "iterator_tensor_bytes": event.get("iterator_tensor_bytes"),
                     "cpu_backup_pin_memory": event.get("cpu_backup_pin_memory"),
                     "allocation_count": event.get("allocation_count"),
                     "total_bytes": event.get("total_bytes"),
@@ -425,7 +440,7 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
         dynamic_port_mode = original_port == 0
         summary["port"] = args.port
         args.enable_sleep_mode = method.startswith("sleep_l")
-        args.sleep_profile_path = str(sleep_profile_path) if args.enable_sleep_mode else ""
+        args.sleep_profile_path = str(sleep_profile_path.resolve()) if args.enable_sleep_mode else ""
         if args.sleep_profile_path:
             sleep_profile_path.unlink(missing_ok=True)
             summary["sleep_profile_log"] = args.sleep_profile_path
@@ -477,7 +492,13 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                     )
                     event_log.write(make_event(ctx, "wake_weights_end", start_ts, proc.pid, extra=wake_weights))
                     reload_weights = call_with_sleep_profile(
-                        args, "reload_weights", lambda: call_rpc(args, "reload_weights")
+                        args,
+                        "reload_weights",
+                        lambda: call_rpc(
+                            args,
+                            "reload_weights",
+                            {"sleep_profile_path": args.sleep_profile_path},
+                        ),
                     )
                     event_log.write(make_event(ctx, "reload_weights_end", start_ts, proc.pid, extra=reload_weights))
                     wake_kv = call_with_sleep_profile(
