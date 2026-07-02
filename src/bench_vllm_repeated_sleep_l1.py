@@ -110,6 +110,8 @@ def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, An
         "cpu_backup_alloc_s",
         "cpu_backup_pool_hit_count",
         "cpu_backup_pool_miss_count",
+        "cpu_backup_reuse_count",
+        "cpu_backup_reused_bytes",
         "cpu_backup_pool_reserved_bytes",
         "cpu_backup_pool_free_bytes",
         "allocation_count",
