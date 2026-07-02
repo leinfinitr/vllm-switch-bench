@@ -1,0 +1,2 @@
+model_dir,repeat,total_bytes,chunks,min_bytes,median_bytes,max_bytes,sleep_latency_s,wake_latency_s,copy_d2h_s,copy_h2d_s,create_map_s,unmap_release_s,cpu_backup_alloc_s,d2h_gbps,h2d_gbps
+/home/ljl/models/hf/Qwen2.5-0.5B-Instruct,0,988065536,290,256,229376,272269312,0.4147082958370447,0.07933314610272646,0.05439648311585188,0.05711785797029734,0.02202967368066311,0.002297305501997471,0.31482821237295866,18.164143698327884,17.298714817243635

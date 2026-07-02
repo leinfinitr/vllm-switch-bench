@@ -1,0 +1,2 @@
+case,total_bytes,chunks,chunk_bytes_min,chunk_bytes_max,repeat,sleep_latency_s,wake_latency_s,profile_copy_d2h_s,profile_copy_h2d_s,profile_create_map_s,profile_unmap_release_s,profile_cpu_backup_alloc_s,d2h_gbps,h2d_gbps
+6GiB_104chunks,6442450944,104,61865984,62128128,0,1.5822800481691957,0.46915539912879467,0.3371515991166234,0.3526178691536188,0.11628137808293104,0.004671395756304264,1.1962695783004165,19.108469189765003,18.27034732942967
