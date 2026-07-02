@@ -8,6 +8,8 @@
 - `scripts/run_profiling.sh`：运行 vLLM `sleep_l1` / `sleep_l2` 的 pin/no-pin profiling 对比。
 - `src/bench_vllm_lifecycle.py`：vLLM cold reload、sleep/wake 的底层 benchmark。
 - `src/bench_vllm_pin_compare.py`：多模型 pin/no-pin profiling 矩阵。
+- `src/bench_vllm_repeated_sleep_l1.py`：离线两模型 repeated `sleep_l1` profiling，用于验证 CPU backup pool 复用。
+- `src/microbench/`：PCIe copy、CuMemAllocator synthetic copy、按 safetensors 粒度的 copy microbench。
 - `src/tool/`：只读取已有结果的报告、绘图、合并工具。
 
 ## 基线含义
@@ -43,7 +45,17 @@ METHOD=sleep_l1 OUT_DIR=results/profiling/sleep_l1_pin_compare scripts/run_profi
 METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profiling.sh
 ```
 
+运行两模型 repeated `sleep_l1` profiling：
+
+```bash
+.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
+  --out-dir results/profiling/phase1_two_model_pool \
+  --iterations 5
+```
+
 ## 当前结论入口
 
 - Baseline3 总结：`docs/reports/baseline3-qwen2p5-0p5b.md`、`docs/reports/baseline3-qwen2p5-1p5b.md`、`docs/reports/baseline3-qwen2p5-3b.md`
 - vLLM pin/no-pin profiling：`docs/reports/vllm-pin-compare.md`
+- vLLM repeated `sleep_l1` backup pool：`docs/reports/phase1-two-model-pool.md`
+- CuMem / PCIe copy microbench：`docs/reports/cumem-copy-microbench.md`

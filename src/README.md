@@ -3,6 +3,7 @@
 这个目录放置 benchmark 执行入口、共享库和结果后处理工具。原则上：
 
 - `src/` 根目录下的脚本会启动 benchmark、服务进程或完整实验矩阵。
+- `src/microbench/` 下的脚本启动 CUDA/vLLM allocator microbench，用于解释 sleep/wake copy 与 allocation 成本。
 - `src/tool/` 下的脚本只处理已有结果，不参与 benchmark 运行过程。
 - `src/benchlib/` 是 benchmark 入口共享的内部库，不建议直接命令行执行。
 
@@ -44,7 +45,7 @@
 
 ### `bench_vllm_lifecycle.py`
 
-vLLM lifecycle benchmark 主入口，用于测试 cold reload、sleep/wake 等方法。
+vLLM lifecycle benchmark 主入口，用于测试 cold reload、sleep/wake 等方法。`sleep_l2` 的 restore 会拆成 `wake_weights`、`reload_weights`、`wake_kv_cache` 三段；当 vLLM 写出 sleep profile JSONL 时，脚本会同步生成 `sleep_profile_summary.csv`。
 
 常用方式：
 
@@ -114,6 +115,18 @@ METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profi
 ```text
 results/profiling/sleep_l1_pin_compare/
 ```
+
+### `bench_vllm_repeated_sleep_l1.py`
+
+离线 vLLM `LLM` API profiling 入口，默认交替加载 Qwen2.5 0.5B 和 1.5B，多轮执行 `wake_up()`、推理、`sleep(level=1)`。它用于验证 CPU backup pool 是否跨 sleep 周期复用，并把每一步写入 `phase1_two_model_repeated_sleep_steps.csv`。
+
+```bash
+.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
+  --out-dir results/profiling/phase1_two_model_pool \
+  --iterations 5
+```
+
+最新报告见 `docs/reports/phase1-two-model-pool.md`。
 
 ## 共享库
 
@@ -187,11 +200,58 @@ results/profiling/sleep_l1_pin_compare/
 
 ### `tool/plot_vllm_pin_compare.py`
 
-从 `results/profiling/sleep_l1_pin_compare` 和 `results/profiling/sleep_l2_pin_compare` 读取 breakdown 汇总，为每个模型生成 pin/no-pin 对比图。
+从 `results/profiling/sleep_l1_pin_compare` 和 `results/profiling/sleep_l2_pin_compare` 读取 breakdown 汇总，为每个模型生成 pin/no-pin 对比图。新版图里会在可用时把 `sleep_l2` 的 `reload_weights` 单独画出。
 
 ```bash
 .venv/bin/python src/tool/plot_vllm_pin_compare.py
 ```
+
+### `tool/plot_phase1_two_model_pool.py`
+
+读取 `bench_vllm_repeated_sleep_l1.py` 生成的 steps CSV，画出两模型交替 repeated sleep 的 sleep breakdown 和推理延迟。建议显式传入最新 curated run 的 CSV。
+
+```bash
+.venv/bin/python src/tool/plot_phase1_two_model_pool.py \
+  --csv results/profiling/phase1_two_model_pool/20260702_165801/phase1_two_model_repeated_sleep_steps.csv \
+  --out results/profiling/phase1_two_model_pool/20260702_165801/phase1_two_model_sleep_breakdown.pdf
+```
+
+## Microbench 入口
+
+### `microbench/microbench_pcie_copy.py`
+
+测量 pinned/pageable host memory 下的 CPU<->GPU copy 带宽，可同时覆盖 torch `copy_` 和 vLLM `CudaRTLibrary.cudaMemcpy` 路径。
+
+```bash
+.venv/bin/python src/microbench/microbench_pcie_copy.py \
+  --include-vllm-cudart \
+  --repeats 7 \
+  --csv results/profiling/microbench/microbench_pcie_copy_<timestamp>.csv
+```
+
+### `microbench/microbench_cumem_sleep_copy.py`
+
+在 vLLM `CuMemAllocator` memory pool 下创建 synthetic CUDA tensors，直接调用 `allocator.sleep()` / `allocator.wake_up()`，用于隔离 backup allocation、D2H/H2D copy 和 create/map 成本。
+
+```bash
+.venv/bin/python src/microbench/microbench_cumem_sleep_copy.py \
+  --out-dir results/profiling/microbench/cumem_copy_microbench_<timestamp>/1GiB_41 \
+  --repeats 1 \
+  --cases 1GiB:41
+```
+
+### `microbench/microbench_cumem_safetensor_sizes.py`
+
+按模型 safetensors 中每个 tensor 的 byte size 建立 synthetic allocations，更接近真实权重粒度。
+
+```bash
+.venv/bin/python src/microbench/microbench_cumem_safetensor_sizes.py \
+  --out-dir results/profiling/microbench/cumem_safetensor_sizes_microbench_<timestamp>/Qwen2.5-1.5B-Instruct \
+  --repeats 1 \
+  /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+```
+
+最新 microbench 结论见 `docs/reports/cumem-copy-microbench.md`。
 
 ## 推荐工作流
 

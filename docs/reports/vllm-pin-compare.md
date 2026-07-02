@@ -10,6 +10,8 @@ METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profi
 .venv/bin/python src/tool/plot_vllm_pin_compare.py
 ```
 
+`bench_vllm_lifecycle.py` 会在 sleep profiling 可用时写出 `sleep_profile_summary.csv`。新版 `sleep_l2` restore 会拆成 `wake_weights`、`reload_weights`、`wake_kv_cache` 三段；绘图脚本会在结果目录提供这些字段时把 `reload_weights` 单独显示。
+
 ## 图
 
 - `qwen2p5_0p5b`：`docs/reports/figures/vllm-pin-compare-qwen2p5_0p5b.png`
@@ -86,9 +88,22 @@ wake other = allocator_wake_up_s - copy_h2d_s - create_map_s
 
 `sleep_l2` 不做 CPU backup，因此 `--sleep-cpu-backup-pin-memory` 基本不影响 sleep 阶段。结果也显示 pin/no-pin 对 0.5B 和 1.5B 基本持平，3B no-pin restore 略慢。
 
+#### reload weights 拆分
+
+最近的 Qwen2.5-1.5B reload profiling 位于 `results/profiling/reload_weights_breakdown/qwen2p5_1p5b/20260611_205014/`。该 run 使用 `sleep_l2`、`short_short`、3 次重复，restore 平均约 0.616s，主要由 `reload_weights` 组成：
+
+| restore step | mean latency | 说明 |
+|---|---:|---|
+| `wake_weights` | 0.0807 | remap weights memory，不从 CPU backup 拷贝 |
+| `reload_weights` | 0.4956 | layerwise reload weights，读取 338 个 tensor，约 3.09GB |
+| `wake_kv_cache` | 0.0297 | remap KV cache |
+
+这说明 L2 restore 的核心不在 CPU backup pin/no-pin，而在权重 reload 路径。旧的 pin/no-pin `analysis_summary` 只直接统计 allocator wake/create-map；后续图表应优先使用带 `reload_weights` step 的结果目录。
+
 ## 结论
 
 1. `sleep_l1` 的主要瓶颈是 pinned CPU backup tensor 分配。
 2. 直接改成 no-pin 不是稳定优化，因为拷贝阶段会退化。
 3. 更有价值的方向是复用或池化 pinned CPU backup buffer：保留 pinned copy 的速度，同时避免每次 sleep 都重新分配。
 4. `sleep_l2` 的 pin/no-pin 对比说明该开关只影响 L1 权重备份路径，不应作为 L2 优化方向。
+5. 后续 repeated sleep 和 microbench 结果已单独整理在 `docs/reports/phase1-two-model-pool.md` 与 `docs/reports/cumem-copy-microbench.md`，用于验证 pool 复用和 copy/allocation 成本来源。

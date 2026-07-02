@@ -23,6 +23,16 @@ METHOD=sleep_l2 OUT_DIR=results/profiling/sleep_l2_pin_compare scripts/run_profi
 
 详细结论见 `docs/reports/vllm-pin-compare.md`。
 
+## repeated sleep / pool 验证
+
+```bash
+.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
+  --out-dir results/profiling/phase1_two_model_pool \
+  --iterations 5
+```
+
+最新 curated 结果位于 `results/profiling/phase1_two_model_pool/20260702_165801/`，对应报告见 `docs/reports/phase1-two-model-pool.md`。结果显示首次 `sleep_l1` 需要 pinned CPU backup allocation，后续同模型重复 sleep 会复用 CPU backup pool：Qwen2.5-0.5B 的 sleep 从 0.422s 降到约 0.050s，Qwen2.5-1.5B 从 0.991s 降到约 0.102s。
+
 ## 解释
 
-在 0.5B 上，`sleep_l1` wake 约 0.11 秒，`sleep_l2` restore 约 0.25 秒，都明显快于 cold reload。profiling 显示 `sleep_l1` 的关键瓶颈是 pinned CPU backup 分配；`sleep_l2` 没有 CPU backup，pin/no-pin 开关基本不影响 sleep 阶段。
+在 0.5B 上，`sleep_l1` wake 约 0.11 秒，`sleep_l2` restore 约 0.25 秒，都明显快于 cold reload。profiling 显示 `sleep_l1` 的关键瓶颈是 pinned CPU backup 分配；`sleep_l2` 没有 CPU backup，pin/no-pin 开关基本不影响 sleep 阶段。最近的 reload profiling 进一步把 `sleep_l2` restore 拆成 `wake_weights`、`reload_weights`、`wake_kv_cache`，其中 Qwen2.5-1.5B 的 `reload_weights` 平均约 0.496s，是 L2 restore 的主要组成。
