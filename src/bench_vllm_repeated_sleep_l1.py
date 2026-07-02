@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import gc
 import json
 import os
-import statistics
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -14,18 +16,54 @@ from typing import Any
 from benchlib.schema import PROMPTS
 
 
+@dataclass(frozen=True)
+class ModelSpec:
+    name: str
+    path: str
+
+
+def parse_model_spec(value: str) -> ModelSpec:
+    if "=" not in value:
+        path = value
+        name = Path(path).name.replace(".", "_").replace("-", "_")
+        return ModelSpec(name=name, path=path)
+    name, path = value.split("=", 1)
+    if not name or not path:
+        raise argparse.ArgumentTypeError(
+            "model spec must be NAME=/path/to/model or /path/to/model"
+        )
+    return ModelSpec(name=name, path=path)
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Measure repeated offline sleep_l1 to validate vLLM CPU backup pool reuse."
+        description=(
+            "Repeatedly load, infer, and sleep two vLLM models to measure "
+            "CPU backup pool behavior across model lifecycles."
+        )
     )
-    parser.add_argument("--model", default="/home/ljl/models/hf/Qwen2.5-0.5B-Instruct")
+    parser.add_argument(
+        "--models",
+        nargs="+",
+        type=parse_model_spec,
+        default=[
+            ModelSpec("qwen2p5_0p5b", "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"),
+            ModelSpec("qwen2p5_1p5b", "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct"),
+        ],
+        help="Models in NAME=PATH form. The sequence is repeated in this order.",
+    )
     parser.add_argument("--out-dir", default="results/profiling/phase1_pinned_pool")
     parser.add_argument("--cuda-visible-devices", default="0")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.55)
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--dtype", default="float16")
     parser.add_argument("--prompt", choices=sorted(PROMPTS), default="short_short")
-    parser.add_argument("--cycles", type=int, default=2)
+    parser.add_argument(
+        "--iterations",
+        type=int,
+        default=5,
+        help="Number of times to repeat the full model sequence.",
+    )
     return parser.parse_args(argv)
 
 
@@ -39,21 +77,107 @@ def load_profile_events(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def events_in_window(
+    events: list[dict[str, Any]],
+    phase: str,
+    start_monotonic_s: float,
+    end_monotonic_s: float,
+) -> list[dict[str, Any]]:
+    return [
+        event
+        for event in events
+        if event.get("phase") == phase
+        and start_monotonic_s <= float(event.get("monotonic_s", -1.0)) <= end_monotonic_s
+    ]
+
+
+def newest_event(events: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not events:
+        return None
+    return max(events, key=lambda event: float(event.get("monotonic_s", 0.0)))
+
+
+def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, Any]:
+    if event is None:
+        return {}
+    fields = [
+        "phase",
+        "latency_s",
+        "copy_d2h_s",
+        "copy_h2d_s",
+        "create_map_s",
+        "unmap_release_s",
+        "cpu_backup_alloc_s",
+        "cpu_backup_pool_hit_count",
+        "cpu_backup_pool_miss_count",
+        "cpu_backup_pool_reserved_bytes",
+        "cpu_backup_pool_free_bytes",
+        "allocation_count",
+        "total_bytes",
+        "backup_bytes",
+        "discard_bytes",
+        "bytes",
+    ]
+    row: dict[str, Any] = {}
+    for field in fields:
+        if field in event:
+            row[f"{prefix}_{field}"] = event[field]
+    for field in [
+        "bytes_by_tag",
+        "backup_bytes_by_tag",
+        "discard_bytes_by_tag",
+        "restored_bytes_by_tag",
+        "remapped_without_backup_bytes_by_tag",
+    ]:
+        if field in event:
+            row[f"{prefix}_{field}"] = json.dumps(event[field], sort_keys=True)
+    return row
+
+
+def write_steps_csv(path: Path, steps: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames: list[str] = []
+    seen: set[str] = set()
+    for step in steps:
+        for key in step:
+            if key not in seen:
+                seen.add(key)
+                fieldnames.append(key)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(steps)
+
+
+def model_load_kwargs(args: argparse.Namespace, model: ModelSpec) -> dict[str, Any]:
+    return {
+        "model": model.path,
+        "gpu_memory_utilization": args.gpu_memory_utilization,
+        "max_model_len": args.max_model_len,
+        "dtype": args.dtype,
+        "enable_sleep_mode": True,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
     os.environ["VLLM_USE_V1"] = "1"
+
     out_dir = Path(args.out_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir.mkdir(parents=True, exist_ok=True)
-    run_id = f"phase1_offline_repeated_sleep_l1_{int(time.time())}"
+    run_id = f"phase1_two_model_repeated_sleep_l1_{int(time.time())}"
     profile_path = out_dir / f"{run_id}.sleep_profile.jsonl"
     os.environ["VLLM_SLEEP_PROFILE_PATH"] = str(profile_path.resolve())
 
     summary: dict[str, Any] = {
-        "model": args.model,
-        "cycles": args.cycles,
+        "models": [{"name": model.name, "path": model.path} for model in args.models],
+        "iterations": args.iterations,
         "profile_path": str(profile_path),
+        "out_dir": str(out_dir),
     }
+    steps: list[dict[str, Any]] = []
+
     try:
         from vllm import LLM, SamplingParams
 
@@ -62,71 +186,83 @@ def main(argv: list[str] | None = None) -> int:
         sampling_params = SamplingParams(
             max_tokens=prompt_spec["max_tokens"], temperature=0.0, seed=0
         )
-        started = time.perf_counter()
-        llm = LLM(
-            model=args.model,
-            gpu_memory_utilization=args.gpu_memory_utilization,
-            max_model_len=args.max_model_len,
-            dtype=args.dtype,
-            enable_sleep_mode=True,
-        )
-        summary["startup_latency_s"] = time.perf_counter() - started
-        before = llm.generate(prompt, sampling_params, use_tqdm=False)
-        before_text = before[0].outputs[0].text
-        summary["before_text"] = before_text
 
-        cycles = []
-        for cycle in range(args.cycles):
-            sleep_started = time.perf_counter()
-            llm.sleep(level=1)
-            sleep_latency_s = time.perf_counter() - sleep_started
-            wake_started = time.perf_counter()
-            llm.wake_up()
-            wake_latency_s = time.perf_counter() - wake_started
-            after = llm.generate(prompt, sampling_params, use_tqdm=False)
-            after_text = after[0].outputs[0].text
-            cycles.append(
-                {
-                    "cycle": cycle,
-                    "sleep_latency_s": sleep_latency_s,
-                    "wake_latency_s": wake_latency_s,
-                    "after_text": after_text,
-                    "matches_before": after_text == before_text,
-                }
-            )
-            if after_text != before_text:
-                raise RuntimeError(f"output changed after cycle {cycle}")
-        summary["cycles"] = cycles
+        engines: dict[str, LLM] = {}
+        try:
+            for iteration in range(args.iterations):
+                for model_index, model in enumerate(args.models):
+                    step_index = iteration * len(args.models) + model_index
+                    step: dict[str, Any] = {
+                        "step_index": step_index,
+                        "iteration": iteration,
+                        "model_index": model_index,
+                        "model_name": model.name,
+                        "model_path": model.path,
+                    }
+                    try:
+                        if model.name not in engines:
+                            activate_started = time.perf_counter()
+                            engines[model.name] = LLM(**model_load_kwargs(args, model))
+                            activate_latency_s = time.perf_counter() - activate_started
+                            step["activate_type"] = "load"
+                            step["load_latency_s"] = activate_latency_s
+                            step["activate_latency_s"] = activate_latency_s
+                        else:
+                            llm = engines[model.name]
+                            activate_started = time.perf_counter()
+                            llm.wake_up()
+                            activate_latency_s = time.perf_counter() - activate_started
+                            step["activate_type"] = "wake"
+                            step["wake_latency_s"] = activate_latency_s
+                            step["activate_latency_s"] = activate_latency_s
 
-        events = load_profile_events(profile_path)
-        sleep_events = [event for event in events if event.get("phase") == "allocator_sleep"]
-        wake_events = [event for event in events if event.get("phase") == "allocator_wake_up"]
-        summary["sleep_events"] = sleep_events
-        summary["wake_events"] = wake_events
-        summary["sleep_latencies_s"] = [event.get("latency_s") for event in sleep_events]
-        summary["cpu_backup_alloc_s"] = [event.get("cpu_backup_alloc_s") for event in sleep_events]
-        summary["pool_hit_counts"] = [event.get("cpu_backup_pool_hit_count") for event in sleep_events]
-        summary["pool_miss_counts"] = [event.get("cpu_backup_pool_miss_count") for event in sleep_events]
-        if len(sleep_events) >= 2:
-            first = sleep_events[0]
-            later = sleep_events[1:]
-            summary["first_cpu_backup_alloc_s"] = first.get("cpu_backup_alloc_s")
-            summary["later_cpu_backup_alloc_s_mean"] = statistics.mean(
-                float(event.get("cpu_backup_alloc_s") or 0.0) for event in later
-            )
-            summary["later_pool_hit_count_total"] = sum(
-                int(event.get("cpu_backup_pool_hit_count") or 0) for event in later
-            )
-            summary["later_pool_miss_count_total"] = sum(
-                int(event.get("cpu_backup_pool_miss_count") or 0) for event in later
-            )
-        summary["ok"] = True
+                        llm = engines[model.name]
+                        infer_started = time.perf_counter()
+                        outputs = llm.generate(prompt, sampling_params, use_tqdm=False)
+                        step["infer_latency_s"] = time.perf_counter() - infer_started
+                        step["output_text"] = outputs[0].outputs[0].text
+
+                        events_before_sleep = load_profile_events(profile_path)
+                        sleep_started = time.perf_counter()
+                        llm.sleep(level=1)
+                        sleep_ended = time.perf_counter()
+                        step["sleep_latency_s"] = sleep_ended - sleep_started
+                        events_after_sleep = load_profile_events(profile_path)
+                        new_events = events_after_sleep[len(events_before_sleep) :]
+                        allocator_sleep = newest_event(
+                            events_in_window(
+                                new_events,
+                                "allocator_sleep",
+                                sleep_started,
+                                sleep_ended,
+                            )
+                        )
+                        step.update(flatten_breakdown("sleep_allocator", allocator_sleep))
+                        step["ok"] = True
+                    except Exception as exc:
+                        step["ok"] = False
+                        step["error"] = repr(exc)
+                        steps.append(step)
+                        raise
+                    steps.append(step)
+        finally:
+            engines.clear()
+            gc.collect()
+
+        summary["ok"] = all(step.get("ok") for step in steps)
+        summary["steps"] = steps
+        summary["sleep_profile_events"] = load_profile_events(profile_path)
     except Exception as exc:
         summary["ok"] = False
         summary["error"] = repr(exc)
+        summary["steps"] = steps
     finally:
-        summary_path = out_dir / "phase1_repeated_sleep_summary.json"
+        summary_path = out_dir / "phase1_two_model_repeated_sleep_summary.json"
+        steps_csv_path = out_dir / "phase1_two_model_repeated_sleep_steps.csv"
+        summary["summary_path"] = str(summary_path)
+        summary["steps_csv_path"] = str(steps_csv_path)
         summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+        write_steps_csv(steps_csv_path, steps)
         print(summary_path)
     return 0 if summary.get("ok") else 2
 
