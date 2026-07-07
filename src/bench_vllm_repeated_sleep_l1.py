@@ -64,6 +64,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=5,
         help="Number of times to repeat the full model sequence.",
     )
+    parser.add_argument(
+        "--coordinator-url",
+        default=None,
+        help=(
+            "Optional CPU backup metadata coordinator URL, e.g. "
+            "http://127.0.0.1:9000. When set, vLLM reports local backup "
+            "metadata to the daemon while keeping memory/copy local."
+        ),
+    )
+    parser.add_argument(
+        "--coordinator-timeout-s",
+        type=float,
+        default=0.05,
+        help="Per-flush coordinator HTTP timeout inside vLLM workers.",
+    )
     return parser.parse_args(argv)
 
 
@@ -119,6 +134,11 @@ def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, An
         "backup_bytes",
         "discard_bytes",
         "bytes",
+        "cpu_backup_coordinator_enabled",
+        "cpu_backup_coordinator_backend",
+        "cpu_backup_coordinator_events_sent",
+        "cpu_backup_coordinator_flush_errors",
+        "cpu_backup_coordinator_pending_events",
     ]
     row: dict[str, Any] = {}
     for field in fields:
@@ -171,12 +191,23 @@ def main(argv: list[str] | None = None) -> int:
     run_id = f"phase1_two_model_repeated_sleep_l1_{int(time.time())}"
     profile_path = out_dir / f"{run_id}.sleep_profile.jsonl"
     os.environ["VLLM_SLEEP_PROFILE_PATH"] = str(profile_path.resolve())
+    if args.coordinator_url:
+        os.environ["VLLM_CPU_BACKUP_COORDINATOR"] = "daemon"
+        os.environ["VLLM_CPU_BACKUP_COORDINATOR_URL"] = args.coordinator_url
+        os.environ["VLLM_CPU_BACKUP_COORDINATOR_TIMEOUT_S"] = str(
+            args.coordinator_timeout_s
+        )
+    else:
+        os.environ.pop("VLLM_CPU_BACKUP_COORDINATOR", None)
+        os.environ.pop("VLLM_CPU_BACKUP_COORDINATOR_URL", None)
+        os.environ.pop("VLLM_CPU_BACKUP_COORDINATOR_TIMEOUT_S", None)
 
     summary: dict[str, Any] = {
         "models": [{"name": model.name, "path": model.path} for model in args.models],
         "iterations": args.iterations,
         "profile_path": str(profile_path),
         "out_dir": str(out_dir),
+        "coordinator_url": args.coordinator_url,
     }
     steps: list[dict[str, Any]] = []
 
@@ -203,6 +234,11 @@ def main(argv: list[str] | None = None) -> int:
                     }
                     try:
                         if model.name not in engines:
+                            if args.coordinator_url:
+                                os.environ["VLLM_CPU_BACKUP_COORDINATOR_MODEL_ID"] = model.name
+                                os.environ["VLLM_CPU_BACKUP_COORDINATOR_CLIENT_ID"] = (
+                                    f"{run_id}:{model.name}"
+                                )
                             activate_started = time.perf_counter()
                             engines[model.name] = LLM(**model_load_kwargs(args, model))
                             activate_latency_s = time.perf_counter() - activate_started

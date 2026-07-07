@@ -1,0 +1,587 @@
+{
+  "models": [
+    {
+      "name": "qwen2p5_0p5b",
+      "path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+    },
+    {
+      "name": "qwen2p5_1p5b",
+      "path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct"
+    }
+  ],
+  "iterations": 3,
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/profiling/phase1_metadata_coordinator/20260707_084649/phase1_two_model_repeated_sleep_l1_1783385209.sleep_profile.jsonl",
+  "out_dir": "/home/ljl/research-systems/llm-switch-bench/results/profiling/phase1_metadata_coordinator/20260707_084649",
+  "coordinator_url": "http://127.0.0.1:19090",
+  "ok": true,
+  "steps": [
+    {
+      "step_index": 0,
+      "iteration": 0,
+      "model_index": 0,
+      "model_name": "qwen2p5_0p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+      "activate_type": "load",
+      "load_latency_s": 9.55022812820971,
+      "activate_latency_s": 9.55022812820971,
+      "infer_latency_s": 0.1025207219645381,
+      "output_text": " GPU memory is crucial for LLM serving because it allows the model to store large amounts of data and perform complex computations efficiently. This enables the model to process large",
+      "sleep_latency_s": 0.43328476417809725,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.4312719749286771,
+      "sleep_allocator_copy_d2h_s": 0.05514473468065262,
+      "sleep_allocator_unmap_release_s": 0.02635331731289625,
+      "sleep_allocator_cpu_backup_alloc_s": 0.34218721371144056,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 41,
+      "sleep_allocator_cpu_backup_reuse_count": 0,
+      "sleep_allocator_cpu_backup_reused_bytes": 0,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 1048576000,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 65,
+      "sleep_allocator_total_bytes": 4773117952,
+      "sleep_allocator_backup_bytes": 1048576000,
+      "sleep_allocator_discard_bytes": 3724541952,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 83,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 3724541952, \"weights\": 1048576000}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 1048576000}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 3724541952}",
+      "ok": true
+    },
+    {
+      "step_index": 1,
+      "iteration": 0,
+      "model_index": 1,
+      "model_name": "qwen2p5_1p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+      "activate_type": "load",
+      "load_latency_s": 9.856746940873563,
+      "activate_latency_s": 9.856746940873563,
+      "infer_latency_s": 0.13194062374532223,
+      "output_text": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models.",
+      "sleep_latency_s": 0.9012229535728693,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.8953854106366634,
+      "sleep_allocator_copy_d2h_s": 0.16924177575856447,
+      "sleep_allocator_unmap_release_s": 0.03162288200110197,
+      "sleep_allocator_cpu_backup_alloc_s": 0.6872528288513422,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 76,
+      "sleep_allocator_cpu_backup_reuse_count": 0,
+      "sleep_allocator_cpu_backup_reused_bytes": 0,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 3250585600,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 104,
+      "sleep_allocator_total_bytes": 4542431232,
+      "sleep_allocator_backup_bytes": 3250585600,
+      "sleep_allocator_discard_bytes": 1291845632,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 153,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 1291845632, \"weights\": 3250585600}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 3250585600}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 1291845632}",
+      "ok": true
+    },
+    {
+      "step_index": 2,
+      "iteration": 1,
+      "model_index": 0,
+      "model_name": "qwen2p5_0p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+      "activate_type": "wake",
+      "wake_latency_s": 0.10662420373409986,
+      "activate_latency_s": 0.10662420373409986,
+      "infer_latency_s": 0.08770626876503229,
+      "output_text": " GPU memory is crucial for LLM serving because it allows the model to store large amounts of data and perform complex computations efficiently. This enables the model to process large",
+      "sleep_latency_s": 0.05112787801772356,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.04930367041379213,
+      "sleep_allocator_copy_d2h_s": 0.0,
+      "sleep_allocator_unmap_release_s": 0.04725353140383959,
+      "sleep_allocator_cpu_backup_alloc_s": 0.0,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 0,
+      "sleep_allocator_cpu_backup_reuse_count": 41,
+      "sleep_allocator_cpu_backup_reused_bytes": 1048576000,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 1048576000,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 65,
+      "sleep_allocator_total_bytes": 4773117952,
+      "sleep_allocator_backup_bytes": 1048576000,
+      "sleep_allocator_discard_bytes": 3724541952,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 165,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 3724541952, \"weights\": 1048576000}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 1048576000}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 3724541952}",
+      "ok": true
+    },
+    {
+      "step_index": 3,
+      "iteration": 1,
+      "model_index": 1,
+      "model_name": "qwen2p5_1p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+      "activate_type": "wake",
+      "wake_latency_s": 0.3147508595138788,
+      "activate_latency_s": 0.3147508595138788,
+      "infer_latency_s": 0.11869507003575563,
+      "output_text": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models.",
+      "sleep_latency_s": 0.10314383078366518,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.09730232693254948,
+      "sleep_allocator_copy_d2h_s": 0.0,
+      "sleep_allocator_unmap_release_s": 0.09621994849294424,
+      "sleep_allocator_cpu_backup_alloc_s": 0.0,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 0,
+      "sleep_allocator_cpu_backup_reuse_count": 76,
+      "sleep_allocator_cpu_backup_reused_bytes": 3250585600,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 3250585600,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 104,
+      "sleep_allocator_total_bytes": 4542431232,
+      "sleep_allocator_backup_bytes": 3250585600,
+      "sleep_allocator_discard_bytes": 1291845632,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 305,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 1291845632, \"weights\": 3250585600}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 3250585600}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 1291845632}",
+      "ok": true
+    },
+    {
+      "step_index": 4,
+      "iteration": 2,
+      "model_index": 0,
+      "model_name": "qwen2p5_0p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+      "activate_type": "wake",
+      "wake_latency_s": 0.10378198977559805,
+      "activate_latency_s": 0.10378198977559805,
+      "infer_latency_s": 0.08728678803890944,
+      "output_text": " GPU memory is crucial for LLM serving because it allows the model to store large amounts of data and perform complex computations efficiently. This enables the model to process large",
+      "sleep_latency_s": 0.0511248828843236,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.049251070246100426,
+      "sleep_allocator_copy_d2h_s": 0.0,
+      "sleep_allocator_unmap_release_s": 0.04724413063377142,
+      "sleep_allocator_cpu_backup_alloc_s": 0.0,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 0,
+      "sleep_allocator_cpu_backup_reuse_count": 41,
+      "sleep_allocator_cpu_backup_reused_bytes": 1048576000,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 1048576000,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 65,
+      "sleep_allocator_total_bytes": 4773117952,
+      "sleep_allocator_backup_bytes": 1048576000,
+      "sleep_allocator_discard_bytes": 3724541952,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 247,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 3724541952, \"weights\": 1048576000}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 1048576000}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 3724541952}",
+      "ok": true
+    },
+    {
+      "step_index": 5,
+      "iteration": 2,
+      "model_index": 1,
+      "model_name": "qwen2p5_1p5b",
+      "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+      "activate_type": "wake",
+      "wake_latency_s": 0.3152054352685809,
+      "activate_latency_s": 0.3152054352685809,
+      "infer_latency_s": 0.11875205487012863,
+      "output_text": " GPU memory is crucial for LLM serving as it enables efficient computation and storage of large language models.",
+      "sleep_latency_s": 0.10319164395332336,
+      "sleep_allocator_phase": "allocator_sleep",
+      "sleep_allocator_latency_s": 0.09737028181552887,
+      "sleep_allocator_copy_d2h_s": 0.0,
+      "sleep_allocator_unmap_release_s": 0.09617973491549492,
+      "sleep_allocator_cpu_backup_alloc_s": 0.0,
+      "sleep_allocator_cpu_backup_pool_hit_count": 0,
+      "sleep_allocator_cpu_backup_pool_miss_count": 0,
+      "sleep_allocator_cpu_backup_reuse_count": 76,
+      "sleep_allocator_cpu_backup_reused_bytes": 3250585600,
+      "sleep_allocator_cpu_backup_pool_reserved_bytes": 3250585600,
+      "sleep_allocator_cpu_backup_pool_free_bytes": 0,
+      "sleep_allocator_allocation_count": 104,
+      "sleep_allocator_total_bytes": 4542431232,
+      "sleep_allocator_backup_bytes": 3250585600,
+      "sleep_allocator_discard_bytes": 1291845632,
+      "sleep_allocator_cpu_backup_coordinator_enabled": true,
+      "sleep_allocator_cpu_backup_coordinator_backend": "http",
+      "sleep_allocator_cpu_backup_coordinator_events_sent": 457,
+      "sleep_allocator_cpu_backup_coordinator_flush_errors": 0,
+      "sleep_allocator_cpu_backup_coordinator_pending_events": 0,
+      "sleep_allocator_bytes_by_tag": "{\"kv_cache\": 1291845632, \"weights\": 3250585600}",
+      "sleep_allocator_backup_bytes_by_tag": "{\"weights\": 3250585600}",
+      "sleep_allocator_discard_bytes_by_tag": "{\"kv_cache\": 1291845632}",
+      "ok": true
+    }
+  ],
+  "sleep_profile_events": [
+    {
+      "allocation_count": 65,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3724541952,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.05514473468065262,
+      "cpu_backup_alloc_s": 0.34218721371144056,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 83,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 41,
+      "cpu_backup_pool_reserved_bytes": 1048576000,
+      "cpu_backup_reuse_count": 0,
+      "cpu_backup_reused_bytes": 0,
+      "discard_bytes": 3724541952,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3724541952
+      },
+      "latency_s": 0.4312719749286771,
+      "monotonic_s": 4800414.690085141,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477172,
+      "total_bytes": 4773117952,
+      "ts": 1783385222.7038853,
+      "unmap_release_s": 0.02635331731289625
+    },
+    {
+      "allocation_count": 104,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 1291845632,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16924177575856447,
+      "cpu_backup_alloc_s": 0.6872528288513422,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 153,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 76,
+      "cpu_backup_pool_reserved_bytes": 3250585600,
+      "cpu_backup_reuse_count": 0,
+      "cpu_backup_reused_bytes": 0,
+      "discard_bytes": 1291845632,
+      "discard_bytes_by_tag": {
+        "kv_cache": 1291845632
+      },
+      "latency_s": 0.8953854106366634,
+      "monotonic_s": 4800425.580080462,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477291,
+      "total_bytes": 4542431232,
+      "ts": 1783385233.5938807,
+      "unmap_release_s": 0.03162288200110197
+    },
+    {
+      "allocation_count": 65,
+      "bytes": 4773117952,
+      "bytes_by_tag": {
+        "kv_cache": 3724541952,
+        "weights": 1048576000
+      },
+      "copy_h2d_s": 0.06056097522377968,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 124,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "create_map_s": 0.04382735397666693,
+      "latency_s": 0.1053247693926096,
+      "monotonic_s": 4800425.686909184,
+      "phase": "allocator_wake_up",
+      "pid": 2477172,
+      "remapped_without_backup_bytes_by_tag": {
+        "kv_cache": 3724541952
+      },
+      "restored_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "tags": null,
+      "ts": 1783385233.7007093
+    },
+    {
+      "allocation_count": 65,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3724541952,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 165,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 0,
+      "cpu_backup_pool_reserved_bytes": 1048576000,
+      "cpu_backup_reuse_count": 41,
+      "cpu_backup_reused_bytes": 1048576000,
+      "discard_bytes": 3724541952,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3724541952
+      },
+      "latency_s": 0.04930367041379213,
+      "monotonic_s": 4800425.825976837,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477172,
+      "total_bytes": 4773117952,
+      "ts": 1783385233.839777,
+      "unmap_release_s": 0.04725353140383959
+    },
+    {
+      "allocation_count": 104,
+      "bytes": 4542431232,
+      "bytes_by_tag": {
+        "kv_cache": 1291845632,
+        "weights": 3250585600
+      },
+      "copy_h2d_s": 0.21950469352304935,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 229,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "create_map_s": 0.09302270691841841,
+      "latency_s": 0.31356086675077677,
+      "monotonic_s": 4800426.140797243,
+      "phase": "allocator_wake_up",
+      "pid": 2477291,
+      "remapped_without_backup_bytes_by_tag": {
+        "kv_cache": 1291845632
+      },
+      "restored_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "tags": null,
+      "ts": 1783385234.1545973
+    },
+    {
+      "allocation_count": 104,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 1291845632,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 305,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 0,
+      "cpu_backup_pool_reserved_bytes": 3250585600,
+      "cpu_backup_reuse_count": 76,
+      "cpu_backup_reused_bytes": 3250585600,
+      "discard_bytes": 1291845632,
+      "discard_bytes_by_tag": {
+        "kv_cache": 1291845632
+      },
+      "latency_s": 0.09730232693254948,
+      "monotonic_s": 4800426.362734,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477291,
+      "total_bytes": 4542431232,
+      "ts": 1783385234.376534,
+      "unmap_release_s": 0.09621994849294424
+    },
+    {
+      "allocation_count": 65,
+      "bytes": 4773117952,
+      "bytes_by_tag": {
+        "kv_cache": 3724541952,
+        "weights": 1048576000
+      },
+      "copy_h2d_s": 0.05796463321894407,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 206,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "create_map_s": 0.04377599712461233,
+      "latency_s": 0.10260117892175913,
+      "monotonic_s": 4800426.466652467,
+      "phase": "allocator_wake_up",
+      "pid": 2477172,
+      "remapped_without_backup_bytes_by_tag": {
+        "kv_cache": 3724541952
+      },
+      "restored_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "tags": null,
+      "ts": 1783385234.4804525
+    },
+    {
+      "allocation_count": 65,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3724541952,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 247,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 0,
+      "cpu_backup_pool_reserved_bytes": 1048576000,
+      "cpu_backup_reuse_count": 41,
+      "cpu_backup_reused_bytes": 1048576000,
+      "discard_bytes": 3724541952,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3724541952
+      },
+      "latency_s": 0.049251070246100426,
+      "monotonic_s": 4800426.605271054,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477172,
+      "total_bytes": 4773117952,
+      "ts": 1783385234.6190712,
+      "unmap_release_s": 0.04724413063377142
+    },
+    {
+      "allocation_count": 104,
+      "bytes": 4542431232,
+      "bytes_by_tag": {
+        "kv_cache": 1291845632,
+        "weights": 3250585600
+      },
+      "copy_h2d_s": 0.21996434964239597,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 381,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "create_map_s": 0.09318424761295319,
+      "latency_s": 0.3141031004488468,
+      "monotonic_s": 4800426.92053548,
+      "phase": "allocator_wake_up",
+      "pid": 2477291,
+      "remapped_without_backup_bytes_by_tag": {
+        "kv_cache": 1291845632
+      },
+      "restored_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "tags": null,
+      "ts": 1783385234.9343355
+    },
+    {
+      "allocation_count": 104,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 1291845632,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_coordinator_backend": "http",
+      "cpu_backup_coordinator_enabled": true,
+      "cpu_backup_coordinator_events_sent": 457,
+      "cpu_backup_coordinator_flush_errors": 0,
+      "cpu_backup_coordinator_pending_events": 0,
+      "cpu_backup_pin_memory": true,
+      "cpu_backup_pool_free_bytes": 0,
+      "cpu_backup_pool_hit_count": 0,
+      "cpu_backup_pool_miss_count": 0,
+      "cpu_backup_pool_reserved_bytes": 3250585600,
+      "cpu_backup_reuse_count": 76,
+      "cpu_backup_reused_bytes": 3250585600,
+      "discard_bytes": 1291845632,
+      "discard_bytes_by_tag": {
+        "kv_cache": 1291845632
+      },
+      "latency_s": 0.09737028181552887,
+      "monotonic_s": 4800427.142610429,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 2477291,
+      "total_bytes": 4542431232,
+      "ts": 1783385235.1564105,
+      "unmap_release_s": 0.09617973491549492
+    }
+  ],
+  "summary_path": "/home/ljl/research-systems/llm-switch-bench/results/profiling/phase1_metadata_coordinator/20260707_084649/phase1_two_model_repeated_sleep_summary.json",
+  "steps_csv_path": "/home/ljl/research-systems/llm-switch-bench/results/profiling/phase1_metadata_coordinator/20260707_084649/phase1_two_model_repeated_sleep_steps.csv"
+}
