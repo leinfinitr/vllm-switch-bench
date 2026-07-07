@@ -139,6 +139,10 @@ def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, An
         "cpu_backup_coordinator_events_sent",
         "cpu_backup_coordinator_flush_errors",
         "cpu_backup_coordinator_pending_events",
+        "cpu_backup_coordinator_eviction_polls",
+        "cpu_backup_coordinator_eviction_requests_received",
+        "cpu_backup_eviction_released_count",
+        "cpu_backup_eviction_released_bytes",
     ]
     row: dict[str, Any] = {}
     for field in fields:
