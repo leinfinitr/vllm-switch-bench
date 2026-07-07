@@ -118,12 +118,19 @@ results/profiling/sleep_l1_pin_compare/
 
 ### `bench_vllm_repeated_sleep_l1.py`
 
-离线 vLLM `LLM` API profiling 入口，默认交替加载 Qwen2.5 0.5B 和 1.5B，多轮执行 `wake_up()`、推理、`sleep(level=1)`。它用于验证 CPU backup pool 是否跨 sleep 周期复用，并把每一步写入 `phase1_two_model_repeated_sleep_steps.csv`。
+离线 vLLM `LLM` API profiling 入口，默认交替加载 Qwen2.5 0.5B 和 1.5B，多轮执行 `wake_up()`、推理、`sleep(level=1)`。它用于验证 CPU backup pool 是否跨 sleep 周期复用，并把每一步写入 `phase1_two_model_repeated_sleep_steps.csv`。设置 `--coordinator-url` 时，脚本会启用 vLLM CPU backup coordinator backend，并把 metadata flush 与 eviction 指标一并展平到 steps CSV。
 
 ```bash
 .venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
   --out-dir results/profiling/phase1_two_model_pool \
   --iterations 5
+```
+
+```bash
+.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
+  --out-dir results/profiling/phase1_metadata_coordinator \
+  --iterations 3 \
+  --coordinator-url http://127.0.0.1:19090
 ```
 
 最新报告见 `docs/reports/phase1-two-model-pool.md`。
