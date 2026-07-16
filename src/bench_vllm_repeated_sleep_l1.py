@@ -79,6 +79,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=0.05,
         help="Per-flush coordinator HTTP timeout inside vLLM workers.",
     )
+    parser.add_argument(
+        "--post-wake-observation-s",
+        type=float,
+        default=0.0,
+        help=(
+            "Seconds to observe host/process memory after wake-up. This makes "
+            "physical pinned-memory reclaim visible without changing the "
+            "default benchmark behavior."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -112,6 +122,47 @@ def newest_event(events: list[dict[str, Any]]) -> dict[str, Any] | None:
     return max(events, key=lambda event: float(event.get("monotonic_s", 0.0)))
 
 
+def read_meminfo_bytes() -> dict[str, int]:
+    """Read host memory counters used to validate physical reclaim."""
+    values: dict[str, int] = {}
+    for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+        name, raw = line.split(":", 1)
+        fields = raw.split()
+        if fields:
+            values[name] = int(fields[0]) * 1024
+    return values
+
+
+def read_process_memory_bytes(pid: int) -> dict[str, int]:
+    """Read lightweight process RSS counters without extra dependencies."""
+    values: dict[str, int] = {}
+    status_path = Path(f"/proc/{pid}/status")
+    if not status_path.exists():
+        return values
+    for line in status_path.read_text(encoding="utf-8").splitlines():
+        if ":" not in line:
+            continue
+        name, raw = line.split(":", 1)
+        if name not in {"VmRSS", "RssAnon", "RssFile", "VmLck"}:
+            continue
+        fields = raw.split()
+        if fields:
+            values[name] = int(fields[0]) * 1024
+    return values
+
+
+def record_memory_snapshot(step: dict[str, Any], prefix: str, pid: int | None) -> None:
+    host = read_meminfo_bytes()
+    for name in ("MemTotal", "MemAvailable", "MemFree", "Unevictable", "Mlocked"):
+        if name in host:
+            step[f"{prefix}_host_{name.lower()}_bytes"] = host[name]
+    if pid is None:
+        return
+    step[f"{prefix}_worker_pid"] = pid
+    for name, value in read_process_memory_bytes(pid).items():
+        step[f"{prefix}_worker_{name.lower()}_bytes"] = value
+
+
 def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, Any]:
     if event is None:
         return {}
@@ -143,6 +194,8 @@ def flatten_breakdown(prefix: str, event: dict[str, Any] | None) -> dict[str, An
         "cpu_backup_coordinator_eviction_requests_received",
         "cpu_backup_eviction_released_count",
         "cpu_backup_eviction_released_bytes",
+        "cpu_backup_host_cache_flush_count",
+        "cpu_backup_host_cache_flush_errors",
     ]
     row: dict[str, Any] = {}
     for field in fields:
@@ -212,6 +265,7 @@ def main(argv: list[str] | None = None) -> int:
         "profile_path": str(profile_path),
         "out_dir": str(out_dir),
         "coordinator_url": args.coordinator_url,
+        "post_wake_observation_s": args.post_wake_observation_s,
     }
     steps: list[dict[str, Any]] = []
 
@@ -225,6 +279,7 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         engines: dict[str, LLM] = {}
+        engine_pids: dict[str, int] = {}
         try:
             for iteration in range(args.iterations):
                 for model_index, model in enumerate(args.models):
@@ -251,12 +306,17 @@ def main(argv: list[str] | None = None) -> int:
                             step["activate_latency_s"] = activate_latency_s
                         else:
                             llm = engines[model.name]
+                            worker_pid = engine_pids.get(model.name)
+                            record_memory_snapshot(step, "pre_wake", worker_pid)
                             activate_started = time.perf_counter()
                             llm.wake_up()
                             activate_latency_s = time.perf_counter() - activate_started
                             step["activate_type"] = "wake"
                             step["wake_latency_s"] = activate_latency_s
                             step["activate_latency_s"] = activate_latency_s
+                            if args.post_wake_observation_s > 0:
+                                time.sleep(args.post_wake_observation_s)
+                            record_memory_snapshot(step, "post_wake", worker_pid)
 
                         llm = engines[model.name]
                         infer_started = time.perf_counter()
@@ -280,6 +340,8 @@ def main(argv: list[str] | None = None) -> int:
                             )
                         )
                         step.update(flatten_breakdown("sleep_allocator", allocator_sleep))
+                        if allocator_sleep is not None and "pid" in allocator_sleep:
+                            engine_pids[model.name] = int(allocator_sleep["pid"])
                         step["ok"] = True
                     except Exception as exc:
                         step["ok"] = False
