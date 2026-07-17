@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
+
 import statistics
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+
 
 
 def fnum(value: str | None) -> float | None:
@@ -35,39 +35,11 @@ def load_rows(result_dir: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(fh))
 
 
-def load_nested(result_dir: Path) -> list[dict[str, Any]]:
-    with (result_dir / "summary.json").open(encoding="utf-8") as fh:
-        return json.load(fh)
-
-
-def event_memory(root: Path, event_log: str) -> dict[str, float | int | None]:
-    path = Path(event_log)
-    if not path.is_absolute():
-        path = root / path
-    gpu: list[float] = []
-    cpu: list[float] = []
-    if not path.exists():
-        return {"gpu_min_mib": None, "gpu_avg_mib": None, "gpu_max_mib": None, "cpu_min_mib": None, "cpu_max_mib": None, "events": 0}
-    with path.open(encoding="utf-8") as fh:
-        for line in fh:
-            obj = json.loads(line)
-            if obj.get("gpu_used_mib") is not None:
-                gpu.append(float(obj["gpu_used_mib"]))
-            if obj.get("cpu_used_mib") is not None:
-                cpu.append(float(obj["cpu_used_mib"]))
-    return {
-        "gpu_min_mib": min(gpu) if gpu else None,
-        "gpu_avg_mib": statistics.mean(gpu) if gpu else None,
-        "gpu_max_mib": max(gpu) if gpu else None,
-        "cpu_min_mib": min(cpu) if cpu else None,
-        "cpu_max_mib": max(cpu) if cpu else None,
-        "events": len(gpu),
-    }
 
 
 def build_report(result_dir: Path, repo_root: Path) -> str:
     rows = load_rows(result_dir)
-    nested = load_nested(result_dir)
+
     by = defaultdict(list)
     for r in rows:
         by[(r["method"], r["prompt_name"], r["ok"])].append(r)

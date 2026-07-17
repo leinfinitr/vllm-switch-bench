@@ -14,7 +14,7 @@
 
 - `reports/baseline3-qwen2p5-*.md`：Baseline3 对比结论。
 - `reports/vllm-pin-compare.md`：vLLM sleep_l1 / sleep_l2 pin/no-pin breakdown，包含 L2 reload weights 拆分说明。
-- `reports/phase1-two-model-pool.md`：两模型 repeated `sleep_l1` 中 CPU backup pool 复用、metadata coordinator 和 daemon eviction 的最新结果。
+- `reports/phase1-two-model-pool.md`：历史两模型 repeated `sleep_l1` 结果；其中 metadata/eviction 字段是 legacy schema，不是当前 release protocol。
 - `reports/cumem-copy-microbench.md`：PCIe copy、CuMemAllocator synthetic copy 和 safetensors 粒度 microbench。
 
 `plans/` 是历史实施计划归档，可能保留当时的路径和步骤，不作为当前复现入口。

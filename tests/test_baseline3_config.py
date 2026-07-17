@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import pytest
 
-from benchlib.config import collect_repo_metadata, expand_path, load_baseline3_config
+from benchlib.config import collect_repo_metadata, load_baseline3_config
 
 
 @pytest.fixture()

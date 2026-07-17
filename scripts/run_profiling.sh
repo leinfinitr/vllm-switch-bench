@@ -1,31 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="${LLM_SWITCH_BENCH_ROOT:-/home/ljl/research-systems/llm-switch-bench}"
+ROOT="${LLM_SWITCH_BENCH_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PYTHON="${PYTHON:-${ROOT}/.venv/bin/python}"
 OUT_DIR="${OUT_DIR:-results/profiling/sleep_l1_pin_compare}"
-CUDA_HOME="${CUDA_HOME:-/home/ljl/cuda-13.0}"
 REPEATS="${REPEATS:-3}"
 METHOD="${METHOD:-sleep_l1}"
 
+if [[ -z "${MODEL_SPECS:-}" ]]; then
+  echo "MODEL_SPECS is required (NAME=PATH[,GPU_UTIL] ...)" >&2
+  exit 2
+fi
+
 cd "${ROOT}"
-export CUDA_HOME
-export PATH="$(dirname "${PYTHON}"):${CUDA_HOME}/bin:${PATH}"
+export PATH="$(dirname "${PYTHON}"):${PATH}"
+if [[ -n "${CUDA_HOME:-}" ]]; then
+  export CUDA_HOME
+  export PATH="${CUDA_HOME}/bin:${PATH}"
+fi
+
+# shellcheck disable=SC2206
+model_specs=(${MODEL_SPECS})
 
 cmd=(
   "${PYTHON}"
   "src/bench_vllm_pin_compare.py"
   --method "${METHOD}"
   --python "${PYTHON}"
-  --cuda-home "${CUDA_HOME}"
   --out-dir "${OUT_DIR}"
   --repeats "${REPEATS}"
+  --models "${model_specs[@]}"
 )
 
-if [[ -n "${MODELS:-}" ]]; then
-  # shellcheck disable=SC2206
-  models_args=(${MODELS})
-  cmd+=(--models "${models_args[@]}")
+if [[ -n "${CUDA_HOME:-}" ]]; then
+  cmd+=(--cuda-home "${CUDA_HOME}")
 fi
 
 if [[ -n "${PIN_MODES:-}" ]]; then

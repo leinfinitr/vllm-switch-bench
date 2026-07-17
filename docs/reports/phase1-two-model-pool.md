@@ -1,4 +1,6 @@
-# vLLM repeated sleep_l1 CPU backup pool 验证
+# vLLM repeated sleep_l1 CPU backup pool 验证（历史结果）
+
+> 本报告保留旧 run 的原始字段和数字。`metadata coordinator`、`daemon eviction`、`phase1_*` 文件名属于 legacy schema；当前实现使用 aggregate usage、epoch+cumulative byte release 与 `repeated_sleep_l1_*` 输出，当前复现入口见仓库 `README.md`。
 
 本文记录两模型 repeated `sleep_l1` profiling 的 curated 结果，用于验证 pinned CPU backup pool 是否能跨 sleep 周期复用，以及 CPU backup metadata coordinator / daemon eviction 对复用路径的影响。相关提交包括 `c94a302`、`d54ee17`、`fa89239`、`f07f6af` 和 `4a0d344`。
 

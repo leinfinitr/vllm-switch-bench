@@ -14,8 +14,6 @@ import requests
 from benchlib.config import collect_repo_metadata, load_baseline3_config
 from benchlib.schema import write_summary_csv
 
-DEFAULT_VLLM_RESULT = Path("results/baselines/vllm/qwen2p5_0p5b/20260603_150331")
-
 
 def build_serverless_cmd(
     repo: str,
@@ -76,7 +74,9 @@ def build_swapserve_cmd(
     ]
 
 
-def normalize_rows(rows: list[dict[str, Any]], default_system: str) -> list[dict[str, Any]]:
+def normalize_rows(
+    rows: list[dict[str, Any]], default_system: str
+) -> list[dict[str, Any]]:
     normalized = []
     for row in rows:
         item = dict(row)
@@ -146,18 +146,19 @@ def _run_adapter(cmd: list[str], workdir: Path) -> tuple[int, str, str, Path | N
 def _serverless_model_path(config: dict[str, Any]) -> str:
     system_cfg = config["systems"]["serverless_llm"]
     explicit = system_cfg.get("container_model_path")
-    if explicit:
-        return str(explicit)
-    model = str(config["model"])
-    prefix = "/home/ljl/models/"
-    if model.startswith(prefix):
-        return "/host-models/" + model[len(prefix) :]
-    return model
+    if not explicit:
+        raise ValueError(
+            "systems.serverless_llm.container_model_path is required; "
+            "the harness cannot infer container mount layout from a host path"
+        )
+    return str(explicit)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     config = load_baseline3_config(Path(args.config))
+    http = requests.Session()
+    http.trust_env = False
     prompts = args.prompts or config.get("prompts", ["short_short"])
     repeats = args.repeats or int(config.get("repeats", 1))
     out_root = Path(args.out_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -174,11 +175,12 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     if "vllm" in args.systems:
-        latest_vllm = DEFAULT_VLLM_RESULT
-        if latest_vllm.exists():
-            rows.extend(normalize_rows(read_summary_rows(latest_vllm), "vllm"))
-            metadata["repos"]["vllm"] = {"source": str(latest_vllm)}
-            metadata["artifacts"]["vllm"] = {"run_dir": str(latest_vllm)}
+        configured_vllm = config["systems"].get("vllm", {}).get("result_dir")
+        vllm_result = Path(configured_vllm) if configured_vllm else None
+        if vllm_result is not None and (vllm_result / "summary.json").exists():
+            rows.extend(normalize_rows(read_summary_rows(vllm_result), "vllm"))
+            metadata["repos"]["vllm"] = {"source": str(vllm_result)}
+            metadata["artifacts"]["vllm"] = {"run_dir": str(vllm_result)}
         else:
             rows.append(
                 make_blocker_row(
@@ -187,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                     str(config["model"]),
                     prompts[0],
                     0,
-                    "missing existing vllm results",
+                    "systems.vllm.result_dir is missing or has no summary.json",
                 )
             )
 
@@ -199,13 +201,15 @@ def main(argv: list[str] | None = None) -> int:
             f"{config['systems']['serverless_llm']['port']}"
         )
         try:
-            health = requests.get(f"{base_url}/health", timeout=5)
+            health = http.get(f"{base_url}/health", timeout=5)
             healthy = health.status_code == 200
         except Exception:
             healthy = False
         if healthy:
             serverless_out = out_root / "serverless_llm"
-            serverless_methods = list(config["systems"]["serverless_llm"].get("optional_methods", []))
+            serverless_methods = list(
+                config["systems"]["serverless_llm"].get("optional_methods", [])
+            )
             primary_method = config["systems"]["serverless_llm"].get("primary_method")
             if primary_method and primary_method not in serverless_methods:
                 serverless_methods.insert(0, str(primary_method))
@@ -279,7 +283,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         else:
             try:
-                models = requests.get(f"{base_url}/v1/models", timeout=5)
+                models = http.get(f"{base_url}/v1/models", timeout=5)
                 if models.status_code == 200:
                     swapserve_out = out_root / "swapserve_llm"
                     cmd = build_swapserve_cmd(
@@ -290,8 +294,12 @@ def main(argv: list[str] | None = None) -> int:
                         repeats=int(repeats),
                         out_dir=str(swapserve_out),
                     )
-                    api_key = str(config["systems"]["swapserve_llm"].get("api_key", "") or "")
-                    log_dir = str(config["systems"]["swapserve_llm"].get("log_dir", "") or "")
+                    api_key = str(
+                        config["systems"]["swapserve_llm"].get("api_key", "") or ""
+                    )
+                    log_dir = str(
+                        config["systems"]["swapserve_llm"].get("log_dir", "") or ""
+                    )
                     if api_key:
                         cmd.extend(["--api-key", api_key])
                     if log_dir:

@@ -7,39 +7,15 @@
 - `src/tool/` 下的脚本只处理已有结果，不参与 benchmark 运行过程。
 - `src/benchlib/` 是 benchmark 入口共享的内部库，不建议直接命令行执行。
 
-## 当前测试环境速记
+## Python 与 vLLM 来源
 
-当前仓库的 benchmark 环境是“两层来源”：
-
-- Python 解释器来自本仓库的 uv 虚拟环境：`/home/ljl/research-systems/llm-switch-bench/.venv/bin/python`。
-- vLLM Python 包来自用户本地源码 checkout 的 editable 安装：`/home/ljl/research-systems/vllm`。
-
-因此，vLLM lifecycle 测试不是直接调用系统 Python，也不是使用一份普通的 PyPI/wheel `vllm`。实际流程是：
-
-1. 用本仓库 `.venv/bin/python` 启动 benchmark harness。
-2. `bench_vllm_lifecycle.py` 再用 `--python .venv/bin/python` 启动 vLLM OpenAI server。
-3. 这个解释器执行 `python -m vllm.entrypoints.openai.api_server` 时，`import vllm` 解析到 `/home/ljl/research-systems/vllm/vllm`。
-
-可用下面命令快速确认当前环境：
+benchmark 应在仓库自己的 uv 环境中执行；vLLM 可以来自 wheel，也可以来自待测源码的 editable install。不要假设固定的 checkout 路径。运行前记录实际解释器、模块路径和版本：
 
 ```bash
 .venv/bin/python -c "import sys, vllm; print(sys.executable); print(vllm.__file__); print(getattr(vllm, '__version__', 'unknown'))"
 ```
 
-当前检查结果应类似：
-
-```text
-/home/ljl/research-systems/llm-switch-bench/.venv/bin/python
-/home/ljl/research-systems/vllm/vllm/__init__.py
-```
-
-本地 `.venv` 中的安装记录也能证明这一点：
-
-- `.venv/lib/python3.12/site-packages/vllm-0.1.dev16944+gb3269454b.dist-info/direct_url.json` 记录 `file:///home/ljl/research-systems/vllm` 且 `editable=true`。
-- `.venv/lib/python3.12/site-packages/__editable___vllm_0_1_dev16944_gb3269454b_finder.py` 将 `vllm` 映射到 `/home/ljl/research-systems/vllm/vllm`。
-- 已保留的 vLLM curated run metadata 记录了 `--python .venv/bin/python`，例如 `results/baselines/vllm/qwen2p5_0p5b/20260603_150331/metadata.json`。
-
-一句话结论：**测试进程使用本仓库 uv `.venv` 的解释器，但 vLLM 代码来自用户自己在 `/home/ljl/research-systems/vllm` 编译/安装的本地源码。**
+summary metadata 会记录 bench repo 和所加载 vLLM module 的 git revision/dirty state；论文实验应保存该 metadata，并确保 treatment/control 使用同一解释器、模型和依赖环境。
 
 ## Benchmark 执行入口
 
@@ -90,7 +66,7 @@ SwapServeLLM adapter benchmark 入口。通常由 `bench_baseline3.py` 调用；
 
 ### `bench_vllm_pin_compare.py`
 
-vLLM sleep mode pinned/non-pinned CPU backup profiling 对照实验入口。支持 `sleep_l1` 和 `sleep_l2`，默认覆盖 Qwen2.5 0.5B、1.5B、3B，并为 3B 使用 `gpu_memory_utilization=0.85`。
+vLLM sleep mode pinned/non-pinned CPU backup profiling 对照实验入口。支持 `sleep_l1` 和 `sleep_l2`；所有模型通过 `--model NAME=PATH[,GPU_UTILIZATION]` 或 `MODEL_SPECS` 显式选择。
 
 推荐通过脚本运行：
 
@@ -101,7 +77,8 @@ scripts/run_profiling.sh
 快速 dry-run：
 
 ```bash
-DRY_RUN=1 METHOD=sleep_l1 MODELS=qwen2p5_0p5b PIN_MODES=true REPEATS=1 scripts/run_profiling.sh
+MODEL_SPECS='small=/models/small,0.45' DRY_RUN=1 \
+  METHOD=sleep_l1 PIN_MODES=true REPEATS=1 scripts/run_profiling.sh
 ```
 
 测试 `sleep_l2` 并输出到独立目录：
@@ -118,22 +95,18 @@ results/profiling/sleep_l1_pin_compare/
 
 ### `bench_vllm_repeated_sleep_l1.py`
 
-离线 vLLM `LLM` API profiling 入口，默认交替加载 Qwen2.5 0.5B 和 1.5B，多轮执行 `wake_up()`、推理、`sleep(level=1)`。它用于验证 CPU backup pool 是否跨 sleep 周期复用，并把每一步写入 `phase1_two_model_repeated_sleep_steps.csv`。设置 `--coordinator-url` 时，脚本会启用 vLLM CPU backup coordinator backend，并把 metadata flush 与 eviction 指标一并展平到 steps CSV。
+离线 vLLM `LLM` API profiling 入口。模型通过 `--models NAME=PATH` 显式选择，脚本按给定顺序多轮执行 `wake_up()`、推理和 `sleep(level=1)`。它将 sleep/wake allocator event、coordinator 累计 counter 的 step delta、worker RSS 与 host `MemAvailable` 展平到 `repeated_sleep_l1_steps.csv`。
 
 ```bash
 .venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
-  --out-dir results/profiling/phase1_two_model_pool \
+  --models small=/models/small large=/models/large \
+  --out-dir results/profiling/repeated_sleep_l1 \
   --iterations 5
 ```
 
-```bash
-.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
-  --out-dir results/profiling/phase1_metadata_coordinator \
-  --iterations 3 \
-  --coordinator-url http://127.0.0.1:19090
-```
+pressure/no-pressure 实验分别使用 `--expect-release` / `--no-expect-release`；no-pressure control 可增加 `--expect-reuse`，要求后续 sleep 同时观测到 positive reuse 和 zero D2H。若验证物理回收，同时设置观测窗口和 `--min-worker-rss-reclaim-bytes`。每轮确定性推理的 token IDs/text 必须与同模型首次结果一致；pressure 模式还会按当前 run 的 client ID 前缀读取 controller final stats，强制检查 host-cache flush error 为零、`released >= requested` 且 `pending == 0`（allocator 可按整块合法 over-release）。summary 记录模型、全部参数、bench/vLLM git metadata、GPU、host memory、run-local coordinator stats 和 assertion failures。
 
-最新报告见 `docs/reports/phase1-two-model-pool.md`。
+历史结果与旧 schema 见 `docs/reports/phase1-two-model-pool.md`；当前 CLI 以 `--help` 为准。
 
 ## 共享库
 

@@ -5,5 +5,6 @@ __pycache__/
 results/tmp/
 runtime/
 .env
+configs/*.local.yaml
 *.log
 *.jsonl

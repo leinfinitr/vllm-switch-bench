@@ -59,7 +59,7 @@ def infer_result(latency: float, tokens: int = 10, prefix: str = "ok") -> dict:
 
 def test_build_register_payload_uses_vllm_backend_and_local_model():
     payload = build_register_payload(
-        model_path=Path("/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"),
+        model_path=Path("/models/example"),
         prompt_model_name="Qwen2.5-0.5B-Instruct",
         registered_model_name="qwen2p5-0p5b",
         max_model_len=1024,
@@ -71,7 +71,7 @@ def test_build_register_payload_uses_vllm_backend_and_local_model():
     assert payload["auto_scaling_config"]["min_instances"] == 0
     assert (
         payload["backend_config"]["pretrained_model_name_or_path"]
-        == "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+        == "/models/example"
     )
 
 
@@ -107,7 +107,7 @@ def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(m
         payload={
             "model": "qwen2p5-0p5b",
             "benchmark_metadata": {
-                "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+                "source_model_path": "/models/example"
             },
         },
         prompt_name="long_short",
@@ -146,7 +146,7 @@ def test_non_200_register_is_failed_with_body_snippet(monkeypatch):
         payload={
             "model": "qwen2p5-0p5b",
             "benchmark_metadata": {
-                "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+                "source_model_path": "/models/example"
             },
         },
         prompt_name="short_short",
@@ -183,7 +183,7 @@ def test_summary_row_has_system_serverless_llm(monkeypatch):
         payload={
             "model": "qwen2p5-0p5b",
             "benchmark_metadata": {
-                "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+                "source_model_path": "/models/example"
             },
         },
         prompt_name="short_short",
@@ -228,7 +228,7 @@ def test_scale_to_zero_restore_warms_backend_and_subtracts_ready_request(monkeyp
         payload={
             "model": "qwen2p5-0p5b",
             "benchmark_metadata": {
-                "source_model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+                "source_model_path": "/models/example"
             },
         },
         prompt_name="short_long",
@@ -281,8 +281,3 @@ def test_infer_returns_structured_timeout_error(monkeypatch):
     assert row["status"] is None
     assert "timed out" in row["error"]
     assert row["client_latency_s"] >= 0
-
-
-def test_serverless_docker_compose_mounts_host_models():
-    compose = (Path(__file__).resolve().parents[1].parent / "ServerlessLLM" / "examples" / "docker" / "docker-compose.yml").read_text(encoding="utf-8")
-    assert "${HOST_MODEL_FOLDER:-/home/ljl/models}:/host-models" in compose

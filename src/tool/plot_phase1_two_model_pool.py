@@ -19,11 +19,9 @@ SLEEP_COMPONENTS = [
     ("sleep_allocator_unmap_release_s", "unmap & release", "#59A14F"),
     ("sleep_other_s", "sleep other", "#B07AA1"),
 ]
-MODEL_LINE_STYLES = {
-    "qwen2p5_0p5b": {"label": "Qwen2.5-0.5B infer", "linestyle": "-", "marker": "o"},
-    "qwen2p5_1p5b": {"label": "Qwen2.5-1.5B infer", "linestyle": "--", "marker": "s"},
-}
-HATCHED_MODELS = {"qwen2p5_1p5b"}
+LINESTYLES = ("-", "--", "-.", ":")
+MARKERS = ("o", "s", "^", "D", "v")
+LINE_COLORS = ("#1F77B4", "#D62728", "#2CA02C", "#9467BD", "#8C564B")
 
 
 def parse_float(value: Any) -> float:
@@ -75,6 +73,8 @@ def configure_paper_style() -> None:
 
 def render(rows: list[dict[str, Any]], out_path: Path, title: str) -> Path:
     configure_paper_style()
+    model_names = sorted({str(row["model_name"]) for row in rows})
+    model_index = {name: index for index, name in enumerate(model_names)}
     step_indices = [row["step_index"] for row in rows]
     fig, ax_sleep = plt.subplots(figsize=(7.2, 2.85))
     ax_infer = ax_sleep.twinx()
@@ -90,9 +90,11 @@ def render(rows: list[dict[str, Any]], out_path: Path, title: str) -> Path:
                 width=width,
                 bottom=bottoms[idx],
                 color=color,
-                edgecolor="black" if row["model_name"] in HATCHED_MODELS else "white",
-                linewidth=0.45 if row["model_name"] in HATCHED_MODELS else 0.25,
-                hatch="///" if row["model_name"] in HATCHED_MODELS else None,
+                edgecolor="black"
+                if model_index[str(row["model_name"])] % 2
+                else "white",
+                linewidth=0.45,
+                hatch="///" if model_index[str(row["model_name"])] % 2 else None,
                 zorder=2,
             )
         bottoms = [bottom + value for bottom, value in zip(bottoms, values)]
@@ -100,24 +102,17 @@ def render(rows: list[dict[str, Any]], out_path: Path, title: str) -> Path:
     by_model: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         by_model[str(row["model_name"])].append(row)
-    line_color_by_model = {
-        "qwen2p5_0p5b": "#1F77B4",
-        "qwen2p5_1p5b": "#D62728",
-    }
     for model, model_rows in sorted(by_model.items()):
-        style = MODEL_LINE_STYLES.get(
-            model,
-            {"label": f"{model} infer", "linestyle": "-.", "marker": "^"},
-        )
+        index = model_index[model]
         ax_infer.plot(
             [row["step_index"] for row in model_rows],
             [row["infer_latency_s"] for row in model_rows],
-            color=line_color_by_model.get(model, "#333333"),
-            linestyle=style["linestyle"],
-            marker=style["marker"],
+            color=LINE_COLORS[index % len(LINE_COLORS)],
+            linestyle=LINESTYLES[index % len(LINESTYLES)],
+            marker=MARKERS[index % len(MARKERS)],
             markerfacecolor="white",
             markeredgewidth=0.8,
-            label=style["label"],
+            label=f"{model} infer",
             zorder=4,
         )
 
@@ -138,17 +133,13 @@ def render(rows: list[dict[str, Any]], out_path: Path, title: str) -> Path:
     ax_sleep.spines["right"].set_visible(False)
     ax_infer.spines["left"].set_visible(False)
 
-    sleep_handles = [Patch(facecolor=color, edgecolor="white", label=label) for _, label, color in SLEEP_COMPONENTS]
-    hatch_handle = Patch(
-        facecolor="white",
-        edgecolor="black",
-        hatch="///",
-        label="Qwen2.5-1.5B sleep bars",
-    )
+    sleep_handles = [
+        Patch(facecolor=color, edgecolor="white", label=label)
+        for _, label, color in SLEEP_COMPONENTS
+    ]
     line_handles, line_labels = ax_infer.get_legend_handles_labels()
-    handles = sleep_handles + [hatch_handle] + line_handles
+    handles = sleep_handles + line_handles
     labels: list[str] = [str(handle.get_label()) for handle in sleep_handles]
-    labels.append(str(hatch_handle.get_label()))
     labels.extend(str(label) for label in line_labels)
     ax_sleep.legend(
         handles,
@@ -170,20 +161,22 @@ def render(rows: list[dict[str, Any]], out_path: Path, title: str) -> Path:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Plot two-model phase1 sleep-pool breakdown and infer latency.")
+    parser = argparse.ArgumentParser(
+        description="Plot repeated sleep-pool breakdown and inference latency."
+    )
     parser.add_argument(
         "--csv",
         type=Path,
-        default=Path(
-            "results/profiling/phase1_two_model_pool/20260702_102248/phase1_two_model_repeated_sleep_steps.csv"
-        ),
+        required=True,
     )
     parser.add_argument(
         "--out",
         type=Path,
         default=Path("docs/reports/figures/phase1-two-model-pool-breakdown.pdf"),
     )
-    parser.add_argument("--title", default="Two-model sleep backup pool: sleep breakdown and inference latency")
+    parser.add_argument(
+        "--title", default="Repeated sleep backup pool: breakdown and inference latency"
+    )
     return parser.parse_args(argv)
 
 

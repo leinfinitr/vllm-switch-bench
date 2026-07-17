@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from pathlib import Path
 from typing import Any
 
 try:
@@ -43,6 +44,35 @@ def query_gpu_memory_used_mib() -> int | None:
     if proc.returncode != 0:
         return None
     return parse_gpu_memory_used_mib(proc.stdout)
+
+
+def read_meminfo_bytes() -> dict[str, int]:
+    """Return byte-valued counters from Linux /proc/meminfo."""
+    values: dict[str, int] = {}
+    for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+        name, raw = line.split(":", 1)
+        fields = raw.split()
+        if fields:
+            values[name] = int(fields[0]) * 1024
+    return values
+
+
+def read_process_memory_bytes(pid: int) -> dict[str, int]:
+    """Return low-overhead RSS/locked-memory counters for one Linux process."""
+    values: dict[str, int] = {}
+    status_path = Path(f"/proc/{pid}/status")
+    if not status_path.exists():
+        return values
+    for line in status_path.read_text(encoding="utf-8").splitlines():
+        if ":" not in line:
+            continue
+        name, raw = line.split(":", 1)
+        if name not in {"VmRSS", "RssAnon", "RssFile", "VmLck"}:
+            continue
+        fields = raw.split()
+        if fields:
+            values[name] = int(fields[0]) * 1024
+    return values
 
 
 def process_tree_rss_mib(pid: int | None) -> float | None:

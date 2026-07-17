@@ -550,7 +550,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=18000)
     parser.add_argument("--cuda-visible-devices", default="0")
     parser.add_argument("--vllm-use-v1", default="1")
-    parser.add_argument("--cuda-home", default="/home/ljl/cuda-13.0")
+    parser.add_argument("--cuda-home", default=os.environ.get("CUDA_HOME"))
     parser.add_argument("--enable-server-dev-mode", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.55)
