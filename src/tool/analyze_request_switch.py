@@ -28,11 +28,12 @@ def summarize(root: Path) -> dict[str, Any]:
     declared_outputs: list[Path] = []
     output_names: set[str] = set()
     for run in metadata.get("runs", []):
-        output = root / run["output"]
+        output = (root / run["output"]).resolve(strict=False)
         declared_outputs.append(output)
-        if run["output"] in output_names:
+        normalized_output = str(output)
+        if normalized_output in output_names:
             problems.append(f"duplicate output path {run['output']}")
-        output_names.add(run["output"])
+        output_names.add(normalized_output)
         if int(run.get("returncode", 1)) != 0:
             problems.append(f"{run['workload']}-r{run['repeat']} returned {run['returncode']}")
             continue
@@ -85,7 +86,7 @@ def summarize(root: Path) -> dict[str, Any]:
         problems.append(f"duplicate run {workload}-r{repeat}")
     for workload, repeat in sorted(set(actual_pairs) - expected_pairs):
         problems.append(f"unexpected run {workload}-r{repeat}")
-    discovered = set(root.glob("w[012]-r*.jsonl"))
+    discovered = {path.resolve(strict=False) for path in root.glob("w[012]-r*.jsonl")}
     undeclared = discovered - set(declared_outputs)
     for path in sorted(undeclared):
         problems.append(f"undeclared output {path.name}")

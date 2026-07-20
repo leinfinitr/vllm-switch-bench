@@ -213,7 +213,7 @@ def test_summarize_binds_each_output_row_to_manifest_identity(tmp_path):
     with pytest.raises(ValueError, match="mismatches manifest field request_id"):
         summarize(tmp_path)
 
-    run2 = {**run, "workload": "w1"}
+    run2 = {**run, "workload": "w1", "output": f"./{output.name}"}
     (tmp_path / "metadata.json").write_text(
         json.dumps({"repeats": 1, "workloads": ["w0", "w1"], "runs": [run, run2]})
     )
