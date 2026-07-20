@@ -84,35 +84,37 @@
     "cold_reload_background": {
       "qwen-1.5b": {
         "samples": 9,
-        "restore_latency_s_median": 0.6894825780764222,
+        "restore_latency_s_median": 16.52285298006609,
         "values": [
           16.522209394956008,
           17.022691352060065,
           16.52285298006609,
-          0.35578966001048684,
-          0.34072472294792533,
-          0.34411864494904876,
-          0.6894825780764222,
-          0.7617122521623969,
-          0.6761426739394665
+          17.024530098075047,
+          17.023059916915372,
+          16.52247332688421,
+          16.522778798127547,
+          16.523072331910953,
+          16.522237186087295
         ],
-        "scope": "historical single-model lifecycle mechanism background; not request-trace E2E"
+        "scope": "historical single-model cold_reload lifecycle mechanism background; not request-trace E2E",
+        "source": "results/baselines/vllm/qwen2p5_1p5b/20260604_210320/summary.json"
       },
       "qwen-3b": {
         "samples": 9,
-        "restore_latency_s_median": 1.4642050908878446,
+        "restore_latency_s_median": 19.52593492018059,
         "values": [
           19.027893733000383,
           19.02568602282554,
           19.528891688911244,
-          0.5203181649558246,
-          0.5092638700734824,
-          0.5116285369731486,
-          1.5898043049965054,
-          1.4642050908878446,
-          1.4562774340156466
+          19.52593492018059,
+          19.526123319054022,
+          19.02612888906151,
+          19.526549437083304,
+          19.527412596857175,
+          19.025076888967305
         ],
-        "scope": "historical single-model lifecycle mechanism background; not request-trace E2E"
+        "scope": "historical single-model cold_reload lifecycle mechanism background; not request-trace E2E",
+        "source": "results/baselines/vllm/qwen2p5_3b/20260605_095722/summary.json"
       }
     },
     "profile_ablation": {

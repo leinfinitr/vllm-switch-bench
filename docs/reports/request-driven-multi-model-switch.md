@@ -84,7 +84,7 @@ allocator profile 给出明确的 first-miss 与 clean-reuse 对照：
 
 upstream vLLM L1 baseline 使用固定 commit `0decac0d96c42b49572498019f0a0e3600f50398` 建立独立 worktree，但无法在现有共享二进制环境启动：upstream Python 需要自己的 `_vllm_fa2_C/_vllm_fa3_C`，当前 venv 中是研究 checkout 构建的扩展。按计划没有做兼容性移植；因此报告 within-process first miss vs clean reuse，而不把它冒充 upstream baseline。
 
-历史、同模型的 lifecycle 背景数据表明：cold reload 的 restore median 约为 16.5 s（1.5B）和 19.0 s（3B）；它们不是本次冻结 W1/W2 的 E2E 结果，不能与 581.7 ms switch path 作为严格同表排名。
+历史、同模型的 cold-reload lifecycle 背景数据表明：cold reload 的 restore median 为 16.52 s（1.5B）和 19.53 s（3B）；它们不是本次冻结 W1/W2 的 E2E 结果，不能与 581.7 ms switch path 作为严格同表排名。
 
 ## 6. RQ4：backup 能否在压力下物理回收？
 
