@@ -67,19 +67,23 @@ def summarize(root: Path) -> dict[str, Any]:
         )
     summary: dict[str, Any] = {}
     for workload, rows in grouped.items():
-        ttft = [float(row["semantic_ttft_ms"]) for row in rows if row.get("semantic_ttft_ms")]
-        latency = [
-            float(row["completion_latency_ms"])
-            for row in rows
-            if row.get("completion_latency_ms")
-        ]
         successful = [
             row
             for row in rows
             if row.get("status")
             and int(row["status"]) < 400
             and not row.get("error")
-            and row.get("stream_done", True)
+            and row.get("stream_done") is True
+        ]
+        ttft = [
+            float(row["semantic_ttft_ms"])
+            for row in successful
+            if row.get("semantic_ttft_ms") is not None
+        ]
+        latency = [
+            float(row["completion_latency_ms"])
+            for row in successful
+            if row.get("completion_latency_ms") is not None
         ]
         summary[workload] = {
             "requests": len(rows),

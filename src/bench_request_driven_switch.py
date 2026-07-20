@@ -22,23 +22,25 @@ def parse_sse_events(buffer: bytes) -> tuple[list[bytes], bytes]:
 
 
 def _semantic_text(event: bytes) -> tuple[str, int | None, bool]:
+    data_lines: list[bytes] = []
     for line in event.splitlines():
-        if not line.startswith(b"data:"):
-            continue
-        data = line[5:].strip()
-        if data == b"[DONE]":
-            return "", None, True
-        try:
-            obj = json.loads(data)
-        except (TypeError, ValueError):
-            continue
-        choice = (obj.get("choices") or [{}])[0]
-        delta = choice.get("delta") or {}
-        text = delta.get("content") or choice.get("text") or ""
-        usage = obj.get("usage") or {}
-        completion_tokens = usage.get("completion_tokens")
-        return str(text), int(completion_tokens) if completion_tokens is not None else None, False
-    return "", None, False
+        if line.startswith(b"data:"):
+            data_lines.append(line[5:].lstrip())
+    if not data_lines:
+        return "", None, False
+    data = b"\n".join(data_lines).strip()
+    if data == b"[DONE]":
+        return "", None, True
+    try:
+        obj = json.loads(data)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("malformed SSE data event") from exc
+    choice = (obj.get("choices") or [{}])[0]
+    delta = choice.get("delta") or {}
+    text = delta.get("content") or choice.get("text") or ""
+    usage = obj.get("usage") or {}
+    completion_tokens = usage.get("completion_tokens")
+    return str(text), int(completion_tokens) if completion_tokens is not None else None, False
 
 
 async def _dispatch_one(
@@ -46,6 +48,7 @@ async def _dispatch_one(
     base_url: str,
     row: dict[str, Any],
     trace_started: float,
+    timeout_s: float = 600,
 ) -> dict[str, Any]:
     scheduled = trace_started + float(row["scheduled_offset_s"])
     await asyncio.sleep(max(0.0, scheduled - time.monotonic()))
@@ -58,7 +61,7 @@ async def _dispatch_one(
         "dispatch_lag_ms": (dispatched - scheduled) * 1000,
         "status": None,
         "error": None,
-        "transport_first_byte_ms": None,
+        "response_body_first_byte_ms": None,
         "semantic_ttft_ms": None,
         "trace_semantic_ttft_ms": None,
         "completion_latency_ms": None,
@@ -86,14 +89,18 @@ async def _dispatch_one(
     first_byte = None
     semantic_at = None
     output_parts: list[str] = []
-    try:
+    async def consume_stream() -> None:
+        nonlocal buffer, first_byte, semantic_at
         async with client.stream("POST", f"{base_url}{endpoint}", json=body) as response:
             record["status"] = response.status_code
+            content_type = response.headers.get("content-type", "").lower()
+            if "text/event-stream" not in content_type:
+                raise ValueError(f"unexpected content-type: {content_type}")
             async for chunk in response.aiter_bytes():
                 now = time.monotonic()
                 if chunk and first_byte is None:
                     first_byte = now
-                    record["transport_first_byte_ms"] = (now - dispatched) * 1000
+                    record["response_body_first_byte_ms"] = (now - dispatched) * 1000
                 buffer += chunk
                 events, buffer = parse_sse_events(buffer)
                 for event in events:
@@ -108,16 +115,21 @@ async def _dispatch_one(
                         output_parts.append(text)
                     if tokens is not None:
                         record["completion_tokens"] = tokens
-            record["completion_latency_ms"] = (time.monotonic() - dispatched) * 1000
-            record["output_text"] = "".join(output_parts)
-            tokens = record["completion_tokens"]
-            if tokens is not None and tokens >= 2 and semantic_at is not None:
-                record["tpot_ms"] = (
-                    record["completion_latency_ms"] - record["semantic_ttft_ms"]
-                ) / (tokens - 1)
+            if buffer.strip():
+                raise ValueError("incomplete SSE event at end of stream")
+    try:
+        async with asyncio.timeout(timeout_s):
+            await consume_stream()
     except Exception as exc:
         record["error"] = f"{type(exc).__name__}: {exc}"
+    finally:
         record["completion_latency_ms"] = (time.monotonic() - dispatched) * 1000
+        record["output_text"] = "".join(output_parts)
+        tokens = record["completion_tokens"]
+        if tokens is not None and tokens >= 2 and semantic_at is not None:
+            record["tpot_ms"] = (
+                record["completion_latency_ms"] - record["semantic_ttft_ms"]
+            ) / (tokens - 1)
     return record
 
 
@@ -125,7 +137,7 @@ def failed_record(record: dict[str, Any]) -> bool:
     status = record.get("status")
     return (
         status is None
-        or int(status) >= 400
+        or not 200 <= int(status) < 300
         or bool(record.get("error"))
         or not bool(record.get("stream_done"))
     )
@@ -135,10 +147,13 @@ async def run_trace(
     client: httpx.AsyncClient,
     base_url: str,
     rows: list[dict[str, Any]],
+    timeout_s: float = 600,
 ) -> list[dict[str, Any]]:
     trace_started = time.monotonic()
     tasks = [
-        asyncio.create_task(_dispatch_one(client, base_url.rstrip("/"), row, trace_started))
+        asyncio.create_task(
+            _dispatch_one(client, base_url.rstrip("/"), row, trace_started, timeout_s)
+        )
         for row in rows
     ]
     records = await asyncio.gather(*tasks)
@@ -163,7 +178,7 @@ async def main_async() -> None:
     args = parser.parse_args()
     rows = load_manifest(args.manifest)
     async with httpx.AsyncClient(timeout=args.timeout_s, trust_env=False) as client:
-        records = await run_trace(client, args.base_url, rows)
+        records = await run_trace(client, args.base_url, rows, args.timeout_s)
     write_jsonl(args.output, records)
     failed = sum(failed_record(record) for record in records)
     print(json.dumps({"requests": len(records), "failed": failed, "output": args.output}))

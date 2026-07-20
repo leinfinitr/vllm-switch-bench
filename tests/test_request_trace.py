@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -46,3 +47,31 @@ def test_load_manifest_preserves_frozen_rows(tmp_path):
     ]
     path.write_text("".join(json.dumps(row) + "\n" for row in rows))
     assert load_manifest(path) == rows
+
+
+@pytest.mark.parametrize(
+    "field,value,match",
+    [
+        ("request_id", "", "request_id"),
+        ("scheduled_offset_s", math.nan, "finite"),
+        ("endpoint", "/unknown", "endpoint"),
+        ("stream", False, "stream"),
+        ("max_tokens", 0, "max_tokens"),
+        ("prompt_name", "missing", "prompt_name"),
+    ],
+)
+def test_validate_manifest_rejects_invalid_semantics(field, value, match):
+    row = {
+        "request_id": "r1",
+        "scheduled_offset_s": 0.0,
+        "model": "a",
+        "endpoint": "/v1/chat/completions",
+        "prompt_name": "short_short",
+        "max_tokens": 8,
+        "temperature": 0,
+        "stream": True,
+        "seed": 1,
+    }
+    row[field] = value
+    with pytest.raises(ValueError, match=match):
+        validate_manifest([row])

@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import time
 from pathlib import Path
 
 import httpx
@@ -10,7 +11,7 @@ from httpx import ASGITransport
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_request_driven_switch import failed_record, parse_sse_events, run_trace
+from bench_request_driven_switch import _dispatch_one, failed_record, parse_sse_events, run_trace
 
 
 def test_parse_sse_events_handles_multiple_events_in_one_raw_chunk():
@@ -144,6 +145,47 @@ async def _run_failed_trace():
 
 
 def test_failed_record_treats_incomplete_200_stream_as_failure():
+    assert failed_record({"status": 302, "error": None, "stream_done": True})
     assert failed_record({"status": 200, "error": None, "stream_done": False})
     assert failed_record({"status": 200, "error": "broken", "stream_done": True})
     assert not failed_record({"status": 200, "error": None, "stream_done": True})
+
+
+def test_dispatch_has_total_deadline_and_preserves_partial_output():
+    asyncio.run(_run_deadline_trace())
+
+
+async def _run_deadline_trace():
+    class EndlessStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n'
+            while True:
+                await asyncio.sleep(0.005)
+                yield b": heartbeat\n\n"
+
+    async def handler(_request):
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/event-stream"},
+            stream=EndlessStream(),
+        )
+
+    row = {
+        "request_id": "r-deadline",
+        "scheduled_offset_s": 0.0,
+        "model": "a",
+        "endpoint": "/v1/chat/completions",
+        "prompt_name": "short_short",
+        "max_tokens": 8,
+        "temperature": 0,
+        "stream": True,
+        "seed": 1,
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="http://server", timeout=2
+    ) as client:
+        record = await _dispatch_one(client, "http://server", row, time.monotonic(), 0.03)
+
+    assert "TimeoutError" in record["error"]
+    assert record["output_text"] == "partial"
+    assert record["response_body_first_byte_ms"] is not None
