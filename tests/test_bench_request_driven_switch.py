@@ -25,6 +25,14 @@ def test_parse_sse_events_handles_multiple_events_in_one_raw_chunk():
     assert b'"content":"hello"' in events[1]
 
 
+def test_parse_sse_events_handles_crlf_split_across_raw_chunks():
+    events, remainder = parse_sse_events(b'data: {"x":1}\r')
+    assert events == []
+    events, remainder = parse_sse_events(remainder + b"\n\r\n")
+    assert events == [b'data: {"x":1}']
+    assert remainder == b""
+
+
 def test_run_trace_dispatches_overlapping_requests_and_keeps_failures():
     asyncio.run(_run_overlapping_trace())
 
