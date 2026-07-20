@@ -271,7 +271,7 @@
   ],
   "provenance": {
     "controller": {
-      "commit": "50c6bcc29ce313726831687491b8ad4fe496ed12",
+      "commit": "76d1367d77981676a257f841b8c679352e018e97",
       "tracked_dirty": false
     },
     "vllm": {
@@ -279,8 +279,8 @@
       "tracked_dirty": false
     },
     "bench": {
-      "commit": "11cd00945e412759dfb1ddb774c86a7bcefae0b2",
-      "tracked_dirty": true
+      "commit": "3206370",
+      "tracked_dirty": false
     }
   },
   "scope_notes": [
@@ -288,5 +288,6 @@
     "M1 cold reload entries are mechanism background only; no claim of same frozen-manifest E2E.",
     "M2 is a structured runtime blocker, supplemented by first-miss versus clean-reuse within-process ablation.",
     "P1 is one controlled manual release observation; repeated harness evidence already exists in profiling/physical_reclaim_validation.json."
-  ]
+  ],
+  "provenance_note": "The bench commit is a short self-reference: this summary is stored by that commit; verify the checkout with git rev-parse HEAD."
 }
