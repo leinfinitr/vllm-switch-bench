@@ -24,23 +24,144 @@
       "p95": 500.872068060562
     }
   },
-  "manifests": [
-    {
-      "file": "configs/traces/request-switch-steady.jsonl",
+  "manifests": {
+    "w0": {
+      "file": "request-switch-steady.jsonl",
+      "offered_rate_rps": 2.0,
       "requests": 20,
+      "scheduled_duration_s": 9.5,
       "sha256": "70141e1d6eb7d2085ba36ff5ee4e50260fbfc57bc468b003100a3c65fa4934d5"
     },
-    {
-      "file": "configs/traces/request-switch-alternating.jsonl",
+    "w1": {
+      "file": "request-switch-alternating.jsonl",
+      "offered_rate_rps": 0.6666666666666666,
       "requests": 20,
+      "scheduled_duration_s": 28.5,
       "sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb"
     },
-    {
-      "file": "configs/traces/request-switch-burst.jsonl",
+    "w2": {
+      "file": "request-switch-burst.jsonl",
+      "offered_rate_rps": 0.6666666666666666,
       "requests": 20,
+      "scheduled_duration_s": 28.5,
       "sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac"
     }
-  ],
+  },
+  "metadata": {
+    "base_url": "http://127.0.0.1:9000",
+    "bench_commit": "13123b791cc9baff466853b54b3e65b8eb29b56d",
+    "bench_tracked_dirty": false,
+    "completed_at": 1784562773.8346713,
+    "python": "/home/ljl/research-systems/llm-switch-bench/.venv/bin/python",
+    "repeats": 3,
+    "runs": [
+      {
+        "manifest": "configs/traces/request-switch-steady.jsonl",
+        "manifest_sha256": "70141e1d6eb7d2085ba36ff5ee4e50260fbfc57bc468b003100a3c65fa4934d5",
+        "output": "w0-r0.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 0,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w0-r0.jsonl\"}",
+        "workload": "w0"
+      },
+      {
+        "manifest": "configs/traces/request-switch-alternating.jsonl",
+        "manifest_sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb",
+        "output": "w1-r0.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 0,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w1-r0.jsonl\"}",
+        "workload": "w1"
+      },
+      {
+        "manifest": "configs/traces/request-switch-burst.jsonl",
+        "manifest_sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac",
+        "output": "w2-r0.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 0,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w2-r0.jsonl\"}",
+        "workload": "w2"
+      },
+      {
+        "manifest": "configs/traces/request-switch-steady.jsonl",
+        "manifest_sha256": "70141e1d6eb7d2085ba36ff5ee4e50260fbfc57bc468b003100a3c65fa4934d5",
+        "output": "w0-r1.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 1,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w0-r1.jsonl\"}",
+        "workload": "w0"
+      },
+      {
+        "manifest": "configs/traces/request-switch-alternating.jsonl",
+        "manifest_sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb",
+        "output": "w1-r1.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 1,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w1-r1.jsonl\"}",
+        "workload": "w1"
+      },
+      {
+        "manifest": "configs/traces/request-switch-burst.jsonl",
+        "manifest_sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac",
+        "output": "w2-r1.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 1,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w2-r1.jsonl\"}",
+        "workload": "w2"
+      },
+      {
+        "manifest": "configs/traces/request-switch-steady.jsonl",
+        "manifest_sha256": "70141e1d6eb7d2085ba36ff5ee4e50260fbfc57bc468b003100a3c65fa4934d5",
+        "output": "w0-r2.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 2,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w0-r2.jsonl\"}",
+        "workload": "w0"
+      },
+      {
+        "manifest": "configs/traces/request-switch-alternating.jsonl",
+        "manifest_sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb",
+        "output": "w1-r2.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 2,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w1-r2.jsonl\"}",
+        "workload": "w1"
+      },
+      {
+        "manifest": "configs/traces/request-switch-burst.jsonl",
+        "manifest_sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac",
+        "output": "w2-r2.jsonl",
+        "prompt_sha256": "f55dd6a00c0a0eea9e9c7e059a81ed566859a61c7ea49cfe181542f8d152afae",
+        "repeat": 2,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"requests\": 20, \"failed\": 0, \"output\": \"results/tmp/request-switch/final-rerun/w2-r2.jsonl\"}",
+        "workload": "w2"
+      }
+    ],
+    "started_at": 1784562568.6234095,
+    "workloads": [
+      "w0",
+      "w1",
+      "w2"
+    ]
+  },
   "pressure": {
     "p0": {
       "after": {
@@ -501,7 +622,10 @@
     }
   },
   "provenance": {
-    "artifact_build_note": "Curated files were generated after the measured code commits; use the recorded Git tree IDs for exact measured code.",
+    "artifact_build": {
+      "note": "Curated summary is derived from committed raw JSONL, profiles, pressure evidence and this provenance file.",
+      "script": "src/tool/build_request_switch_artifact.py"
+    },
     "data_generation": {
       "bench": {
         "commit": "13123b791cc9baff466853b54b3e65b8eb29b56d",
@@ -513,8 +637,7 @@
         "tracked_dirty": false,
         "tree": "e83518cba1db199af375ba6fab43a7b1de9818fa"
       },
-      "matrix_completed_at": 1784562773.8346713,
-      "matrix_started_at": 1784562568.6234095,
+      "note": "Commit, tree and dirty state were captured immediately before the final matrix. The matrix metadata independently records benchmark commit and dirty state; controller/vLLM values are the operator-side pre-run capture.",
       "vllm": {
         "commit": "b2057ef621c9d85096c7343461b1951021268b9b",
         "tracked_dirty": false

@@ -65,8 +65,8 @@ W1 的 TTFT 中位数与完整 switch path 同量级。W2 的模型组边界仍�
 
 | model | first sleep miss | D2H | pinned alloc | clean reuse count / median | wake median / H2D |
 |---|---:|---:|---:|---:|---:|
-| Qwen2.5-1.5B | 925.5 ms | 169.0 ms | 707.8 ms | 43 / 107.7 ms | 273.5 / 176.3 ms |
-| Qwen2.5-3B | 2069.6 ms | 326.8 ms | 1717.0 ms | 44 / 143.2 ms | 497.6 / 386 ms |
+| Qwen2.5-1.5B | 925.5 ms | 169.0 ms | 707.8 ms | 43 / 107.7 ms | 273.5 / 176.5 ms |
+| Qwen2.5-3B | 2069.6 ms | 326.8 ms | 1717.0 ms | 44 / 143.2 ms | 497.6 / 384.3 ms |
 
 clean reuse 的 `copy_d2h_s=0`。该优化消除的是后续 sleep 的 pinned allocation 与 D2H，不是 wake 的 H2D。
 
@@ -142,10 +142,17 @@ uv run python -m scripts.launch_vllm_pool \
   --repeats 3 \
   --out-dir results/tmp/request-switch/final-rerun
 
+# 完整 curated summary（包含 request/controller/profile/pressure/provenance）
+.venv/bin/python src/tool/build_request_switch_artifact.py \
+  --input-dir results/request_switch/latest \
+  --provenance results/request_switch/latest/provenance.json \
+  --output /tmp/rebuilt-final-summary.json
+
+# request/controller 核心汇总也可单独生成
 .venv/bin/python src/tool/analyze_request_switch.py \
-  --input-dir results/tmp/request-switch/final-rerun \
-  --controller-events results/tmp/request-switch/final-rerun/controller-events.jsonl \
-  --output results/tmp/request-switch/final-rerun/summary.json
+  --input-dir results/request_switch/latest \
+  --controller-events results/request_switch/latest/controller-events.jsonl \
+  --output /tmp/rebuilt-core-summary.json
 ```
 
 机器路径仅在 gitignored `configs/*.local.yaml` 中；可提交模板为 `configs/models.request_switch.example.yaml`。

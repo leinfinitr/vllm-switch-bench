@@ -1,0 +1,23 @@
+{
+  "data_generation": {
+    "bench": {
+      "commit": "13123b791cc9baff466853b54b3e65b8eb29b56d",
+      "tracked_dirty": false,
+      "tree": "0df10db2b4d586b572ce10eb24d38491829c9ff5"
+    },
+    "controller": {
+      "commit": "46a7806fe5b8d5dd789e4a2abbb66c7c6def7328",
+      "tracked_dirty": false,
+      "tree": "e83518cba1db199af375ba6fab43a7b1de9818fa"
+    },
+    "vllm": {
+      "commit": "b2057ef621c9d85096c7343461b1951021268b9b",
+      "tracked_dirty": false
+    },
+    "note": "Commit, tree and dirty state were captured immediately before the final matrix. The matrix metadata independently records benchmark commit and dirty state; controller/vLLM values are the operator-side pre-run capture."
+  },
+  "artifact_build": {
+    "script": "src/tool/build_request_switch_artifact.py",
+    "note": "Curated summary is derived from committed raw JSONL, profiles, pressure evidence and this provenance file."
+  }
+}
