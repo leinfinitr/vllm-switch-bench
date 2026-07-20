@@ -19,6 +19,33 @@ def percentile(values: list[float], q: float) -> float | None:
 
 
 def summarize(root: Path) -> dict[str, Any]:
+    metadata_path = root / "metadata.json"
+    if metadata_path.exists():
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        problems: list[str] = []
+        for run in metadata.get("runs", []):
+            output = root / run["output"]
+            if int(run.get("returncode", 1)) != 0:
+                problems.append(
+                    f"{run['workload']}-r{run['repeat']} returned {run['returncode']}"
+                )
+                continue
+            manifest = root / Path(run["manifest"]).name
+            expected = sum(1 for line in manifest.read_text().splitlines() if line.strip())
+            actual = sum(1 for line in output.read_text().splitlines() if line.strip()) if output.exists() else 0
+            if actual != expected:
+                problems.append(
+                    f"{run['workload']}-r{run['repeat']} has {actual}/{expected} rows"
+                )
+        expected_runs = int(metadata.get("repeats", 0)) * len(
+            {run["workload"] for run in metadata.get("runs", [])}
+        )
+        if len(metadata.get("runs", [])) != expected_runs:
+            problems.append(
+                f"metadata has {len(metadata.get('runs', []))}/{expected_runs} runs"
+            )
+        if problems:
+            raise ValueError("incomplete benchmark matrix: " + "; ".join(problems))
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for path in sorted(root.glob("w[012]-r*.jsonl")):
         workload = path.name.split("-", 1)[0]

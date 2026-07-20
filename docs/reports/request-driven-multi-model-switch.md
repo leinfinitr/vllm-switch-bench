@@ -4,7 +4,7 @@
 
 本阶段完成了一个最小、可运行的研究原型：用户只向统一的 OpenAI-compatible API 发送请求，并通过请求体中的 `model` 字段选择模型；controller 自动保护活跃请求，按需 sleep 当前 vLLM engine、wake 目标 engine，再转发推理请求。vLLM 的 CPU pinned backup pool 负责权重备份、clean reuse 和压力回收，controller 不复制权重管理逻辑。
 
-在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B-Instruct 与 Qwen2.5-3B-Instruct 的真实双模型池运行成功。三次独立的冻结 workload 重放共 180 个请求，全部成功：
+在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B-Instruct 与 Qwen2.5-3B-Instruct 的真实双模型池运行成功。同一 long-lived、warm-state 会话内，固定按 W0→W1→W2 顺序完成三轮冻结 workload 重放，共 180 个请求，全部成功：
 
 | workload | 语义 TTFT median / p95 | E2E median / p95 | 解释 |
 |---|---:|---:|---|
@@ -43,7 +43,7 @@ W0 的 direct vLLM 与 controller 对照分别为 16.4/17.6 ms 和 17.3/19.9 ms�
 
 ## 3. RQ1：统一 API 的无切换开销是否足够小？
 
-W0 每次独立运行 20 个请求，共三次：
+W0 每轮运行 20 个请求，共三轮；各轮共享 long-lived controller/engine 与 warmed backup-pool 状态：
 
 | path | requests | semantic TTFT median | p95 | E2E median | p95 |
 |---|---:|---:|---:|---:|---:|
@@ -140,7 +140,7 @@ upstream vLLM L1 baseline 使用固定 commit `0decac0d96c42b49572498019f0a0e360
 
 1. 这是单 GPU、两个小模型、低 offered load 的机制原型，不是生产 serving scheduler。
 2. W1 是刻意构造的 worst-case alternating；W2 只是说明 locality，不代表生产 trace。
-3. request-level 矩阵每种 workload 三次，但 CPU pressure curated 结果仍是小规模本机观察，不应称为 paper-grade statistical evidence。
+3. request-level 矩阵每种 workload 三轮，但固定 W0→W1→W2 顺序且不重启 controller/engine，因此不是独立 cold-start repeat；结果可能受 warm-state 与顺序影响。CPU pressure curated 结果也仍是小规模本机观察，不应称为 paper-grade statistical evidence。
 4. 当前方案是 temporal sharing；Prism 同时做 GPU KV ballooning、空间+时间共享、placement 和 slack-aware scheduling。不能比较 RTX 3080 与其 H100/NVLink 论文绝对数值。
 5. cold reload、ServerlessLLM、SwapServeLLM 的历史 lifecycle 数据与本次 frozen trace schema 不同，只作背景。
 

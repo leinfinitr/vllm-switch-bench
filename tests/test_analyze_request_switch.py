@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -74,3 +76,33 @@ def test_summarize_manifest_reports_scheduled_rate(tmp_path):
         "scheduled_duration_s": 4.0,
         "offered_rate_rps": 0.5,
     }
+
+
+def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
+    manifest = tmp_path / "request-switch-steady.jsonl"
+    manifest.write_text("{}\n{}\n")
+    (tmp_path / "w0-r0.jsonl").write_text(
+        json.dumps({"status": 200, "stream_done": True}) + "\n"
+    )
+    metadata = {
+        "repeats": 2,
+        "runs": [
+            {
+                "workload": "w0",
+                "repeat": 0,
+                "manifest": "request-switch-steady.jsonl",
+                "output": "w0-r0.jsonl",
+                "returncode": 0,
+            },
+            {
+                "workload": "w0",
+                "repeat": 1,
+                "manifest": "request-switch-steady.jsonl",
+                "output": "w0-r1.jsonl",
+                "returncode": 1,
+            },
+        ],
+    }
+    (tmp_path / "metadata.json").write_text(json.dumps(metadata))
+    with pytest.raises(ValueError, match="incomplete benchmark matrix"):
+        summarize(tmp_path)
