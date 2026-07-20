@@ -26,9 +26,13 @@ def summarize(root: Path) -> dict[str, Any]:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     problems: list[str] = []
     declared_outputs: list[Path] = []
+    output_names: set[str] = set()
     for run in metadata.get("runs", []):
         output = root / run["output"]
         declared_outputs.append(output)
+        if run["output"] in output_names:
+            problems.append(f"duplicate output path {run['output']}")
+        output_names.add(run["output"])
         if int(run.get("returncode", 1)) != 0:
             problems.append(f"{run['workload']}-r{run['repeat']} returned {run['returncode']}")
             continue
@@ -40,11 +44,30 @@ def summarize(root: Path) -> dict[str, Any]:
         if digest != run.get("manifest_sha256"):
             problems.append(f"manifest checksum mismatch for {run['workload']}-r{run['repeat']}")
         expected = sum(1 for line in manifest.read_text().splitlines() if line.strip())
-        actual = sum(1 for line in output.read_text().splitlines() if line.strip()) if output.exists() else 0
+        manifest_rows = [
+            json.loads(line) for line in manifest.read_text().splitlines() if line.strip()
+        ]
+        output_rows = (
+            [json.loads(line) for line in output.read_text().splitlines() if line.strip()]
+            if output.exists()
+            else []
+        )
+        actual = len(output_rows)
         if expected <= 0:
             problems.append(f"empty manifest for {run['workload']}-r{run['repeat']}")
         if actual != expected:
             problems.append(f"{run['workload']}-r{run['repeat']} has {actual}/{expected} rows")
+        if actual == expected:
+            identity_fields = ("request_id", "model", "scheduled_offset_s")
+            for index, (manifest_row, output_row) in enumerate(
+                zip(manifest_rows, output_rows, strict=True)
+            ):
+                for field in identity_fields:
+                    if output_row.get(field) != manifest_row.get(field):
+                        problems.append(
+                            f"{run['workload']}-r{run['repeat']} row {index} "
+                            f"mismatches manifest field {field}"
+                        )
     workloads = metadata.get("workloads")
     if workloads is None:
         workloads = sorted({run["workload"] for run in metadata.get("runs", [])})

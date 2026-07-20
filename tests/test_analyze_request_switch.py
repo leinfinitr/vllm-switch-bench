@@ -174,3 +174,48 @@ def test_summarize_rejects_undeclared_output_checksum_and_redirect(tmp_path):
     manifest.write_text("{\"changed\": true}\n")
     with pytest.raises(ValueError, match="checksum mismatch"):
         summarize(tmp_path)
+
+
+def test_summarize_binds_each_output_row_to_manifest_identity(tmp_path):
+    manifest = tmp_path / "trace.jsonl"
+    manifest.write_text(
+        json.dumps(
+            {"request_id": "expected", "model": "a", "scheduled_offset_s": 1.0}
+        )
+        + "\n"
+    )
+    digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
+    output = tmp_path / "w0-r0.jsonl"
+    output.write_text(
+        json.dumps(
+            {
+                "request_id": "swapped",
+                "model": "b",
+                "scheduled_offset_s": 2.0,
+                "status": 200,
+                "error": None,
+                "stream_done": True,
+            }
+        )
+        + "\n"
+    )
+    run = {
+        "workload": "w0",
+        "repeat": 0,
+        "manifest": manifest.name,
+        "manifest_sha256": digest,
+        "output": output.name,
+        "returncode": 0,
+    }
+    (tmp_path / "metadata.json").write_text(
+        json.dumps({"repeats": 1, "workloads": ["w0"], "runs": [run]})
+    )
+    with pytest.raises(ValueError, match="mismatches manifest field request_id"):
+        summarize(tmp_path)
+
+    run2 = {**run, "workload": "w1"}
+    (tmp_path / "metadata.json").write_text(
+        json.dumps({"repeats": 1, "workloads": ["w0", "w1"], "runs": [run, run2]})
+    )
+    with pytest.raises(ValueError, match="duplicate output path"):
+        summarize(tmp_path)
