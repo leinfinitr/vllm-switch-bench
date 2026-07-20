@@ -7,7 +7,6 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
-
 def percentile(values: list[float], q: float) -> float | None:
     if not values:
         return None
@@ -34,7 +33,14 @@ def summarize(root: Path) -> dict[str, Any]:
             for row in rows
             if row.get("completion_latency_ms")
         ]
-        successful = [row for row in rows if row.get("status") and int(row["status"]) < 400]
+        successful = [
+            row
+            for row in rows
+            if row.get("status")
+            and int(row["status"]) < 400
+            and not row.get("error")
+            and row.get("stream_done", True)
+        ]
         summary[workload] = {
             "requests": len(rows),
             "success": len(successful),

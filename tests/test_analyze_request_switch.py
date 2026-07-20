@@ -15,7 +15,15 @@ def test_summarize_request_switch_keeps_failures(tmp_path):
     (tmp_path / "w1-r0.jsonl").write_text(
         "\n".join(
             [
-                json.dumps({"status": 200, "semantic_ttft_ms": 10, "completion_latency_ms": 20}),
+                json.dumps(
+                    {
+                        "status": 200,
+                        "error": None,
+                        "stream_done": True,
+                        "semantic_ttft_ms": 10,
+                        "completion_latency_ms": 20,
+                    }
+                ),
                 json.dumps({"status": 500, "error": "x", "completion_latency_ms": 30}),
             ]
         )

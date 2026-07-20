@@ -65,6 +65,7 @@ async def _dispatch_one(
         "completion_tokens": None,
         "tpot_ms": None,
         "output_text": "",
+        "stream_done": False,
     }
     prompt = PROMPTS[str(row["prompt_name"])]
     body: dict[str, Any] = {
@@ -96,7 +97,9 @@ async def _dispatch_one(
                 buffer += chunk
                 events, buffer = parse_sse_events(buffer)
                 for event in events:
-                    text, tokens, _done = _semantic_text(event)
+                    text, tokens, done = _semantic_text(event)
+                    if done:
+                        record["stream_done"] = True
                     if text:
                         if semantic_at is None:
                             semantic_at = now
@@ -116,6 +119,16 @@ async def _dispatch_one(
         record["error"] = f"{type(exc).__name__}: {exc}"
         record["completion_latency_ms"] = (time.monotonic() - dispatched) * 1000
     return record
+
+
+def failed_record(record: dict[str, Any]) -> bool:
+    status = record.get("status")
+    return (
+        status is None
+        or int(status) >= 400
+        or bool(record.get("error"))
+        or not bool(record.get("stream_done"))
+    )
 
 
 async def run_trace(
@@ -152,7 +165,7 @@ async def main_async() -> None:
     async with httpx.AsyncClient(timeout=args.timeout_s, trust_env=False) as client:
         records = await run_trace(client, args.base_url, rows)
     write_jsonl(args.output, records)
-    failed = sum(record["status"] is None or int(record["status"]) >= 400 for record in records)
+    failed = sum(failed_record(record) for record in records)
     print(json.dumps({"requests": len(records), "failed": failed, "output": args.output}))
 
 

@@ -10,7 +10,7 @@ from httpx import ASGITransport
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_request_driven_switch import parse_sse_events, run_trace
+from bench_request_driven_switch import failed_record, parse_sse_events, run_trace
 
 
 def test_parse_sse_events_handles_multiple_events_in_one_raw_chunk():
@@ -133,3 +133,9 @@ async def _run_failed_trace():
 
     assert len(records) == 2
     assert all(record["error"] for record in records)
+
+
+def test_failed_record_treats_incomplete_200_stream_as_failure():
+    assert failed_record({"status": 200, "error": None, "stream_done": False})
+    assert failed_record({"status": 200, "error": "broken", "stream_done": True})
+    assert not failed_record({"status": 200, "error": None, "stream_done": True})
