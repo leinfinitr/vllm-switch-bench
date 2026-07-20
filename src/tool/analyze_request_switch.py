@@ -85,6 +85,22 @@ def summarize_controller_switches(path: Path) -> dict[str, Any]:
     }
 
 
+def summarize_manifest(path: Path) -> dict[str, Any]:
+    rows = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if not rows:
+        return {"requests": 0, "scheduled_duration_s": 0.0, "offered_rate_rps": None}
+    duration = float(rows[-1]["scheduled_offset_s"]) - float(rows[0]["scheduled_offset_s"])
+    return {
+        "requests": len(rows),
+        "scheduled_duration_s": duration,
+        "offered_rate_rps": (len(rows) - 1) / duration if duration > 0 else None,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Summarize request switch matrix JSONL")
     parser.add_argument("--input-dir", required=True)

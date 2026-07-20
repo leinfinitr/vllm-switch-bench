@@ -14,6 +14,8 @@
 
 W0 的 direct vLLM 与 controller 对照分别为 16.4/17.6 ms 和 17.3/19.9 ms（TTFT median/p95），说明无切换代理开销很小。该结果不是吞吐或生产 SLO 结论；它只验证低 offered load 下请求驱动切换的可行性。
 
+三条 trace 的预注册 offered rate 分别为 W0 2.00、W1 0.667、W2 1.36 req/s；按每次 run 从首个 dispatch 到最后完成计算的 achieved rate 中位数分别为 2.06、0.679、1.39 req/s。这里的轻微差异来自完成窗口口径，不表示系统创造了额外吞吐。
+
 ## 2. 系统实现
 
 ### Controller

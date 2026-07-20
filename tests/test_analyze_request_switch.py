@@ -8,6 +8,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from tool.analyze_request_switch import (  # noqa: E402
     summarize,
     summarize_controller_switches,
+    summarize_manifest,
 )
 
 
@@ -55,3 +56,21 @@ def test_summarize_controller_switches_separates_hits_and_switches(tmp_path):
     assert summary["steady_hits"] == 1
     assert summary["switch_latency_ms"]["median"] == 600
     assert summary["sleep_latency_ms"]["median"] == 100
+
+
+def test_summarize_manifest_reports_scheduled_rate(tmp_path):
+    path = tmp_path / "trace.jsonl"
+    path.write_text(
+        "\n".join(
+            [
+                json.dumps({"request_id": "r1", "scheduled_offset_s": 0}),
+                json.dumps({"request_id": "r2", "scheduled_offset_s": 2}),
+                json.dumps({"request_id": "r3", "scheduled_offset_s": 4}),
+            ]
+        )
+    )
+    assert summarize_manifest(path) == {
+        "requests": 3,
+        "scheduled_duration_s": 4.0,
+        "offered_rate_rps": 0.5,
+    }
