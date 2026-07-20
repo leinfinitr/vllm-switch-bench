@@ -279,7 +279,7 @@
       "tracked_dirty": false
     },
     "bench": {
-      "commit": "3206370",
+      "commit": "af2880a",
       "tracked_dirty": false
     }
   },
@@ -289,5 +289,5 @@
     "M2 is a structured runtime blocker, supplemented by first-miss versus clean-reuse within-process ablation.",
     "P1 is one controlled manual release observation; repeated harness evidence already exists in profiling/physical_reclaim_validation.json."
   ],
-  "provenance_note": "The bench commit is a short self-reference: this summary is stored by that commit; verify the checkout with git rev-parse HEAD."
+  "provenance_note": "The bench commit is a short self-reference: this summary and subsequent test-only verification commit are part of the same final series; verify the checkout with git rev-parse HEAD."
 }
