@@ -26,6 +26,7 @@ def main() -> None:
     metadata = {
         "base_url": args.base_url,
         "repeats": args.repeats,
+        "workloads": list(traces),
         "started_at": time.time(),
         "bench_commit": subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=root, text=True

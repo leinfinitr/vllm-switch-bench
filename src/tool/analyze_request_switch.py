@@ -37,13 +37,26 @@ def summarize(root: Path) -> dict[str, Any]:
                 problems.append(
                     f"{run['workload']}-r{run['repeat']} has {actual}/{expected} rows"
                 )
-        expected_runs = int(metadata.get("repeats", 0)) * len(
-            {run["workload"] for run in metadata.get("runs", [])}
-        )
-        if len(metadata.get("runs", [])) != expected_runs:
-            problems.append(
-                f"metadata has {len(metadata.get('runs', []))}/{expected_runs} runs"
-            )
+        workloads = metadata.get("workloads")
+        if workloads is None:
+            workloads = sorted({run["workload"] for run in metadata.get("runs", [])})
+        actual_pairs = [
+            (run["workload"], int(run["repeat"])) for run in metadata.get("runs", [])
+        ]
+        expected_pairs = {
+            (workload, repeat)
+            for workload in workloads
+            for repeat in range(int(metadata.get("repeats", 0)))
+        }
+        for workload, repeat in sorted(expected_pairs - set(actual_pairs)):
+            problems.append(f"missing run {workload}-r{repeat}")
+        duplicate_pairs = {
+            pair for pair in actual_pairs if actual_pairs.count(pair) > 1
+        }
+        for workload, repeat in sorted(duplicate_pairs):
+            problems.append(f"duplicate run {workload}-r{repeat}")
+        for workload, repeat in sorted(set(actual_pairs) - expected_pairs):
+            problems.append(f"unexpected run {workload}-r{repeat}")
         if problems:
             raise ValueError("incomplete benchmark matrix: " + "; ".join(problems))
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)

@@ -106,3 +106,28 @@ def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
     (tmp_path / "metadata.json").write_text(json.dumps(metadata))
     with pytest.raises(ValueError, match="incomplete benchmark matrix"):
         summarize(tmp_path)
+
+
+def test_summarize_rejects_metadata_missing_an_entire_workload(tmp_path):
+    manifest = tmp_path / "request-switch-steady.jsonl"
+    manifest.write_text("{}\n")
+    runs = []
+    for repeat in range(2):
+        output = f"w0-r{repeat}.jsonl"
+        (tmp_path / output).write_text(
+            json.dumps({"status": 200, "stream_done": True}) + "\n"
+        )
+        runs.append(
+            {
+                "workload": "w0",
+                "repeat": repeat,
+                "manifest": "request-switch-steady.jsonl",
+                "output": output,
+                "returncode": 0,
+            }
+        )
+    (tmp_path / "metadata.json").write_text(
+        json.dumps({"repeats": 2, "workloads": ["w0", "w1"], "runs": runs})
+    )
+    with pytest.raises(ValueError, match="missing run w1-r0"):
+        summarize(tmp_path)
