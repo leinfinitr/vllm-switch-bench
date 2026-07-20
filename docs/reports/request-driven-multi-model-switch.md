@@ -2,149 +2,132 @@
 
 ## 1. 结论
 
-本阶段完成了一个最小、可运行的研究原型：用户只向统一的 OpenAI-compatible API 发送请求，并通过请求体中的 `model` 字段选择模型；controller 自动保护活跃请求，按需 sleep 当前 vLLM engine、wake 目标 engine，再转发推理请求。vLLM 的 CPU pinned backup pool 负责权重备份、clean reuse 和压力回收，controller 不复制权重管理逻辑。
+本阶段完成了一个最小、可运行的研究原型：用户向统一的 OpenAI-compatible API 发送请求，通过请求体的 `model` 字段选择模型；controller 保护活跃请求，按需 sleep 当前 vLLM engine、wake 目标 engine，再转发请求。权重备份、clean reuse 与释放仍由研究版 vLLM 的 CPU pinned backup pool 负责。
 
-在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B-Instruct 与 Qwen2.5-3B-Instruct 的真实双模型池运行成功。同一 long-lived、warm-state 会话内，固定按 W0→W1→W2 顺序完成三轮冻结 workload 重放，共 180 个请求，全部成功：
+在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B-Instruct 与 Qwen2.5-3B-Instruct 的真实双模型池运行成功。最终结果由 controller commit `46a7806`、benchmark commit `13123b7` 和 vLLM commit `b2057ef` 生成；三个 tracked 工作树在运行时均干净。三条冻结 workload 每条运行三轮，共 180 个请求，所有请求均收到完整 `[DONE]` SSE 终止事件：
 
 | workload | 语义 TTFT median / p95 | E2E median / p95 | 解释 |
 |---|---:|---:|---|
-| W0 steady，A×20 | 17.3 / 20.9 ms | 190.5 / 212.2 ms | 无切换，controller fast path |
-| W1 alternating，A/B×10 | 538.3 / 637.0 ms | 791.2 / 967.6 ms | 每个请求触发切换，机制上限 |
-| W2 burst，A×5/B×5/A×5/B×5 | 19.7 / 655.0 ms | 349.3 / 1030.7 ms | 大多数同模型请求是 steady hit，组边界产生长尾 |
+| W0 steady，A×20 | 17.2 / 44.0 ms | 190.8 / 235.9 ms | 无切换 fast path |
+| W1 alternating，A/B×10 | 537.7 / 634.7 ms | 791.1 / 965.2 ms | 每请求切换的低负载 alternating 场景 |
+| W2 burst，A×5/B×5/A×5/B×5 | 19.9 / 632.9 ms | 349.4 / 962.6 ms | steady hit 为主，组边界形成长尾 |
 
-W0 的 direct vLLM 与 controller 对照分别为 16.4/17.6 ms 和 17.3/19.9 ms（TTFT median/p95），说明无切换代理开销很小。该结果不是吞吐或生产 SLO 结论；它只验证低 offered load 下请求驱动切换的可行性。
+W1 与 W2 使用完全相同的绝对 arrival offsets：20 个请求、1.5 秒间隔、28.5 秒 scheduled duration、0.667 req/s。二者只改变模型访问顺序，因此这里可以把差异归因于访问 locality；它仍不是饱和负载、thrashing 或生产延迟上限。
 
-三条 trace 的预注册 offered rate 分别为 W0 2.00、W1 0.667、W2 1.36 req/s；按每次 run 从首个 dispatch 到最后完成计算的 achieved rate 中位数分别为 2.06、0.679、1.39 req/s。这里的轻微差异来自完成窗口口径，不表示系统创造了额外吞吐。
-
-## 2. 系统实现
+## 2. 最终实现
 
 ### Controller
 
-- sleep/wake 后轮询 `/is_sleeping`，使用整个 lifecycle 的单一 deadline；
-- 推理请求和 lifecycle 分别使用 `request_timeout_s` 与 `switch_timeout_s`；
-- launcher 使用 `launch A → sleep A → launch B → sleep B → wake startup model`，避免初始化时同时占满 GPU；
+- lifecycle POST 与 `/is_sleeping` post-condition 共用一个完整 monotonic deadline；
+- lifecycle outcome 不确定时保留 `ERROR` barrier，后续请求 fail closed，不会将 `active_model=None` 当成可安全唤醒另一模型；
+- launcher 部分失败时 terminate/wait 本次启动的全部进程，成功 PID 文件原子写入；
 - readiness 与 request reservation 在同一 `switch_lock` 临界区内；
-- streaming 正常完成、异常和客户端断连都释放 reservation；
-- 记录 `switch_id`、`queue_wait_ms`、`request_drain_ms`、sleep/wake/switch latency。
+- streaming 正常完成、异常、取消和客户端断连均释放 reservation；
+- 接受或生成 `X-Request-Id`，同一 ID 写入 controller event 并转发 backend；
+- controller 的首字节字段明确命名为 response-body first byte，不冒充 semantic TTFT；
+- pressure validator 自动拒绝客户端消失、进程退出、逻辑 release 未增长、RSS 未下降、`MemAvailable` 未上升或 pending 未清零。
 
 ### Benchmark
 
-`llm-switch-bench` 新增：
+- 冻结 JSONL manifest，校验有限 offset、非空 ID、endpoint、stream、prompt 与 token 参数；
+- 绝对 monotonic arrival 的 open-loop runner和共享 `httpx.AsyncClient`；
+- 每请求总 deadline，不会被持续 heartbeat 绕过；
+- SSE event boundary、多行 data、Content-Type、malformed JSON、EOF remainder 和 `[DONE]` 完整性验证；
+- transport/stream failure 保留 partial output；
+- semantic TTFT 跳过 role-only event；失败样本保留在失败分母，但不进入成功延迟分位数；
+- metadata 保存 benchmark commit、tracked dirty、manifest SHA256 与 prompt schema SHA256；
+- analyzer 对缺失、重复、多余或非零退出的 workload/repeat fail closed。
 
-- 冻结 JSONL manifest；
-- 基于绝对 monotonic offset 的 open-loop async runner；
-- 一个共享 `httpx.AsyncClient`；
-- 按 SSE event boundary 解析；
-- 区分 transport first byte 与 semantic TTFT；
-- 保留 HTTP failure、broken stream 和 timeout；
-- W0/W1/W2 重复矩阵、汇总和四张图。
+## 3. 请求级结果
 
-冻结 manifest 校验和见 `results/request_switch/latest/summary.json`。
+| workload | requests | success | offered rate | achieved rate median | TTFT median / p95 | E2E median / p95 |
+|---|---:|---:|---:|---:|---:|---:|
+| W0 | 60 | 60 | 2.00 req/s | 1.96 req/s | 17.2 / 44.0 ms | 190.8 / 235.9 ms |
+| W1 | 60 | 60 | 0.667 req/s | 0.645 req/s | 537.7 / 634.7 ms | 791.1 / 965.2 ms |
+| W2 | 60 | 60 | 0.667 req/s | 0.659 req/s | 19.9 / 632.9 ms | 349.4 / 962.6 ms |
 
-## 3. RQ1：统一 API 的无切换开销是否足够小？
+矩阵运行窗口内恰好有 180 条 controller OpenAI event：72 次 switch、108 次 steady hit。switch path 分解为：
 
-W0 每轮运行 20 个请求，共三轮；各轮共享 long-lived controller/engine 与 warmed backup-pool 状态：
+- sleep median：128.4 ms；
+- wake median：392.9 ms；
+- request drain median：0.005 ms；
+- 完整 switch path median：527.4 ms。
 
-| path | requests | semantic TTFT median | p95 | E2E median | p95 |
-|---|---:|---:|---:|---:|---:|
-| direct vLLM | 60 | 16.4 ms | 17.6 ms | 189.6 ms | 190.7 ms |
-| controller | 60 | 17.3 ms | 19.9 ms | 190.5 ms | 193.5 ms |
-
-median TTFT 的差值约 0.9 ms，median E2E 的差值约 0.9 ms。在当前单机 localhost 场景，统一 OpenAI API 代理本身不是主要瓶颈。
+W1 的 TTFT 中位数与完整 switch path 同量级。W2 的模型组边界仍出现切换长尾，但组内请求走 steady path，因此中位数显著更低。
 
 ![W0/W1/W2 request-visible latency](../../results/request_switch/latest/request-workloads.png)
 
-## 4. RQ2：请求驱动切换的成本由什么组成？
-
-一次完整实验会话中记录了 349 个 OpenAI 请求，其中 118 次 switch、231 次 steady hit。所有 switch 的中位数分解为：
-
-- sleep：144.8 ms；
-- wake：447.1 ms；
-- active-request drain：0.005 ms；
-- 完整 controller switch path：581.7 ms。
-
-该统计包含 smoke、W0/W1/W2 与压力实验，主要用于机制分解，不等同于单条 workload 的独立样本。低 offered load 下 drain 接近零；针对活跃 streaming 请求的自动化并发测试验证了 B 必须等 A 完成后才能 sleep A。
-
 ![Switch breakdown](../../results/request_switch/latest/switch-breakdown.png)
 
-W1 的 semantic TTFT median 为 538.3 ms，接近 controller switch path 的量级。W2 中大多数请求复用当前模型，因此 median 只有 19.7 ms；但是四个模型组边界仍造成 655.0 ms 的 p95。访问 locality 能显著降低每请求摊销切换成本，但不能消除边界长尾。
+## 4. CPU pinned backup 机制
 
-## 5. RQ3：CPU pinned backup reuse 是否有效？
+最终进程 profile 的 first miss 与 clean reuse：
 
-allocator profile 给出明确的 first-miss 与 clean-reuse 对照：
+| model | first sleep miss | D2H | pinned alloc | clean reuse count / median | wake median / H2D |
+|---|---:|---:|---:|---:|---:|
+| Qwen2.5-1.5B | 925.5 ms | 169.0 ms | 707.8 ms | 43 / 107.7 ms | 273.5 / 176.3 ms |
+| Qwen2.5-3B | 2069.6 ms | 326.8 ms | 1717.0 ms | 44 / 143.2 ms | 497.6 / 386 ms |
 
-| model | first sleep miss | D2H | pinned alloc | clean reuse sleep median | reuse D2H | wake median / H2D |
-|---|---:|---:|---:|---:|---:|---:|
-| Qwen2.5-1.5B | 911.3 ms | 168.6 ms | 702.9 ms | 107.7 ms | 0 | 273.4 / 176.3 ms |
-| Qwen2.5-3B | 2249.2 ms | 335.4 ms | 1885.0 ms | 143.2 ms | 0 | 499.9 / 386.6 ms |
-
-1.5B 和 3B 分别观察到 57 和 59 次 clean reuse sleep；每次复用 3.03 GiB 和 5.88 GiB 权重备份，`copy_d2h_s=0`。因此优化消除的是后续 sleep 的 pinned allocation 与 D2H，不是 wake 的 H2D。
+clean reuse 的 `copy_d2h_s=0`。该优化消除的是后续 sleep 的 pinned allocation 与 D2H，不是 wake 的 H2D。
 
 ![Backup ablation](../../results/request_switch/latest/backup-ablation.png)
 
-upstream vLLM L1 baseline 使用固定 commit `0decac0d96c42b49572498019f0a0e3600f50398` 建立独立 worktree，但无法在现有共享二进制环境启动：upstream Python 需要自己的 `_vllm_fa2_C/_vllm_fa3_C`，当前 venv 中是研究 checkout 构建的扩展。按计划没有做兼容性移植；因此报告 within-process first miss vs clean reuse，而不把它冒充 upstream baseline。
+历史、同模型的 cold-reload lifecycle 数据仅作为机制背景：1.5B/3B restore median 分别约 16.52/19.53 秒。它们不是本次 frozen trace 的请求级结果，不参与严格排名。
 
-历史、同模型的 cold-reload lifecycle 背景数据表明：cold reload 的 restore median 为 16.52 s（1.5B）和 19.53 s（3B）；它们不是本次冻结 W1/W2 的 E2E 结果，不能与 581.7 ms switch path 作为严格同表排名。
+## 5. P0/P1 物理内存验证
 
-## 6. RQ4：backup 能否在压力下物理回收？
+### P0：正常状态保留
 
-### P0：无压力保留
+最终 P0 的 `A→B→A→B→A` 后：
 
-在 memory-pressure monitor 的 normal 状态，`A→B→A→B→A` 后：
+- 1.5B cache-only backup：3,250,585,600 bytes；
+- `requested_release_bytes_total=0`、`released_bytes_total=0`；
+- 3 秒观察窗口 worker RSS 不变；
+- memory-pressure monitor 为 `normal`。
 
-- 1.5B clean backup 保留 3,250,585,600 bytes；
-- `requested_release_bytes_total=0`；
-- `released_bytes_total=0`；
-- 3 秒窗口内该 worker RSS 不变；
-- 后续 clean sleep 继续 `copy_d2h_s=0`。
+### P1：受控手工 release
 
-### P1：受控回收
-
-没有在共享服务器上申请大量 RAM，而是对 awake 模型的 cache-only backup 发出精确 release request：
+对同一最终进程的 1.5B cache-only backup 发出精确 release request：
 
 - queued/released：3,250,585,600 bytes；
-- 1.5B worker RSS：5,904,871,424 → 1,960,157,184 bytes，下降 3.67 GiB；
-- host `MemAvailable`：38,082,461,696 → 42,149,920,768 bytes，上升 3.79 GiB；
-- pending release：0；
-- 再次回切后下一次 sleep 出现 pinned allocation 713.7 ms、D2H 169.2 ms，证明 cache miss 路径恢复；
-- 再下一次 clean sleep 又恢复 `copy_d2h_s=0`。
+- worker RSS：5,905,862,656 → 1,961,148,416 bytes，下降 3,944,714,240 bytes（3.67 GiB）；
+- host `MemAvailable`：38,000,541,696 → 42,025,168,896 bytes，上升 4,024,627,200 bytes（3.75 GiB）；
+- pending release：0，worker PID 保持存活；
+- release 后首个切出 1.5B 的 sleep 为 927.7 ms，其中 pinned allocation 715.8 ms、D2H 168.4 ms；
+- 随后 sleep 重新进入 clean reuse，107.6 ms、D2H=0；
+- release 后 `3B→1.5B→3B→1.5B` 四次请求均 HTTP 200。
 
-因此逻辑计数、进程物理 RSS 与 host memory 三层证据一致。
+这证明手工受控 release 的逻辑计数、进程 RSS 和 host memory 方向一致；不等同于证明自动 memory-pressure policy 在真实竞争负载中的长期收益。
 
 ![Physical reclaim](../../results/request_switch/latest/physical-reclaim.png)
 
-`results/profiling/physical_reclaim_validation.json` 还保存了此前使用正式 repeated-sleep harness 的单次受控压力/no-pressure 验证；本次新 P0/P1 原始证据保存在 ignored tmp，curated 摘要位于 `results/request_switch/latest/pressure-evidence.json`。
+## 6. 外部 artifact 边界
 
-## 7. 外部相关系统
+- kvcached 官方 image 在 RTX 3080 上完成单模型 OpenAI inference smoke，但缺少本 controller 所需的 `/sleep` 与 `/is_sleeping` contract；没有生成不公平的双模型性能排名。
+- upstream vLLM L1 被共享 venv 中 flash-attention 二进制扩展不匹配阻塞；没有兼容性移植或伪造数值。
+- Prism 依赖旧定制 SGLang、`prism/shm` CUDA extension、Redis 及多 GPU/NVLink 条件；单卡只完成环境/import smoke，不引用 H100 论文绝对数值。
+- ServerlessLLM/SwapServeLLM 的既有 lifecycle 数据只作背景，不与本次 request trace 合并排名。
 
-### kvcached
+`external-artifacts.json` 是本机观察记录，不能替代上游可复现 artifact；其中明确标注了 raw artifact 可用性与 blocker。
 
-固定源码 commit `623dbf2642dce1f9d27a154b7367605d26221c3c`。官方 vLLM image（digest `sha256:e173...bb73`）在 RTX 3080 上完成了真实 smoke：
+## 7. 有效性边界
 
-- kvcached 0.1.5、vLLM 0.19.0、PyTorch 2.10.0+cu129；
-- 6 个 vLLM patch 成功应用；
-- 2 MiB page 的 elastic KV allocator 初始化；
-- OpenAI chat completion 返回有效答案。
+1. 单 GPU、两个小模型、低 offered load，不是生产 serving scheduler。
+2. W1/W2 只控制了 arrival schedule 与访问顺序；没有证明饱和吞吐、生产 SLO 或统计显著性。
+3. 每种 workload 三轮，但在同一个 long-lived session 中按 W0→W1→W2 固定顺序运行，可能受 warm-state 与顺序影响。
+4. temporal sharing 与 Prism 的空间+时间共享、placement、KV ballooning 不可直接比较。
+5. P1 是手工受控 release，不是外部 RAM 竞争触发的自动 policy 评估。
 
-但该 image 在 `--enable-sleep-mode` 下未暴露 `/sleep` 与 `/is_sleeping`，而当前官方 controller 的 request-triggered wake 路径依赖这些 endpoint，因此没有得到同一 W1/W2 的 multi-engine switch micro 结果。该 smoke 只验证 Prism-like elastic KV 机制在本卡可运行。22.4 GB image 使共享 root filesystem 达到 100%，验证后已删除，恢复 43 GB 空间。
+## 8. 可审计产物与复现
 
-### ServerlessLLM 与 SwapServeLLM
+`results/request_switch/latest/` 保存：
 
-仓库已有同模型历史 lifecycle 结果：1.5B short-short 中，ServerlessLLM scale-to-zero restore 约 12.1 s，SwapServeLLM swap-in 约 0.74 s。由于它们没有使用本次统一 adapter 与冻结 manifest，这里只将其作为机制背景，不和 M3 request-visible TTFT 合并排名。
-
-### Prism artifact
-
-固定 Prism commit `595ec1f170e75a43897a7a2ad58ac5a9820aa2e8` 与 `prism/shm` kvcached commit `d78649d0c2b7d2ff32eb48a423df7bf60054f4c9`。官方 SGLang `v0.3.4.post2-cu121` image 能识别 RTX 3080，Prism 源码也能进入 multi-model import；安装 Redis 依赖后，下一门槛是构建旧 `prism/shm` CUDA extension 和 editable SGLang fork。考虑 shared disk 曾被 kvcached image 填满，且单 GPU 无法体现 Prism 的 NVLink parallel loading 与多 GPU placement，按预先 gate 停止，没有生成或引用 Prism 性能数值。
-
-## 8. 有效性边界
-
-1. 这是单 GPU、两个小模型、低 offered load 的机制原型，不是生产 serving scheduler。
-2. W1 是刻意构造的 worst-case alternating；W2 只是说明 locality，不代表生产 trace。
-3. request-level 矩阵每种 workload 三轮，但固定 W0→W1→W2 顺序且不重启 controller/engine，因此不是独立 cold-start repeat；结果可能受 warm-state 与顺序影响。CPU pressure curated 结果也仍是小规模本机观察，不应称为 paper-grade statistical evidence。
-4. 当前方案是 temporal sharing；Prism 同时做 GPU KV ballooning、空间+时间共享、placement 和 slack-aware scheduling。不能比较 RTX 3080 与其 H100/NVLink 论文绝对数值。
-5. cold reload、ServerlessLLM、SwapServeLLM 的历史 lifecycle 数据与本次 frozen trace schema 不同，只作背景。
-
-## 9. 复现入口
+- 9 个请求级 raw JSONL（W0/W1/W2 × 3）；
+- 同一矩阵窗口的 180 条 controller events；
+- metadata、三个 frozen manifest 及校验和；
+- 两个最终 worker 的 allocator profile；
+- P0、P1、post-reclaim 正确性证据；
+- summary、图和外部 artifact 边界记录。
 
 ```bash
 # Controller repo
@@ -157,11 +140,12 @@ uv run python -m scripts.launch_vllm_pool \
 .venv/bin/python scripts/run_request_switch_matrix.py \
   --base-url http://127.0.0.1:9000 \
   --repeats 3 \
-  --out-dir results/tmp/request-switch/proposed
+  --out-dir results/tmp/request-switch/final-rerun
 
 .venv/bin/python src/tool/analyze_request_switch.py \
-  --input-dir results/tmp/request-switch/proposed \
-  --output results/tmp/request-switch/proposed/summary.json
+  --input-dir results/tmp/request-switch/final-rerun \
+  --controller-events results/tmp/request-switch/final-rerun/controller-events.jsonl \
+  --output results/tmp/request-switch/final-rerun/summary.json
 ```
 
-机器专属路径只保存在 gitignored `configs/*.local.yaml`；可提交的模型无关示例为 `configs/models.request_switch.example.yaml`。
+机器路径仅在 gitignored `configs/*.local.yaml` 中；可提交模板为 `configs/models.request_switch.example.yaml`。

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -154,6 +155,19 @@ def main() -> None:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     data = summarize(Path(args.input_dir))
+    metadata_path = Path(args.input_dir) / "metadata.json"
+    if metadata_path.exists():
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        data["metadata"] = metadata
+        manifests = {}
+        for run in metadata.get("runs", []):
+            path = Path(args.input_dir) / Path(run["manifest"]).name
+            manifests[run["workload"]] = {
+                **summarize_manifest(path),
+                "file": path.name,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            }
+        data["manifests"] = manifests
     if args.controller_events:
         data["controller"] = summarize_controller_switches(Path(args.controller_events))
     output.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")

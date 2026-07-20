@@ -22,7 +22,7 @@ def plot_summary(summary: dict[str, Any], output_dir: Path) -> list[Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
 
-    proposed = summary["systems"]["proposed"]
+    proposed = summary
     labels = ["W0 steady", "W1 alternating", "W2 burst"]
     ttft = [proposed[key]["semantic_ttft_ms"]["median"] for key in ("w0", "w1", "w2")]
     ttft_p95 = [proposed[key]["semantic_ttft_ms"]["p95"] for key in ("w0", "w1", "w2")]
@@ -52,7 +52,7 @@ def plot_summary(summary: dict[str, Any], output_dir: Path) -> list[Path]:
     ax.legend()
     outputs.append(_save(fig, output_dir / "request-workloads.png"))
 
-    controller = summary["controller_switches_all_session"]
+    controller = summary["controller"]
     fields = [("sleep", "sleep_latency_ms"), ("wake", "wake_latency_ms"), ("drain", "request_drain_ms")]
     values = [controller[field]["median"] for _, field in fields]
     fig, ax = plt.subplots(figsize=(6.4, 3.6))
@@ -62,7 +62,7 @@ def plot_summary(summary: dict[str, Any], output_dir: Path) -> list[Path]:
     ax.set_title("Controller switch-path decomposition")
     outputs.append(_save(fig, output_dir / "switch-breakdown.png"))
 
-    ablation = summary["systems"]["profile_ablation"]
+    ablation = summary["profile_ablation"]
     names: list[str] = []
     values = []
     for model, data in ablation.items():
@@ -75,10 +75,8 @@ def plot_summary(summary: dict[str, Any], output_dir: Path) -> list[Path]:
     ax.set_title("Pinned-backup first miss, clean reuse, and wake")
     outputs.append(_save(fig, output_dir / "backup-ablation.png"))
 
-    pressure = summary["systems"]["pressure_reclaim"]
-    rss = pressure.get("rss_delta_bytes")
-    if rss is None:
-        rss = min(pressure["client_rss_delta_bytes"].values())
+    pressure = summary["pressure"]["p1"]
+    rss = min(pressure["client_rss_delta_bytes"].values())
     mem = pressure["memavailable_delta_bytes"]
     values_gib = [-rss / 2**30, mem / 2**30]
     fig, ax = plt.subplots(figsize=(6.4, 3.6))
