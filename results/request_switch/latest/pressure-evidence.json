@@ -1,0 +1,60 @@
+{
+  "before": {
+    "rss_bytes_by_worker": {
+      "qwen-1.5b": 5905481728,
+      "qwen-3b": 11497476096
+    },
+    "memavailable_bytes": 38803927040,
+    "client": {
+      "client_id": "qwen-1.5b-3060092-1784555344992720784",
+      "pid": 3060092,
+      "engine": "vllm",
+      "model_id": "qwen-1.5b",
+      "gpu_uuid": null,
+      "total_bytes": 3250585600,
+      "released_bytes_total": 3250585600,
+      "required_for_restore_bytes": 0,
+      "cache_only_bytes": 3250585600,
+      "invalid_bytes": 0,
+      "free_local_bytes": 0,
+      "evictable_bytes": 3250585600,
+      "pending_release_bytes": 0,
+      "requested_release_bytes_total": 3250585600,
+      "created_at": 1784555345.0091836,
+      "updated_at": 1784556023.461423,
+      "metadata": {}
+    }
+  },
+  "release_response": {
+    "ok": true,
+    "queued_bytes": 3250585600
+  },
+  "after": {
+    "rss_bytes_by_worker": {
+      "qwen-1.5b": 1960738816,
+      "qwen-3b": 11497476096
+    },
+    "memavailable_bytes": 42856214528,
+    "client": {
+      "client_id": "qwen-1.5b-3060092-1784555344992720784",
+      "pid": 3060092,
+      "engine": "vllm",
+      "model_id": "qwen-1.5b",
+      "gpu_uuid": null,
+      "total_bytes": 0,
+      "released_bytes_total": 6501171200,
+      "required_for_restore_bytes": 0,
+      "cache_only_bytes": 0,
+      "invalid_bytes": 0,
+      "free_local_bytes": 0,
+      "evictable_bytes": 0,
+      "pending_release_bytes": 0,
+      "requested_release_bytes_total": 6501171200,
+      "created_at": 1784555345.0091836,
+      "updated_at": 1784556023.9771981,
+      "metadata": {}
+    }
+  },
+  "rss_delta_bytes": -3944742912,
+  "memavailable_delta_bytes": 4052287488
+}

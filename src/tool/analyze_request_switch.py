@@ -51,14 +51,45 @@ def summarize(root: Path) -> dict[str, Any]:
     return summary
 
 
+def _distribution(rows: list[dict[str, Any]], field: str) -> dict[str, float | None]:
+    values = [float(row[field]) for row in rows if row.get(field) is not None]
+    return {
+        "median": median(values) if values else None,
+        "p95": percentile(values, 0.95),
+    }
+
+
+def summarize_controller_switches(path: Path) -> dict[str, Any]:
+    rows = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    requests = [row for row in rows if str(row.get("path", "")).startswith("/v1/")]
+    switches = [row for row in requests if row.get("switch_needed") is True]
+    return {
+        "requests": len(requests),
+        "switches": len(switches),
+        "steady_hits": sum(row.get("switch_needed") is False for row in requests),
+        "switch_latency_ms": _distribution(switches, "switch_latency_ms"),
+        "sleep_latency_ms": _distribution(switches, "sleep_latency_ms"),
+        "wake_latency_ms": _distribution(switches, "wake_latency_ms"),
+        "request_drain_ms": _distribution(switches, "request_drain_ms"),
+        "queue_wait_ms": _distribution(requests, "queue_wait_ms"),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Summarize request switch matrix JSONL")
     parser.add_argument("--input-dir", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--controller-events")
     args = parser.parse_args()
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     data = summarize(Path(args.input_dir))
+    if args.controller_events:
+        data["controller"] = summarize_controller_switches(Path(args.controller_events))
     output.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(data, indent=2, sort_keys=True))
 

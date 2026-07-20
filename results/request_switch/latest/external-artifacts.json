@@ -1,0 +1,42 @@
+{
+  "date": "2026-07-20",
+  "kvcached": {
+    "source_commit": "623dbf2642dce1f9d27a154b7367605d26221c3c",
+    "source_checkout": "/tmp/kvcached-src",
+    "image": "ghcr.io/ovg-project/kvcached-vllm:latest",
+    "image_digest": "sha256:e173922d1f48444692787233f52bd6d46609732ebb1766b31c703f5cbf3abb73",
+    "image_id": "sha256:a91880e0e16d835d72a0547c24818d85cede96b5859a723a8a3fdfacec295633",
+    "image_versions": {
+      "kvcached": "0.1.5",
+      "vllm": "0.19.0",
+      "torch": "2.10.0+cu129"
+    },
+    "gpu": "NVIDIA GeForce RTX 3080",
+    "status": "single-engine smoke passed; multi-engine sleep/router trace blocked",
+    "passed": [
+      "container imported kvcached/vLLM and detected RTX 3080",
+      "six kvcached vLLM patches reported successful",
+      "elastic KV allocator initialized with 2 MiB pages",
+      "OpenAI /v1/chat/completions returned a valid answer"
+    ],
+    "blocker": "The current vLLM 0.19.0 image did not expose /sleep or /is_sleeping even with --enable-sleep-mode, while the official kvcached controller depends on those endpoints for request-triggered sleep/wake. Therefore the planned switch-micro W1/W2 comparison could not be run without porting the controller or changing the artifact.",
+    "artifact_cleanup": "The 22.4 GB image was removed after verification because the shared root filesystem reached 100% usage; free space returned to 43 GB.",
+    "scope": "This confirms the Prism-like elastic KV mechanism runs on the GPU, not a fair multi-model switch result."
+  },
+  "prism": {
+    "source_repo": "https://github.com/Multi-LLM/prism-research",
+    "source_commit": "595ec1f170e75a43897a7a2ad58ac5a9820aa2e8",
+    "kvcached_branch": "prism/shm",
+    "kvcached_commit": "d78649d0c2b7d2ff32eb48a423df7bf60054f4c9",
+    "base_image": "lmsysorg/sglang:v0.3.4.post2-cu121",
+    "base_image_digest": "sha256:703a5b23080fd92454dc2cc938005f3f52d08aea808715568769b90143602c21",
+    "status": "container/GPU/import probe passed; full artifact smoke stopped at gate",
+    "passed": [
+      "base SGLang image detected RTX 3080 with torch 2.4.0+cu121",
+      "Prism source imported from pinned checkout",
+      "multi-model import advanced through Redis dependency after installing redis"
+    ],
+    "blocker": "The pinned Prism multi-model module then required the separately built prism/shm kvcached extension. Building/installing that old CUDA extension and the editable SGLang fork inside a 15.95 GB image would consume additional shared-root space. The plan explicitly says to stop rather than substantially adapt an old artifact; moreover full Prism's parallel loading and placement require multi-GPU/NVLink and cannot be exercised on one RTX 3080.",
+    "scope": "No Prism performance number was produced or compared with the proposed system."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+  "worktree": "/home/ljl/research-systems/vllm-upstream-l1",
+  "status": "blocked",
+  "reason": "Upstream Python expected its own flash-attention extension, but the shared environment contains binary extensions built for the research checkout. EngineCore failed with ImportError requiring _vllm_fa2_C or _vllm_fa3_C. Per plan, no compatibility port was attempted.",
+  "log": "controller results/tmp/request-switch/upstream-launcher.log"
+}

@@ -105,6 +105,7 @@ manifest 使用绝对 `scheduled_offset_s`，每个请求独立调度且共享�
 - pin/no-pin：`docs/reports/vllm-pin-compare.md`；
 - historical repeated-sleep runs：`docs/reports/phase1-two-model-pool.md`；
 - copy microbench：`docs/reports/cumem-copy-microbench.md`。
+- request-driven multi-model switching：`docs/reports/request-driven-multi-model-switch.md`，最新 curated artifact 位于 `results/request_switch/latest/`。
 
 历史报告保留当时的路径、字段和结论以便审计，不代表当前 CLI。当前复现命令以本 README、`src/README.md` 和 `--help` 为准。
 

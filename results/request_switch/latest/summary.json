@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "date": "2026-07-20",
+  "systems": {
+    "proposed": {
+      "w0": {
+        "completion_latency_ms": {
+          "median": 190.48374891281128,
+          "p95": 212.1687479317188
+        },
+        "failed": 0,
+        "requests": 60,
+        "semantic_ttft_ms": {
+          "median": 17.263833433389664,
+          "p95": 20.899950247257888
+        },
+        "success": 60
+      },
+      "w1": {
+        "completion_latency_ms": {
+          "median": 791.1564139649272,
+          "p95": 967.605505976826
+        },
+        "failed": 0,
+        "requests": 60,
+        "semantic_ttft_ms": {
+          "median": 538.3487674407661,
+          "p95": 637.0155379641801
+        },
+        "success": 60
+      },
+      "w2": {
+        "completion_latency_ms": {
+          "median": 349.3399592116475,
+          "p95": 1030.723346490413
+        },
+        "failed": 0,
+        "requests": 60,
+        "semantic_ttft_ms": {
+          "median": 19.73557099699974,
+          "p95": 655.0474103074521
+        },
+        "success": 60
+      }
+    },
+    "w0_controller": {
+      "completion_latency_ms": {
+        "median": 190.5178213492036,
+        "p95": 193.48057392053303
+      },
+      "failed": 0,
+      "requests": 60,
+      "semantic_ttft_ms": {
+        "median": 17.2794577665627,
+        "p95": 19.923031004145738
+      },
+      "success": 60
+    },
+    "w0_direct": {
+      "completion_latency_ms": {
+        "median": 189.63971454650164,
+        "p95": 190.6690575182438
+      },
+      "failed": 0,
+      "requests": 60,
+      "semantic_ttft_ms": {
+        "median": 16.39685407280922,
+        "p95": 17.619072040542953
+      },
+      "success": 60
+    },
+    "cold_reload_background": {
+      "qwen-1.5b": {
+        "samples": 9,
+        "restore_latency_s_median": 0.6894825780764222,
+        "values": [
+          16.522209394956008,
+          17.022691352060065,
+          16.52285298006609,
+          0.35578966001048684,
+          0.34072472294792533,
+          0.34411864494904876,
+          0.6894825780764222,
+          0.7617122521623969,
+          0.6761426739394665
+        ],
+        "scope": "historical single-model lifecycle mechanism background; not request-trace E2E"
+      },
+      "qwen-3b": {
+        "samples": 9,
+        "restore_latency_s_median": 1.4642050908878446,
+        "values": [
+          19.027893733000383,
+          19.02568602282554,
+          19.528891688911244,
+          0.5203181649558246,
+          0.5092638700734824,
+          0.5116285369731486,
+          1.5898043049965054,
+          1.4642050908878446,
+          1.4562774340156466
+        ],
+        "scope": "historical single-model lifecycle mechanism background; not request-trace E2E"
+      }
+    },
+    "profile_ablation": {
+      "1.5b": {
+        "first_miss": {
+          "latency_s": 0.9113047868013382,
+          "copy_d2h_s": 0.16864510346204042,
+          "cpu_backup_alloc_s": 0.7028876701369882,
+          "cpu_backup_pool_miss_count": 76,
+          "backup_bytes": 3250585600
+        },
+        "clean_reuse_count": 57,
+        "clean_reuse_latency_s_median": 0.10773305501788855,
+        "clean_reuse_copy_d2h_s_values": [
+          0.0
+        ],
+        "clean_reuse_bytes_median": 3250585600,
+        "reclaimed_miss_count": 2,
+        "latest_release_bytes": 6501171200,
+        "wake_latency_s_median": 0.2733640796504915,
+        "wake_copy_h2d_s_median": 0.17626344552263618,
+        "total_sleep_events": 61,
+        "total_wake_events": 60
+      },
+      "3b": {
+        "first_miss": {
+          "latency_s": 2.249227676540613,
+          "copy_d2h_s": 0.3353778934106231,
+          "cpu_backup_alloc_s": 1.884964220225811,
+          "cpu_backup_pool_miss_count": 112,
+          "backup_bytes": 6314524672
+        },
+        "clean_reuse_count": 59,
+        "clean_reuse_latency_s_median": 0.1431933119893074,
+        "clean_reuse_copy_d2h_s_values": [
+          0.0
+        ],
+        "clean_reuse_bytes_median": 6314524672,
+        "reclaimed_miss_count": 0,
+        "latest_release_bytes": 0,
+        "wake_latency_s_median": 0.4998525334522128,
+        "wake_copy_h2d_s_median": 0.3866231543943286,
+        "total_sleep_events": 60,
+        "total_wake_events": 59
+      }
+    },
+    "pressure_reclaim": {
+      "before": {
+        "rss_bytes_by_worker": {
+          "qwen-1.5b": 5905481728,
+          "qwen-3b": 11497476096
+        },
+        "memavailable_bytes": 38803927040,
+        "client": {
+          "client_id": "qwen-1.5b-3060092-1784555344992720784",
+          "pid": 3060092,
+          "engine": "vllm",
+          "model_id": "qwen-1.5b",
+          "gpu_uuid": null,
+          "total_bytes": 3250585600,
+          "released_bytes_total": 3250585600,
+          "required_for_restore_bytes": 0,
+          "cache_only_bytes": 3250585600,
+          "invalid_bytes": 0,
+          "free_local_bytes": 0,
+          "evictable_bytes": 3250585600,
+          "pending_release_bytes": 0,
+          "requested_release_bytes_total": 3250585600,
+          "created_at": 1784555345.0091836,
+          "updated_at": 1784556023.461423,
+          "metadata": {}
+        }
+      },
+      "release_response": {
+        "ok": true,
+        "queued_bytes": 3250585600
+      },
+      "after": {
+        "rss_bytes_by_worker": {
+          "qwen-1.5b": 1960738816,
+          "qwen-3b": 11497476096
+        },
+        "memavailable_bytes": 42856214528,
+        "client": {
+          "client_id": "qwen-1.5b-3060092-1784555344992720784",
+          "pid": 3060092,
+          "engine": "vllm",
+          "model_id": "qwen-1.5b",
+          "gpu_uuid": null,
+          "total_bytes": 0,
+          "released_bytes_total": 6501171200,
+          "required_for_restore_bytes": 0,
+          "cache_only_bytes": 0,
+          "invalid_bytes": 0,
+          "free_local_bytes": 0,
+          "evictable_bytes": 0,
+          "pending_release_bytes": 0,
+          "requested_release_bytes_total": 6501171200,
+          "created_at": 1784555345.0091836,
+          "updated_at": 1784556023.9771981,
+          "metadata": {}
+        }
+      },
+      "rss_delta_bytes": -3944742912,
+      "memavailable_delta_bytes": 4052287488
+    },
+    "upstream_l1": {
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "worktree": "/home/ljl/research-systems/vllm-upstream-l1",
+      "status": "blocked",
+      "reason": "Upstream Python expected its own flash-attention extension, but the shared environment contains binary extensions built for the research checkout. EngineCore failed with ImportError requiring _vllm_fa2_C or _vllm_fa3_C. Per plan, no compatibility port was attempted.",
+      "log": "controller results/tmp/request-switch/upstream-launcher.log"
+    }
+  },
+  "controller_switches_all_session": {
+    "queue_wait_ms": {
+      "median": 0.0024586915969848633,
+      "p95": 0.005293637514114371
+    },
+    "request_drain_ms": {
+      "median": 0.0046798959374427795,
+      "p95": 0.007662177085876461
+    },
+    "requests": 349,
+    "sleep_latency_ms": {
+      "median": 144.75241396576166,
+      "p95": 154.1879259981215
+    },
+    "steady_hits": 231,
+    "switch_latency_ms": {
+      "median": 581.6616360098124,
+      "p95": 632.0330118294805
+    },
+    "switches": 118,
+    "wake_latency_ms": {
+      "median": 447.0691061578691,
+      "p95": 507.6363017782569
+    }
+  },
+  "manifests": [
+    {
+      "file": "configs/traces/request-switch-steady.jsonl",
+      "sha256": "70141e1d6eb7d2085ba36ff5ee4e50260fbfc57bc468b003100a3c65fa4934d5",
+      "requests": 20
+    },
+    {
+      "file": "configs/traces/request-switch-alternating.jsonl",
+      "sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb",
+      "requests": 20
+    },
+    {
+      "file": "configs/traces/request-switch-burst.jsonl",
+      "sha256": "035990cbad18fc937189dabaa99f3b40d74520903ff7d7898ef74cac5b58aa90",
+      "requests": 20
+    }
+  ],
+  "provenance": {
+    "controller": {
+      "commit": "50c6bcc29ce313726831687491b8ad4fe496ed12",
+      "tracked_dirty": false
+    },
+    "vllm": {
+      "commit": "b2057ef621c9d85096c7343461b1951021268b9b",
+      "tracked_dirty": false
+    },
+    "bench": {
+      "commit": "11cd00945e412759dfb1ddb774c86a7bcefae0b2",
+      "tracked_dirty": true
+    }
+  },
+  "scope_notes": [
+    "M3 request traces use current long-lived two-engine controller and research vLLM.",
+    "M1 cold reload entries are mechanism background only; no claim of same frozen-manifest E2E.",
+    "M2 is a structured runtime blocker, supplemented by first-miss versus clean-reuse within-process ablation.",
+    "P1 is one controlled manual release observation; repeated harness evidence already exists in profiling/physical_reclaim_validation.json."
+  ]
+}
