@@ -1,0 +1,6 @@
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-1.5b","prompt_name":"short_short","request_id":"w1-000","scheduled_offset_s":0.0,"seed":1,"stream":true,"temperature":0}
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-3b","prompt_name":"short_short","request_id":"w1-001","scheduled_offset_s":1.5,"seed":1,"stream":true,"temperature":0}
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-1.5b","prompt_name":"short_short","request_id":"w1-002","scheduled_offset_s":3.0,"seed":1,"stream":true,"temperature":0}
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-3b","prompt_name":"short_short","request_id":"w1-003","scheduled_offset_s":4.5,"seed":1,"stream":true,"temperature":0}
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-1.5b","prompt_name":"short_short","request_id":"w1-004","scheduled_offset_s":6.0,"seed":1,"stream":true,"temperature":0}
+{"endpoint":"/v1/chat/completions","max_tokens":32,"model":"qwen-3b","prompt_name":"short_short","request_id":"w1-005","scheduled_offset_s":7.5,"seed":1,"stream":true,"temperature":0}

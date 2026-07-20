@@ -8,3 +8,4 @@ runtime/
 configs/*.local.yaml
 *.log
 *.jsonl
+!configs/traces/*.jsonl

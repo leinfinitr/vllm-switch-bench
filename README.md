@@ -7,6 +7,7 @@
 - `src/bench_vllm_lifecycle.py`：vLLM cold reload、sleep/wake benchmark。
 - `src/bench_vllm_pin_compare.py`：模型无关的 pinned/pageable profiling 矩阵。
 - `src/bench_vllm_repeated_sleep_l1.py`：重复 sleep/wake、backup reuse、动态回收及 OS memory 观测。
+- `src/bench_request_driven_switch.py`：对统一 OpenAI endpoint 重放冻结的多模型 open-loop trace，记录 transport first byte、semantic TTFT、完成时延和失败。
 - `src/bench_baseline3.py`：显式配置的跨系统结果聚合与运行。
 - `scripts/run_profiling.sh`、`scripts/run_baseline3.sh`：可复用 shell 入口。
 - `src/microbench/`：PCIe copy、CuMemAllocator synthetic copy、safetensors allocation 粒度实验。
@@ -86,6 +87,17 @@ scripts/run_baseline3.sh
 聚合器不会猜测“最新 Qwen run”或 host-to-container mount，避免跨模型污染。localhost control traffic 不继承环境 HTTP proxy。
 
 ## 结果与报告
+
+请求驱动切换：
+
+```bash
+BASE_URL=http://127.0.0.1:9000 \
+TRACE=configs/traces/request-switch-alternating.jsonl \
+OUTPUT=results/tmp/request-switch/w1.jsonl \
+scripts/run_request_switch.sh
+```
+
+manifest 使用绝对 `scheduled_offset_s`，每个请求独立调度且共享一个 async HTTP client；失败和 timeout 仍写入输出。仓库提供 alternating 与 burst-locality 两条小 trace。
 
 - artifact policy：`results/README.md`；
 - physical reclaim curated summary：`results/profiling/physical_reclaim_validation.json`；
