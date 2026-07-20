@@ -21,6 +21,8 @@ REQUIRED_FIELDS = {
 
 
 def validate_manifest(rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        raise ValueError("manifest must contain at least one request")
     request_ids: set[str] = set()
     previous = float("-inf")
     for index, row in enumerate(rows):

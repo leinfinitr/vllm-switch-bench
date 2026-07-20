@@ -21,49 +21,56 @@ def percentile(values: list[float], q: float) -> float | None:
 
 def summarize(root: Path) -> dict[str, Any]:
     metadata_path = root / "metadata.json"
-    if metadata_path.exists():
-        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-        problems: list[str] = []
-        for run in metadata.get("runs", []):
-            output = root / run["output"]
-            if int(run.get("returncode", 1)) != 0:
-                problems.append(
-                    f"{run['workload']}-r{run['repeat']} returned {run['returncode']}"
-                )
-                continue
-            manifest = root / Path(run["manifest"]).name
-            expected = sum(1 for line in manifest.read_text().splitlines() if line.strip())
-            actual = sum(1 for line in output.read_text().splitlines() if line.strip()) if output.exists() else 0
-            if actual != expected:
-                problems.append(
-                    f"{run['workload']}-r{run['repeat']} has {actual}/{expected} rows"
-                )
-        workloads = metadata.get("workloads")
-        if workloads is None:
-            workloads = sorted({run["workload"] for run in metadata.get("runs", [])})
-        actual_pairs = [
-            (run["workload"], int(run["repeat"])) for run in metadata.get("runs", [])
-        ]
-        expected_pairs = {
-            (workload, repeat)
-            for workload in workloads
-            for repeat in range(int(metadata.get("repeats", 0)))
-        }
-        for workload, repeat in sorted(expected_pairs - set(actual_pairs)):
-            problems.append(f"missing run {workload}-r{repeat}")
-        duplicate_pairs = {
-            pair for pair in actual_pairs if actual_pairs.count(pair) > 1
-        }
-        for workload, repeat in sorted(duplicate_pairs):
-            problems.append(f"duplicate run {workload}-r{repeat}")
-        for workload, repeat in sorted(set(actual_pairs) - expected_pairs):
-            problems.append(f"unexpected run {workload}-r{repeat}")
-        if problems:
-            raise ValueError("incomplete benchmark matrix: " + "; ".join(problems))
+    if not metadata_path.exists():
+        raise ValueError("benchmark metadata.json is required")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    problems: list[str] = []
+    declared_outputs: list[Path] = []
+    for run in metadata.get("runs", []):
+        output = root / run["output"]
+        declared_outputs.append(output)
+        if int(run.get("returncode", 1)) != 0:
+            problems.append(f"{run['workload']}-r{run['repeat']} returned {run['returncode']}")
+            continue
+        manifest = root / Path(run["manifest"]).name
+        if not manifest.exists():
+            problems.append(f"missing manifest {manifest.name}")
+            continue
+        digest = hashlib.sha256(manifest.read_bytes()).hexdigest()
+        if digest != run.get("manifest_sha256"):
+            problems.append(f"manifest checksum mismatch for {run['workload']}-r{run['repeat']}")
+        expected = sum(1 for line in manifest.read_text().splitlines() if line.strip())
+        actual = sum(1 for line in output.read_text().splitlines() if line.strip()) if output.exists() else 0
+        if expected <= 0:
+            problems.append(f"empty manifest for {run['workload']}-r{run['repeat']}")
+        if actual != expected:
+            problems.append(f"{run['workload']}-r{run['repeat']} has {actual}/{expected} rows")
+    workloads = metadata.get("workloads")
+    if workloads is None:
+        workloads = sorted({run["workload"] for run in metadata.get("runs", [])})
+    repeats = int(metadata.get("repeats", 0))
+    if repeats <= 0 or not workloads:
+        problems.append("matrix must declare positive repeats and non-empty workloads")
+    actual_pairs = [(run["workload"], int(run["repeat"])) for run in metadata.get("runs", [])]
+    expected_pairs = {
+        (workload, repeat) for workload in workloads for repeat in range(repeats)
+    }
+    for workload, repeat in sorted(expected_pairs - set(actual_pairs)):
+        problems.append(f"missing run {workload}-r{repeat}")
+    duplicate_pairs = {pair for pair in actual_pairs if actual_pairs.count(pair) > 1}
+    for workload, repeat in sorted(duplicate_pairs):
+        problems.append(f"duplicate run {workload}-r{repeat}")
+    for workload, repeat in sorted(set(actual_pairs) - expected_pairs):
+        problems.append(f"unexpected run {workload}-r{repeat}")
+    discovered = set(root.glob("w[012]-r*.jsonl"))
+    undeclared = discovered - set(declared_outputs)
+    for path in sorted(undeclared):
+        problems.append(f"undeclared output {path.name}")
+    if problems:
+        raise ValueError("incomplete benchmark matrix: " + "; ".join(problems))
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for path in sorted(root.glob("w[012]-r*.jsonl")):
-        workload = path.name.split("-", 1)[0]
-        grouped[workload].extend(
+    for run, path in zip(metadata["runs"], declared_outputs, strict=True):
+        grouped[run["workload"]].extend(
             json.loads(line) for line in path.read_text().splitlines() if line.strip()
         )
     summary: dict[str, Any] = {}
@@ -72,7 +79,7 @@ def summarize(root: Path) -> dict[str, Any]:
             row
             for row in rows
             if row.get("status")
-            and int(row["status"]) < 400
+            and 200 <= int(row["status"]) < 300
             and not row.get("error")
             and row.get("stream_done") is True
         ]

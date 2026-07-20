@@ -31,6 +31,16 @@ def test_summarize_request_switch_keeps_failures(tmp_path):
             ]
         )
     )
+    manifest = tmp_path / "request-switch-alternating.jsonl"
+    manifest.write_text("{}\n{}\n")
+    digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
+    (tmp_path / "metadata.json").write_text(json.dumps({
+        "repeats": 1, "workloads": ["w1"], "runs": [{
+            "workload": "w1", "repeat": 0,
+            "manifest": manifest.name, "manifest_sha256": digest,
+            "output": "w1-r0.jsonl", "returncode": 0,
+        }]
+    }))
     summary = summarize(tmp_path)
     assert summary["w1"]["requests"] == 2
     assert summary["w1"]["success"] == 1
@@ -84,6 +94,7 @@ def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
     (tmp_path / "w0-r0.jsonl").write_text(
         json.dumps({"status": 200, "stream_done": True}) + "\n"
     )
+    digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
     metadata = {
         "repeats": 2,
         "runs": [
@@ -91,6 +102,7 @@ def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
                 "workload": "w0",
                 "repeat": 0,
                 "manifest": "request-switch-steady.jsonl",
+                "manifest_sha256": digest,
                 "output": "w0-r0.jsonl",
                 "returncode": 0,
             },
@@ -98,6 +110,7 @@ def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
                 "workload": "w0",
                 "repeat": 1,
                 "manifest": "request-switch-steady.jsonl",
+                "manifest_sha256": digest,
                 "output": "w0-r1.jsonl",
                 "returncode": 1,
             },
@@ -111,6 +124,7 @@ def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
 def test_summarize_rejects_metadata_missing_an_entire_workload(tmp_path):
     manifest = tmp_path / "request-switch-steady.jsonl"
     manifest.write_text("{}\n")
+    digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
     runs = []
     for repeat in range(2):
         output = f"w0-r{repeat}.jsonl"
@@ -122,6 +136,7 @@ def test_summarize_rejects_metadata_missing_an_entire_workload(tmp_path):
                 "workload": "w0",
                 "repeat": repeat,
                 "manifest": "request-switch-steady.jsonl",
+                "manifest_sha256": digest,
                 "output": output,
                 "returncode": 0,
             }
@@ -130,4 +145,32 @@ def test_summarize_rejects_metadata_missing_an_entire_workload(tmp_path):
         json.dumps({"repeats": 2, "workloads": ["w0", "w1"], "runs": runs})
     )
     with pytest.raises(ValueError, match="missing run w1-r0"):
+        summarize(tmp_path)
+
+
+def test_summarize_requires_metadata_and_rejects_undeclared_output(tmp_path):
+    (tmp_path / "w1-r0.jsonl").write_text("{}\n")
+    with pytest.raises(ValueError, match="metadata"):
+        summarize(tmp_path)
+
+
+def test_summarize_rejects_undeclared_output_checksum_and_redirect(tmp_path):
+    manifest = tmp_path / "trace.jsonl"
+    manifest.write_text("{}\n")
+    digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
+    row = {"status": 302, "error": None, "stream_done": True}
+    (tmp_path / "w0-r0.jsonl").write_text(json.dumps(row) + "\n")
+    metadata = {"repeats": 1, "workloads": ["w0"], "runs": [{
+        "workload": "w0", "repeat": 0, "manifest": manifest.name,
+        "manifest_sha256": digest, "output": "w0-r0.jsonl", "returncode": 0,
+    }]}
+    (tmp_path / "metadata.json").write_text(json.dumps(metadata))
+    summary = summarize(tmp_path)
+    assert summary["w0"]["success"] == 0
+    (tmp_path / "w0-r99.jsonl").write_text(json.dumps(row) + "\n")
+    with pytest.raises(ValueError, match="undeclared output"):
+        summarize(tmp_path)
+    (tmp_path / "w0-r99.jsonl").unlink()
+    manifest.write_text("{\"changed\": true}\n")
+    with pytest.raises(ValueError, match="checksum mismatch"):
         summarize(tmp_path)

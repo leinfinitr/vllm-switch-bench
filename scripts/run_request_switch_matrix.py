@@ -16,6 +16,8 @@ def main() -> None:
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--out-dir", required=True)
     args = parser.parse_args()
+    if args.repeats <= 0:
+        parser.error("--repeats must be positive")
     root = Path(__file__).resolve().parents[1]
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
