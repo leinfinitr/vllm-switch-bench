@@ -21,7 +21,11 @@ def main() -> int:
     ]
     include.extend(sorted((root / "results/cross_system/raw").rglob("*.json")))
     include.extend(sorted((root / "results/cross_system/raw").rglob("*.csv")))
-    include.extend(sorted((root / "results/cross_system/raw").rglob("*.jsonl")))
+    include.extend(
+        path
+        for path in sorted((root / "results/cross_system/raw").rglob("*.jsonl"))
+        if "repeated-l1" not in path.parts
+    )
     unique = sorted({path.resolve() for path in include})
     missing = [path for path in unique if not path.exists()]
     if missing:

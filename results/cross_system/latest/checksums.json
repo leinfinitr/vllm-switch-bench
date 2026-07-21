@@ -112,11 +112,6 @@
       "sha256": "740a5c0c6d225efbba49c1fc0298122bfc19afbc1dee529426bcf21371d495f4"
     },
     {
-      "path": "results/cross_system/raw/proposed/repeated-l1/20260721_123551/vllm_repeated_sleep_l1_1784608551190783450.sleep_profile.jsonl",
-      "bytes": 975,
-      "sha256": "7d60e4586db711044c2d8741415a195a35766bb33b79a7dd20d63944a17da753"
-    },
-    {
       "path": "results/cross_system/raw/proposed/request-traces-final/matrix.json",
       "bytes": 4392,
       "sha256": "9a027f2e9f2ed96a4513d7c11840341d773334a428bfc53e43e7a449b6661f06"
