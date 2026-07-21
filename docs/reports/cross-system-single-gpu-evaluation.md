@@ -138,6 +138,7 @@ kvcached 重点是 KV cache 和共享内存管理，不是与本文相同的模�
 - raw input：所有 request JSONL、lifecycle event JSONL 和 sleep-profile JSONL 均已 force-track；server logs 含绝对路径/环境噪声，保留在本机但不纳入 curated artifact；
 - curated summary：`results/cross_system/latest/summary.json`；
 - external blockers：`results/cross_system/latest/external-systems.json`
+- Provenance 限制：matrix metadata 固定了 benchmark commit/tree、manifest hash 和运行命令；proposed controller/vLLM 与 llama-swap 的 commit 记录在本报告及 `external-systems.json`，但 runner 当时以 external URL 连接服务，未自动把这些 service commit/embed config 写入同一 metadata，因此不是单文件 self-contained provenance bundle；
 - analyzer：`src/tool/analyze_cross_system.py`
 - plotter：`src/tool/plot_cross_system.py`
 - unified matrix runner：`scripts/run_cross_system_matrix.py`
