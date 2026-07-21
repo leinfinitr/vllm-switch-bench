@@ -498,11 +498,7 @@ def run_one(args: argparse.Namespace, method: str, prompt_name: str, repeat_inde
                     reload_weights = call_with_sleep_profile(
                         args,
                         "reload_weights",
-                        lambda: call_rpc(
-                            args,
-                            "reload_weights",
-                            {"sleep_profile_path": args.sleep_profile_path},
-                        ),
+                        lambda: call_rpc(args, "reload_weights"),
                     )
                     event_log.write(make_event(ctx, "reload_weights_end", start_ts, proc.pid, extra=reload_weights))
                     wake_kv = call_with_sleep_profile(
