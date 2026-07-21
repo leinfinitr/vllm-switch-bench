@@ -135,7 +135,8 @@ kvcached 重点是 KV cache 和共享内存管理，不是与本文相同的模�
 - lifecycle raw：`results/cross_system/raw/vllm/`
 - proposed trace raw：`results/cross_system/raw/proposed/request-traces-final/`
 - llama-swap trace raw：`results/cross_system/raw/llama-swap/request-traces-final/`
-- curated summary：`results/cross_system/latest/summary.json`
+- raw input：所有 request JSONL、lifecycle event JSONL 和 sleep-profile JSONL 均已 force-track；server logs 含绝对路径/环境噪声，保留在本机但不纳入 curated artifact；
+- curated summary：`results/cross_system/latest/summary.json`；
 - external blockers：`results/cross_system/latest/external-systems.json`
 - analyzer：`src/tool/analyze_cross_system.py`
 - plotter：`src/tool/plot_cross_system.py`
