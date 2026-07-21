@@ -29,10 +29,12 @@
   "manifests": [
     {
       "path": "/home/ljl/research-systems/llm-switch-bench/configs/traces/request-switch-alternating.jsonl",
+      "repo_relative_path": "configs/traces/request-switch-alternating.jsonl",
       "sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb"
     },
     {
       "path": "/home/ljl/research-systems/llm-switch-bench/configs/traces/request-switch-burst.jsonl",
+      "repo_relative_path": "configs/traces/request-switch-burst.jsonl",
       "sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac"
     }
   ],

@@ -119,7 +119,11 @@ def validate_trace_matrix(path: Path) -> list[dict[str, Any]]:
 
     manifests: dict[str, tuple[Path, str, list[dict[str, Any]]]] = {}
     for item in metadata["manifests"]:
-        manifest_path = Path(item["path"])
+        repo_root = Path(__file__).resolve().parents[2]
+        relative_path = item.get("repo_relative_path")
+        manifest_path = repo_root / relative_path if relative_path else Path(item["path"])
+        if not manifest_path.exists() and Path(item["path"]).exists():
+            manifest_path = Path(item["path"])
         if not manifest_path.is_absolute():
             manifest_path = path / manifest_path
         rows = load_manifest(manifest_path)

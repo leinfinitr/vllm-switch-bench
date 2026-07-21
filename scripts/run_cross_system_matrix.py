@@ -250,12 +250,20 @@ async def async_main(args: argparse.Namespace) -> int:
             json.dumps(matrix, indent=2), encoding="utf-8"
         )
 
+    benchmark_root = Path(__file__).resolve().parents[1]
     metadata = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "argv": sys.argv,
         "systems": [asdict(system) for system in args.systems],
         "manifests": [
-            {"path": str(path), "sha256": sha256_file(path)} for path in manifests
+            {
+                "path": str(path),
+                "repo_relative_path": str(path.relative_to(benchmark_root))
+                if path.is_relative_to(benchmark_root)
+                else None,
+                "sha256": sha256_file(path),
+            }
+            for path in manifests
         ],
         "repeats": args.repeats,
         "order_seed": args.order_seed,
