@@ -1,0 +1,67 @@
+{
+  "system": "vllm",
+  "argv": [
+    "src/bench_vllm_lifecycle.py",
+    "--model",
+    "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+    "--served-model-name",
+    "qwen-3b",
+    "--python",
+    "/home/ljl/research-systems/llm-switch-bench/.venv/bin/python",
+    "--workdir",
+    "/home/ljl/research-systems/vllm",
+    "--cuda-home",
+    "/home/ljl/cuda-13.0",
+    "--methods",
+    "cold_reload",
+    "sleep_l1",
+    "sleep_l2",
+    "--prompts",
+    "short_short",
+    "--repeats",
+    "5",
+    "--ready-timeout-s",
+    "180",
+    "--idle-s",
+    "1",
+    "--sample-interval-s",
+    "0.1",
+    "--gpu-memory-utilization",
+    "0.70",
+    "--max-model-len",
+    "1024",
+    "--dtype",
+    "half",
+    "--enforce-eager",
+    "--port",
+    "0",
+    "--out-dir",
+    "results/cross_system/raw/vllm/qwen-3b"
+  ],
+  "created_at": "2026-07-21T04:29:52.253892+00:00",
+  "model": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+  "methods": [
+    "cold_reload",
+    "sleep_l1",
+    "sleep_l2"
+  ],
+  "prompts": [
+    "short_short"
+  ],
+  "repeats": 5,
+  "sleep_cpu_backup_pin_memory": "auto",
+  "gpu": "0, NVIDIA GeForce RTX 3080, 10240 MiB, 580.95.05\n",
+  "benchmark_git": {
+    "path": "/home/ljl/research-systems/llm-switch-bench",
+    "commit": "192ccf1265be7319d09d14cc98517f8cf6f757de",
+    "tree": "3581eb53cf05d6d3bc2017818be591ce03366f12",
+    "tracked_dirty": false
+  },
+  "engine_git": {
+    "path": "/home/ljl/research-systems/vllm",
+    "commit": "b2057ef621c9d85096c7343461b1951021268b9b",
+    "tree": "a9ea1fd26e295d589ff395fc3707575e14bd2a13",
+    "tracked_dirty": false
+  },
+  "python": "/usr/bin/python3.12"
+}

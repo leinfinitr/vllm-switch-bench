@@ -1,0 +1,127 @@
+{
+  "protocol": "core-evaluation-v1",
+  "randomization_seed": 20260721,
+  "generator": "Python 3 random.Random(20260721); seeded system relabeling of a balanced 4x4 Williams square; each of the six W0/W1/W2 permutations appears twice per Tier-A system",
+  "blocks": [
+    {
+      "block": 0,
+      "system_order": ["l1_no_reuse", "l2", "proposed", "cold"],
+      "workload_order": {
+        "proposed": ["w2", "w1", "w0"],
+        "cold": ["w1", "w0", "w2"],
+        "l1_no_reuse": ["w1", "w0", "w2"],
+        "l2": ["w2", "w0", "w1"]
+      }
+    },
+    {
+      "block": 1,
+      "system_order": ["l2", "cold", "l1_no_reuse", "proposed"],
+      "workload_order": {
+        "proposed": ["w2", "w0", "w1"],
+        "cold": ["w1", "w2", "w0"],
+        "l1_no_reuse": ["w1", "w2", "w0"],
+        "l2": ["w0", "w1", "w2"]
+      }
+    },
+    {
+      "block": 2,
+      "system_order": ["cold", "proposed", "l2", "l1_no_reuse"],
+      "workload_order": {
+        "proposed": ["w0", "w2", "w1"],
+        "cold": ["w2", "w1", "w0"],
+        "l1_no_reuse": ["w0", "w2", "w1"],
+        "l2": ["w1", "w2", "w0"]
+      }
+    },
+    {
+      "block": 3,
+      "system_order": ["proposed", "l1_no_reuse", "cold", "l2"],
+      "workload_order": {
+        "proposed": ["w0", "w1", "w2"],
+        "cold": ["w2", "w0", "w1"],
+        "l1_no_reuse": ["w2", "w0", "w1"],
+        "l2": ["w0", "w2", "w1"]
+      }
+    },
+    {
+      "block": 4,
+      "system_order": ["l1_no_reuse", "l2", "proposed", "cold"],
+      "workload_order": {
+        "proposed": ["w2", "w0", "w1"],
+        "cold": ["w0", "w1", "w2"],
+        "l1_no_reuse": ["w2", "w1", "w0"],
+        "l2": ["w1", "w2", "w0"]
+      }
+    },
+    {
+      "block": 5,
+      "system_order": ["cold", "proposed", "l2", "l1_no_reuse"],
+      "workload_order": {
+        "proposed": ["w1", "w0", "w2"],
+        "cold": ["w2", "w1", "w0"],
+        "l1_no_reuse": ["w1", "w0", "w2"],
+        "l2": ["w1", "w0", "w2"]
+      }
+    },
+    {
+      "block": 6,
+      "system_order": ["l2", "cold", "l1_no_reuse", "proposed"],
+      "workload_order": {
+        "proposed": ["w2", "w1", "w0"],
+        "cold": ["w0", "w2", "w1"],
+        "l1_no_reuse": ["w0", "w1", "w2"],
+        "l2": ["w0", "w2", "w1"]
+      }
+    },
+    {
+      "block": 7,
+      "system_order": ["proposed", "l1_no_reuse", "cold", "l2"],
+      "workload_order": {
+        "proposed": ["w0", "w2", "w1"],
+        "cold": ["w1", "w0", "w2"],
+        "l1_no_reuse": ["w2", "w0", "w1"],
+        "l2": ["w2", "w1", "w0"]
+      }
+    },
+    {
+      "block": 8,
+      "system_order": ["cold", "proposed", "l2", "l1_no_reuse"],
+      "workload_order": {
+        "proposed": ["w0", "w1", "w2"],
+        "cold": ["w0", "w1", "w2"],
+        "l1_no_reuse": ["w1", "w2", "w0"],
+        "l2": ["w2", "w1", "w0"]
+      }
+    },
+    {
+      "block": 9,
+      "system_order": ["proposed", "l1_no_reuse", "cold", "l2"],
+      "workload_order": {
+        "proposed": ["w1", "w2", "w0"],
+        "cold": ["w2", "w0", "w1"],
+        "l1_no_reuse": ["w2", "w1", "w0"],
+        "l2": ["w0", "w1", "w2"]
+      }
+    },
+    {
+      "block": 10,
+      "system_order": ["l1_no_reuse", "l2", "proposed", "cold"],
+      "workload_order": {
+        "proposed": ["w1", "w0", "w2"],
+        "cold": ["w1", "w2", "w0"],
+        "l1_no_reuse": ["w0", "w1", "w2"],
+        "l2": ["w2", "w0", "w1"]
+      }
+    },
+    {
+      "block": 11,
+      "system_order": ["l2", "cold", "l1_no_reuse", "proposed"],
+      "workload_order": {
+        "proposed": ["w1", "w2", "w0"],
+        "cold": ["w0", "w2", "w1"],
+        "l1_no_reuse": ["w0", "w2", "w1"],
+        "l2": ["w1", "w0", "w2"]
+      }
+    }
+  ]
+}
