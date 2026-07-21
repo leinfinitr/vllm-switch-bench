@@ -253,6 +253,34 @@ def test_trace_analyzer_rejects_nonzero_run(tmp_path: Path):
         analyze.summarize_trace_dir(tmp_path, 1, 100)
 
 
+def test_trace_analyzer_rejects_empty_system_or_manifest_declarations(tmp_path: Path):
+    (tmp_path / "metadata.json").write_text(
+        json.dumps({"systems": [], "manifests": [], "repeats": 1}),
+        encoding="utf-8",
+    )
+    (tmp_path / "matrix.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(ValueError, match="non-empty"):
+        analyze.summarize_trace_dir(tmp_path, 1, 100)
+
+
+def test_request_identity_rejects_partial_full_identity():
+    expected = {
+        "request_id": "a",
+        "scheduled_offset_s": 0,
+        "model": "model-a",
+        "endpoint": "/v1/chat/completions",
+        "prompt_name": "short_short",
+        "max_tokens": 2,
+        "temperature": 0,
+        "stream": True,
+        "seed": 1,
+    }
+    observed = {**expected, "max_tokens": 999}
+    observed.pop("seed")
+    with pytest.raises(ValueError, match="partial dispatch identity"):
+        analyze.request_identity_matches(expected, observed)
+
+
 def test_trace_group_name_includes_parent_to_avoid_collisions():
     path = Path("results/cross_system/raw/proposed/request-traces-final")
     assert analyze.trace_group_name(path) == "proposed/request-traces-final"

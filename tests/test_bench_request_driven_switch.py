@@ -206,3 +206,40 @@ async def _run_deadline_trace():
     assert "TimeoutError" in record["error"]
     assert record["output_text"] == "partial"
     assert record["response_body_first_byte_ms"] is not None
+
+
+def test_dispatch_marks_top_level_sse_error_as_failure():
+    asyncio.run(_run_top_level_sse_error())
+
+
+async def _run_top_level_sse_error():
+    class ErrorStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n'
+            yield b'data: {"error":{"message":"backend failed"}}\n\n'
+            yield b"data: [DONE]\n\n"
+
+    async def handler(_request):
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/event-stream"},
+            stream=ErrorStream(),
+        )
+
+    row = {
+        "request_id": "r-error",
+        "scheduled_offset_s": 0.0,
+        "model": "a",
+        "endpoint": "/v1/chat/completions",
+        "prompt_name": "short_short",
+        "max_tokens": 8,
+        "temperature": 0,
+        "stream": True,
+        "seed": 1,
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="http://server", timeout=2
+    ) as client:
+        record = await _dispatch_one(client, "http://server", row, time.monotonic(), 1)
+    assert failed_record(record)
+    assert "backend failed" in str(record["error"])

@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "src"))
 
 from run_cross_system_matrix import (  # noqa: E402
+    async_main,
     parse_args,
     parse_system,
     run_one,
@@ -125,6 +126,91 @@ def test_run_one_removes_stale_output_when_execution_fails(monkeypatch, tmp_path
     assert result["return_code"] == 1
     assert result["output_sha256"] is None
     assert not output.exists()
+
+
+def test_run_one_removes_stale_output_before_manifest_reload_failure(
+    monkeypatch, tmp_path: Path
+):
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    output.write_text('{"stale":true}\n', encoding="utf-8")
+
+    monkeypatch.setattr(
+        "run_cross_system_matrix.load_manifest",
+        lambda _path: (_ for _ in ()).throw(ValueError("synthetic reload failure")),
+    )
+    result = asyncio.run(
+        run_one(
+            parse_system("test=http://127.0.0.1:1"),
+            manifest,
+            0,
+            output,
+            10,
+            10,
+            tmp_path / "run.log",
+        )
+    )
+    assert result["return_code"] == 1
+    assert result["output_sha256"] is None
+    assert not output.exists()
+
+
+def test_matrix_exit_rejects_strict_request_failures(monkeypatch, tmp_path: Path):
+    async def fake_run_one(*args, **kwargs):
+        return {
+            "system": "sys",
+            "repeat": 0,
+            "manifest": "trace.jsonl",
+            "return_code": 0,
+            "requests": 1,
+            "failed": 1,
+        }
+
+    manifest = tmp_path / "trace.jsonl"
+    manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
+    monkeypatch.setattr("run_cross_system_matrix.run_one", fake_run_one)
+    monkeypatch.setattr(
+        "run_cross_system_matrix.git_metadata",
+        lambda path: {"commit": "x", "tree": "y", "tracked_dirty": False},
+    )
+    args = parse_args(
+        [
+            "--systems",
+            "sys=http://127.0.0.1:1",
+            "--manifests",
+            str(manifest),
+            "--repeats",
+            "1",
+            "--out-dir",
+            str(tmp_path / "out"),
+        ]
+    )
+    assert asyncio.run(async_main(args)) == 2
+
+
+def test_matrix_invalidates_stale_indexes_before_manifest_validation(tmp_path: Path):
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    (out_dir / "matrix.json").write_text('[{"stale":true}]', encoding="utf-8")
+    (out_dir / "metadata.json").write_text('{"stale":true}', encoding="utf-8")
+    missing = tmp_path / "missing.jsonl"
+    args = parse_args(
+        [
+            "--systems",
+            "sys=http://127.0.0.1:1",
+            "--manifests",
+            str(missing),
+            "--repeats",
+            "1",
+            "--out-dir",
+            str(out_dir),
+        ]
+    )
+    with pytest.raises(FileNotFoundError):
+        asyncio.run(async_main(args))
+    assert not (out_dir / "matrix.json").exists()
+    assert not (out_dir / "metadata.json").exists()
 
 
 def test_parse_args_rejects_non_positive_repeats():

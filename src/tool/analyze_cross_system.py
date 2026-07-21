@@ -96,9 +96,15 @@ def request_identity_matches(
     expected: dict[str, Any], observed: dict[str, Any]
 ) -> bool:
     full_fields = tuple(sorted(REQUIRED_FIELDS))
-    if all(field in observed for field in full_fields):
+    present = {field for field in full_fields if field in observed}
+    if present == set(full_fields):
         return tuple(expected.get(field) for field in full_fields) == tuple(
             observed.get(field) for field in full_fields
+        )
+    legacy_fields = {"request_id", "model", "scheduled_offset_s"}
+    if present != legacy_fields:
+        raise ValueError(
+            "partial dispatch identity is neither full nor the frozen legacy schema"
         )
     return (
         expected.get("request_id"),
@@ -116,6 +122,8 @@ def validate_trace_matrix(path: Path) -> list[dict[str, Any]]:
     matrix = json.loads((path / "matrix.json").read_text(encoding="utf-8"))
     if int(metadata["repeats"]) <= 0:
         raise ValueError("metadata repeats must be positive")
+    if not metadata["manifests"] or not metadata["systems"]:
+        raise ValueError("metadata systems and manifests must be non-empty")
 
     manifests: dict[str, tuple[Path, str, list[dict[str, Any]]]] = {}
     for item in metadata["manifests"]:

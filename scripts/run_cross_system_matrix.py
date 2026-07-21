@@ -137,7 +137,6 @@ async def run_one(
     log_path: Path,
 ) -> dict[str, Any]:
     process: subprocess.Popen[str] | None = None
-    manifest = load_manifest(manifest_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.unlink(missing_ok=True)
     temporary_output = output_path.with_suffix(output_path.suffix + ".tmp")
@@ -147,6 +146,8 @@ async def run_one(
     launch = system.launch
     log_handle = log_path.open("w", encoding="utf-8")
     try:
+        # Invalidate prior output before the final fallible input reload.
+        manifest = load_manifest(manifest_path)
         if launch:
             process = subprocess.Popen(
                 launch,
@@ -214,12 +215,13 @@ async def run_one(
 async def async_main(args: argparse.Namespace) -> int:
     if args.repeats <= 0:
         raise ValueError("--repeats must be positive")
-    manifests = [Path(path).resolve() for path in args.manifests]
-    for path in manifests:
-        load_manifest(path)
-
     out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Invalidate the prior index before any fallible validation or execution.
+    (out_dir / "matrix.json").unlink(missing_ok=True)
+    (out_dir / "metadata.json").unlink(missing_ok=True)
+    manifests = [Path(path).resolve() for path in args.manifests]
+
     order = [
         (system, manifest, repeat)
         for repeat in range(args.repeats)
@@ -284,7 +286,14 @@ async def async_main(args: argparse.Namespace) -> int:
     (out_dir / "metadata.json").write_text(
         json.dumps(metadata, indent=2), encoding="utf-8"
     )
-    return 0 if all(row["return_code"] == 0 for row in matrix) else 2
+    return (
+        0
+        if all(
+            row["return_code"] == 0 and int(row.get("failed", 1)) == 0
+            for row in matrix
+        )
+        else 2
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

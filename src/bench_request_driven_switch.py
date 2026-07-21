@@ -35,6 +35,10 @@ def _semantic_text(event: bytes) -> tuple[str, int | None, bool]:
         obj = json.loads(data)
     except (TypeError, ValueError) as exc:
         raise ValueError("malformed SSE data event") from exc
+    if obj.get("error"):
+        error = obj["error"]
+        message = error.get("message") if isinstance(error, dict) else str(error)
+        raise ValueError(f"SSE error event: {message or error}")
     choice = (obj.get("choices") or [{}])[0]
     delta = choice.get("delta") or {}
     text = delta.get("content") or choice.get("text") or ""
