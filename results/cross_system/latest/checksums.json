@@ -58,8 +58,8 @@
     },
     {
       "path": "results/cross_system/latest/external-systems.json",
-      "bytes": 5679,
-      "sha256": "e1abd8cca372eb4bae02228414681101f4af1945b429681ec0c9893c71b0ffd6"
+      "bytes": 6296,
+      "sha256": "4d4304b419088f68ee0f7f24b0daffb579e7a42e47925a526bc17ed8b18f15d4"
     },
     {
       "path": "results/cross_system/latest/lifecycle-latency.png",
@@ -68,8 +68,8 @@
     },
     {
       "path": "results/cross_system/latest/summary.json",
-      "bytes": 18148,
-      "sha256": "3f381afdcc24756a292e64cfeea7d65172c20fabff534d2e356132e5422be20c"
+      "bytes": 18781,
+      "sha256": "22fe87afc80be769827cd2f47af32264c9764ac7fbe15593b882a8f2a5d5a1ff"
     },
     {
       "path": "results/cross_system/latest/trace-ttft.png",

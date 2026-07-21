@@ -492,9 +492,17 @@
           "new_finding": "When backend initialization failed before entering ready_inference_instances, current router shutdown did not clean the named backend actor/logical GPU reservation. A second attempt was blocked at 0 free logical GPUs until the orphan actor was explicitly killed during cleanup."
         },
         "blocker": "The stale-image result is not evidence that current ServerlessLLM intrinsically cannot reclaim GPU memory. Current source remains unranked because a low-cost overlay gate did not complete successful register/infer/delete/re-register and exposed an unverified failed-start cleanup path. Inclusion requires actor-death, scheduler-deallocation, physical-GPU-reclaim, re-register inference, and failed-start cleanup post-conditions on a fresh rebuilt stack.",
-        "raw_artifacts": [
-          "results/tmp/cross-system/serverless-smoke2/20260721_121922/summary.json",
-          "results/cross_system/external/serverless-current-source-overlay/summary.json"
+        "local_observation_sources": [
+          {
+            "path": "results/tmp/cross-system/serverless-smoke2/20260721_121922/summary.json",
+            "retained_in_clone": false,
+            "scope": "local stale-image gate observation"
+          },
+          {
+            "path": "results/cross_system/external/serverless-current-source-overlay/summary.json",
+            "retained_in_clone": true,
+            "scope": "checksummed structured summary; exact command, Ray actor table, scheduler output, and full service logs are not retained"
+          }
         ],
         "performance_ranked": false
       },
@@ -518,8 +526,8 @@
           "post_restore_inference_passed": true,
           "cleanup_passed": true
         },
-        "raw_artifact": "results/cross_system/external/swapserve-smoke",
-        "evidence_scope": "real single-model CUDA-checkpoint/pause/restore mechanism smoke; not a two-model Qwen 1.5B/3B performance result",
+        "local_observation_bundle": "results/cross_system/external/swapserve-smoke",
+        "evidence_scope": "checksummed local single-model CUDA-checkpoint/pause/restore observation bundle. Retained controller/chat logs support controller progress and restored inference, but the external checkpoint-state, nvidia-smi, memory, and port-cleanup assertions are summarized rather than preserved as complete command transcripts. It is not a two-model Qwen 1.5B/3B performance result.",
         "performance_ranked": false
       },
       "kvcached": {

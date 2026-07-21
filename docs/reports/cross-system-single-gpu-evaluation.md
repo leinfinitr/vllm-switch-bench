@@ -25,7 +25,7 @@
 
 | 系统 | 版本/commit | 机制 | 本机门禁 | 是否有性能数据 |
 |---|---|---|---|---|
-| Proposed | controller `d78155f`；vLLM `b2057ef`（service provenance 来自运行记录，未嵌入 matrix metadata） | 双 vLLM 进程 + L1 pinned clean backup reuse + request-driven controller | 本轮 request trace 200/200 strict success；历史 drain/资源验证未随本 artifact 保留 final3 raw | 是 |
+| Proposed | controller `d78155f`；vLLM `b2057ef`（版本来自会话/报告记录，未与每次 retained trace 作时间绑定） | 双 vLLM 进程 + L1 pinned clean backup reuse + request-driven controller | 本轮 request trace 200/200 strict success；历史 drain/资源验证未随本 artifact 保留 final3 raw | 是 |
 | vLLM cold/L1/L2 | vLLM `b2057ef` | terminate/start；sleep level 1；sleep level 2 | 30/30 lifecycle run 成功 | 是 |
 | llama-swap | `c6adf57` | OpenAI proxy 管理 vLLM terminate/start | 120/120 strict requests 成功 | 是，secondary |
 | ServerlessLLM | 源码 `2618762`；实际镜像 `6a7fb919`（2025-11-03） | serverless fast loading / scale-to-zero | 旧镜像 delete 泄漏 `6171 MiB`；当前源码 overlay gate 只部分通过，并暴露 failed-start backend actor/逻辑 GPU reservation 未清理路径；尚无成功 register/infer/delete/re-register 门禁 | 否 |
@@ -110,11 +110,11 @@ Alternating 下 proposed 几乎每个请求都要求真实模型改变，因此 
 
 实际运行的 `serverlessllm/sllm:latest` 镜像创建于 2025-11-03，image ID 为 `6a7fb919…`，早于当前源码 `2618762`。它能完成 1.5B inference，但 delete 路径只删除 metadata/actor handle，没有显式 shutdown/kill detached router/backend；因此模型从 `/v1/models` 消失后 GPU 仍在 30 s 内保持 `6171 MiB`。当前源码已包含 `await router.shutdown.remote()` 和 `ray.kill(router)`，所以旧镜像失败**不能外推为当前 ServerlessLLM 的固有缺陷**。
 
-为避免完整重建 36 GB 镜像，后续用只读 bind-mount 把当前 `controller.py`/`roundrobin_router.py` 覆盖到旧镜像，现场验证 live container 确实导入新 cleanup。该低成本 gate 只得到部分结果：错误 host-only model path 导致 backend 在进入 `ready_inference_instances` 前初始化失败；delete 能 kill router，但 router shutdown 只枚举 ready instances，未清理这个 failed-start named backend actor/逻辑 GPU reservation。随后即使改用正确 `/host-models/...` 路径，scheduler 仍显示 `0` free GPU，直到人工 kill orphan actor 才恢复。由于没有完成成功的 register→infer→delete→物理回收→re-register，当前源码仍不进入排名；而且正式门禁必须新增 failed-start/startup-race cleanup。结构化证据：`results/cross_system/external/serverless-current-source-overlay/summary.json`。
+为避免完整重建 36 GB 镜像，后续用只读 bind-mount 把当前 `controller.py`/`roundrobin_router.py` 覆盖到旧镜像，现场验证 live container 确实导入新 cleanup。该低成本 gate 只得到部分结果：错误 host-only model path 导致 backend 在进入 `ready_inference_instances` 前初始化失败；delete 能 kill router，但 router shutdown 只枚举 ready instances，未清理这个 failed-start named backend actor/逻辑 GPU reservation。随后即使改用正确 `/host-models/...` 路径，scheduler 仍显示 `0` free GPU，直到人工 kill orphan actor 才恢复。由于没有完成成功的 register→infer→delete→物理回收→re-register，当前源码仍不进入排名；而且正式门禁必须新增 failed-start/startup-race cleanup。仓库仅保留 checksummed structured summary `results/cross_system/external/serverless-current-source-overlay/summary.json`；它没有保留 exact command、Ray actor/scheduler 原始输出和完整服务日志，因此属于 **local observation summary**，不是可独立重放的 raw transcript。旧镜像 `6171 MiB` 的详细 tmp smoke 也未纳入 clone。
 
 ### SwapServeLLM
 
-本地 `fix/local-rootless-swapserve` checkout 已通过 rootless Podman socket、NVIDIA CDI、固定 vLLM image、Qwen2.5-0.5B 模型和 vendored Go build 门禁。随后使用固定 commit/hash 的临时 `cuda-checkpoint` 真实执行完整 controller path：两次均得到非空 GPU PID 文件，外部观察到 `checkpointed`，PID 从 GPU compute list 消失、容器 paused；恢复后 CUDA state/running residency 返回，真实 chat inference 输出非空 `OK`。显存从 awake `4490 MiB` 降至 checkpointed `4 MiB`，结束后无 GPU process、8000/8001 无监听。该结果只证明 0.5B **单模型机制可运行**；没有用 Qwen 1.5B/3B frozen traces、独立 repeats 和同一成功协议形成性能结果，因此不进入排名。Raw artifact：`results/cross_system/external/swapserve-smoke/`。
+本地 `fix/local-rootless-swapserve` checkout 已通过 rootless Podman socket、NVIDIA CDI、固定 vLLM image、Qwen2.5-0.5B 模型和 vendored Go build 门禁。随后使用固定 commit/hash 的临时 `cuda-checkpoint` 真实执行完整 controller path：两次均得到非空 GPU PID 文件，外部观察到 `checkpointed`，PID 从 GPU compute list 消失、容器 paused；恢复后 CUDA state/running residency 返回，真实 chat inference 输出非空 `OK`。显存从 awake `4490 MiB` 降至 checkpointed `4 MiB`，结束后无 GPU process、8000/8001 无监听。该结果只证明 0.5B **单模型机制可运行**；没有用 Qwen 1.5B/3B frozen traces、独立 repeats 和同一成功协议形成性能结果，因此不进入排名。`results/cross_system/external/swapserve-smoke/` 是 **checksummed local observation bundle**：retained controller/chat logs 支持 controller 阶段和恢复后 inference，但 checkpoint-state、`nvidia-smi`、显存和端口清理只保留在 summary 中，没有完整外部命令 transcript，不能称为 independently verifiable raw artifact。
 
 ### kvcached
 
@@ -137,11 +137,11 @@ kvcached 核心是 KV cache 的 CUDA VMM/共享内存管理，不是权重切换
 - lifecycle raw：`results/cross_system/raw/vllm/`
 - proposed trace raw：`results/cross_system/raw/proposed/request-traces-final/`
 - llama-swap trace raw：`results/cross_system/raw/llama-swap/request-traces-final/`
-- raw input：所有 request JSONL、lifecycle event JSONL 和 sleep-profile JSONL 均已 force-track；server logs 含绝对路径/环境噪声，保留在本机但不纳入 curated artifact；
+- raw input：所有 request JSONL、lifecycle event JSONL 和 sleep-profile JSONL 均已 force-track；server logs 含绝对路径/环境噪声，保留在本机但不纳入 curated artifact；lifecycle summaries 内仍有 20 个本机绝对 `sleep_profile_log` 字段，clone 可按同目录 tracked basename 找到相应文件，但当前 builder 不执行 deep-raw replay；
 - curated summary：`results/cross_system/latest/summary.json`；
 - artifact checksum manifest：`results/cross_system/latest/checksums.json`；
 - external blockers：`results/cross_system/latest/external-systems.json`
-- Provenance 限制：matrix metadata 固定了 benchmark commit/tree、manifest hash 和运行命令；proposed controller/vLLM 与 llama-swap 的 commit 记录在本报告及 `external-systems.json`，但 runner 当时以 external URL 连接服务，未自动把这些 service commit/embed config 写入同一 metadata，因此不是单文件 self-contained provenance bundle；
+- Provenance 限制：matrix metadata 固定了 benchmark commit/tree、manifest hash 和运行命令；runner 当时以 external URL 连接 proposed/llama-swap 服务，未自动把 service commit、可执行文件和配置与每次 run 作时间绑定。报告中的 proposed controller/vLLM 与 llama-swap commit 来自后置会话/报告记录，不能视为 retained trace 自身对运行时版本的独立证明；
 - analyzer：`src/tool/analyze_cross_system.py`
 - plotter：`src/tool/plot_cross_system.py`
 - unified matrix runner：`scripts/run_cross_system_matrix.py`
