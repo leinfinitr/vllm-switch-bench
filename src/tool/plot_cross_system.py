@@ -18,7 +18,14 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     lifecycle = summary["lifecycle"]
-    model_keys = sorted(lifecycle)
+    model_keys = sorted(
+        lifecycle,
+        key=lambda key: min(
+            method["gpu_ready_mib_median"] for method in lifecycle[key].values()
+        ),
+    )
+    if len(model_keys) != 2:
+        raise ValueError("expected exactly two lifecycle model groups")
     labels = ["Cold process", "vLLM L1", "vLLM L2"]
     methods = ["cold_reload", "sleep_l1", "sleep_l2"]
     x = np.arange(len(labels))
@@ -71,15 +78,15 @@ def main() -> int:
         (
             "Proposed L1 reuse",
             [
-                proposed["proposed:request-switch-alternating.jsonl"]["run_median_ttft_ms"]["median"],
-                proposed["proposed:request-switch-burst.jsonl"]["run_median_ttft_ms"]["median"],
+                proposed['["proposed","request-switch-alternating.jsonl"]']["run_median_ttft_ms"]["median"],
+                proposed['["proposed","request-switch-burst.jsonl"]']["run_median_ttft_ms"]["median"],
             ],
         ),
         (
             "llama-swap cold process",
             [
-                llama["llama-swap:request-switch-alternating.jsonl"]["run_median_ttft_ms"]["median"],
-                llama["llama-swap:request-switch-burst.jsonl"]["run_median_ttft_ms"]["median"],
+                llama['["llama-swap","request-switch-alternating.jsonl"]']["run_median_ttft_ms"]["median"],
+                llama['["llama-swap","request-switch-burst.jsonl"]']["run_median_ttft_ms"]["median"],
             ],
         ),
     ]

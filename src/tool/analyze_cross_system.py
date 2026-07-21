@@ -6,9 +6,15 @@ import json
 import math
 import random
 import statistics
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Callable
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from bench_request_driven_switch import failed_record
+from benchlib.request_trace import REQUIRED_FIELDS, load_manifest
 
 
 def percentile(values: list[float], q: float) -> float | None:
@@ -41,13 +47,7 @@ def bootstrap_ci(
 
 
 def success(row: dict[str, Any]) -> bool:
-    status = row.get("status")
-    return bool(
-        status is not None
-        and 200 <= int(status) < 300
-        and not row.get("error")
-        and row.get("stream_done") is True
-    )
+    return not failed_record(row)
 
 
 def summarize_lifecycle(path: Path, seed: int, samples: int) -> dict[str, Any]:
@@ -92,20 +92,102 @@ def metric_summary(values: list[float], seed: int, samples: int) -> dict[str, An
     }
 
 
-def summarize_trace_dir(path: Path, seed: int, samples: int) -> dict[str, Any]:
+def request_identity_matches(
+    expected: dict[str, Any], observed: dict[str, Any]
+) -> bool:
+    full_fields = tuple(sorted(REQUIRED_FIELDS))
+    if all(field in observed for field in full_fields):
+        return tuple(expected.get(field) for field in full_fields) == tuple(
+            observed.get(field) for field in full_fields
+        )
+    return (
+        expected.get("request_id"),
+        expected.get("model"),
+        float(expected.get("scheduled_offset_s", math.nan)),
+    ) == (
+        observed.get("request_id"),
+        observed.get("model"),
+        float(observed.get("scheduled_offset_s", math.nan)),
+    )
+
+
+def validate_trace_matrix(path: Path) -> list[dict[str, Any]]:
+    metadata = json.loads((path / "metadata.json").read_text(encoding="utf-8"))
     matrix = json.loads((path / "matrix.json").read_text(encoding="utf-8"))
-    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    if int(metadata["repeats"]) <= 0:
+        raise ValueError("metadata repeats must be positive")
+
+    manifests: dict[str, tuple[Path, str, list[dict[str, Any]]]] = {}
+    for item in metadata["manifests"]:
+        manifest_path = Path(item["path"])
+        if not manifest_path.is_absolute():
+            manifest_path = path / manifest_path
+        rows = load_manifest(manifest_path)
+        digest = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+        if digest != item["sha256"]:
+            raise ValueError(f"manifest checksum mismatch: {manifest_path}")
+        name = manifest_path.name
+        if name in manifests:
+            raise ValueError(f"duplicate manifest name: {name}")
+        manifests[name] = (manifest_path, digest, rows)
+
+    system_names = [str(system["name"]) for system in metadata["systems"]]
+    if len(system_names) != len(set(system_names)):
+        raise ValueError("duplicate system name in metadata")
+    expected = {
+        (system, manifest, repeat)
+        for system in system_names
+        for manifest in manifests
+        for repeat in range(int(metadata["repeats"]))
+    }
+    observed: set[tuple[str, str, int]] = set()
+    seen_outputs: set[Path] = set()
+    validated: list[dict[str, Any]] = []
     for run in matrix:
-        output = path / run["output"]
+        key = (str(run["system"]), str(run["manifest"]), int(run["repeat"]))
+        if key in observed:
+            raise ValueError(f"duplicate matrix run: {key}")
+        observed.add(key)
+        if key not in expected:
+            raise ValueError(f"unexpected matrix run: {key}")
+        if int(run.get("return_code", 1)) != 0:
+            raise ValueError(f"nonzero harness return code: {key}")
+        manifest_path, manifest_sha, expected_rows = manifests[key[1]]
+        if run.get("manifest_sha256") != manifest_sha:
+            raise ValueError(f"run manifest checksum mismatch: {key}")
+        output = (path / run["output"]).resolve()
+        if output in seen_outputs:
+            raise ValueError(f"duplicate output path: {output}")
+        seen_outputs.add(output)
         digest = hashlib.sha256(output.read_bytes()).hexdigest()
-        if digest != run["output_sha256"]:
+        if digest != run.get("output_sha256"):
             raise ValueError(f"checksum mismatch: {output}")
         rows = [json.loads(line) for line in output.read_text().splitlines() if line]
-        groups[(run["system"], run["manifest"])].append(
-            {"run": run, "rows": rows}
-        )
+        if len(rows) != len(expected_rows) or int(run.get("rows", -1)) != len(rows):
+            raise ValueError(f"row count mismatch: {key}")
+        for index, (expected_row, row) in enumerate(
+            zip(expected_rows, rows, strict=True)
+        ):
+            if not request_identity_matches(expected_row, row):
+                raise ValueError(f"request identity mismatch: {key} row {index}")
+        validated.append({"run": run, "rows": rows, "manifest_path": manifest_path})
+    if observed != expected:
+        missing = sorted(expected - observed)
+        raise ValueError(f"matrix incomplete; missing={missing}")
+    return validated
+
+
+def summarize_trace_dir(path: Path, seed: int, samples: int) -> dict[str, Any]:
+    validated = validate_trace_matrix(path)
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for item in validated:
+        run = item["run"]
+        groups[(run["system"], run["manifest"])].append(item)
     result: dict[str, Any] = {}
     for (system, manifest), runs in sorted(groups.items()):
+        cell_key = json.dumps([system, manifest], separators=(",", ":"))
+        if cell_key in result:
+            raise ValueError(f"duplicate trace cell: {(system, manifest)}")
         run_ttft: list[float] = []
         run_e2e: list[float] = []
         total = 0
@@ -125,7 +207,7 @@ def summarize_trace_dir(path: Path, seed: int, samples: int) -> dict[str, Any]:
                 run_ttft.append(statistics.median(ttft))
             if e2e:
                 run_e2e.append(statistics.median(e2e))
-        result[f"{system}:{manifest}"] = {
+        result[cell_key] = {
             "runs": len(runs),
             "requests": total,
             "success": succeeded,
@@ -136,6 +218,14 @@ def summarize_trace_dir(path: Path, seed: int, samples: int) -> dict[str, Any]:
             "pooled_e2e_ms": metric_summary(pooled_e2e, seed + 3, samples),
         }
     return result
+
+
+def lifecycle_group_name(path: Path) -> str:
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    models = {str(row["model"]) for row in rows}
+    if len(models) != 1:
+        raise ValueError(f"lifecycle summary must contain exactly one model: {path}")
+    return Path(next(iter(models))).name
 
 
 def trace_group_name(path: Path) -> str:
@@ -155,7 +245,7 @@ def main() -> int:
         "seed": args.seed,
         "bootstrap_samples": args.bootstrap_samples,
         "lifecycle": {
-            Path(value).parent.name: summarize_lifecycle(
+            lifecycle_group_name(Path(value)): summarize_lifecycle(
                 Path(value), args.seed + index * 10, args.bootstrap_samples
             )
             for index, value in enumerate(args.lifecycle)

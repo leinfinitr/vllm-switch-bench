@@ -9,7 +9,7 @@ from typing import Any
 
 import httpx
 
-from benchlib.request_trace import load_manifest
+from benchlib.request_trace import REQUIRED_FIELDS, load_manifest
 from benchlib.schema import PROMPTS
 
 
@@ -54,9 +54,7 @@ async def _dispatch_one(
     await asyncio.sleep(max(0.0, scheduled - time.monotonic()))
     dispatched = time.monotonic()
     record: dict[str, Any] = {
-        "request_id": row["request_id"],
-        "model": row["model"],
-        "scheduled_offset_s": row["scheduled_offset_s"],
+        **{field: row[field] for field in REQUIRED_FIELDS},
         "client_dispatch_offset_s": dispatched - trace_started,
         "dispatch_lag_ms": (dispatched - scheduled) * 1000,
         "status": None,
@@ -140,6 +138,8 @@ def failed_record(record: dict[str, Any]) -> bool:
         or not 200 <= int(status) < 300
         or bool(record.get("error"))
         or not bool(record.get("stream_done"))
+        or record.get("semantic_ttft_ms") is None
+        or not str(record.get("output_text") or "").strip()
     )
 
 

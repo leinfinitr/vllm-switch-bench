@@ -53,6 +53,14 @@ def test_validate_manifest_identity_rejects_mismatch(tmp_path: Path):
         validate_manifest_identity(manifest_rows(), output)
 
 
+def test_validate_manifest_identity_rejects_dispatch_semantics_mismatch(tmp_path: Path):
+    output = tmp_path / "rows.jsonl"
+    row = {**manifest_rows()[0], "max_tokens": 99}
+    output.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="identity mismatch"):
+        validate_manifest_identity(manifest_rows(), output)
+
+
 def test_run_one_writes_authenticated_output(monkeypatch, tmp_path: Path):
     manifest = tmp_path / "manifest.jsonl"
     manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
@@ -65,6 +73,7 @@ def test_run_one_writes_authenticated_output(monkeypatch, tmp_path: Path):
                 "error": None,
                 "stream_done": True,
                 "semantic_ttft_ms": 1.0,
+                "output_text": "ok",
                 "completion_latency_ms": 2.0,
             }
         ]
@@ -87,6 +96,35 @@ def test_run_one_writes_authenticated_output(monkeypatch, tmp_path: Path):
     assert result["rows"] == 1
     assert result["output_sha256"]
     assert output.with_suffix(".run.json").exists()
+    stored = json.loads(output.read_text(encoding="utf-8"))
+    for field, value in manifest_rows()[0].items():
+        assert stored[field] == value
+
+
+def test_run_one_removes_stale_output_when_execution_fails(monkeypatch, tmp_path: Path):
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    output.write_text('{"stale":true}\n', encoding="utf-8")
+
+    async def fail_run_trace(*args, **kwargs):
+        raise RuntimeError("synthetic failure")
+
+    monkeypatch.setattr("run_cross_system_matrix.run_trace", fail_run_trace)
+    result = asyncio.run(
+        run_one(
+            parse_system("test=http://127.0.0.1:1"),
+            manifest,
+            0,
+            output,
+            10,
+            10,
+            tmp_path / "run.log",
+        )
+    )
+    assert result["return_code"] == 1
+    assert result["output_sha256"] is None
+    assert not output.exists()
 
 
 def test_parse_args_rejects_non_positive_repeats():

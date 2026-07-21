@@ -148,7 +148,24 @@ def test_failed_record_treats_incomplete_200_stream_as_failure():
     assert failed_record({"status": 302, "error": None, "stream_done": True})
     assert failed_record({"status": 200, "error": None, "stream_done": False})
     assert failed_record({"status": 200, "error": "broken", "stream_done": True})
-    assert not failed_record({"status": 200, "error": None, "stream_done": True})
+    assert not failed_record(
+        {
+            "status": 200,
+            "error": None,
+            "stream_done": True,
+            "semantic_ttft_ms": 1.0,
+            "output_text": "ok",
+        }
+    )
+    assert failed_record(
+        {
+            "status": 200,
+            "error": None,
+            "stream_done": True,
+            "semantic_ttft_ms": None,
+            "output_text": "",
+        }
+    )
 
 
 def test_dispatch_has_total_deadline_and_preserves_partial_output():

@@ -2,7 +2,7 @@
   "seed": 20260721,
   "bootstrap_samples": 10000,
   "lifecycle": {
-    "20260721_122418": {
+    "Qwen2.5-1.5B-Instruct": {
       "cold_reload": {
         "runs": 5,
         "success": 5,
@@ -121,7 +121,7 @@
         "gpu_evicted_mib_median": 411.0
       }
     },
-    "20260721_122952": {
+    "Qwen2.5-3B-Instruct": {
       "cold_reload": {
         "runs": 5,
         "success": 5,
@@ -243,7 +243,7 @@
   },
   "traces": {
     "proposed/request-traces-final": {
-      "proposed:request-switch-alternating.jsonl": {
+      "[\"proposed\",\"request-switch-alternating.jsonl\"]": {
         "runs": 5,
         "requests": 100,
         "success": 100,
@@ -293,7 +293,7 @@
           ]
         }
       },
-      "proposed:request-switch-burst.jsonl": {
+      "[\"proposed\",\"request-switch-burst.jsonl\"]": {
         "runs": 5,
         "requests": 100,
         "success": 100,
@@ -345,7 +345,7 @@
       }
     },
     "llama-swap/request-traces-final": {
-      "llama-swap:request-switch-alternating.jsonl": {
+      "[\"llama-swap\",\"request-switch-alternating.jsonl\"]": {
         "runs": 3,
         "requests": 60,
         "success": 60,
@@ -395,7 +395,7 @@
           ]
         }
       },
-      "llama-swap:request-switch-burst.jsonl": {
+      "[\"llama-swap\",\"request-switch-burst.jsonl\"]": {
         "runs": 3,
         "requests": 60,
         "success": 60,
@@ -480,7 +480,7 @@
         "source_commit": "261876217767c644fb1378e385ec6c4bd0cd6def",
         "container_image": "serverlessllm/sllm:latest",
         "status": "excluded by lifecycle post-condition",
-        "gate_observation": "Qwen2.5-1.5B inference succeeded, DELETE /v1/models/qwen-1.5b returned HTTP 200 and removed the model from /v1/models, but ray::VllmBackend retained 5918 MiB and total GPU use remained 6171 MiB for the full 30 s verification interval.",
+        "gate_observation": "Qwen2.5-1.5B inference succeeded; DELETE /v1/models/qwen-1.5b removed the model from /v1/models, while the structured local gate summary reported total GPU use of 6171 MiB for the full 30 s verification interval.",
         "blocker": "The current local scale-to-zero/delete path does not reclaim the GPU allocation; therefore it cannot switch to the 3B model on the 10 GiB GPU without an unsafe external kill.",
         "raw_artifact": "results/tmp/cross-system/serverless-smoke2/20260721_121922/summary.json",
         "performance_ranked": false
@@ -491,9 +491,9 @@
         "status": "excluded by environment/build gate",
         "blockers": [
           "cuda-checkpoint is absent from PATH",
-          "rootless podman runtime/image path required by the project is not available in the active environment",
           "the pinned Go build requires unavailable gpgme and btrfs development headers; a CGO-disabled attempt is incompatible with the vendored NVML binding"
         ],
+        "evidence_scope": "local environment observation; exact blocker command/log bundle was not retained",
         "performance_ranked": false
       },
       "kvcached": {

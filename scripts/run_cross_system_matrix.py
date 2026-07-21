@@ -4,7 +4,6 @@ import argparse
 import asyncio
 import hashlib
 import json
-import math
 import os
 import platform
 import random
@@ -23,7 +22,7 @@ import httpx
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from bench_request_driven_switch import failed_record, run_trace, write_jsonl
-from benchlib.request_trace import load_manifest
+from benchlib.request_trace import REQUIRED_FIELDS, load_manifest
 
 
 @dataclass(frozen=True)
@@ -117,19 +116,14 @@ def validate_manifest_identity(
     rows = [json.loads(line) for line in output_path.read_text().splitlines() if line]
     if len(rows) != len(expected):
         raise ValueError(f"row count mismatch: expected={len(expected)} actual={len(rows)}")
+    frozen_fields = tuple(sorted(REQUIRED_FIELDS))
     for index, (request, row) in enumerate(zip(expected, rows, strict=True)):
-        frozen = (
-            request["request_id"],
-            request["model"],
-            float(request["scheduled_offset_s"]),
-        )
-        observed = (
-            row.get("request_id"),
-            row.get("model"),
-            float(row.get("scheduled_offset_s", math.nan)),
-        )
+        frozen = tuple(request.get(field) for field in frozen_fields)
+        observed = tuple(row.get(field) for field in frozen_fields)
         if frozen != observed:
-            raise ValueError(f"request identity mismatch at row {index}: {observed} != {frozen}")
+            raise ValueError(
+                f"request identity mismatch at row {index}: {observed} != {frozen}"
+            )
     return rows
 
 
@@ -145,6 +139,9 @@ async def run_one(
     process: subprocess.Popen[str] | None = None
     manifest = load_manifest(manifest_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.unlink(missing_ok=True)
+    temporary_output = output_path.with_suffix(output_path.suffix + ".tmp")
+    temporary_output.unlink(missing_ok=True)
     started_at = datetime.now(timezone.utc).isoformat()
     started_monotonic = time.monotonic()
     launch = system.launch
@@ -167,8 +164,9 @@ async def run_one(
             )
         async with httpx.AsyncClient(timeout=timeout_s, trust_env=False) as client:
             records = await run_trace(client, system.base_url, manifest, timeout_s)
-        write_jsonl(output_path, records)
-        rows = validate_manifest_identity(manifest, output_path)
+        write_jsonl(temporary_output, records)
+        rows = validate_manifest_identity(manifest, temporary_output)
+        temporary_output.replace(output_path)
         result: dict[str, Any] = {
             "requests": len(rows),
             "failed": sum(failed_record(row) for row in rows),
@@ -193,11 +191,12 @@ async def run_one(
             "manifest": manifest_path.name,
             "manifest_sha256": sha256_file(manifest_path),
             "output": output_path.name,
-            "output_sha256": sha256_file(output_path) if output_path.exists() else None,
+            "output_sha256": None,
             "return_code": 1,
             "error": repr(exc),
         }
     finally:
+        temporary_output.unlink(missing_ok=True)
         stop_process(process)
         log_handle.close()
         metadata = {
