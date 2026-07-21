@@ -7,6 +7,8 @@ import math
 import statistics
 from pathlib import Path
 
+from bench_request_driven_switch import failed_record
+
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results/model_switch_eval"
 RAW = RESULTS / "raw"
@@ -114,13 +116,7 @@ def trace(system: str, files: list[Path]) -> dict:
     runs = []
     for path in sorted(files):
         rows = [json.loads(line) for line in path.read_text().splitlines() if line]
-        failed = [
-            r
-            for r in rows
-            if r.get("error")
-            or r.get("stream_done") is not True
-            or not str(r.get("output_text") or "").strip()
-        ]
+        failed = [r for r in rows if failed_record(r)]
         if failed:
             raise ValueError(f"strict failures in retained trace {path}: {len(failed)}")
         elapsed = max(

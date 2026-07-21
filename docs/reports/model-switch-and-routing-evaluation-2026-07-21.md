@@ -107,7 +107,7 @@ llama-swap 的数字含一次实际推理；ServerlessLLM wake 也以首个成�
 - Proposed alternating run-median semantic TTFT 约 **536 ms**；llama-swap 约 **12.807 s**。
 - Proposed burst strict-success run 的 semantic TTFT 中位数约 **20 ms**；llama-swap 约 **15.273 s**。
 - llama-swap 在启动阶段会排队并合并相同目标请求，因此 E2E 测量的是完整 control-plane 行为，不等于“每个名义模型变化都单独冷启动”。
-- Proposed 的后续第二个 burst run 出现 3 个 deadline failure，并在下一个 cell 进入 `sleeping_in_progress` hang；该 run 未进入成功 makespan 表，但作为诊断失败保留在本地非 curated 目录。这揭示当前 controller 在高并发/长尾路径仍需强化 deadline recovery 和 lifecycle reconciliation。
+- Proposed 的后续第二个 burst run 出现 3 个 deadline failure，并在下一个 cell 进入 `sleeping_in_progress` hang；成功表只使用 strict-success run。原始失败 JSONL、未完成 matrix、controller events 和终止日志未被保留，因此 `3/20` 及 hang 只能视为本机运行时观察，不能作为可独立审计的失败分母或 deadline-penalty 结果。这揭示当前 controller 在高并发/长尾路径仍需强化 deadline recovery 和 lifecycle reconciliation。
 
 ## 6. 外部系统具体发现
 
@@ -119,7 +119,7 @@ llama-swap 的数字含一次实际推理；ServerlessLLM wake 也以首个成�
 
 ### 6.2 ServerlessLLM
 
-- 1.5B current-source overlay 完成 5/5 delete/register 周期；delete 后总 GPU 从约 6171 MiB 回落到 233 MiB。
+- 1.5B current-source overlay 完成 5/5 delete/register 周期；delete 后目标模型从 API 列表消失，总 GPU 从约 6171 MiB 回落到 233 MiB，且 5 个后续 register/infer 周期均成功。当前 retained raw 未直接记录 Ray actor/process 消失或 scheduler logical GPU reservation，因此这里只声明 model-absent + aggregate-GPU-idle operational lifecycle，不声明完整 actor cleanup post-condition。
 - 3B 在 `gpu_memory_utilization=0.75` 初次 engine 初始化失败；该失败 actor 被人工 kill 后，物理 GPU 已释放，但 scheduler 的 `free_gpu` 仍保持 0，后续 `0.80` 重试持续 `No available node`。
 - 这属于真实 lifecycle correctness blocker；不能只重启服务后取一个成功数字，也不能将其记为超时 latency。
 
@@ -139,7 +139,7 @@ llama-swap 的数字含一次实际推理；ServerlessLLM wake 也以首个成�
 2. **CPU pinned backup 占 host memory**：速度换取常驻 pinned 内存；必须继续维护 pressure-triggered release、释放确认和重建策略。
 3. **进程池启动成本未计入稳态 switch**：两个 engine 预初始化后测量；适用于长期服务，不代表首次部署冷启动。
 4. **统计强度有限**：本轮为 exploratory，E2E 样本尤其少；正式论文结论应执行至少 12 个独立初始化 paired blocks，并对失败计 deadline penalty。
-5. **版本 provenance 需随 run 嵌入**：后续 runner 应自动写 controller/vLLM executable hash、配置 hash、PID tree 与 GPU sampler，而不是只在报告中记录。
+5. **运行时 provenance 不完整**：Proposed lifecycle raw 绑定了 benchmark/vLLM commit，但 E2E 与外部系统没有在 run start 统一保存 binary/import path、配置 hash、容器 image digest 和 dirty state。报告中的外部 commit 是后置版本标签，不是与每个 run 的密码学绑定；后续 runner 必须自动写入这些字段以及 PID tree、GPU sampler。
 
 ## 8. Artifact 与复现
 

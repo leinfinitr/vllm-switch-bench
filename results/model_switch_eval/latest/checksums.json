@@ -10,6 +10,11 @@
     "size": 102575
   },
   {
+    "path": "results/model_switch_eval/latest/provenance-limitations.json",
+    "sha256": "bac635aea05483b6b3499208f40eb575ccd6250bfe147e1f7dbc30a482c0338e",
+    "size": 1784
+  },
+  {
     "path": "results/model_switch_eval/latest/summary.json",
     "sha256": "250b5519bc659642dd403011e75f1a2aeff58e9d02af508ecc16828466992907",
     "size": 13058
@@ -121,8 +126,8 @@
   },
   {
     "path": "results/model_switch_eval/raw/proposed/e2e-failed-diagnostic.json",
-    "sha256": "e8b4d6766517dadcee600b2e759fe6a2034702d79ac92608b97b41bde7520550",
-    "size": 580
+    "sha256": "cbd2c72ecec1366289be98f326d27bb983b4a7223be2c5483d305af4eaf9affb",
+    "size": 1166
   },
   {
     "path": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-alternating-r0.jsonl",

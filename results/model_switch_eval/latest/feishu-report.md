@@ -97,7 +97,7 @@
 
 ### 5.2 ServerlessLLM
 
-- 当前源码 overlay 的 1.5B 完成 5/5 delete/register 周期；delete 后 GPU 从约 6171 MiB 回落到 233 MiB。
+- 当前源码 overlay 的 1.5B 完成 5/5 delete/register 周期；delete 后模型从 API 列表消失，GPU 从约 6171 MiB 回落到 233 MiB，且后续 register/infer 均成功。Retained raw 未直接记录 Ray actor/process 消失或 scheduler logical GPU reservation，因此只声明 model-absent + aggregate-GPU-idle operational lifecycle，不声明完整 actor cleanup post-condition。
 - 3B 首次 engine 初始化失败；即使人工 kill failed actor，scheduler 的 `free_gpu` 仍为 0，重试持续 `No available node`。
 - 这是真实 lifecycle correctness blocker；不把失败包装成性能数字。
 
@@ -113,11 +113,11 @@
 
 ### 局限和待修复项
 
-1. 本轮 Proposed 的后续第二个 burst run 出现 3 个 deadline failures，随后 lifecycle 卡在 `sleeping_in_progress`。成功表只使用 strict-success run，但这一失败意味着当前实现还不能做 reliability claim；需加强 timeout 后 state reconciliation、rollback 和 request draining。
+1. 本轮 Proposed 的后续第二个 burst run 出现 3 个 deadline failures，随后 lifecycle 卡在 `sleeping_in_progress`。成功表只使用 strict-success run；原始失败 JSONL、未完成 matrix、controller events 和终止日志未保留，因此 `3/20` 及 hang 是本机运行时观察，不能作为可独立审计的失败分母或 deadline-penalty 结果。当前实现还不能做 reliability claim，需加强 timeout 后 state reconciliation、rollback 和 request draining。
 2. Pinned backup 会占 host memory，必须维持 pressure-triggered release、release ack 和重建机制。
 3. 切换结果不含两个 engine 首次进程启动成本，适用于长期服务，不代表部署冷启动。
 4. E2E 样本量有限；论文级结论至少应执行 12 个独立初始化 paired blocks，失败计 deadline penalty。
-5. 后续 runner 应自动写入 controller/vLLM executable hash、配置 hash、PID tree 和 GPU sampler。
+5. E2E 与外部系统没有在 run start 统一保存 executable/import path、配置 hash、容器 image digest 和 dirty state；报告中的外部 commit 是后置标签而非 run-bound provenance。后续 runner 应自动写入这些字段以及 PID tree 和 GPU sampler。
 
 ## 7. Artifact
 
