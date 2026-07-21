@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "src"))
 
 from run_cross_system_matrix import (  # noqa: E402
+    parse_args,
     parse_system,
     run_one,
     validate_manifest_identity,
@@ -86,3 +87,19 @@ def test_run_one_writes_authenticated_output(monkeypatch, tmp_path: Path):
     assert result["rows"] == 1
     assert result["output_sha256"]
     assert output.with_suffix(".run.json").exists()
+
+
+def test_parse_args_rejects_non_positive_repeats():
+    with pytest.raises(SystemExit):
+        parse_args(
+            [
+                "--systems",
+                "x=http://127.0.0.1:1",
+                "--manifests",
+                "trace.jsonl",
+                "--repeats",
+                "0",
+                "--out-dir",
+                "out",
+            ]
+        )

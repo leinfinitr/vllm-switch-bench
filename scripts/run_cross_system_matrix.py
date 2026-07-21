@@ -291,7 +291,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--request-timeout-s", type=float, default=600)
     parser.add_argument("--ready-timeout-s", type=float, default=240)
     parser.add_argument("--out-dir", required=True)
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.repeats <= 0:
+        parser.error("--repeats must be positive")
+    if args.request_timeout_s <= 0 or args.ready_timeout_s <= 0:
+        parser.error("timeouts must be positive")
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
