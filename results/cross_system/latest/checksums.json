@@ -12,9 +12,54 @@
       "sha256": "7ba46eecf09a9447c8629ebf0fc7d94ed23c4bf787cc6ed4642beae425dce7ac"
     },
     {
+      "path": "results/cross_system/external/serverless-current-source-overlay/summary.json",
+      "bytes": 2194,
+      "sha256": "62c5ca0af604d44d75a5c1d4e883877d506d7975b0b1f3dd5afab5505f6b5dc4"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/cold-start.log",
+      "bytes": 387,
+      "sha256": "c3b91f537d9f72455edcd8c42ca892d7e963fff9a5500937e48723a85db2cb1f"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/first-chat.json",
+      "bytes": 656,
+      "sha256": "3a2f8d70cf34cb29ec41b3af270bdf77f6c818f69f5095cdb611fcf9991c1d3f"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/model-latency.log",
+      "bytes": 797,
+      "sha256": "f3e97b6a154c1a381e3475ca1e25ca1ad39bc05fdb79eed964021bb68e58b31f"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/router.log",
+      "bytes": 5085,
+      "sha256": "dd58324b3d14536323d9c4df0b4f45b010e3cf60cc90a93e7dbf6b60533e50ba"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/second-chat.json",
+      "bytes": 656,
+      "sha256": "73e00bca9d92f119c73e385e76e741671fef6366cbd27b2f64204ac782b1ec2d"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/summary.json",
+      "bytes": 2508,
+      "sha256": "426532598f44191de7feb64c6fc15a9954bdb482ceaef5ef6da31fdccc371367"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/swap-in.log",
+      "bytes": 340,
+      "sha256": "31fb44c1da7576187cf0cb8624ff90de4f36dd7fbe0899f44c3769bf2d19f144"
+    },
+    {
+      "path": "results/cross_system/external/swapserve-smoke/swap-out.log",
+      "bytes": 340,
+      "sha256": "718d7dea42d38aeacd4b9772566169acd93a5dd69c982d52312a292e072462aa"
+    },
+    {
       "path": "results/cross_system/latest/external-systems.json",
-      "bytes": 3264,
-      "sha256": "f48ed33cf6e9f66888077fcdd684e3b8f571b400b18443e99108ee8c4cab8073"
+      "bytes": 5679,
+      "sha256": "e1abd8cca372eb4bae02228414681101f4af1945b429681ec0c9893c71b0ffd6"
     },
     {
       "path": "results/cross_system/latest/lifecycle-latency.png",
@@ -23,8 +68,8 @@
     },
     {
       "path": "results/cross_system/latest/summary.json",
-      "bytes": 15679,
-      "sha256": "a6bd826b83e684067f66b5c4ff09f77e7268e8a118e302ca746413edb047e866"
+      "bytes": 18148,
+      "sha256": "3f381afdcc24756a292e64cfeea7d65172c20fabff534d2e356132e5422be20c"
     },
     {
       "path": "results/cross_system/latest/trace-ttft.png",

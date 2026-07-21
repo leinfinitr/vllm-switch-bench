@@ -1,0 +1,31 @@
+{
+  "system": "ServerlessLLM",
+  "source_commit": "261876217767c644fb1378e385ec6c4bd0cd6def",
+  "base_image": {
+    "tag": "serverlessllm/sllm:latest",
+    "id": "sha256:6a7fb919dcd7bf67b14c9a533e1ff53c2384ebbe9c2562f42aa23674fd25350a",
+    "created": "2025-11-03T15:57:37.412557532Z"
+  },
+  "method": "Read-only bind-mount overlay of current controller.py and roundrobin_router.py into the stale image; no image rebuild or system-wide installation.",
+  "passed": {
+    "head_imported_current_delete": true,
+    "worker_imported_current_router_shutdown": true,
+    "compose_health": true,
+    "failed_start_router_delete_killed_named_actor": true,
+    "cleanup_no_container": true,
+    "cleanup_no_gpu_process": true,
+    "cleanup_ports_free": true
+  },
+  "not_passed": {
+    "register_infer_delete_reregister": true,
+    "physical_reclaim_after_live_backend": true
+  },
+  "observations": [
+    "The first harness attempt supplied a host-only model path. Backend initialization failed because that path did not exist inside the worker container.",
+    "Deleting that failed-start router exercised current controller cleanup and killed the named router actor.",
+    "The failed backend actor had already reserved one logical Ray GPU resource outside the ready_inference_instances set. Current RoundRobinRouter.shutdown only enumerated ready_inference_instances, so the scheduler remained at 1.0/1.0 GPU until the orphan named backend actor was explicitly killed for cleanup.",
+    "A second attempt used the correct /host-models path but could not allocate a backend because of that stale logical reservation; it therefore did not reach inference or physical-GPU reclaim verification.",
+    "The existing old-image 6171 MiB leak remains attributable to stale installed delete code. This overlay run additionally reveals that current cleanup is not proven for a backend initialization failure/startup race."
+  ],
+  "claim_scope": "Current source cleanup is partially validated but not publication-ranked. A fresh rebuilt stack must pass successful register/infer/delete/actor-death/scheduler-deallocation/physical-reclaim/re-register, plus a failed-start cleanup regression, before inclusion."
+}

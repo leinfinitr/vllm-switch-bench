@@ -19,6 +19,8 @@ def main() -> int:
         root / "results/cross_system/latest/lifecycle-latency.png",
         root / "results/cross_system/latest/trace-ttft.png",
     ]
+    include.extend(sorted((root / "results/cross_system/external").rglob("*.json")))
+    include.extend(sorted((root / "results/cross_system/external").rglob("*.log")))
     include.extend(sorted((root / "results/cross_system/raw").rglob("*.json")))
     include.extend(sorted((root / "results/cross_system/raw").rglob("*.csv")))
     include.extend(

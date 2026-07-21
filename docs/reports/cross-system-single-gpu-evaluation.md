@@ -5,7 +5,7 @@
 
 ## 1. 结论摘要
 
-在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B 与 Qwen2.5-3B 不能按本实验配置同时常驻 HBM。我们将 proposed controller 的 pinned CPU clean-backup reuse 与 vLLM cold/L1/L2 lifecycle 以及开源 `llama-swap` 进程级切换作真实本机比较。ServerlessLLM、SwapServeLLM 和 kvcached 经过可运行性门禁，但未满足可比的双模型 weight-switch contract，因此只报告 blocker，不生成或推断性能数字。
+在单张 RTX 3080 10 GiB 上，Qwen2.5-1.5B 与 Qwen2.5-3B 不能按本实验配置同时常驻 HBM。我们将 proposed controller 的 pinned CPU clean-backup reuse 与 vLLM cold/L1/L2 lifecycle 以及开源 `llama-swap` 进程级切换作真实本机比较。ServerlessLLM、SwapServeLLM 和 kvcached 尚未通过可比的双模型 weight-switch 门禁，因此只报告精确限定的 runtime/环境/语义边界，不生成或推断性能数字。
 
 主要观测：
 
@@ -28,9 +28,9 @@
 | Proposed | controller `d78155f`；vLLM `b2057ef`（service provenance 来自运行记录，未嵌入 matrix metadata） | 双 vLLM 进程 + L1 pinned clean backup reuse + request-driven controller | 本轮 request trace 200/200 strict success；历史 drain/资源验证未随本 artifact 保留 final3 raw | 是 |
 | vLLM cold/L1/L2 | vLLM `b2057ef` | terminate/start；sleep level 1；sleep level 2 | 30/30 lifecycle run 成功 | 是 |
 | llama-swap | `c6adf57` | OpenAI proxy 管理 vLLM terminate/start | 120/120 strict requests 成功 | 是，secondary |
-| ServerlessLLM | `2618762` | serverless fast loading / scale-to-zero | 本地排除：DELETE 后模型列表为空，但结构化 gate 记录显示 30 s 后 GPU use 仍为 `6171 MiB`；详细 tmp smoke 未纳入 cloneable artifact | 否 |
-| SwapServeLLM | `69f8aec` | CUDA process/container checkpoint | 本地环境排除：缺 `cuda-checkpoint`，pinned Go build 缺 gpgme/btrfs dev headers；未保留 exact blocker log bundle | 否 |
-| kvcached | 本地 `d78649d`；历史 artifact `623dbf2` | elastic KV/memory manager | 单模型 OpenAI smoke 曾通过，但无本评测需要的双模型 weight lifecycle contract | 否；只作相关系统 |
+| ServerlessLLM | 源码 `2618762`；实际镜像 `6a7fb919`（2025-11-03） | serverless fast loading / scale-to-zero | 旧镜像 delete 泄漏 `6171 MiB`；当前源码 overlay gate 只部分通过，并暴露 failed-start backend actor/逻辑 GPU reservation 未清理路径；尚无成功 register/infer/delete/re-register 门禁 | 否 |
+| SwapServeLLM | `69f8aec` | CUDA process/container checkpoint | 0.5B 单模型真机机制 smoke 通过：2 次 checkpoint/pause/restore、post-restore inference 与 cleanup 均通过；未执行可比双模型性能矩阵 | 否；仅机制证据 |
+| kvcached | 本地 `d78649d`；官方 v0.1.5 `2513db1` | elastic KV/memory manager；controller 可调用 vLLM L1 | 核心机制不是权重切换；官方 controller 缺冲突 victim selection 和单卡 staged startup，未执行“kvcached controller + vLLM L1 + 外部互斥 harness”组合 | 否；只作相关/组合候选 |
 
 结构化记录：`results/cross_system/latest/external-systems.json`。
 
@@ -108,15 +108,17 @@ Alternating 下 proposed 几乎每个请求都要求真实模型改变，因此 
 
 ### ServerlessLLM
 
-当前 local image 能完成 1.5B inference，但 `DELETE /v1/models/qwen-1.5b` 的控制面 200 不代表物理 scale-to-zero。本地 gate 同时要求模型从 `/v1/models` 消失且 GPU 回落到 idle threshold；实测前者满足、后者 30 s 未满足。retained cross-system artifact 只保存结构化 observation，详细 smoke summary 位于 gitignored `results/tmp/`，所以这是**本地 blocker 记录，不是可由 clone 独立重放的外部 artifact**；不进入排名。
+实际运行的 `serverlessllm/sllm:latest` 镜像创建于 2025-11-03，image ID 为 `6a7fb919…`，早于当前源码 `2618762`。它能完成 1.5B inference，但 delete 路径只删除 metadata/actor handle，没有显式 shutdown/kill detached router/backend；因此模型从 `/v1/models` 消失后 GPU 仍在 30 s 内保持 `6171 MiB`。当前源码已包含 `await router.shutdown.remote()` 和 `ray.kill(router)`，所以旧镜像失败**不能外推为当前 ServerlessLLM 的固有缺陷**。
+
+为避免完整重建 36 GB 镜像，后续用只读 bind-mount 把当前 `controller.py`/`roundrobin_router.py` 覆盖到旧镜像，现场验证 live container 确实导入新 cleanup。该低成本 gate 只得到部分结果：错误 host-only model path 导致 backend 在进入 `ready_inference_instances` 前初始化失败；delete 能 kill router，但 router shutdown 只枚举 ready instances，未清理这个 failed-start named backend actor/逻辑 GPU reservation。随后即使改用正确 `/host-models/...` 路径，scheduler 仍显示 `0` free GPU，直到人工 kill orphan actor 才恢复。由于没有完成成功的 register→infer→delete→物理回收→re-register，当前源码仍不进入排名；而且正式门禁必须新增 failed-start/startup-race cleanup。结构化证据：`results/cross_system/external/serverless-current-source-overlay/summary.json`。
 
 ### SwapServeLLM
 
-本地 checkout 是为 rootless podman 和 `cuda-checkpoint` 定制的旧 artifact。本机 gate 观察到关键 runtime/build 依赖缺口；继续安装会修改共享系统环境，且仍不能保证 driver/process-checkpoint 兼容。当前只保留结构化 blocker narrative，没有 exact build log/checksum bundle，因此按**本地环境排除理由**报告，不把历史 lifecycle 数字拼入本次统一 trace。
+本地 `fix/local-rootless-swapserve` checkout 已通过 rootless Podman socket、NVIDIA CDI、固定 vLLM image、Qwen2.5-0.5B 模型和 vendored Go build 门禁。随后使用固定 commit/hash 的临时 `cuda-checkpoint` 真实执行完整 controller path：两次均得到非空 GPU PID 文件，外部观察到 `checkpointed`，PID 从 GPU compute list 消失、容器 paused；恢复后 CUDA state/running residency 返回，真实 chat inference 输出非空 `OK`。显存从 awake `4490 MiB` 降至 checkpointed `4 MiB`，结束后无 GPU process、8000/8001 无监听。该结果只证明 0.5B **单模型机制可运行**；没有用 Qwen 1.5B/3B frozen traces、独立 repeats 和同一成功协议形成性能结果，因此不进入排名。Raw artifact：`results/cross_system/external/swapserve-smoke/`。
 
 ### kvcached
 
-kvcached 重点是 KV cache 和共享内存管理，不是与本文相同的模型权重 sleep/wake。历史 official image 在此 RTX 3080 完成过单模型 OpenAI smoke，但未保留可审计 raw artifact，也没有当前双模型 weight-switch contract。因此只列为 related system；不把它的 KV-cache 能力伪装成 weight-switch baseline。
+kvcached 核心是 KV cache 的 CUDA VMM/共享内存管理，不是权重切换。v0.1.5 的 controller 确实能在启用 vLLM server-dev/sleep mode 后调用后端 level-1 sleep/wake，因此不能再写成“没有 lifecycle endpoints”。但 controller 不会在唤醒目标模型前选择并 sleep 当前冲突模型，launcher 也会直接启动所有 backends，缺少 10 GiB 单卡所需的 staged initialization。故合理命名应是 **“kvcached controller + vLLM L1 + 外部互斥/staged-start harness”**；该组合本轮未执行。历史单模型 smoke 没有 retained raw，因此仍只列为 related/composite candidate，不产生性能数字。
 
 ## 8. Validity threats
 

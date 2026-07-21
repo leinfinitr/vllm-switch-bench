@@ -1,0 +1,2 @@
+2026/07/21 14:37:41 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct; UsedGpuMemory: 4940; totalTime: 439.457454ms
+2026/07/21 14:38:08 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct; UsedGpuMemory: 4490; totalTime: 434.075376ms

@@ -479,32 +479,59 @@
         "source_url": "https://github.com/ServerlessLLM/ServerlessLLM",
         "source_commit": "261876217767c644fb1378e385ec6c4bd0cd6def",
         "container_image": "serverlessllm/sllm:latest",
-        "status": "excluded by lifecycle post-condition",
-        "gate_observation": "Qwen2.5-1.5B inference succeeded; DELETE /v1/models/qwen-1.5b removed the model from /v1/models, while the structured local gate summary reported total GPU use of 6171 MiB for the full 30 s verification interval.",
-        "blocker": "The current local scale-to-zero/delete path does not reclaim the GPU allocation; therefore it cannot switch to the 3B model on the 10 GiB GPU without an unsafe external kill.",
-        "raw_artifact": "results/tmp/cross-system/serverless-smoke2/20260721_121922/summary.json",
+        "runtime_image_id": "sha256:6a7fb919dcd7bf67b14c9a533e1ff53c2384ebbe9c2562f42aa23674fd25350a",
+        "runtime_image_created": "2025-11-03T15:57:37.412557532Z",
+        "status": "excluded: stale runtime image failed the lifecycle post-condition",
+        "gate_observation": "Qwen2.5-1.5B inference succeeded; DELETE /v1/models/qwen-1.5b removed the model from /v1/models, while the stale local image retained 6171 MiB of total GPU use for the full 30 s verification interval.",
+        "root_cause": "The executed image predates source commit 2618762. Its installed delete path drops controller metadata without explicitly shutting down/killing the detached router/backend actors.",
+        "current_source_overlay_gate": {
+          "status": "partial",
+          "current_delete_imported": true,
+          "failed_start_router_killed": true,
+          "successful_register_infer_delete_reclaim": false,
+          "new_finding": "When backend initialization failed before entering ready_inference_instances, current router shutdown did not clean the named backend actor/logical GPU reservation. A second attempt was blocked at 0 free logical GPUs until the orphan actor was explicitly killed during cleanup."
+        },
+        "blocker": "The stale-image result is not evidence that current ServerlessLLM intrinsically cannot reclaim GPU memory. Current source remains unranked because a low-cost overlay gate did not complete successful register/infer/delete/re-register and exposed an unverified failed-start cleanup path. Inclusion requires actor-death, scheduler-deallocation, physical-GPU-reclaim, re-register inference, and failed-start cleanup post-conditions on a fresh rebuilt stack.",
+        "raw_artifacts": [
+          "results/tmp/cross-system/serverless-smoke2/20260721_121922/summary.json",
+          "results/cross_system/external/serverless-current-source-overlay/summary.json"
+        ],
         "performance_ranked": false
       },
       "swapserve_llm": {
         "source_url": "https://github.com/rst0git/SwapServeLLM",
         "source_commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
-        "status": "excluded by environment/build gate",
-        "blockers": [
-          "cuda-checkpoint is absent from PATH",
-          "the pinned Go build requires unavailable gpgme and btrfs development headers; a CGO-disabled attempt is incompatible with the vendored NVML binding"
+        "status": "single-model checkpoint mechanism smoke passed; comparable two-model benchmark not executed",
+        "passed_gates": [
+          "rootless Podman socket and NVIDIA CDI are available",
+          "the pinned local vLLM image and Qwen2.5-0.5B model are present",
+          "the repository builds with vendored dependencies and native-library exclusion tags",
+          "the RTX 3080 driver satisfies the cuda-checkpoint driver floor"
         ],
-        "evidence_scope": "local environment observation; exact blocker command/log bundle was not retained",
+        "gate": {
+          "model": "Qwen2.5-0.5B-Instruct",
+          "checkpoint_cycles": 2,
+          "cuda_pid_file_nonempty": true,
+          "checkpoint_state_externally_verified": true,
+          "checkpointed_gpu_mib": 4,
+          "awake_gpu_mib": 4490,
+          "post_restore_inference_passed": true,
+          "cleanup_passed": true
+        },
+        "raw_artifact": "results/cross_system/external/swapserve-smoke",
+        "evidence_scope": "real single-model CUDA-checkpoint/pause/restore mechanism smoke; not a two-model Qwen 1.5B/3B performance result",
         "performance_ranked": false
       },
       "kvcached": {
         "source_url": "https://github.com/ovg-project/kvcached",
         "local_checkout_commit": "d78649d0c2b7d2ff32eb48a423df7bf60054f4c9",
         "previous_artifact_commit": "623dbf2642dce1f9d27a154b7367605d26221c3c",
-        "status": "excluded from weight-switch ranking",
+        "official_release_commit": "2513db15eee5180e78a040970bdb3a8b4673375e",
+        "status": "related KV-memory system; composite weight-switch baseline not executed",
         "gate_observation": "The official artifact previously passed a single-model OpenAI inference smoke on this RTX 3080.",
-        "blocker": "kvcached is an elastic KV-cache/memory manager and the tested API did not expose the two-model weight lifecycle contract needed for an A/B weight-switch comparison. It is a related mechanism, not a drop-in weight-switch baseline.",
+        "blocker": "kvcached itself is an elastic KV-cache/memory manager, not a whole-model weight-switch primitive. The official controller can invoke backend vLLM level-1 sleep/wake, but it does not select/sleep a conflicting model before waking the target and its launcher lacks the staged single-GPU initialization required by this 10 GiB GPU. A fair candidate would therefore be named 'kvcached controller + vLLM level-1 + external mutual-exclusion/staged-start harness', not 'kvcached weight switching'. That composite was not executed.",
         "performance_ranked": false,
-        "note": "No kvcached latency is inferred or reused; the previous smoke had no retained raw artifact and is therefore provenance-only evidence."
+        "note": "v0.1.5 contains lifecycle endpoints when vLLM server-dev mode and sleep mode are enabled; the exclusion is not based on those endpoints being absent. No kvcached latency is inferred or reused, and the previous smoke had no retained raw artifact."
       }
     }
   }
