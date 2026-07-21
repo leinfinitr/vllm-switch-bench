@@ -1,0 +1,3 @@
+2026/07/21 18:42:43 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; totalTime: 135.522714ms; CreateContainer: 16.694223ms; StartContainer: 118.828204ms; GetContainerIP: 44ns
+2026/07/21 18:46:24 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; totalTime: 129.081205ms; CreateContainer: 14.857779ms; StartContainer: 114.223224ms; GetContainerIP: 27ns
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; cold-start-time: 41.412363997s

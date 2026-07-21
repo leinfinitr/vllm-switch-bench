@@ -1,0 +1,6 @@
+2026/07/21 18:47:39 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9376; totalTime: 1.048496816s
+2026/07/21 18:47:41 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9372; totalTime: 992.047982ms
+2026/07/21 18:47:44 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9372; totalTime: 989.324394ms
+2026/07/21 18:47:47 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9372; totalTime: 987.055278ms
+2026/07/21 18:47:49 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9372; totalTime: 989.63335ms
+2026/07/21 18:47:52 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; UsedGpuMemory: 9372; totalTime: 996.896096ms

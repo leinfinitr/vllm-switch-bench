@@ -1,0 +1,11 @@
+{
+  "status": "failed_diagnostic_not_in_curated_e2e_ranking",
+  "reason": "A later proposed burst run had three request deadlines; the following cell then hung with qwen-3b in sleeping_in_progress and was terminated.",
+  "failed_run": "proposed-request-switch-burst-r1.jsonl",
+  "attempted_requests": 20,
+  "failed_requests": 3,
+  "error_class": "TimeoutError",
+  "completed_cells_before_termination": 4,
+  "expected_cells": 6,
+  "claim_boundary": "The successful burst run r2 is reported descriptively. This failure is disclosed and prevents a confirmatory reliability claim."
+}

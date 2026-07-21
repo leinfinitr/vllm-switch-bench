@@ -1,0 +1,4 @@
+2026/07/21 18:42:43 Running backend: vllm-qwen-3b with model: /home/ljl/models/hf/Qwen2.5-3B-Instruct
+2026/07/21 18:42:43 Waiting HTTP server: http://127.0.0.1:8001/v1
+2026/07/21 18:43:43 unexprected container stop: total wait time: 1m0.257889676s
+2026/07/21 18:43:43 Error starting containers: failed to initilize container: timeout on container start

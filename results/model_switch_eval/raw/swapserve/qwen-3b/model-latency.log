@@ -1,0 +1,5 @@
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; Prompt: "Hello"; TTFT: 196.393444ms
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; Prompt: "Hello"; TTFT: 18.189456ms
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; Prompt: "Hello"; TTFT: 17.085055ms
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; Prompt: "Hello"; TTFT: 18.061011ms
+2026/07/21 18:47:05 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-3B-Instruct; Prompt: "Hello"; TTFT: 17.98212ms

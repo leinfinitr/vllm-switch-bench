@@ -1,0 +1,207 @@
+2026/07/21 18:37:53 Running backend: vllm-qwen-1.5b with model: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:37:53 Waiting HTTP server: http://127.0.0.1:8000/v1
+2026/07/21 18:38:31 Server responded in 38.354372991s
+2026/07/21 18:38:32 ✅ container 75bc5d997f0f3e619cc3e3e9115a2e25f22811ad8285002e54a5665c992d23ca became ready in 38.596357936s
+2026/07/21 18:38:32 [🔃 SwapOut Stage] Remove from list of running containers took 693ns
+2026/07/21 18:38:32 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:38:32 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:38:32 [🔃 SwapOut Stage] Get GPU PIDs took 16.228865ms
+2026/07/21 18:38:32 [🔃 SwapOut Stage] Calculate GPU memory used took 9.718082ms
+2026/07/21 18:38:33 [🔃 SwapOut Stage] Unload model took 906.429444ms
+2026/07/21 18:38:33 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:38:33 [🔃 SwapOut Stage] Get GPU PIDs took 923.573688ms
+2026/07/21 18:38:33 [🔃 SwapOut Stage] Checkpoint GPU threads took 389.959344ms
+2026/07/21 18:38:33 Pausing container 75bc5d997f0f3e619cc3e3e9115a2e25f22811ad8285002e54a5665c992d23ca...
+2026/07/21 18:38:33 [🔃 SwapOut Stage] Pause container took 21.664338ms
+2026/07/21 18:38:33 [🔃 SwapOut Stage] === Total SwapOut time 1.361247869s ===
+2026/07/21 18:38:33 router exited with an error
+2026/07/21 18:39:20 Running backend: vllm-qwen-1.5b with model: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:39:20 Waiting HTTP server: http://127.0.0.1:8000/v1
+2026/07/21 18:39:58 Server responded in 38.151049483s
+2026/07/21 18:39:59 ✅ container b928e0952bb4ad2c8cc1c03cb95b5fb06b21cdc2832b9b0b46ccbf91ac1203df became ready in 38.39009801s
+2026/07/21 18:39:59 [🔃 SwapOut Stage] Remove from list of running containers took 478ns
+2026/07/21 18:39:59 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:39:59 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:39:59 [🔃 SwapOut Stage] Get GPU PIDs took 17.800061ms
+2026/07/21 18:39:59 [🔃 SwapOut Stage] Calculate GPU memory used took 10.140394ms
+2026/07/21 18:39:59 [🔃 SwapOut Stage] Unload model took 910.462596ms
+2026/07/21 18:39:59 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:40:00 [🔃 SwapOut Stage] Get GPU PIDs took 930.095491ms
+2026/07/21 18:40:00 [🔃 SwapOut Stage] Checkpoint GPU threads took 387.886303ms
+2026/07/21 18:40:00 Pausing container b928e0952bb4ad2c8cc1c03cb95b5fb06b21cdc2832b9b0b46ccbf91ac1203df...
+2026/07/21 18:40:00 [🔃 SwapOut Stage] Pause container took 22.873207ms
+2026/07/21 18:40:00 [🔃 SwapOut Stage] === Total SwapOut time 1.368928914s ===
+2026/07/21 18:40:00 router exited with an error
+2026/07/21 18:40:44 Running backend: vllm-qwen-1.5b with model: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:40:44 Waiting HTTP server: http://127.0.0.1:8001/v1
+2026/07/21 18:41:23 Server responded in 39.165965212s
+2026/07/21 18:41:23 ✅ container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18 became ready in 39.397623892s
+2026/07/21 18:41:23 [🔃 SwapOut Stage] Remove from list of running containers took 1.401µs
+2026/07/21 18:41:23 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:41:23 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:41:23 [🔃 SwapOut Stage] Get GPU PIDs took 17.568856ms
+2026/07/21 18:41:23 [🔃 SwapOut Stage] Calculate GPU memory used took 8.87978ms
+2026/07/21 18:41:24 [🔃 SwapOut Stage] Unload model took 906.07693ms
+2026/07/21 18:41:24 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:41:24 [🔃 SwapOut Stage] Get GPU PIDs took 923.677466ms
+2026/07/21 18:41:25 [🔃 SwapOut Stage] Checkpoint GPU threads took 395.527522ms
+2026/07/21 18:41:25 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:41:25 [🔃 SwapOut Stage] Pause container took 21.357464ms
+2026/07/21 18:41:25 [🔃 SwapOut Stage] === Total SwapOut time 1.367117865s ===
+2026/07/21 18:41:58 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:41:58 [🧠 MemManager] Queued request for 7246 bytes
+2026/07/21 18:41:58 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:41:58 [🧠 MemManager] Granted request for 7246 bytes
+2026/07/21 18:41:58 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:41:58 [🔄 SwapIn Stage] resumeContainer completed in 21.560337ms
+2026/07/21 18:41:58 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 393.196217ms
+2026/07/21 18:41:58 Server responded in 1.135662ms
+2026/07/21 18:41:58 [🔄 SwapIn Stage] WaitForServer completed in 1.149499ms
+2026/07/21 18:41:59 [🔄 SwapIn Stage] LoadModel completed in 270.929623ms
+2026/07/21 18:41:59 [🔄 SwapIn Stage] Adding to list of running containers took 893ns
+2026/07/21 18:41:59 [🔄 SwapIn Stage] === Total SwapIn time 686.905804ms ===
+2026/07/21 18:41:59 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:41:59 [🧠 MemManager] Released 7246 bytes. Pending memory is now 0.
+2026/07/21 18:41:59 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:41:59 [🔃 SwapOut Stage] Remove from list of running containers took 1.027µs
+2026/07/21 18:41:59 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:41:59 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:41:59 [🔃 SwapOut Stage] Get GPU PIDs took 16.350879ms
+2026/07/21 18:41:59 [🔃 SwapOut Stage] Calculate GPU memory used took 9.756362ms
+2026/07/21 18:41:59 [🔃 SwapOut Stage] Unload model took 207.101975ms
+2026/07/21 18:41:59 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:41:59 [🔃 SwapOut Stage] Get GPU PIDs took 226.565915ms
+2026/07/21 18:42:00 [🔃 SwapOut Stage] Checkpoint GPU threads took 384.109674ms
+2026/07/21 18:42:00 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:42:00 [🔃 SwapOut Stage] Pause container took 20.288104ms
+2026/07/21 18:42:00 [🔃 SwapOut Stage] === Total SwapOut time 657.22139ms ===
+2026/07/21 18:42:00 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:42:00 [🧠 MemManager] Queued request for 7092 bytes
+2026/07/21 18:42:00 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:42:00 [🧠 MemManager] Granted request for 7092 bytes
+2026/07/21 18:42:00 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:00 [🔄 SwapIn Stage] resumeContainer completed in 20.277407ms
+2026/07/21 18:42:00 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 346.982413ms
+2026/07/21 18:42:00 Server responded in 973.876µs
+2026/07/21 18:42:00 [🔄 SwapIn Stage] WaitForServer completed in 985.957µs
+2026/07/21 18:42:00 [🔄 SwapIn Stage] LoadModel completed in 269.827086ms
+2026/07/21 18:42:00 [🔄 SwapIn Stage] Adding to list of running containers took 1.413µs
+2026/07/21 18:42:00 [🔄 SwapIn Stage] === Total SwapIn time 638.149697ms ===
+2026/07/21 18:42:00 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:00 [🧠 MemManager] Released 7092 bytes. Pending memory is now 0.
+2026/07/21 18:42:00 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:01 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Remove from list of running containers took 908ns
+2026/07/21 18:42:01 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:01 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Get GPU PIDs took 17.950011ms
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Calculate GPU memory used took 8.937822ms
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Unload model took 207.07958ms
+2026/07/21 18:42:01 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Get GPU PIDs took 223.767812ms
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Checkpoint GPU threads took 384.042712ms
+2026/07/21 18:42:01 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:42:01 [🔃 SwapOut Stage] Pause container took 21.327829ms
+2026/07/21 18:42:01 [🔃 SwapOut Stage] === Total SwapOut time 656.154249ms ===
+2026/07/21 18:42:01 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:42:01 [🧠 MemManager] Queued request for 7092 bytes
+2026/07/21 18:42:02 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:42:02 [🧠 MemManager] Granted request for 7092 bytes
+2026/07/21 18:42:02 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:02 [🔄 SwapIn Stage] resumeContainer completed in 24.360226ms
+2026/07/21 18:42:02 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 352.678058ms
+2026/07/21 18:42:02 Server responded in 1.004223ms
+2026/07/21 18:42:02 [🔄 SwapIn Stage] WaitForServer completed in 1.01225ms
+2026/07/21 18:42:02 [🔄 SwapIn Stage] LoadModel completed in 269.858066ms
+2026/07/21 18:42:02 [🔄 SwapIn Stage] Adding to list of running containers took 954ns
+2026/07/21 18:42:02 [🔄 SwapIn Stage] === Total SwapIn time 647.976749ms ===
+2026/07/21 18:42:02 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:02 [🧠 MemManager] Released 7092 bytes. Pending memory is now 0.
+2026/07/21 18:42:02 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:02 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Remove from list of running containers took 847ns
+2026/07/21 18:42:03 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:03 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Get GPU PIDs took 16.325387ms
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Calculate GPU memory used took 9.018067ms
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Unload model took 207.727266ms
+2026/07/21 18:42:03 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Get GPU PIDs took 227.044068ms
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Checkpoint GPU threads took 385.075019ms
+2026/07/21 18:42:03 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:42:03 [🔃 SwapOut Stage] Pause container took 22.274868ms
+2026/07/21 18:42:03 [🔃 SwapOut Stage] === Total SwapOut time 659.886602ms ===
+2026/07/21 18:42:03 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:42:03 [🧠 MemManager] Queued request for 7092 bytes
+2026/07/21 18:42:03 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:42:03 [🧠 MemManager] Granted request for 7092 bytes
+2026/07/21 18:42:03 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:03 [🔄 SwapIn Stage] resumeContainer completed in 22.656165ms
+2026/07/21 18:42:04 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 345.051346ms
+2026/07/21 18:42:04 Server responded in 1.124918ms
+2026/07/21 18:42:04 [🔄 SwapIn Stage] WaitForServer completed in 1.135076ms
+2026/07/21 18:42:04 [🔄 SwapIn Stage] LoadModel completed in 270.138703ms
+2026/07/21 18:42:04 [🔄 SwapIn Stage] Adding to list of running containers took 1.056µs
+2026/07/21 18:42:04 [🔄 SwapIn Stage] === Total SwapIn time 639.054316ms ===
+2026/07/21 18:42:04 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:04 [🧠 MemManager] Released 7092 bytes. Pending memory is now 0.
+2026/07/21 18:42:04 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:04 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:04 [🔃 SwapOut Stage] Remove from list of running containers took 1.561µs
+2026/07/21 18:42:04 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:04 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:04 [🔃 SwapOut Stage] Get GPU PIDs took 16.732414ms
+2026/07/21 18:42:04 [🔃 SwapOut Stage] Calculate GPU memory used took 8.928718ms
+2026/07/21 18:42:05 [🔃 SwapOut Stage] Unload model took 206.97016ms
+2026/07/21 18:42:05 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:05 [🔃 SwapOut Stage] Get GPU PIDs took 224.570274ms
+2026/07/21 18:42:05 [🔃 SwapOut Stage] Checkpoint GPU threads took 404.968931ms
+2026/07/21 18:42:05 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:42:05 [🔃 SwapOut Stage] Pause container took 20.609841ms
+2026/07/21 18:42:05 [🔃 SwapOut Stage] === Total SwapOut time 675.927732ms ===
+2026/07/21 18:42:05 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:42:05 [🧠 MemManager] Queued request for 7092 bytes
+2026/07/21 18:42:05 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:42:05 [🧠 MemManager] Granted request for 7092 bytes
+2026/07/21 18:42:05 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:05 [🔄 SwapIn Stage] resumeContainer completed in 23.137305ms
+2026/07/21 18:42:05 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 349.127712ms
+2026/07/21 18:42:05 Server responded in 954.18µs
+2026/07/21 18:42:05 [🔄 SwapIn Stage] WaitForServer completed in 965.948µs
+2026/07/21 18:42:06 [🔄 SwapIn Stage] LoadModel completed in 269.386055ms
+2026/07/21 18:42:06 [🔄 SwapIn Stage] Adding to list of running containers took 851ns
+2026/07/21 18:42:06 [🔄 SwapIn Stage] === Total SwapIn time 642.67317ms ===
+2026/07/21 18:42:06 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:06 [🧠 MemManager] Released 7092 bytes. Pending memory is now 0.
+2026/07/21 18:42:06 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:06 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:06 [🔃 SwapOut Stage] Remove from list of running containers took 849ns
+2026/07/21 18:42:06 [🔃 SwapOut Stage] === Swap-Out /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:06 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:06 [🔃 SwapOut Stage] Get GPU PIDs took 16.701547ms
+2026/07/21 18:42:06 [🔃 SwapOut Stage] Calculate GPU memory used took 9.264485ms
+2026/07/21 18:42:06 [🔃 SwapOut Stage] Unload model took 207.128867ms
+2026/07/21 18:42:06 Warning: could not parse container PID from bindings: HPID
+2026/07/21 18:42:06 [🔃 SwapOut Stage] Get GPU PIDs took 224.282056ms
+2026/07/21 18:42:07 [🔃 SwapOut Stage] Checkpoint GPU threads took 385.697188ms
+2026/07/21 18:42:07 Pausing container 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18...
+2026/07/21 18:42:07 [🔃 SwapOut Stage] Pause container took 21.126657ms
+2026/07/21 18:42:07 [🔃 SwapOut Stage] === Total SwapOut time 657.198077ms ===
+2026/07/21 18:42:07 [SwapIn] Container /home/ljl/models/hf/Qwen2.5-1.5B-Instruct is not running. Requesting memory...
+2026/07/21 18:42:07 [🧠 MemManager] Queued request for 7092 bytes
+2026/07/21 18:42:07 [🧠 MemManager] Sufficient memory found. Granting request.
+2026/07/21 18:42:07 [🧠 MemManager] Granted request for 7092 bytes
+2026/07/21 18:42:07 [🔄 SwapIn Stage] === Swap-In /home/ljl/models/hf/Qwen2.5-1.5B-Instruct ===
+2026/07/21 18:42:07 [🔄 SwapIn Stage] resumeContainer completed in 20.939722ms
+2026/07/21 18:42:07 [🔄 SwapIn Stage] cuda.RestorePID for all PIDs completed in 348.979306ms
+2026/07/21 18:42:07 Server responded in 897.429µs
+2026/07/21 18:42:07 [🔄 SwapIn Stage] WaitForServer completed in 906.305µs
+2026/07/21 18:42:07 [🔄 SwapIn Stage] LoadModel completed in 269.658551ms
+2026/07/21 18:42:07 [🔄 SwapIn Stage] Adding to list of running containers took 823ns
+2026/07/21 18:42:07 [🔄 SwapIn Stage] === Total SwapIn time 640.537612ms ===
+2026/07/21 18:42:07 ✅ Successful Swap-in: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:07 [🧠 MemManager] Released 7092 bytes. Pending memory is now 0.
+2026/07/21 18:42:07 forwardRequest for /home/ljl/models/hf/Qwen2.5-1.5B-Instruct
+2026/07/21 18:42:14 🔧 Shutdown signal received. Cleaning up...
+2026/07/21 18:42:14 Stopping container for model: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct (ID: 4fceebe550109afc4c520c9f9ab25c5775c9969b4b8bc630eb18f79970aa9c18)
+2026/07/21 18:42:15 ✅ Cleanup complete. Exiting.

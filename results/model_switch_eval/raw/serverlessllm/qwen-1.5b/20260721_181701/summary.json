@@ -1,0 +1,65 @@
+[
+  {
+    "system": "serverless_llm",
+    "method": "delete_register",
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "startup_latency_s": null,
+    "memory_gpu_used_ready_mib": 6171,
+    "memory_cpu_used_ready_mib": null,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2205277225002646,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.218167281319626,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 2.342464465647936,
+      "body": "{\"status\":\"deleted model qwen-1.5b\"}",
+      "idle_check": {
+        "ok": true,
+        "status": 200,
+        "latency_s": 1.0354982679709792,
+        "baseline_gpu_used_mib": null,
+        "gpu_used_mib": 233,
+        "idle_gpu_threshold_mib": 538,
+        "model_absent": true,
+        "body": "verified scale-to-zero for qwen-1.5b"
+      }
+    },
+    "memory_gpu_used_evict_mib": 233,
+    "memory_cpu_used_evict_mib": null,
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 1.2261237483471632,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 26.098507628725546,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "restore": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 14.126273688860238,
+      "body": "register plus warm request minus second active request"
+    },
+    "restore_latency_estimated": true,
+    "ttft_available": false,
+    "tpot_available": false,
+    "stage_breakdown": {
+      "initial_warm_request_s": 18.410459307022393,
+      "restore_warm_request_s": 15.3523974372074,
+      "second_active_request_s": 1.2261237483471632,
+      "delete_idle_wait_s": 1.0354982679709792
+    },
+    "ok": true
+  }
+]

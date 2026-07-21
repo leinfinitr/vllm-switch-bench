@@ -1,0 +1,132 @@
+[
+  {
+    "cycle": 0,
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "sleep_s": 0.8248867392539978,
+    "wake_s": 14.373394912108779,
+    "switch_s": 15.198281651362777,
+    "delete_state": {
+      "ok": true,
+      "latency_s": 0.563811163417995,
+      "gpu_used_mib": 233,
+      "model_absent": true
+    },
+    "restore_inference": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 14.36735174804926,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 2.22727198172376,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "gpu_used_awake_mib": 6171,
+    "ok": true,
+    "definition": "delete through model-absent+GPU-idle, plus register through first successful inference"
+  },
+  {
+    "cycle": 1,
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "sleep_s": 0.8256297307088971,
+    "wake_s": 15.355886485427618,
+    "switch_s": 16.181516216136515,
+    "delete_state": {
+      "ok": true,
+      "latency_s": 0.574154794216156,
+      "gpu_used_mib": 233,
+      "model_absent": true
+    },
+    "restore_inference": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 15.350084847770631,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 2.084679030594904,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "gpu_used_awake_mib": 6171,
+    "ok": true,
+    "definition": "delete through model-absent+GPU-idle, plus register through first successful inference"
+  },
+  {
+    "cycle": 2,
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "sleep_s": 0.8301785523071885,
+    "wake_s": 15.358280095271766,
+    "switch_s": 16.188458647578955,
+    "delete_state": {
+      "ok": true,
+      "latency_s": 0.5713600683957338,
+      "gpu_used_mib": 233,
+      "model_absent": true
+    },
+    "restore_inference": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 15.352457976900041,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 2.0843567882190954,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "gpu_used_awake_mib": 6171,
+    "ok": true,
+    "definition": "delete through model-absent+GPU-idle, plus register through first successful inference"
+  },
+  {
+    "cycle": 3,
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "sleep_s": 0.8413486331701279,
+    "wake_s": 14.355480028316379,
+    "switch_s": 15.196828661486506,
+    "delete_state": {
+      "ok": true,
+      "latency_s": 0.5713324006646872,
+      "gpu_used_mib": 233,
+      "model_absent": true
+    },
+    "restore_inference": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 14.349823565222323,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 2.2299925747905336,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "gpu_used_awake_mib": 6171,
+    "ok": true,
+    "definition": "delete through model-absent+GPU-idle, plus register through first successful inference"
+  },
+  {
+    "cycle": 4,
+    "model": "/host-models/hf/Qwen2.5-1.5B-Instruct",
+    "registered_model_name": "qwen-1.5b",
+    "sleep_s": 0.8315950175747275,
+    "wake_s": 15.574119202792645,
+    "switch_s": 16.405714220367372,
+    "delete_state": {
+      "ok": true,
+      "latency_s": 0.573752211406827,
+      "gpu_used_mib": 233,
+      "model_absent": true
+    },
+    "restore_inference": {
+      "ok": true,
+      "status": 200,
+      "ttft_s": null,
+      "client_latency_s": 15.568729060702026,
+      "approx_output_tokens": 32,
+      "approx_tokens_per_s": 2.055402202404122,
+      "output_prefix": " GPU memory matters for LLM serving because it allows for the efficient use of large models by providing a large amount "
+    },
+    "gpu_used_awake_mib": 6171,
+    "ok": true,
+    "definition": "delete through model-absent+GPU-idle, plus register through first successful inference"
+  }
+]

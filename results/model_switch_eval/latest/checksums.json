@@ -1,0 +1,302 @@
+[
+  {
+    "path": "results/model_switch_eval/latest/e2e-makespan.png",
+    "sha256": "7e5afca59dd85981532cd172ea75675ed8c3462b7542c5771c30ab4f9eecad64",
+    "size": 56981
+  },
+  {
+    "path": "results/model_switch_eval/latest/lifecycle-switch-time.png",
+    "sha256": "d6f23bf19c61ee6d52ad6a59e107681d3c372e578cc06f75dbfd3c1895eafadb",
+    "size": 102575
+  },
+  {
+    "path": "results/model_switch_eval/latest/summary.json",
+    "sha256": "250b5519bc659642dd403011e75f1a2aeff58e9d02af508ecc16828466992907",
+    "size": 13058
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r0.jsonl",
+    "sha256": "e6fe57652c9f255d3b26c4dec255a94c11bb7d169b099dae7bd80afcf4928f46",
+    "size": 15565
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r0.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r0.run.json",
+    "sha256": "bbd54c88b1e1a34497a306f1043ee4ee2076c5f9d1817e816df928c6973e8dd8",
+    "size": 238
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r1.jsonl",
+    "sha256": "717055cf69ef9d952a6aa88bbdcf6e25f2ee8e096f57d59690e817b821ea845b",
+    "size": 15551
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r1.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r1.run.json",
+    "sha256": "683842d3c4fd342b319f2974a2aba8be6b0843d53809824c2939c105941c2721",
+    "size": 239
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r2.jsonl",
+    "sha256": "e7d643dd53350069c684c2d2d31834347ab9e203bd30ee7d8b904fe708dfa25b",
+    "size": 15554
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r2.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r2.run.json",
+    "sha256": "49d2a3a63becba13112e273f324f10c3d1e9e91ed917c0dc02ebe181fe6e8c3b",
+    "size": 237
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r0.jsonl",
+    "sha256": "b5d50d473c543bf8454436937fe28de76ebdaeff219fafc0970b054b864744e9",
+    "size": 15578
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r0.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r0.run.json",
+    "sha256": "7180583e11e6d4eaa384427d73cc49020aa1aac062cdfe8f56483e3588ab5dfd",
+    "size": 231
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r1.jsonl",
+    "sha256": "33a2b2644060d4ab5d3c7e44fe24cbf48251b59c784d19c9b4d8165e69c3ef79",
+    "size": 15563
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r1.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r1.run.json",
+    "sha256": "a4997fc3f76db084a448fa0ed45e4da50fb3f66e27359ea370caade25d8afd8d",
+    "size": 232
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r2.jsonl",
+    "sha256": "d89aa6de403550be17630289f1a82b22d00683a02516c973c93f8f8d055246d5",
+    "size": 15564
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r2.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r2.run.json",
+    "sha256": "d71fce28ff77073aba78eb84939aa9fe9a8a2589756719daf7b2bcc339295cec",
+    "size": 232
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/matrix.json",
+    "sha256": "c235c5ab0010ab75915be12b31ace840940127b5a25c930e01f104fb637bb302",
+    "size": 2660
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/e2e/metadata.json",
+    "sha256": "1d2bfb3b5ef137be03e8b4627dabf971337ae2aba6c7eeed84309ac2c339de61",
+    "size": 2371
+  },
+  {
+    "path": "results/model_switch_eval/raw/llama-swap/lifecycle/switches.json",
+    "sha256": "c935cf58cc8af5921678535eb6537f1be4593360cb438f6bb213654fcfd3fee5",
+    "size": 3690
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/e2e-failed-diagnostic.json",
+    "sha256": "e8b4d6766517dadcee600b2e759fe6a2034702d79ac92608b97b41bde7520550",
+    "size": 580
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-alternating-r0.jsonl",
+    "sha256": "c1624b83f55b6da562152d0d16fdad9bac77a769b35677d59c4ecef0a0d8c222",
+    "size": 15534
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-alternating-r1.jsonl",
+    "sha256": "f011042711e099c8856ef547373d35e923ffe899c657f8ead23384093707cb1f",
+    "size": 15527
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-burst-r2.jsonl",
+    "sha256": "71c7519ea13a3ebc5626e68dae3d17605ae28e1c1513b450db102b4290edc451",
+    "size": 15570
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-1.5b/20260721_175042/repeated_sleep_l1_steps.csv",
+    "sha256": "9999b8733c93dd98c8c727d1af7e452f44140c0b38954d08e4d773d15c638e5a",
+    "size": 8266
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-1.5b/20260721_175042/repeated_sleep_l1_summary.json",
+    "sha256": "75acf0877b456c5c6409fb3343d054fe6be2c7c3f05d183767e21ef172fcc4a5",
+    "size": 40135
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-1.5b/20260721_175042/vllm_repeated_sleep_l1_1784627442423816026.sleep_profile.jsonl",
+    "sha256": "61812f47c66bc2aa2ea8aeabb0da194664e61c911823d281944ed31e97446179",
+    "size": 8924
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-3b/20260721_175209/repeated_sleep_l1_steps.csv",
+    "sha256": "bc3dec17ee9c89ab1297bcea0d77c14b41d3ca0df61e4d78cb53743cff58afcd",
+    "size": 9012
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-3b/20260721_175209/repeated_sleep_l1_summary.json",
+    "sha256": "223eb90916f7893701d1981580226ba61c067226ec4c293a27a1f53492493d3c",
+    "size": 41362
+  },
+  {
+    "path": "results/model_switch_eval/raw/proposed/qwen-3b/20260721_175209/vllm_repeated_sleep_l1_1784627529752827434.sleep_profile.jsonl",
+    "sha256": "92bfcc2a59966530d0f585865a27eb091c39b00d212a18a1a446575a8459cca0",
+    "size": 8896
+  },
+  {
+    "path": "results/model_switch_eval/raw/serverlessllm/qwen-1.5b/20260721_181701/metadata.json",
+    "sha256": "fafb7b2ec3f97773135606cdd4554b4cf97a0d3d1763da087e3b8866dfd2e116",
+    "size": 259
+  },
+  {
+    "path": "results/model_switch_eval/raw/serverlessllm/qwen-1.5b/20260721_181701/summary.csv",
+    "sha256": "9bc6b6ae27ce2d9b5ebfe09396aa73fbf39318a9885bf38b6bf739f9a5c534c7",
+    "size": 605
+  },
+  {
+    "path": "results/model_switch_eval/raw/serverlessllm/qwen-1.5b/20260721_181701/summary.json",
+    "sha256": "8bb0199de6087c6ea693a61eb81356de7df81f66d78483c03905aebd5041797b",
+    "size": 2126
+  },
+  {
+    "path": "results/model_switch_eval/raw/serverlessllm/qwen-1.5b/steady-cycles.json",
+    "sha256": "adcbc7c72ddee9b4a6b27c036e227655562b225eba894c86a3a3f775e2360457",
+    "size": 4449
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/cold-start.log",
+    "sha256": "6b3189c3aacc2263820580092fe6469561ffa5b2727e76330ee80f4332d59888",
+    "size": 1160
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/model-latency.log",
+    "sha256": "465e023eaf658652a7fbf22cdf392fbc868b32c127bf2b8d9c13ff6989f80337",
+    "size": 2399
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/router-process.log",
+    "sha256": "7d846b883343e942b4580fcbc9f591d5ba048931d9b0a8cbaa38c3267ef3c4e9",
+    "size": 17090
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/runs/20260721_184158/metadata.json",
+    "sha256": "a398808c68ccea85d61cb47340b42611e6bac85f419c6fca63b356b7f2d092f9",
+    "size": 136
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/runs/20260721_184158/summary.csv",
+    "sha256": "f405476697982a05192ceeb3171180ccef5ad6d1a36b769b1c82bd738b595ca5",
+    "size": 1435
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/runs/20260721_184158/summary.json",
+    "sha256": "9f38b83e8749d1ee1f5051ac859e92a926b704315045759dfaec3ffbd3f0f43e",
+    "size": 7223
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/swap-in.log",
+    "sha256": "6b402bf05d6c069e50ec3ab5983934d429d3e3f987a027327c4dff9bfc989340",
+    "size": 1019
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-1.5b/swap-out.log",
+    "sha256": "7c8812d9ace657fdbc894004d3cf2b146e16d14c267cda508fce246e7d294474",
+    "size": 1359
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/cold-start.log",
+    "sha256": "d47a2504fb8ddfb867edea867a1bd81f348532d8c6150e44b5cd7aa458dc4f0b",
+    "size": 612
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/container.log",
+    "sha256": "7f525ab227801a6ed28ee6fb540e3429ed9d2ff5f361014f6d63496c17715699",
+    "size": 11434
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/model-latency.log",
+    "sha256": "1ef97cba6ff1ab1f0ed832cbc92d5c2e8fec079e85904adf9e3f22ebb77ba1bf",
+    "size": 790
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/router-process-0.90.log",
+    "sha256": "659a4f1ffaccf8cf4f22159658ee322d860d56978cdfbed201277249a8f697c7",
+    "size": 14217
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/router-process.log",
+    "sha256": "572c4a14a6ec8f4cedfd6ce448fec271c7f9db8729eec71ffac25720ec963bf4",
+    "size": 353
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/runs/20260721_184738/metadata.json",
+    "sha256": "ec83242cd1e10e49a1352d26aca501a7e6e97b00843568553d1d4346142b2b40",
+    "size": 136
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/runs/20260721_184738/summary.csv",
+    "sha256": "2cbeb793be6988041e1f4f33f5867467640b88326cb87eac40cda7b75490c617",
+    "size": 1424
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/runs/20260721_184738/summary.json",
+    "sha256": "718fc9488ebda34df22aac414dbaaa86c9e0d3e1b282ba365803432e08219531",
+    "size": 7206
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/swap-in.log",
+    "sha256": "918f8c108a21fd3ae5abcb74de337ed6623a8989600183f8b0a3c6cf3853d35a",
+    "size": 1007
+  },
+  {
+    "path": "results/model_switch_eval/raw/swapserve/qwen-3b/swap-out.log",
+    "sha256": "44452b36880784f78bd22c7c552f18e9d94170cf71a56a6c050c9e84130eb034",
+    "size": 1007
+  },
+  {
+    "path": "results/model_switch_eval/raw/vllm-stock/qwen-1.5b/20260721_180315/repeated_sleep_l1_steps.csv",
+    "sha256": "6ebe9677407aff88ce98227af50aee379fda4496dfab86aff126799b4a82577f",
+    "size": 3401
+  },
+  {
+    "path": "results/model_switch_eval/raw/vllm-stock/qwen-1.5b/20260721_180315/repeated_sleep_l1_summary.json",
+    "sha256": "69e2f52cdf424874459edd756d0bd1c1a2900157441d2df84968fcfd7e9c1721",
+    "size": 13292
+  },
+  {
+    "path": "results/model_switch_eval/raw/vllm-stock/qwen-3b/20260721_180435/repeated_sleep_l1_steps.csv",
+    "sha256": "801298c40e7ceeafa4d0cd2446dc01a82175b9e40513ffc99638a2e16b959383",
+    "size": 4149
+  },
+  {
+    "path": "results/model_switch_eval/raw/vllm-stock/qwen-3b/20260721_180435/repeated_sleep_l1_summary.json",
+    "sha256": "a7103cdcf34cde183bc06ad1c94510c2a58eec8a0e56a3f96af6877d799baddd",
+    "size": 14551
+  }
+]

@@ -1,0 +1,388 @@
+{
+  "caveats": [
+    "Lifecycle methods preserve different amounts of process/CUDA/CPU state, so the common sum is operational rather than mechanism-equivalent.",
+    "Proposed and vLLM lifecycle medians exclude each model's first D2H backup-population step and use five steady-state cycles.",
+    "llama-swap lacks explicit lifecycle APIs; its lifecycle row is request-visible transition time and is not decomposed.",
+    "ServerlessLLM 3B failed after a startup error left the scheduler GPU reservation at zero; no 3B latency is reported.",
+    "E2E retains only strict-success completed runs. Proposed has two alternating runs and one burst run; a later burst run hit a lifecycle hang and is retained outside the curated set as a failed diagnostic."
+  ],
+  "e2e": {
+    "alternating": {
+      "llama-swap": {
+        "attempted_requests": 60,
+        "elapsed_s": {
+          "max": 53.727470136247575,
+          "median": 53.706757014617324,
+          "min": 53.65909003932029,
+          "n": 3,
+          "p95": 53.72539882408455
+        },
+        "runs": [
+          {
+            "completion_median_ms": 13147.910718340427,
+            "elapsed_s": 53.727470136247575,
+            "requests": 20,
+            "semantic_ttft_median_ms": 12824.491413775831,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r0.jsonl"
+          },
+          {
+            "completion_median_ms": 13132.281162776053,
+            "elapsed_s": 53.706757014617324,
+            "requests": 20,
+            "semantic_ttft_median_ms": 12806.908946484327,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r1.jsonl"
+          },
+          {
+            "completion_median_ms": 13106.934109702706,
+            "elapsed_s": 53.65909003932029,
+            "requests": 20,
+            "semantic_ttft_median_ms": 12799.400687683374,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-alternating-r2.jsonl"
+          }
+        ],
+        "semantic_ttft_run_median_ms": {
+          "max": 12824.491413775831,
+          "median": 12806.908946484327,
+          "min": 12799.400687683374,
+          "n": 3,
+          "p95": 12822.733167046681
+        },
+        "success_requests": 60,
+        "system": "llama-swap"
+      },
+      "proposed": {
+        "attempted_requests": 40,
+        "elapsed_s": {
+          "max": 29.46660480555147,
+          "median": 29.463681197725236,
+          "min": 29.460757589899004,
+          "n": 2,
+          "p95": 29.466312444768846
+        },
+        "runs": [
+          {
+            "completion_median_ms": 786.2390759401023,
+            "elapsed_s": 29.460757589899004,
+            "requests": 20,
+            "semantic_ttft_median_ms": 533.7701262906194,
+            "source": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-alternating-r0.jsonl"
+          },
+          {
+            "completion_median_ms": 791.8977392837405,
+            "elapsed_s": 29.46660480555147,
+            "requests": 20,
+            "semantic_ttft_median_ms": 538.5764478705823,
+            "source": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-alternating-r1.jsonl"
+          }
+        ],
+        "semantic_ttft_run_median_ms": {
+          "max": 538.5764478705823,
+          "median": 536.1732870806009,
+          "min": 533.7701262906194,
+          "n": 2,
+          "p95": 538.3361317915842
+        },
+        "success_requests": 40,
+        "system": "proposed"
+      }
+    },
+    "burst": {
+      "llama-swap": {
+        "attempted_requests": 60,
+        "elapsed_s": {
+          "max": 53.80293293297291,
+          "median": 53.781496182084084,
+          "min": 53.715420078486204,
+          "n": 3,
+          "p95": 53.80078925788403
+        },
+        "runs": [
+          {
+            "completion_median_ms": 15696.791477967054,
+            "elapsed_s": 53.80293293297291,
+            "requests": 20,
+            "semantic_ttft_median_ms": 15273.160685319453,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r0.jsonl"
+          },
+          {
+            "completion_median_ms": 15605.673358775675,
+            "elapsed_s": 53.715420078486204,
+            "requests": 20,
+            "semantic_ttft_median_ms": 15221.984581556171,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r1.jsonl"
+          },
+          {
+            "completion_median_ms": 15669.21498067677,
+            "elapsed_s": 53.781496182084084,
+            "requests": 20,
+            "semantic_ttft_median_ms": 15275.785889476538,
+            "source": "results/model_switch_eval/raw/llama-swap/e2e/llama-swap-request-switch-burst-r2.jsonl"
+          }
+        ],
+        "semantic_ttft_run_median_ms": {
+          "max": 15275.785889476538,
+          "median": 15273.160685319453,
+          "min": 15221.984581556171,
+          "n": 3,
+          "p95": 15275.52336906083
+        },
+        "success_requests": 60,
+        "system": "llama-swap"
+      },
+      "proposed": {
+        "attempted_requests": 20,
+        "elapsed_s": {
+          "max": 28.851983881555498,
+          "median": 28.851983881555498,
+          "min": 28.851983881555498,
+          "n": 1,
+          "p95": 28.851983881555498
+        },
+        "runs": [
+          {
+            "completion_median_ms": 349.98558880761266,
+            "elapsed_s": 28.851983881555498,
+            "requests": 20,
+            "semantic_ttft_median_ms": 20.040784496814013,
+            "source": "results/model_switch_eval/raw/proposed/e2e-published/proposed-request-switch-burst-r2.jsonl"
+          }
+        ],
+        "semantic_ttft_run_median_ms": {
+          "max": 20.040784496814013,
+          "median": 20.040784496814013,
+          "min": 20.040784496814013,
+          "n": 1,
+          "p95": 20.040784496814013
+        },
+        "success_requests": 20,
+        "system": "proposed"
+      }
+    }
+  },
+  "lifecycle": {
+    "llama-swap": {
+      "qwen-1.5b": {
+        "attempted": 4,
+        "definition_note": "request-visible terminate-current + start-target + first complete streamed inference; upstream API does not expose separate sleep/wake phases",
+        "sleep_s": null,
+        "source": "results/model_switch_eval/raw/llama-swap/lifecycle/switches.json",
+        "success": 4,
+        "switch_s": {
+          "max": 12.662775436416268,
+          "median": 12.657726743258536,
+          "min": 12.644494011066854,
+          "n": 4,
+          "p95": 12.6621973216068
+        },
+        "wake_s": null
+      },
+      "qwen-3b": {
+        "attempted": 5,
+        "definition_note": "request-visible terminate-current + start-target + first complete streamed inference; upstream API does not expose separate sleep/wake phases",
+        "sleep_s": null,
+        "source": "results/model_switch_eval/raw/llama-swap/lifecycle/switches.json",
+        "success": 5,
+        "switch_s": {
+          "max": 13.656454706564546,
+          "median": 13.643736016005278,
+          "min": 13.639421857893467,
+          "n": 5,
+          "p95": 13.654338118620217
+        },
+        "wake_s": null
+      }
+    },
+    "proposed": {
+      "qwen-1.5b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.10874394699931145,
+          "median": 0.10743571911007166,
+          "min": 0.10719689074903727,
+          "n": 5,
+          "p95": 0.10848839301615953
+        },
+        "source": "results/model_switch_eval/raw/proposed/qwen-1.5b/20260721_175042/repeated_sleep_l1_summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 0.40583423618227243,
+          "median": 0.40152366925030947,
+          "min": 0.4009937234222889,
+          "n": 5,
+          "p95": 0.4051617501303554
+        },
+        "wake_s": {
+          "max": 0.2983985170722008,
+          "median": 0.29379683267325163,
+          "min": 0.29366746451705694,
+          "n": 5,
+          "p95": 0.29753703251481056
+        }
+      },
+      "qwen-3b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.1381367603316903,
+          "median": 0.13810836523771286,
+          "min": 0.13797988183796406,
+          "n": 5,
+          "p95": 0.13813573736697435
+        },
+        "source": "results/model_switch_eval/raw/proposed/qwen-3b/20260721_175209/repeated_sleep_l1_summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 0.6133549334481359,
+          "median": 0.6063215620815754,
+          "min": 0.60617168340832,
+          "n": 5,
+          "p95": 0.6120834466069937
+        },
+        "wake_s": {
+          "max": 0.4753750516101718,
+          "median": 0.46818991657346487,
+          "min": 0.46803492307662964,
+          "n": 5,
+          "p95": 0.47409844398498535
+        }
+      }
+    },
+    "serverlessllm": {
+      "qwen-1.5b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.8413486331701279,
+          "median": 0.8301785523071885,
+          "min": 0.8248867392539978,
+          "n": 5,
+          "p95": 0.8393979100510478
+        },
+        "source": "results/model_switch_eval/raw/serverlessllm/qwen-1.5b/steady-cycles.json",
+        "success": 5,
+        "switch_s": {
+          "max": 16.405714220367372,
+          "median": 16.181516216136515,
+          "min": 15.196828661486506,
+          "n": 5,
+          "p95": 16.36226310580969
+        },
+        "wake_s": {
+          "max": 15.574119202792645,
+          "median": 15.355886485427618,
+          "min": 14.355480028316379,
+          "n": 5,
+          "p95": 15.530951381288467
+        }
+      }
+    },
+    "swapserve": {
+      "qwen-1.5b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.6791247436776757,
+          "median": 0.6613155687227845,
+          "min": 0.6592590939253569,
+          "n": 5,
+          "p95": 0.6759296644479036
+        },
+        "source": "results/model_switch_eval/raw/swapserve/qwen-1.5b/runs/20260721_184158/summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 1.3354565156623721,
+          "median": 1.31671560741961,
+          "min": 1.3149558678269386,
+          "n": 5,
+          "p95": 1.3332579270005227
+        },
+        "wake_s": {
+          "max": 0.6652044784277678,
+          "median": 0.6540825348347425,
+          "min": 0.6535662598907948,
+          "n": 5,
+          "p95": 0.6634299371391534
+        }
+      },
+      "qwen-3b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.9336356995627284,
+          "median": 0.9255398800596595,
+          "min": 0.9220159016549587,
+          "n": 5,
+          "p95": 0.9328819360584021
+        },
+        "source": "results/model_switch_eval/raw/swapserve/qwen-3b/runs/20260721_184738/summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 1.9394128313288093,
+          "median": 1.9301118971779943,
+          "min": 1.9261169573292136,
+          "n": 5,
+          "p95": 1.9386534871533514
+        },
+        "wake_s": {
+          "max": 1.0136002087965608,
+          "median": 1.0030323639512062,
+          "min": 1.0002450151368976,
+          "n": 5,
+          "p95": 1.0120355933904648
+        }
+      }
+    },
+    "vllm-stock-l1": {
+      "qwen-1.5b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.20807491894811392,
+          "median": 0.20780755952000618,
+          "min": 0.2072995277121663,
+          "n": 5,
+          "p95": 0.20804267358034848
+        },
+        "source": "results/model_switch_eval/raw/vllm-stock/qwen-1.5b/20260721_180315/repeated_sleep_l1_summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 0.5053146425634623,
+          "median": 0.5013521565124393,
+          "min": 0.5007431516423821,
+          "n": 5,
+          "p95": 0.5045904777944088
+        },
+        "wake_s": {
+          "max": 0.29723972361534834,
+          "median": 0.29357675090432167,
+          "min": 0.29344362393021584,
+          "n": 5,
+          "p95": 0.2965478042140603
+        }
+      },
+      "qwen-3b": {
+        "attempted": 5,
+        "sleep_s": {
+          "max": 0.3395194234326482,
+          "median": 0.3388393968343735,
+          "min": 0.338556089438498,
+          "n": 5,
+          "p95": 0.33938940726220607
+        },
+        "source": "results/model_switch_eval/raw/vllm-stock/qwen-3b/20260721_180435/repeated_sleep_l1_summary.json",
+        "success": 5,
+        "switch_s": {
+          "max": 0.8161637606099248,
+          "median": 0.802748853340745,
+          "min": 0.8022901276126504,
+          "n": 5,
+          "p95": 0.8135363040491939
+        },
+        "wake_s": {
+          "max": 0.4766443371772766,
+          "median": 0.4639802807942033,
+          "min": 0.4637340381741524,
+          "n": 5,
+          "p95": 0.47414689678698774
+        }
+      }
+    }
+  },
+  "scope": "exploratory single-host RTX 3080 comparison",
+  "switch_definition": "sleep/evict/swap-out through post-condition + wake/restore/swap-in through post-condition"
+}
