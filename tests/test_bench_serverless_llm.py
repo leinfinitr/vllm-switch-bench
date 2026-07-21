@@ -13,6 +13,7 @@ from bench_serverless_llm import (
     parse_args,
     run_delete_register,
     run_scale_to_zero_restore,
+    wait_for_scale_to_zero,
 )
 
 
@@ -259,6 +260,39 @@ def test_scale_to_zero_restore_warms_backend_and_subtracts_ready_request(monkeyp
         ("GET", "/health"),
         ("POST", "/register"),
     ]
+
+
+def test_wait_for_scale_to_zero_requires_model_absent_and_gpu_idle(monkeypatch):
+    class ModelsClient:
+        def __init__(self):
+            self.responses = [
+                FakeResponse(200, {"models": [{"id": "qwen"}]}),
+                FakeResponse(200, {"models": []}),
+            ]
+
+        def request(self, method, url, json=None, timeout=None):
+            return self.responses.pop(0)
+
+    monkeypatch.setattr(
+        "bench_serverless_llm.query_gpu_used_mib", iter([200, 200, 200]).__next__
+    )
+    monkeypatch.setattr(
+        "bench_serverless_llm.time.perf_counter",
+        iter([0.0, 0.0, 0.1, 0.1]).__next__,
+    )
+    monkeypatch.setattr("bench_serverless_llm.time.sleep", lambda _value: None)
+
+    result = wait_for_scale_to_zero(
+        "http://127.0.0.1:8343",
+        ModelsClient(),
+        "qwen",
+        baseline_gpu_used_mib=100,
+        timeout_s=1,
+        poll_interval_s=0.01,
+        idle_gpu_buffer_mib=300,
+    )
+    assert result["ok"] is True
+    assert result["model_absent"] is True
 
 
 def test_scale_to_zero_poll_interval_defaults_to_one_millisecond():

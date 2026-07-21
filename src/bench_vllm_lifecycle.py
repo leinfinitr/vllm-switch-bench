@@ -34,6 +34,22 @@ except Exception as exc:  # pragma: no cover - handled at runtime
 SYSTEM_NAME = "vllm"
 
 
+def git_metadata(path: Path) -> dict[str, Any]:
+    def command(*args: str) -> str:
+        return subprocess.check_output(
+            ["git", "-C", str(path), *args], text=True
+        ).strip()
+
+    return {
+        "path": str(path.resolve()),
+        "commit": command("rev-parse", "HEAD"),
+        "tree": command("rev-parse", "HEAD^{tree}"),
+        "tracked_dirty": bool(
+            command("status", "--short", "--untracked-files=no")
+        ),
+    }
+
+
 def wait_process_http_ok(proc: subprocess.Popen[str], url: str, timeout_s: float, log_path: Path) -> float:
     sess = requests.Session()
     sess.trust_env = False
@@ -577,6 +593,8 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
     args.sleep_profile_path = ""
+    if args.repeats <= 0:
+        parser.error("--repeats must be positive")
     unknown_prompts = sorted(set(args.prompts) - set(PROMPTS))
     if unknown_prompts:
         raise SystemExit(f"unknown prompts: {unknown_prompts}; available={sorted(PROMPTS)}")
@@ -609,6 +627,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         "repeats": args.repeats,
         "sleep_cpu_backup_pin_memory": args.sleep_cpu_backup_pin_memory,
         "gpu": read_gpu_metadata(),
+        "benchmark_git": git_metadata(Path(__file__).resolve().parents[1]),
+        "engine_git": git_metadata(Path(args.workdir)),
+        "python": str(Path(args.python).resolve()),
     }
     (out_dir / "metadata.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     if args.dry_run:

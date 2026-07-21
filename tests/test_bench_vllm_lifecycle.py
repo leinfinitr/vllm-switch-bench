@@ -55,6 +55,37 @@ def test_parse_args_accepts_repeatable_extra_vllm_args():
     assert args.extra_vllm_arg == ["--skip-mm-profiling", "--cpu-offload-gb 2"]
 
 
+def test_parse_args_rejects_non_positive_repeats():
+    try:
+        bench.parse_args(["--model", "dummy", "--repeats", "0"])
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("parse_args should reject non-positive repeats")
+
+
+def test_dry_run_metadata_records_engine_and_benchmark_provenance(tmp_path):
+    rc = bench.main(
+        [
+            "--model",
+            "dummy",
+            "--workdir",
+            str(ROOT),
+            "--out-dir",
+            str(tmp_path),
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    created = next(path for path in tmp_path.iterdir() if path.is_dir())
+    metadata = __import__("json").loads(
+        (created / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["benchmark_git"]["commit"]
+    assert metadata["engine_git"]["commit"]
+    assert isinstance(metadata["engine_git"]["tracked_dirty"], bool)
+
+
 def test_write_summary_csv_flattens_nested_metrics(tmp_path):
     out = tmp_path / "summary.csv"
     bench.write_summary_csv(out, [

@@ -152,6 +152,7 @@ def wait_for_scale_to_zero(
     started_at = time.perf_counter()
     last_gpu_used_mib = query_gpu_used_mib()
     last_models_error = None
+    model_absent = False
     while True:
         elapsed_s = time.perf_counter() - started_at
         models_response = _request_ok(client, "GET", f"{base_url}/v1/models")
@@ -162,10 +163,22 @@ def wait_for_scale_to_zero(
             )
         else:
             last_models_error = None
+            try:
+                models_payload = models_response.json()
+                model_rows = models_payload.get(
+                    "models", models_payload.get("data", [])
+                )
+                model_absent = all(
+                    str(row.get("id", row.get("model", ""))) != model_name
+                    for row in model_rows
+                )
+            except Exception as exc:
+                last_models_error = f"invalid models response: {exc}"
+                model_absent = False
 
         last_gpu_used_mib = query_gpu_used_mib()
         if threshold_mib is not None and last_gpu_used_mib is not None:
-            if last_gpu_used_mib <= threshold_mib:
+            if model_absent and last_gpu_used_mib <= threshold_mib:
                 return {
                     "ok": True,
                     "status": 200,
@@ -173,6 +186,7 @@ def wait_for_scale_to_zero(
                     "baseline_gpu_used_mib": baseline_gpu_used_mib,
                     "gpu_used_mib": last_gpu_used_mib,
                     "idle_gpu_threshold_mib": threshold_mib,
+                    "model_absent": True,
                     "body": f"verified scale-to-zero for {model_name}",
                 }
 
@@ -190,6 +204,7 @@ def wait_for_scale_to_zero(
                 "baseline_gpu_used_mib": baseline_gpu_used_mib,
                 "gpu_used_mib": last_gpu_used_mib,
                 "idle_gpu_threshold_mib": threshold_mib,
+                "model_absent": model_absent,
                 "body": error,
             }
         time.sleep(poll_interval_s)
