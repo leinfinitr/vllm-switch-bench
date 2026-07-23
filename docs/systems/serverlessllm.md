@@ -57,7 +57,8 @@ cd /home/ljl/research-systems/llm-switch-bench
 5. 每个模型至少保留 5 个 fresh-run 样本、恢复后正确推理和物理释放证据。
 
 2026-07-23 按本文档实际运行的 0.5B smoke 能启动、注册和推理，但
-`delete_register` 返回 200 后 `ray::VllmBackend` 仍持有约 3.6 GiB GPU memory；
+`delete_register` 返回 200 后，artifact 保留的旧镜像 gate 中
+`ray::VllmBackend` 仍持有 5810 MiB GPU memory；
 这只证明旧镜像的 delete gate 未完成，不代表 current-source 自动
 scale-to-zero 的结果。当前状态记录在
 `results/osdi_20260723/raw/serverless/status.json`。
