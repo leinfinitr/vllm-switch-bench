@@ -1,1 +1,18 @@
-`results/` 用于保留每个相关系统和方法的最新 curated 输出，而不是保留所有结果。
+# Project Context
+
+`results/` retains the latest curated output for each relevant system and method;
+it is not an archive of every local run.
+
+## Repository conventions
+
+- Put reusable benchmark adapters and shared schema in `src/`; put pure analysis and
+  artifact builders in `src/tool/`.
+- Put shell orchestration and artifact-specific measurement drivers in `scripts/` and
+  document their provenance binding in `scripts/README.md`.
+- Keep current reproduction semantics in `docs/baselines/` and `docs/systems/`; keep
+  completed plans in `docs/plans/` and clearly label stale API/paths.
+- Each cited result must retain raw evidence, aggregate data, environment/source identity,
+  correctness post-conditions, and checksums. Verify checksums from a fresh checkout.
+- Physical release claims require both application accounting and OS/GPU-visible evidence.
+- Do not publish failed, timed-out, or semantically invalid lifecycle samples as numeric
+  baselines; retain the blocker evidence instead.
