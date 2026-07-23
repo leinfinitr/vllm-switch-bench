@@ -13,6 +13,37 @@
 - `src/microbench/`：PCIe copy、CuMemAllocator synthetic copy、safetensors allocation 粒度实验。
 - `src/tool/`：只读取已有结果的分析、绘图和合并工具。
 
+## 仓库结构
+
+```text
+configs/                    可提交的 example、schedule 和 frozen trace
+docs/
+  baselines/                基线方法与复现语义
+  systems/                  外部系统本机 runbook 与门禁
+  reports/                  阶段性/最终报告及引用图
+  plans/                    历史实施计划，仅用于审计
+results/
+  osdi_20260723/            当前阶段论文图、摘要和最小证据集
+  request_switch/latest/    request-driven switching curated artifact
+  profiling/                allocator、copy 和 sleep/wake 机制实验
+  baselines/                历史 Baseline3 输入
+  cross_system/             历史跨系统矩阵
+  model_switch_eval/        历史模型切换评测
+  tmp/                      本地 ignored 运行目录
+scripts/                    可执行 shell/实验编排和一次性评测 driver
+src/
+  bench_*.py                可复用 benchmark adapter
+  benchlib/                 共享采样、HTTP、配置和 schema
+  microbench/               allocator/PCIe 微基准
+  tool/                     纯后处理、绘图与 artifact builder
+tests/                      与 src/scripts 对应的单元和 schema 测试
+runtime/                    本地 ignored 外部系统运行数据
+```
+
+`docs/README.md` 是文档索引，`results/README.md` 定义 artifact policy，
+`src/README.md` 解释各执行入口。不要把 `results/tmp/`、`runtime/`、模型或
+未筛选的重复日志提交到仓库。
+
 ## 环境
 
 ```bash
@@ -106,6 +137,7 @@ manifest 使用绝对 `scheduled_offset_s`，每个请求独立调度且共享�
 - historical repeated-sleep runs：`docs/reports/phase1-two-model-pool.md`；
 - copy microbench：`docs/reports/cumem-copy-microbench.md`。
 - request-driven multi-model switching：`docs/reports/request-driven-multi-model-switch.md`，最新 curated artifact 位于 `results/request_switch/latest/`。
+- 当前阶段 OSDI-style lifecycle/E2E 汇总：`results/osdi_20260723/README.md`。
 
 历史报告保留当时的路径、字段和结论以便审计，不代表当前 CLI。当前复现命令以本 README、`src/README.md` 和 `--help` 为准。
 

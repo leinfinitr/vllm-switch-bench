@@ -10,6 +10,19 @@
 
 每个可引用 run 至少应记录：命令参数、模型、代码 commit/dirty 状态、软件/硬件环境、原始指标、自动 correctness assertions。物理内存回收结论必须同时包含 application accounting 和 worker RSS/host `MemAvailable`。
 
+## 当前目录布局
+
+- `osdi_20260723/`：当前阶段的 lifecycle/E2E 论文图和最小 raw evidence。
+- `request_switch/latest/`：当前 request-driven switching curated artifact。
+- `profiling/`：机制验证和 microbenchmark；timestamp 子目录保留实验身份。
+- `baselines/`：历史 Baseline3 结果。
+- `cross_system/`、`model_switch_eval/`：历史跨系统阶段评测。
+- `tmp/`：本地 ignored 输出，可随时删除，不得被报告引用。
+
+当前 artifact 以具名目录保存，不使用无语义的 `final2`、`final3` 或散落在仓库
+根目录的日志。目录迁移后必须同步更新 summary/provenance/checksum 内的路径；
+历史 artifact 不为追求命名一致而重写。
+
 没有公开 raw artifact、独立重复和离散度的单点 A/B 只能标记为本地
 observational evidence，不得使用 causal 或 paper-grade 措辞。论文级比较应发布
 带 checksum 的原始 summary/steps，并报告多次独立运行的中位数和 IQR 或置信区间。

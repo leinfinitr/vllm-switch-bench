@@ -77,7 +77,7 @@ The figures use single-column dimensions, embedded serif fonts, a color-blind-sa
 
 # Validate scripts and formatting.
 uvx ruff check scripts/measure_llama_swap_lifecycle.py \
-  scripts/measure_vllm_l1_phases.py scripts/plot_osdi_switch_results.py
+  scripts/measure_vllm_sleep_phases.py scripts/plot_osdi_switch_results.py
 git diff --check
 ```
 

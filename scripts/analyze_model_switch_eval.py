@@ -52,7 +52,7 @@ def repeated(system: str, model: str) -> dict:
         raise ValueError(f"failed lifecycle: {path}")
     rows = data["steps"][1:]
     return {
-        "source": str(path.relative_to(ROOT)),
+        "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         "success": sum(bool(r["ok"]) for r in rows),
         "attempted": len(rows),
         "sleep_s": stats([r["sleep_latency_s"] for r in rows]),
@@ -69,7 +69,7 @@ def swapserve(model: str) -> dict:
     )
     rows = json.loads(path.read_text())
     return {
-        "source": str(path.relative_to(ROOT)),
+        "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         "success": sum(bool(r["ok"]) for r in rows),
         "attempted": len(rows),
         "sleep_s": stats([r["evict"]["latency_s"] for r in rows]),
@@ -84,7 +84,7 @@ def serverless() -> dict:
     path = RAW / "serverlessllm/qwen-1.5b/steady-cycles.json"
     rows = json.loads(path.read_text())
     return {
-        "source": str(path.relative_to(ROOT)),
+        "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         "success": sum(bool(r["ok"]) for r in rows),
         "attempted": len(rows),
         "sleep_s": stats([r["sleep_s"] for r in rows]),
@@ -102,7 +102,7 @@ def llama_lifecycle(model: str) -> dict:
         if r["target_model"] == model and r["switch_time_s"] is not None
     ]
     return {
-        "source": str(path.relative_to(ROOT)),
+        "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         "success": len(values),
         "attempted": len(values),
         "sleep_s": None,
@@ -125,7 +125,7 @@ def trace(system: str, files: list[Path]) -> dict:
         )
         runs.append(
             {
-                "source": str(path.relative_to(ROOT)),
+                "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
                 "requests": len(rows),
                 "elapsed_s": elapsed,
                 "semantic_ttft_median_ms": statistics.median(

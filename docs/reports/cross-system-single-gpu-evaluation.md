@@ -73,7 +73,7 @@
 | 3B | vLLM L1 | 5 | 2,868 ms | 3,004 ms | [2,723, 3,028] | 7,297 MiB | 403 MiB |
 | 3B | vLLM L2 | 5 | 1,773 ms | 1,838 ms | [1,658, 1,843] | 7,297 MiB | 385 MiB |
 
-![Lifecycle latency](../../../results/cross_system/latest/lifecycle-latency.png)
+![Lifecycle latency](../../results/cross_system/latest/lifecycle-latency.png)
 
 图中误差棒为 10,000 次 bootstrap 得到的 median 95% percentile CI；纵轴为对数尺度。
 
@@ -88,7 +88,7 @@
 | llama-swap | alternating | 3 | 60 | 14,845.7 ms | [14,223.8, 46,076.5] | 56,918.1 ms | 15,169.5 ms | 0/60 |
 | llama-swap | burst/locality | 3 | 60 | 15,289.9 ms | [13,851.0, 15,293.0] | 25,889.1 ms | 15,672.8 ms | 0/60 |
 
-![Trace TTFT](../../../results/cross_system/latest/trace-ttft.png)
+![Trace TTFT](../../results/cross_system/latest/trace-ttft.png)
 
 Alternating 下 proposed 几乎每个请求都要求真实模型改变，因此 run median 在约 0.55 s。Burst/locality 中大部分请求命中当前 awake model，run median 降至约 20 ms；pooled p95 仍约 645 ms，准确暴露了 burst 边界的切换请求。llama-swap 的 open-loop requests 在十秒级启动期间会排队，并可能合并等待同一目标模型的请求；因此该数字测量的是“控制面排队 + cold process starts + switch coalescing”的完整 trace 行为，**不是每个名义 A/B transition 都对应一次独立进程启动**。首 run 的 alternating median 达 46.1 s，导致 3-run 描述区间很宽，这个异常没有删除。
 

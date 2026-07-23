@@ -30,9 +30,7 @@ def valid_record(**overrides: object) -> dict[str, object]:
 
 
 def write_trace(tmp_path: Path, row: dict[str, object]) -> Path:
-    del tmp_path
-    path = ROOT / "results/model_switch_eval/tmp/test-trace.jsonl"
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path = tmp_path / "test-trace.jsonl"
     path.write_text(json.dumps(row) + "\n", encoding="utf-8")
     return path
 

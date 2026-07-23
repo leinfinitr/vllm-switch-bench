@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""Measure in-process vLLM sleep/wake for a curated lifecycle artifact.
+
+Unlike the reusable service-based adapter in ``src/bench_vllm_lifecycle.py``,
+this driver uses the offline ``LLM`` API and emits the compact JSON consumed by
+``results/osdi_20260723``. Level 1 and level 2 intentionally have different
+wake transactions: level 2 must recreate weight mappings, reload checkpoint
+weights, and then recreate the KV cache.
+"""
 from __future__ import annotations
 
 import argparse
@@ -81,7 +89,15 @@ def main() -> int:
             llm.sleep(level=args.sleep_level)
             sleep_s = time.perf_counter() - started
             started = time.perf_counter()
-            llm.wake_up()
+            if args.sleep_level == 1:
+                llm.wake_up()
+            else:
+                # Level 2 discards weight contents. Recreating the mappings is
+                # not sufficient: restore checkpoint weights before allocating
+                # KV cache so the model is inference-ready at this boundary.
+                llm.wake_up(tags=["weights"])
+                llm.collective_rpc("reload_weights")
+                llm.wake_up(tags=["kv_cache"])
             wake_s = time.perf_counter() - started
             output = llm.generate([prompt], params, use_tqdm=False)[0].outputs[0]
             observed = ([int(x) for x in output.token_ids], output.text)

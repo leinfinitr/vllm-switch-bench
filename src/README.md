@@ -58,11 +58,23 @@ scripts/run_baseline3.sh
 
 ### `bench_serverless_llm.py`
 
-ServerlessLLM adapter benchmark 入口。通常由 `bench_baseline3.py` 调用；单独调试 ServerlessLLM 时也可以直接执行。
+ServerlessLLM adapter benchmark 入口。该 adapter 属于历史 Baseline3 harness；
+当前版本仍把 `load_format` 固定为 `auto`，并把自动 scale-to-zero 错误地与
+model absence 绑定，因此**不能作为 ServerlessLLM fast-loader 的当前正式
+lifecycle 入口**。它可用于服务/API 调试，但在修复并增加 actor、scheduler 和
+GPU post-condition 前，输出不得进入当前比较图。详见
+`docs/systems/serverlessllm.md`。
 
 ### `bench_swapserve_llm.py`
 
 SwapServeLLM adapter benchmark 入口。通常由 `bench_baseline3.py` 调用；单独调试 SwapServeLLM 时也可以直接执行。
+
+### `bench_request_driven_switch.py`
+
+对统一 OpenAI endpoint 重放冻结的 open-loop 多模型 trace。每个请求独立按
+`scheduled_offset_s` 调度，并保留 transport first byte、semantic TTFT、E2E、
+status 和 failure。当前脚本入口由 `scripts/run_request_switch.sh` 和
+`scripts/run_request_switch_matrix.py` 编排。
 
 ### `bench_vllm_pin_compare.py`
 
