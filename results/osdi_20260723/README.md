@@ -75,6 +75,10 @@ The figures use single-column dimensions, embedded serif fonts, a color-blind-sa
 # Rebuild plots and aggregate data from retained raw evidence.
 .venv/bin/python scripts/plot_osdi_switch_results.py
 
+# Validate both the publication subset and the complete artifact.
+sha256sum -c results/osdi_20260723/checksums.sha256
+sha256sum -c results/osdi_20260723/all-files.sha256
+
 # Validate scripts and formatting.
 uvx ruff check scripts/measure_llama_swap_lifecycle.py \
   scripts/measure_vllm_sleep_phases.py scripts/plot_osdi_switch_results.py
