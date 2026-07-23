@@ -1,0 +1,672 @@
+[
+  {
+    "system": "vllm",
+    "run_id": "20260723_114447_sleep_l2_short_short_0_1c646276",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 0,
+    "server_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114447_sleep_l2_short_short_0_1c646276.server.log",
+    "event_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114447_sleep_l2_short_short_0_1c646276.events.jsonl",
+    "port": 57983,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114447_sleep_l2_short_short_0_1c646276.sleep_profile.jsonl",
+    "startup_latency_s": 15.520203126594424,
+    "memory_gpu_used_ready_mib": 7365,
+    "memory_cpu_used_ready_mib": 3297.05078125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06815288960933685,
+      "client_latency_s": 0.13533664494752884,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 192.11352557232684,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.062421238981187344,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 6193494.978955381,
+        "ended_monotonic_s": 6193495.041426101,
+        "event_count": 0,
+        "phase_latency_s": {},
+        "events": []
+      }
+    },
+    "memory_gpu_used_evict_mib": 795,
+    "memory_cpu_used_evict_mib": 3428.54296875,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.3040325539186597,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 0,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193495.11731336,
+            "ended_monotonic_s": 6193495.166452334,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193495.194306545,
+            "ended_monotonic_s": 6193495.380807638,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193495.410981096,
+            "ended_monotonic_s": 6193495.479524207,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.04909284878522158,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193495.11731336,
+            "ended_monotonic_s": 6193495.166452334,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.18643537256866693,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193495.194306545,
+            "ended_monotonic_s": 6193495.380807638,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.06850433256477118,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193495.410981096,
+            "ended_monotonic_s": 6193495.479524207,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.00916528794914484,
+      "client_latency_s": 0.07977385353296995,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 325.9213244506784,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.3642010912299156
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260723_114504_sleep_l2_short_short_1_997e06f7",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 1,
+    "server_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114504_sleep_l2_short_short_1_997e06f7.server.log",
+    "event_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114504_sleep_l2_short_short_1_997e06f7.events.jsonl",
+    "port": 48835,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114504_sleep_l2_short_short_1_997e06f7.sleep_profile.jsonl",
+    "startup_latency_s": 15.522330973297358,
+    "memory_gpu_used_ready_mib": 7365,
+    "memory_cpu_used_ready_mib": 3297.34765625,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06732570752501488,
+      "client_latency_s": 0.134602265432477,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 193.16168205982282,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.060178667306900024,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 6193511.911381842,
+        "ended_monotonic_s": 6193511.971608318,
+        "event_count": 0,
+        "phase_latency_s": {},
+        "events": []
+      }
+    },
+    "memory_gpu_used_evict_mib": 795,
+    "memory_cpu_used_evict_mib": 3428.57421875,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.2772853961214423,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 0,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193512.048543641,
+            "ended_monotonic_s": 6193512.086601475,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193512.120085738,
+            "ended_monotonic_s": 6193512.300520016,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193512.330500253,
+            "ended_monotonic_s": 6193512.389427467,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.038012297824025154,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193512.048543641,
+            "ended_monotonic_s": 6193512.086601475,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.1803837725892663,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193512.120085738,
+            "ended_monotonic_s": 6193512.300520016,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.058889325708150864,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193512.330500253,
+            "ended_monotonic_s": 6193512.389427467,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.00903355609625578,
+      "client_latency_s": 0.08171331323683262,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 318.18560489210944,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.3644339879974723
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260723_114521_sleep_l2_short_short_2_a5693480",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 2,
+    "server_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114521_sleep_l2_short_short_2_a5693480.server.log",
+    "event_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114521_sleep_l2_short_short_2_a5693480.events.jsonl",
+    "port": 36701,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114521_sleep_l2_short_short_2_a5693480.sleep_profile.jsonl",
+    "startup_latency_s": 15.51991399563849,
+    "memory_gpu_used_ready_mib": 7365,
+    "memory_cpu_used_ready_mib": 3298.36328125,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06784727424383163,
+      "client_latency_s": 0.1353930700570345,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 192.03346219306104,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.0622306689620018,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 6193528.793643471,
+        "ended_monotonic_s": 6193528.855913154,
+        "event_count": 0,
+        "phase_latency_s": {},
+        "events": []
+      }
+    },
+    "memory_gpu_used_evict_mib": 795,
+    "memory_cpu_used_evict_mib": 3429.8359375,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.29365903604775667,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 0,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193528.936835066,
+            "ended_monotonic_s": 6193528.98209075,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193529.010972627,
+            "ended_monotonic_s": 6193529.19091614,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193529.22094898,
+            "ended_monotonic_s": 6193529.289545345,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.045207712799310684,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193528.936835066,
+            "ended_monotonic_s": 6193528.98209075,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.17989527713507414,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193529.010972627,
+            "ended_monotonic_s": 6193529.19091614,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.06855604611337185,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193529.22094898,
+            "ended_monotonic_s": 6193529.289545345,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.00934538058936596,
+      "client_latency_s": 0.07966985832899809,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 326.346758301396,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.3643755344673991
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260723_114537_sleep_l2_short_short_3_4ce7bf1c",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 3,
+    "server_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114537_sleep_l2_short_short_3_4ce7bf1c.server.log",
+    "event_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114537_sleep_l2_short_short_3_4ce7bf1c.events.jsonl",
+    "port": 38785,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114537_sleep_l2_short_short_3_4ce7bf1c.sleep_profile.jsonl",
+    "startup_latency_s": 15.51958464924246,
+    "memory_gpu_used_ready_mib": 7365,
+    "memory_cpu_used_ready_mib": 3296.8359375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.0682250065729022,
+      "client_latency_s": 0.13583558797836304,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 191.40786583955807,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.06100630946457386,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 6193545.679040107,
+        "ended_monotonic_s": 6193545.740089757,
+        "event_count": 0,
+        "phase_latency_s": {},
+        "events": []
+      }
+    },
+    "memory_gpu_used_evict_mib": 795,
+    "memory_cpu_used_evict_mib": 3428.39453125,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.28134050127118826,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 0,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193545.815798632,
+            "ended_monotonic_s": 6193545.854519454,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193545.883046059,
+            "ended_monotonic_s": 6193546.066918831,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193546.096802872,
+            "ended_monotonic_s": 6193546.155686231,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.03868213854730129,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193545.815798632,
+            "ended_monotonic_s": 6193545.854519454,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.18381580896675587,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193545.883046059,
+            "ended_monotonic_s": 6193546.066918831,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.0588425537571311,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193546.096802872,
+            "ended_monotonic_s": 6193546.155686231,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.00955870933830738,
+      "client_latency_s": 0.0813616756349802,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 319.5607735101967,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.3644323693588376
+  },
+  {
+    "system": "vllm",
+    "run_id": "20260723_114554_sleep_l2_short_short_4_8af9ab28",
+    "method": "sleep_l2",
+    "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+    "prompt_name": "short_short",
+    "repeat_index": 4,
+    "server_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114554_sleep_l2_short_short_4_8af9ab28.server.log",
+    "event_log": "results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114554_sleep_l2_short_short_4_8af9ab28.events.jsonl",
+    "port": 33127,
+    "sleep_profile_log": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-l2-runs/qwen-0.5b/20260723_114447/20260723_114554_sleep_l2_short_short_4_8af9ab28.sleep_profile.jsonl",
+    "startup_latency_s": 15.521273384802043,
+    "memory_gpu_used_ready_mib": 7365,
+    "memory_cpu_used_ready_mib": 3290.05859375,
+    "infer_before": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.06761322636157274,
+      "client_latency_s": 0.1351569639518857,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 192.36892602334348,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "evict": {
+      "ok": true,
+      "status": 200,
+      "latency_s": 0.06341893598437309,
+      "body": "",
+      "sleep_profile": {
+        "operation": "sleep",
+        "started_monotonic_s": 6193562.572642856,
+        "ended_monotonic_s": 6193562.636103472,
+        "event_count": 0,
+        "phase_latency_s": {},
+        "events": []
+      }
+    },
+    "memory_gpu_used_evict_mib": 795,
+    "memory_cpu_used_evict_mib": 3421.30078125,
+    "restore": {
+      "ok": true,
+      "status": "200+200+200",
+      "latency_s": 0.3425875548273325,
+      "sleep_profile": {
+        "operation": "restore",
+        "event_count": 0,
+        "steps": [
+          {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193562.712893597,
+            "ended_monotonic_s": 6193562.762910495,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193562.79069204,
+            "ended_monotonic_s": 6193563.013688325,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          },
+          {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193563.042404628,
+            "ended_monotonic_s": 6193563.112115585,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        ]
+      },
+      "steps": {
+        "wake_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.049965652637183666,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_weights",
+            "started_monotonic_s": 6193562.712893597,
+            "ended_monotonic_s": 6193562.762910495,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "reload_weights": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.22294642310589552,
+          "body": "{\"results\":[null]}",
+          "sleep_profile": {
+            "operation": "reload_weights",
+            "started_monotonic_s": 6193562.79069204,
+            "ended_monotonic_s": 6193563.013688325,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        },
+        "wake_kv_cache": {
+          "ok": true,
+          "status": 200,
+          "latency_s": 0.06967547908425331,
+          "body": "",
+          "sleep_profile": {
+            "operation": "wake_kv_cache",
+            "started_monotonic_s": 6193563.042404628,
+            "ended_monotonic_s": 6193563.112115585,
+            "event_count": 0,
+            "phase_latency_s": {},
+            "events": []
+          }
+        }
+      }
+    },
+    "infer_after": {
+      "ok": true,
+      "status": 200,
+      "error": null,
+      "ttft_s": 0.009564356878399849,
+      "client_latency_s": 0.07998165115714073,
+      "completion_tokens": null,
+      "approx_output_tokens": 26,
+      "approx_tokens_per_s": 325.07455927507107,
+      "output_prefix": " GPUs are highly optimized for parallel processing and can handle large amounts of data, which is essential for training"
+    },
+    "ok": true,
+    "cleanup_s": 0.3641718477010727
+  }
+]

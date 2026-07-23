@@ -39,8 +39,9 @@ def gpu() -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Measure in-process vLLM L1 sleep and wake phases."
+        description="Measure in-process vLLM sleep and wake phases."
     )
+    parser.add_argument("--sleep-level", type=int, choices=[1, 2], default=1)
     parser.add_argument("--model", required=True)
     parser.add_argument("--model-name", required=True)
     parser.add_argument("--system-name", required=True)
@@ -77,7 +78,7 @@ def main() -> int:
     try:
         for cycle in range(args.cycles):
             started = time.perf_counter()
-            llm.sleep(level=1)
+            llm.sleep(level=args.sleep_level)
             sleep_s = time.perf_counter() - started
             started = time.perf_counter()
             llm.wake_up()
@@ -113,6 +114,7 @@ def main() -> int:
         "model": args.model_name,
         "model_path": str(Path(args.model).resolve()),
         "cycles": args.cycles,
+        "sleep_level": args.sleep_level,
         "rows": rows,
         "sleep_events": sleep_events,
         "medians": {

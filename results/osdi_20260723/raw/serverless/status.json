@@ -1,0 +1,32 @@
+{
+  "system": "ServerlessLLM",
+  "status": "blocked",
+  "source_commit": "261876217767c644fb1378e385ec6c4bd0cd6def",
+  "attempted_at": "2026-07-23",
+  "requested_models": [
+    "qwen-0.5b",
+    "qwen-1.5b",
+    "qwen-3b"
+  ],
+  "proxy": "http://127.0.0.1:7890",
+  "fresh_source_build": {
+    "result": "failed",
+    "reason": "Docker Hub registry/CDN repeatedly returned EOF or connection reset while fetching docker.io/nvidia/cuda:12.1.1-devel-ubuntu20.04 and docker.io/pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel, including when Podman engine proxy configuration was used."
+  },
+  "existing_image_gate": {
+    "image": "serverlessllm/sllm:latest",
+    "image_created": "2025-11-03T15:57:37.412557532Z",
+    "head_import": "passed",
+    "worker_versions": {
+      "torch": "2.7.0+cu126",
+      "vllm": "0.9.0.1"
+    },
+    "cluster_health": "passed",
+    "qwen_0_5b_load_and_inference": "passed",
+    "delete_api_removed_registry_entry": "passed",
+    "physical_scale_to_zero": "failed",
+    "failure_evidence": "After POST /delete, /v1/models was empty but ray::VllmBackend remained alive and continued holding 5810 MiB GPU memory; scheduler reported free_gpu=0.0. This violates the sleep post-condition and prevents valid lifecycle timing."
+  },
+  "usable_lifecycle_samples": 0,
+  "plot_policy": "No value is plotted because the physical sleep post-condition was not met."
+}

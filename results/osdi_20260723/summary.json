@@ -38,6 +38,42 @@
     },
     {
       "model": "qwen-0.5b",
+      "system": "vLLM L2",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.0622306689620018,
+      "q1_s": 0.06100630946457386,
+      "q3_s": 0.062421238981187344
+    },
+    {
+      "model": "qwen-0.5b",
+      "system": "vLLM L2",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 0.29365903604775667,
+      "q1_s": 0.28134050127118826,
+      "q3_s": 0.3040325539186597
+    },
+    {
+      "model": "qwen-0.5b",
+      "system": "SwapServeLLM",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.4126087436452508,
+      "q1_s": 0.4106977693736553,
+      "q3_s": 0.4128348892554641
+    },
+    {
+      "model": "qwen-0.5b",
+      "system": "SwapServeLLM",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 0.3969401139765978,
+      "q1_s": 0.395999520085752,
+      "q3_s": 0.3985619228333235
+    },
+    {
+      "model": "qwen-0.5b",
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
@@ -92,6 +128,42 @@
     },
     {
       "model": "qwen-1.5b",
+      "system": "vLLM L2",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.11721284501254559,
+      "q1_s": 0.11713685933500528,
+      "q3_s": 0.11893889587372541
+    },
+    {
+      "model": "qwen-1.5b",
+      "system": "vLLM L2",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 0.6536334902048111,
+      "q1_s": 0.650479587726295,
+      "q3_s": 0.7093137437477708
+    },
+    {
+      "model": "qwen-1.5b",
+      "system": "SwapServeLLM",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.6203934838995337,
+      "q1_s": 0.6188639970496297,
+      "q3_s": 0.6358181312680244
+    },
+    {
+      "model": "qwen-1.5b",
+      "system": "SwapServeLLM",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 0.606721525080502,
+      "q1_s": 0.6042717332020402,
+      "q3_s": 0.6140718059614301
+    },
+    {
+      "model": "qwen-1.5b",
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
@@ -143,6 +215,42 @@
       "median_s": 0.47725914884358644,
       "q1_s": 0.4765551798045635,
       "q3_s": 0.4775986121967435
+    },
+    {
+      "model": "qwen-3b",
+      "system": "vLLM L2",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.17011544108390808,
+      "q1_s": 0.16940237395465374,
+      "q3_s": 0.17110721953213215
+    },
+    {
+      "model": "qwen-3b",
+      "system": "vLLM L2",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 1.5237060813233256,
+      "q1_s": 1.5146344704553485,
+      "q3_s": 1.5435133567079902
+    },
+    {
+      "model": "qwen-3b",
+      "system": "SwapServeLLM",
+      "phase": "sleep",
+      "n": 5,
+      "median_s": 0.9089099299162626,
+      "q1_s": 0.9070155592635274,
+      "q3_s": 0.9090828318148851
+    },
+    {
+      "model": "qwen-3b",
+      "system": "SwapServeLLM",
+      "phase": "wake",
+      "n": 5,
+      "median_s": 0.9851995268836617,
+      "q1_s": 0.9833247475326061,
+      "q3_s": 0.9880281873047352
     },
     {
       "model": "qwen-3b",
@@ -214,6 +322,61 @@
       "path": "/home/ljl/research-systems/llama-swap",
       "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
       "tracked_dirty": true
+    },
+    "vLLM L2:qwen-0.5b": {
+      "path": "/home/ljl/research-systems/vllm-upstream-l1",
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "tracked_dirty": false
+    },
+    "vLLM L2:qwen-1.5b": {
+      "path": "/home/ljl/research-systems/vllm-upstream-l1",
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "tracked_dirty": false
+    },
+    "vLLM L2:qwen-3b": {
+      "path": "/home/ljl/research-systems/vllm-upstream-l1",
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "tracked_dirty": false
+    },
+    "SwapServeLLM": {
+      "path": "/home/ljl/research-systems/SwapServeLLM",
+      "commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
+      "benchmark_patch": "raw/swapserve/benchmark.patch"
+    },
+    "ServerlessLLM": {
+      "system": "ServerlessLLM",
+      "status": "blocked",
+      "source_commit": "261876217767c644fb1378e385ec6c4bd0cd6def",
+      "attempted_at": "2026-07-23",
+      "requested_models": [
+        "qwen-0.5b",
+        "qwen-1.5b",
+        "qwen-3b"
+      ],
+      "proxy": "http://127.0.0.1:7890",
+      "fresh_source_build": {
+        "result": "failed",
+        "reason": "Docker Hub registry/CDN repeatedly returned EOF or connection reset while fetching docker.io/nvidia/cuda:12.1.1-devel-ubuntu20.04 and docker.io/pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel, including when Podman engine proxy configuration was used."
+      },
+      "existing_image_gate": {
+        "image": "serverlessllm/sllm:latest",
+        "image_created": "2025-11-03T15:57:37.412557532Z",
+        "head_import": "passed",
+        "worker_versions": {
+          "torch": "2.7.0+cu126",
+          "vllm": "0.9.0.1"
+        },
+        "cluster_health": "passed",
+        "qwen_0_5b_load_and_inference": "passed",
+        "delete_api_removed_registry_entry": "passed",
+        "physical_scale_to_zero": "failed",
+        "failure_evidence": "After POST /delete, /v1/models was empty but ray::VllmBackend remained alive and continued holding 5810 MiB GPU memory; scheduler reported free_gpu=0.0. This violates the sleep post-condition and prevents valid lifecycle timing."
+      },
+      "usable_lifecycle_samples": 0,
+      "plot_policy": "No value is plotted because the physical sleep post-condition was not met."
     }
   },
   "plot_policy": {

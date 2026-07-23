@@ -20,10 +20,12 @@ MODEL_TITLES = {
     "qwen-1.5b": "Qwen2.5-1.5B",
     "qwen-3b": "Qwen2.5-3B",
 }
-SYSTEM_ORDER = ["Proposed", "vLLM L1", "llama-swap"]
+SYSTEM_ORDER = ["Proposed", "vLLM L1", "vLLM L2", "SwapServeLLM", "llama-swap"]
 SYSTEM_STYLE = {
     "Proposed": {"color": "#0072B2", "hatch": "", "marker": "o"},
     "vLLM L1": {"color": "#E69F00", "hatch": "//", "marker": "s"},
+    "vLLM L2": {"color": "#CC79A7", "hatch": "..", "marker": "D"},
+    "SwapServeLLM": {"color": "#56B4E9", "hatch": "\\\\", "marker": "P"},
     "llama-swap": {"color": "#009E73", "hatch": "xx", "marker": "^"},
 }
 
@@ -87,6 +89,30 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
             )
             for row in rows
         ]
+        l2_path = sorted((RAW / "vllm-l2-runs" / model).glob("*/summary.json"))[-1]
+        l2_rows = [row for row in json_file(l2_path) if row["ok"]]
+        values[("vLLM L2", model, "sleep")] = [
+            float(row["evict"]["latency_s"]) for row in l2_rows
+        ]
+        values[("vLLM L2", model, "wake")] = [
+            float(row["restore"]["latency_s"]) for row in l2_rows
+        ]
+        provenance[f"vLLM L2:{model}"] = json_file(
+            l2_path.with_name("metadata.json")
+        )["engine_git"]
+        swapserve = json_file(RAW / "swapserve" / f"{model}.json")
+        values[("SwapServeLLM", model, "sleep")] = [
+            float(row["sleep_s"]) for row in swapserve["rows"]
+        ]
+        values[("SwapServeLLM", model, "wake")] = [
+            float(row["wake_s"]) for row in swapserve["rows"]
+        ]
+    provenance["SwapServeLLM"] = {
+        "path": "/home/ljl/research-systems/SwapServeLLM",
+        "commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
+        "benchmark_patch": "raw/swapserve/benchmark.patch",
+    }
+    provenance["ServerlessLLM"] = json_file(RAW / "serverless" / "status.json")
     return values, provenance
 
 
@@ -101,7 +127,7 @@ def plot_lifecycle(values: dict[tuple[str, str, str], list[float]]) -> None:
     for model in MODEL_ORDER:
         fig, ax = plt.subplots(figsize=(3.25, 2.15), constrained_layout=True)
         x = np.arange(2)
-        offsets = {"Proposed": -0.17, "vLLM L1": 0.0, "llama-swap": 0.17}
+        offsets = dict(zip(SYSTEM_ORDER, np.linspace(-0.28, 0.28, len(SYSTEM_ORDER))))
         for system in SYSTEM_ORDER:
             meds, lows, highs = [], [], []
             for phase in ("sleep", "wake"):
@@ -126,11 +152,18 @@ def plot_lifecycle(values: dict[tuple[str, str, str], list[float]]) -> None:
         ax.set_yscale("log")
         ax.set_xticks(x, ["Sleep", "Wake"])
         ax.set_ylabel("Latency (s, log scale)")
-        ax.set_title(MODEL_TITLES[model], pad=20)
+        ax.text(
+            0.02,
+            0.96,
+            MODEL_TITLES[model],
+            transform=ax.transAxes,
+            va="top",
+            fontweight="bold",
+        )
         ax.grid(axis="y", which="major", color="#b0b0b0", linewidth=0.45, alpha=0.55)
         ax.set_axisbelow(True)
         ax.spines[["top", "right"]].set_visible(False)
-        ax.legend(frameon=False, ncol=3, loc="lower center", bbox_to_anchor=(0.5, 1.0), columnspacing=0.8, handlelength=1.4)
+        ax.legend(frameon=False, ncol=3, loc="lower center", bbox_to_anchor=(0.5, 1.0), columnspacing=0.7, handlelength=1.1)
         for suffix in ("pdf", "png"):
             fig.savefig(FIG / f"lifecycle-{model}.{suffix}", bbox_inches="tight")
         plt.close(fig)

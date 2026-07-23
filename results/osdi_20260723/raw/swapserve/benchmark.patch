@@ -1,0 +1,52 @@
+diff --git a/internal/handlers.go b/internal/handlers.go
+index 91feea7..2852b0b 100644
+--- a/internal/handlers.go
++++ b/internal/handlers.go
+@@ -64,7 +64,7 @@ func LoadModel(
+ 			return
+ 		}
+ 
+-		ctx.Done()
++		ctx.Status(http.StatusOK)
+ 	}
+ }
+ 
+@@ -121,7 +121,7 @@ func UnloadModel(
+ 			ctrInfo.Mu.Unlock()
+ 		}
+ 
+-		ctx.Done()
++		ctx.Status(http.StatusOK)
+ 	}
+ }
+ 
+diff --git a/pkg/containers/vllm_launcher.go b/pkg/containers/vllm_launcher.go
+index a71e052..2bbbf0f 100644
+--- a/pkg/containers/vllm_launcher.go
++++ b/pkg/containers/vllm_launcher.go
+@@ -52,6 +52,7 @@ func CreateVLLMContainer(ctx context.Context, model common.ModelConfig) (string,
+ 			"--gpu-memory-utilization", model.GpuMemoryUtilization,
+ 		)
+ 	}
++	containerSpec.Command = append(containerSpec.Command, "--max-model-len", "1024")
+ 
+ 	// Do not remove container after exit
+ 	// So that we can investigate any errors in the container logs.
+@@ -74,6 +75,17 @@ func CreateVLLMContainer(ctx context.Context, model common.ModelConfig) (string,
+ 		Options:     []string{"bind", "nosuid", "noexec", "nodev"},
+ 	}
+ 	containerSpec.ContainerStorageConfig.Mounts = append(containerSpec.ContainerStorageConfig.Mounts, huggingfaceRootCacheMnt)
++	if hostModelRoot := os.Getenv("SWAPSERVE_HOST_MODEL_ROOT"); hostModelRoot != "" {
++		containerSpec.ContainerStorageConfig.Mounts = append(
++			containerSpec.ContainerStorageConfig.Mounts,
++			specs.Mount{
++				Destination: "/models",
++				Type:        "bind",
++				Source:      hostModelRoot,
++				Options:     []string{"bind", "ro"},
++			},
++		)
++	}
+ 
+ 	shmSize := int64(1024 * 1024 * 1024) // 1 GiB
+ 	containerSpec.ShmSize = &shmSize

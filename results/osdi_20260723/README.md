@@ -11,9 +11,10 @@ This artifact contains a fresh single-GPU comparison requested for:
 
 - **Proposed**: research vLLM commit `4a0e87b62`. Startup creates the CPU weight snapshot after warmup. L1 sleep and wake are timed at the public engine calls. Allocator evidence confirms zero D2H and positive pre-backup reuse on every measured sleep.
 - **vLLM L1**: clean worktree commit `0decac0d9`. L1 sleep and wake use the same public engine-call boundaries. The existing checkout lacked local FlashAttention shared objects, so runtime-compatible symlinks to the identical research checkout build artifacts were used; no tracked source was changed.
+- **vLLM L2**: clean worktree commit `0decac0d9`. Sleep uses `sleep(level=2)`. Wake is the complete supported restore transaction: map weights, `reload_weights`, then map KV cache; the plotted wake is the sum of those synchronous steps.
 - **llama-swap**: current source plus the benchmark-only state-transition profiler patch recorded in `raw/llama-swap/lifecycle-profile.patch`. Sleep uses the source state interval `ready -> stopping -> stopped`; wake uses `stopped -> starting -> ready`, whose endpoint is a successful `/health` response. The public unload call and an external idle-GPU check are also retained for physical post-condition evidence.
-- **ServerlessLLM** was re-gated but omitted from fresh bars: its local image was absent and its CUDA 12.1.1 base-image pull repeatedly failed with registry connection resets.
-- **SwapServeLLM** was rebuilt from current source, and a current NVIDIA cuda-checkpoint binary was fetched. Its CUDA checkpoint path requires live-process compatibility and additional container setup; it was not added as an unverified number.
+- **ServerlessLLM** was re-gated but is not plotted: a fresh current-source image could not be fetched even with the requested proxy because Docker Hub registry/CDN transfers repeatedly returned EOF or connection reset. The existing image loaded and inferred Qwen2.5-0.5B, but `POST /delete` removed the registry entry while its `ray::VllmBackend` kept 5,810 MiB allocated; therefore it failed the physical sleep post-condition and no lifecycle number is reported.
+- **SwapServeLLM** uses current commit `69f8aec0`, vLLM 0.22.0, and NVIDIA cuda-checkpoint commit `00d5cce8`. The retained benchmark-only patch mounts local models, fixes the swap API response boundary, and caps max model length; sleep/wake end when the synchronous swapout/swapin API returns, with zero model GPU memory after every measured swapout.
 
 ## Common conditions
 
@@ -34,12 +35,18 @@ Lifecycle medians, seconds:
 |---|---|---:|---:|
 | Qwen2.5-0.5B | Proposed | 0.0728 | 0.1567 |
 |  | vLLM L1 | 0.0897 | 0.1540 |
+|  | vLLM L2 | **0.0622** | 0.2937 |
+|  | SwapServeLLM | 0.4126 | 0.3969 |
 |  | llama-swap | 0.2966 | 12.2596 |
-| Qwen2.5-1.5B | Proposed | 0.0983 | 0.2637 |
+| Qwen2.5-1.5B | Proposed | **0.0983** | **0.2637** |
 |  | vLLM L1 | 0.2001 | 0.2644 |
+|  | vLLM L2 | 0.1172 | 0.6536 |
+|  | SwapServeLLM | 0.6204 | 0.6067 |
 |  | llama-swap | 0.2981 | 12.2590 |
-| Qwen2.5-3B | Proposed | 0.1559 | 0.4774 |
+| Qwen2.5-3B | Proposed | **0.1559** | **0.4774** |
 |  | vLLM L1 | 0.3529 | 0.4773 |
+|  | vLLM L2 | 0.1701 | 1.5237 |
+|  | SwapServeLLM | 0.9089 | 0.9852 |
 |  | llama-swap | 0.2950 | 13.2610 |
 
 E2E alternating trace:
