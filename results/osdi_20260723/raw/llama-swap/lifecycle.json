@@ -1,0 +1,522 @@
+{
+  "created_at": "2026-07-23T02:32:37.467046+00:00",
+  "base_url": "http://127.0.0.1:18100",
+  "baseline_gpu_mib": 1,
+  "llama_swap_repo": {
+    "path": "/home/ljl/research-systems/llama-swap",
+    "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
+    "tracked_dirty": false
+  },
+  "cycles": 5,
+  "rows": [
+    {
+      "model": "qwen-0.5b",
+      "cycle": 0,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK.",
+        "latency_s": 52.42030396126211,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.27428250573575497,
+        "postcondition_latency_s": 0.031767889857292175,
+        "latency_s": 0.30605950485914946,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.031767889857292175,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7251,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-0.5b",
+      "cycle": 1,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK.",
+        "latency_s": 12.369814447127283,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.26820929534733295,
+        "postcondition_latency_s": 0.028118870221078396,
+        "latency_s": 0.2963341660797596,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.028118870221078396,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7251,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-0.5b",
+      "cycle": 2,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK.",
+        "latency_s": 12.365975115448236,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.26687875483185053,
+        "postcondition_latency_s": 0.029201957397162914,
+        "latency_s": 0.2960859229788184,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.029201957397162914,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7251,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-0.5b",
+      "cycle": 3,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK.",
+        "latency_s": 12.368782673962414,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2664897944778204,
+        "postcondition_latency_s": 0.03309157211333513,
+        "latency_s": 0.2995871305465698,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03309157211333513,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7251,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-0.5b",
+      "cycle": 4,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK.",
+        "latency_s": 12.38480043783784,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.26759673561900854,
+        "postcondition_latency_s": 0.029356165789067745,
+        "latency_s": 0.29695856012403965,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.029356165789067745,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7251,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-1.5b",
+      "cycle": 0,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 12.364764808677137,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2658130759373307,
+        "postcondition_latency_s": 0.030063683167099953,
+        "latency_s": 0.2958814902231097,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.030063683167099953,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7267,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-1.5b",
+      "cycle": 1,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 12.364655212499201,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2708520283922553,
+        "postcondition_latency_s": 0.03012832533568144,
+        "latency_s": 0.3009848212823272,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03012832533568144,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7267,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-1.5b",
+      "cycle": 2,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 12.381511841900647,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2722745817154646,
+        "postcondition_latency_s": 0.03219825401902199,
+        "latency_s": 0.3044786751270294,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03219825401902199,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7267,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-1.5b",
+      "cycle": 3,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 12.37318937573582,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.26655631978064775,
+        "postcondition_latency_s": 0.03193535469472408,
+        "latency_s": 0.2984990254044533,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03193535469472408,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7267,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-1.5b",
+      "cycle": 4,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 12.368475515395403,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.27015138510614634,
+        "postcondition_latency_s": 0.031068063341081142,
+        "latency_s": 0.3012233227491379,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.031068063341081142,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7267,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-3b",
+      "cycle": 0,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 13.369450353085995,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2703142836689949,
+        "postcondition_latency_s": 0.03052349016070366,
+        "latency_s": 0.30084264650940895,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03052349016070366,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7277,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-3b",
+      "cycle": 1,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 13.368124957196414,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.3147024754434824,
+        "postcondition_latency_s": 0.033138005062937737,
+        "latency_s": 0.34784531500190496,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.033138005062937737,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7277,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-3b",
+      "cycle": 2,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 13.365949316881597,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2704510986804962,
+        "postcondition_latency_s": 0.03147228620946407,
+        "latency_s": 0.30192880518734455,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03147228620946407,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7277,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-3b",
+      "cycle": 3,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 14.365317417308688,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.27054844703525305,
+        "postcondition_latency_s": 0.03078080527484417,
+        "latency_s": 0.30133381206542253,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.03078080527484417,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7277,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    },
+    {
+      "model": "qwen-3b",
+      "cycle": 4,
+      "wake": {
+        "status": 200,
+        "done": true,
+        "output": "OK",
+        "latency_s": 13.373674307018518,
+        "ok": true
+      },
+      "sleep": {
+        "ok": true,
+        "status": 200,
+        "body": "OK",
+        "api_latency_s": 0.2715650228783488,
+        "postcondition_latency_s": 0.033707511611282825,
+        "latency_s": 0.30527863930910826,
+        "postcondition": {
+          "ok": true,
+          "latency_s": 0.033707511611282825,
+          "gpu_used_mib": 1,
+          "idle_threshold_mib": 129,
+          "running": []
+        }
+      },
+      "gpu_used_ready_mib": 7277,
+      "gpu_used_sleep_mib": 1,
+      "ok": true,
+      "definitions": {
+        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
+      }
+    }
+  ],
+  "medians": {
+    "qwen-0.5b": {
+      "sleep_s": 0.29695856012403965,
+      "wake_s": 12.369814447127283
+    },
+    "qwen-1.5b": {
+      "sleep_s": 0.3009848212823272,
+      "wake_s": 12.368475515395403
+    },
+    "qwen-3b": {
+      "sleep_s": 0.30192880518734455,
+      "wake_s": 13.369450353085995
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "created_at": "2026-07-23T02:43:13.975261+00:00",
+  "system": "vLLM L1",
+  "model": "qwen-1.5b",
+  "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
+  "cycles": 5,
+  "rows": [
+    {
+      "cycle": 0,
+      "sleep_s": 0.9012561971321702,
+      "wake_s": 0.2666047429665923,
+      "output_match": true,
+      "output": " 2023-01"
+    },
+    {
+      "cycle": 1,
+      "sleep_s": 0.20003367122262716,
+      "wake_s": 0.26412632782012224,
+      "output_match": true,
+      "output": " 2023-01"
+    },
+    {
+      "cycle": 2,
+      "sleep_s": 0.2001335583627224,
+      "wake_s": 0.2649392820894718,
+      "output_match": true,
+      "output": " 2023-01"
+    },
+    {
+      "cycle": 3,
+      "sleep_s": 0.19991069938987494,
+      "wake_s": 0.2643505437299609,
+      "output_match": true,
+      "output": " 2023-01"
+    },
+    {
+      "cycle": 4,
+      "sleep_s": 0.20059684850275517,
+      "wake_s": 0.2643032241612673,
+      "output_match": true,
+      "output": " 2023-01"
+    }
+  ],
+  "sleep_events": [],
+  "medians": {
+    "sleep_s": 0.2001335583627224,
+    "wake_s": 0.2643505437299609
+  },
+  "mechanism_check": {
+    "all_outputs_match": true,
+    "all_sleep_copy_d2h_zero": null,
+    "all_sleep_reused_bytes_positive": null
+  },
+  "environment": {
+    "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
+    "vllm": {
+      "path": "/home/ljl/research-systems/vllm-upstream-l1",
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "tracked_dirty": false
+    }
+  },
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-stock/qwen-1.5b.sleep_profile.jsonl"
+}

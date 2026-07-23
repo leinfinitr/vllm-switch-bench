@@ -1,0 +1,65 @@
+{
+  "created_at": "2026-07-23T02:42:28.043992+00:00",
+  "system": "vLLM L1",
+  "model": "qwen-0.5b",
+  "model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+  "cycles": 5,
+  "rows": [
+    {
+      "cycle": 0,
+      "sleep_s": 0.4149699183180928,
+      "wake_s": 0.1739828735589981,
+      "output_match": true,
+      "output": " Yes, I can do that. I"
+    },
+    {
+      "cycle": 1,
+      "sleep_s": 0.08933353237807751,
+      "wake_s": 0.15398158505558968,
+      "output_match": true,
+      "output": " Yes, I can do that. I"
+    },
+    {
+      "cycle": 2,
+      "sleep_s": 0.08970199804753065,
+      "wake_s": 0.15386532619595528,
+      "output_match": true,
+      "output": " Yes, I can do that. I"
+    },
+    {
+      "cycle": 3,
+      "sleep_s": 0.08928144257515669,
+      "wake_s": 0.1542814252898097,
+      "output_match": true,
+      "output": " Yes, I can do that. I"
+    },
+    {
+      "cycle": 4,
+      "sleep_s": 0.08979170583188534,
+      "wake_s": 0.1537927845492959,
+      "output_match": true,
+      "output": " Yes, I can do that. I"
+    }
+  ],
+  "sleep_events": [],
+  "medians": {
+    "sleep_s": 0.08970199804753065,
+    "wake_s": 0.15398158505558968
+  },
+  "mechanism_check": {
+    "all_outputs_match": true,
+    "all_sleep_copy_d2h_zero": null,
+    "all_sleep_reused_bytes_positive": null
+  },
+  "environment": {
+    "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
+    "vllm": {
+      "path": "/home/ljl/research-systems/vllm-upstream-l1",
+      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "tracked_dirty": false
+    }
+  },
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-stock/qwen-0.5b.sleep_profile.jsonl"
+}
