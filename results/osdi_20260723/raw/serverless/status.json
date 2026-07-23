@@ -11,7 +11,7 @@
   "proxy": "http://127.0.0.1:7890",
   "fresh_source_build": {
     "result": "failed",
-    "reason": "Podman repeatedly hit Docker Hub EOF/connection reset while fetching base images even with the requested proxy. Docker then fetched both base manifests successfully through the same proxy, but the first build failed on an incomplete conda download and the retry made no progress for more than ten minutes in dependency installation before being cancelled. No current-source image was produced."
+    "reason": "Podman repeatedly hit Docker Hub EOF/connection reset while fetching base images even with the requested proxy. Docker then fetched both base manifests successfully through the same proxy. Three current-source builds were attempted: the first failed on an incomplete conda download; the next two, including the exact buildx command with host networking plus upper/lowercase proxy and NO_PROXY build args, made no progress for about ten minutes in parallel head/build dependency installation and were cancelled. No current-source image was produced."
   },
   "existing_image_gate": {
     "image": "serverlessllm/sllm:latest",
@@ -24,9 +24,9 @@
     "cluster_health": "passed",
     "qwen_0_5b_load_and_inference": "passed",
     "delete_api_removed_registry_entry": "passed",
-    "physical_scale_to_zero": "failed",
-    "failure_evidence": "After POST /delete, /v1/models was empty but ray::VllmBackend remained alive and continued holding 5810 MiB GPU memory; scheduler reported free_gpu=0.0. This violates the sleep post-condition and prevents valid lifecycle timing."
+    "physical_scale_to_zero": "not_measured_on_current_source",
+    "failure_evidence": "The old-image delete-path smoke test removed the registry entry while ray::VllmBackend remained alive and continued holding 5810 MiB GPU memory; scheduler reported free_gpu=0.0. This is evidence that the delete-based test was not a valid completed sleep, not evidence about current-source automatic scale-to-zero. A valid current-source test must omit load_format=auto and wait for the keep_alive=0 autoscaler path while the model stays registered."
   },
   "usable_lifecycle_samples": 0,
-  "plot_policy": "No value is plotted because the physical sleep post-condition was not met."
+  "plot_policy": "No value is plotted because a current-source fast-loader run with valid automatic scale-to-zero post-conditions was not obtained."
 }
