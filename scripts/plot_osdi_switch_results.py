@@ -110,7 +110,7 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
     provenance["SwapServeLLM"] = {
         "path": "/home/ljl/research-systems/SwapServeLLM",
         "commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
-        "benchmark_patch": "raw/swapserve/benchmark.patch",
+        "benchmark_patch": "raw/swapserve/benchmark.patch.txt",
     }
     provenance["ServerlessLLM"] = json_file(RAW / "serverless" / "status.json")
     return values, provenance

@@ -11,7 +11,7 @@
   "proxy": "http://127.0.0.1:7890",
   "fresh_source_build": {
     "result": "failed",
-    "reason": "Docker Hub registry/CDN repeatedly returned EOF or connection reset while fetching docker.io/nvidia/cuda:12.1.1-devel-ubuntu20.04 and docker.io/pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel, including when Podman engine proxy configuration was used."
+    "reason": "Podman repeatedly hit Docker Hub EOF/connection reset while fetching base images even with the requested proxy. Docker then fetched both base manifests successfully through the same proxy, but the first build failed on an incomplete conda download and the retry made no progress for more than ten minutes in dependency installation before being cancelled. No current-source image was produced."
   },
   "existing_image_gate": {
     "image": "serverlessllm/sllm:latest",
