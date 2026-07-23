@@ -158,9 +158,11 @@ def main() -> int:
     parser.add_argument("--cycles", type=int, default=5)
     parser.add_argument("--unload-timeout-s", type=float, default=60)
     parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--lifecycle-profile", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     baseline_gpu_mib = gpu_used_mib()
+    profile_offset = 0
     rows: list[dict[str, Any]] = []
     for model in args.models:
         for cycle in range(args.cycles):
@@ -172,6 +174,42 @@ def main() -> int:
                 baseline_gpu_mib,
                 args.unload_timeout_s,
             )
+            profile_events: list[dict[str, Any]] = []
+            if args.lifecycle_profile:
+                profile_events = [
+                    json.loads(line)
+                    for line in args.lifecycle_profile.read_text(
+                        encoding="utf-8"
+                    ).splitlines()[profile_offset:]
+                    if line.strip()
+                ]
+                profile_offset += len(profile_events)
+            wake_events = [
+                event
+                for event in profile_events
+                if event.get("model") == model
+                and event.get("phase") == "wake"
+                and event.get("success")
+            ]
+            sleep_events = [
+                event
+                for event in profile_events
+                if event.get("model") == model
+                and event.get("phase") == "sleep_process"
+                and event.get("success")
+            ]
+            if args.lifecycle_profile:
+                if len(wake_events) != 1 or len(sleep_events) != 1:
+                    raise RuntimeError(
+                        f"expected one successful wake and sleep event for {model}, "
+                        f"got wake={len(wake_events)}, sleep={len(sleep_events)}"
+                    )
+                wake["state_machine_latency_s"] = float(
+                    wake_events[0]["duration_s"]
+                )
+                sleep["state_machine_latency_s"] = float(
+                    sleep_events[0]["duration_s"]
+                )
             row = {
                 "model": model,
                 "cycle": cycle,
@@ -181,9 +219,10 @@ def main() -> int:
                 "gpu_used_sleep_mib": sleep["postcondition"]["gpu_used_mib"],
                 "ok": wake["ok"] and sleep["ok"],
                 "definitions": {
-                    "wake": "request dispatch through target health-ready and complete streamed inference",
+                    "wake": "process state starting through health-ready state",
                     "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition",
                 },
+                "lifecycle_profile_events": profile_events,
             }
             rows.append(row)
             print(json.dumps(row, ensure_ascii=False), flush=True)
@@ -204,7 +243,9 @@ def main() -> int:
                     if row["model"] == model and row["ok"]
                 ),
                 "wake_s": statistics.median(
-                    row["wake"]["latency_s"]
+                    row["wake"].get(
+                        "state_machine_latency_s", row["wake"]["latency_s"]
+                    )
                     for row in rows
                     if row["model"] == model and row["ok"]
                 ),

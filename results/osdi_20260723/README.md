@@ -11,7 +11,7 @@ This artifact contains a fresh single-GPU comparison requested for:
 
 - **Proposed**: research vLLM commit `4a0e87b62`. Startup creates the CPU weight snapshot after warmup. L1 sleep and wake are timed at the public engine calls. Allocator evidence confirms zero D2H and positive pre-backup reuse on every measured sleep.
 - **vLLM L1**: clean worktree commit `0decac0d9`. L1 sleep and wake use the same public engine-call boundaries. The existing checkout lacked local FlashAttention shared objects, so runtime-compatible symlinks to the identical research checkout build artifacts were used; no tracked source was changed.
-- **llama-swap**: commit `c6adf57df`. Source inspection showed that the public unload handler synchronously awaits `StopProcesses`, but the installed Go 1.23.1 toolchain cannot rebuild the current Go 1.26.1 source. Therefore sleep uses the requested fallback: `POST /api/models/unload/{model}` through both stopped-process and idle-GPU post-conditions. Wake uses request dispatch through health readiness and successful streamed inference. The first compile/cache warmup wake is retained in raw data but excluded from the plotted post-warmup wake distribution.
+- **llama-swap**: current source plus the benchmark-only state-transition profiler patch recorded in `raw/llama-swap/lifecycle-profile.patch`. Sleep uses the source state interval `ready -> stopping -> stopped`; wake uses `stopped -> starting -> ready`, whose endpoint is a successful `/health` response. The public unload call and an external idle-GPU check are also retained for physical post-condition evidence.
 - **ServerlessLLM** was re-gated but omitted from fresh bars: its local image was absent and its CUDA 12.1.1 base-image pull repeatedly failed with registry connection resets.
 - **SwapServeLLM** was rebuilt from current source, and a current NVIDIA cuda-checkpoint binary was fetched. Its CUDA checkpoint path requires live-process compatibility and additional container setup; it was not added as an unverified number.
 
@@ -20,7 +20,7 @@ This artifact contains a fresh single-GPU comparison requested for:
 - GPU: NVIDIA GeForce RTX 3080, 10 GiB, driver 580.95.05.
 - Local Hugging Face model directories.
 - Float16, max model length 1024.
-- Lifecycle: five cycles per system/model. For llama-swap wake, four post-warmup cycles are summarized.
+- Lifecycle: five cycles per system/model. All plotted llama-swap phases are five source-instrumented state-machine intervals.
 - Lifecycle plots: median point with IQR error bars on a logarithmic y-axis.
 - E2E: frozen `configs/traces/request-switch-alternating.jsonl`, 20 requests, 1.5 s absolute arrival spacing, 32 output tokens, streaming enabled.
 - Proposed E2E uses Qwen2.5-1.5B and Qwen2.5-3B long-lived engines managed by the model-switch controller.
@@ -34,13 +34,13 @@ Lifecycle medians, seconds:
 |---|---|---:|---:|
 | Qwen2.5-0.5B | Proposed | 0.0728 | 0.1567 |
 |  | vLLM L1 | 0.0897 | 0.1540 |
-|  | llama-swap | 0.2970 | 12.3693 |
+|  | llama-swap | 0.2966 | 12.2596 |
 | Qwen2.5-1.5B | Proposed | 0.0983 | 0.2637 |
 |  | vLLM L1 | 0.2001 | 0.2644 |
-|  | llama-swap | 0.3010 | 12.3708 |
+|  | llama-swap | 0.2981 | 12.2590 |
 | Qwen2.5-3B | Proposed | 0.1559 | 0.4774 |
 |  | vLLM L1 | 0.3529 | 0.4773 |
-|  | llama-swap | 0.3019 | 13.3709 |
+|  | llama-swap | 0.2950 | 13.2610 |
 
 E2E alternating trace:
 

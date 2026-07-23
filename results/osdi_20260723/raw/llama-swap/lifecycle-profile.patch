@@ -1,0 +1,11 @@
+`internal/process/process_command.go` was patched with the opt-in
+`LLAMA_SWAP_LIFECYCLE_PROFILE_PATH` JSONL state-transition profiler described in
+this artifact. The patch added no routing or process-lifecycle behavior: it only
+records monotonic durations for `stopped -> starting -> ready` and
+`ready -> stopping -> stopped`. The benchmark binary was built from llama-swap
+commit `c6adf57df1ac2e3dff2402dbb479cd5a133b6afe` plus that instrumentation.
+
+The exact source diff remains in the llama-swap repository working tree until
+this benchmark is finalized; it was validated with:
+
+    go test ./internal/process ./internal/router ./internal/server

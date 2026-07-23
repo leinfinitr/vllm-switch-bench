@@ -1,11 +1,11 @@
 {
-  "created_at": "2026-07-23T02:32:37.467046+00:00",
+  "created_at": "2026-07-23T03:12:03.791819+00:00",
   "base_url": "http://127.0.0.1:18100",
   "baseline_gpu_mib": 1,
   "llama_swap_repo": {
     "path": "/home/ljl/research-systems/llama-swap",
     "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
-    "tracked_dirty": false
+    "tracked_dirty": true
   },
   "cycles": 5,
   "rows": [
@@ -16,31 +16,51 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 52.42030396126211,
-        "ok": true
+        "latency_s": 12.374122072011232,
+        "ok": true,
+        "state_machine_latency_s": 12.260837852
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.27428250573575497,
-        "postcondition_latency_s": 0.031767889857292175,
-        "latency_s": 0.30605950485914946,
+        "api_latency_s": 0.2978141475468874,
+        "postcondition_latency_s": 0.03134296089410782,
+        "latency_s": 0.3291630921885371,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.031767889857292175,
+          "latency_s": 0.03134296089410782,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.296581208
       },
       "gpu_used_ready_mib": 7251,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-0.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:08:47.939853469Z",
+          "ended_at": "2026-07-23T03:09:00.200691324Z",
+          "duration_s": 12.260837852,
+          "success": true
+        },
+        {
+          "model": "qwen-0.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:09:00.329134318Z",
+          "ended_at": "2026-07-23T03:09:00.625715525Z",
+          "duration_s": 0.296581208,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-0.5b",
@@ -49,31 +69,51 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 12.369814447127283,
-        "ok": true
+        "latency_s": 12.36951974593103,
+        "ok": true,
+        "state_machine_latency_s": 12.25959485
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.26820929534733295,
-        "postcondition_latency_s": 0.028118870221078396,
-        "latency_s": 0.2963341660797596,
+        "api_latency_s": 0.3009311854839325,
+        "postcondition_latency_s": 0.03224128019064665,
+        "latency_s": 0.33318070229142904,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.028118870221078396,
+          "latency_s": 0.03224128019064665,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.299440652
       },
       "gpu_used_ready_mib": 7251,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-0.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:09:00.658238348Z",
+          "ended_at": "2026-07-23T03:09:12.917833199Z",
+          "duration_s": 12.25959485,
+          "success": true
+        },
+        {
+          "model": "qwen-0.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:09:13.04448242Z",
+          "ended_at": "2026-07-23T03:09:13.343923069Z",
+          "duration_s": 0.299440652,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-0.5b",
@@ -82,31 +122,51 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 12.365975115448236,
-        "ok": true
+        "latency_s": 12.36521330755204,
+        "ok": true,
+        "state_machine_latency_s": 12.259152576
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.26687875483185053,
-        "postcondition_latency_s": 0.029201957397162914,
-        "latency_s": 0.2960859229788184,
+        "api_latency_s": 0.3082080092281103,
+        "postcondition_latency_s": 0.02872211765497923,
+        "latency_s": 0.33693545777350664,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.029201957397162914,
+          "latency_s": 0.02872211765497923,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.307316745
       },
       "gpu_used_ready_mib": 7251,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-0.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:09:13.377607411Z",
+          "ended_at": "2026-07-23T03:09:25.636759989Z",
+          "duration_s": 12.259152576,
+          "success": true
+        },
+        {
+          "model": "qwen-0.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:09:25.75784428Z",
+          "ended_at": "2026-07-23T03:09:26.065161018Z",
+          "duration_s": 0.307316745,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-0.5b",
@@ -115,31 +175,51 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 12.368782673962414,
-        "ok": true
+        "latency_s": 12.368358075618744,
+        "ok": true,
+        "state_machine_latency_s": 12.259121585
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2664897944778204,
-        "postcondition_latency_s": 0.03309157211333513,
-        "latency_s": 0.2995871305465698,
+        "api_latency_s": 0.2977939359843731,
+        "postcondition_latency_s": 0.031324311159551144,
+        "latency_s": 0.3291228683665395,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03309157211333513,
+          "latency_s": 0.031324311159551144,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.296552484
       },
       "gpu_used_ready_mib": 7251,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-0.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:09:26.094935148Z",
+          "ended_at": "2026-07-23T03:09:38.354056736Z",
+          "duration_s": 12.259121585,
+          "success": true
+        },
+        {
+          "model": "qwen-0.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:09:38.480240199Z",
+          "ended_at": "2026-07-23T03:09:38.776792684Z",
+          "duration_s": 0.296552484,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-0.5b",
@@ -148,31 +228,51 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 12.38480043783784,
-        "ok": true
+        "latency_s": 12.369811854325235,
+        "ok": true,
+        "state_machine_latency_s": 12.26143617
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.26759673561900854,
-        "postcondition_latency_s": 0.029356165789067745,
-        "latency_s": 0.29695856012403965,
+        "api_latency_s": 0.2976742871105671,
+        "postcondition_latency_s": 0.0310677383095026,
+        "latency_s": 0.32874683011323214,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.029356165789067745,
+          "latency_s": 0.0310677383095026,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.296400697
       },
       "gpu_used_ready_mib": 7251,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-0.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:09:38.809210473Z",
+          "ended_at": "2026-07-23T03:09:51.070646646Z",
+          "duration_s": 12.26143617,
+          "success": true
+        },
+        {
+          "model": "qwen-0.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:09:51.196416526Z",
+          "ended_at": "2026-07-23T03:09:51.492817229Z",
+          "duration_s": 0.296400697,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-1.5b",
@@ -181,31 +281,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.364764808677137,
-        "ok": true
+        "latency_s": 12.374881598167121,
+        "ok": true,
+        "state_machine_latency_s": 12.260863068
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2658130759373307,
-        "postcondition_latency_s": 0.030063683167099953,
-        "latency_s": 0.2958814902231097,
+        "api_latency_s": 0.29902500938624144,
+        "postcondition_latency_s": 0.030254307202994823,
+        "latency_s": 0.3292818842455745,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.030063683167099953,
+          "latency_s": 0.030254307202994823,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.298077571
       },
       "gpu_used_ready_mib": 7267,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-1.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:09:51.525000575Z",
+          "ended_at": "2026-07-23T03:10:03.785863644Z",
+          "duration_s": 12.260863068,
+          "success": true
+        },
+        {
+          "model": "qwen-1.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:10:03.914102175Z",
+          "ended_at": "2026-07-23T03:10:04.212179741Z",
+          "duration_s": 0.298077571,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-1.5b",
@@ -214,31 +334,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.364655212499201,
-        "ok": true
+        "latency_s": 12.373113070614636,
+        "ok": true,
+        "state_machine_latency_s": 12.258687233
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2708520283922553,
-        "postcondition_latency_s": 0.03012832533568144,
-        "latency_s": 0.3009848212823272,
+        "api_latency_s": 0.30032677855342627,
+        "postcondition_latency_s": 0.031069600954651833,
+        "latency_s": 0.33140098210424185,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03012832533568144,
+          "latency_s": 0.031069600954651833,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.299397854
       },
       "gpu_used_ready_mib": 7267,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-1.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:10:04.243388556Z",
+          "ended_at": "2026-07-23T03:10:16.502075775Z",
+          "duration_s": 12.258687233,
+          "success": true
+        },
+        {
+          "model": "qwen-1.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:10:16.63086185Z",
+          "ended_at": "2026-07-23T03:10:16.930259705Z",
+          "duration_s": 0.299397854,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-1.5b",
@@ -247,31 +387,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.381511841900647,
-        "ok": true
+        "latency_s": 12.397393330000341,
+        "ok": true,
+        "state_machine_latency_s": 12.260737124
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2722745817154646,
-        "postcondition_latency_s": 0.03219825401902199,
-        "latency_s": 0.3044786751270294,
+        "api_latency_s": 0.37566812708973885,
+        "postcondition_latency_s": 0.028772233985364437,
+        "latency_s": 0.40444577764719725,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03219825401902199,
+          "latency_s": 0.028772233985364437,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.374635291
       },
       "gpu_used_ready_mib": 7267,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-1.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:10:16.962442257Z",
+          "ended_at": "2026-07-23T03:10:29.223179375Z",
+          "duration_s": 12.260737124,
+          "success": true
+        },
+        {
+          "model": "qwen-1.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:10:29.377404151Z",
+          "ended_at": "2026-07-23T03:10:29.75203944Z",
+          "duration_s": 0.374635291,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-1.5b",
@@ -280,31 +440,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.37318937573582,
-        "ok": true
+        "latency_s": 12.366791646927595,
+        "ok": true,
+        "state_machine_latency_s": 12.258790567
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.26655631978064775,
-        "postcondition_latency_s": 0.03193535469472408,
-        "latency_s": 0.2984990254044533,
+        "api_latency_s": 0.2964047994464636,
+        "postcondition_latency_s": 0.032232170924544334,
+        "latency_s": 0.3286417666822672,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03193535469472408,
+          "latency_s": 0.032232170924544334,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.295378648
       },
       "gpu_used_ready_mib": 7267,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-1.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:10:29.781917067Z",
+          "ended_at": "2026-07-23T03:10:42.040707628Z",
+          "duration_s": 12.258790567,
+          "success": true
+        },
+        {
+          "model": "qwen-1.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:10:42.162894649Z",
+          "ended_at": "2026-07-23T03:10:42.458273294Z",
+          "duration_s": 0.295378648,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-1.5b",
@@ -313,31 +493,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.368475515395403,
-        "ok": true
+        "latency_s": 12.369204338639975,
+        "ok": true,
+        "state_machine_latency_s": 12.258968552
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.27015138510614634,
-        "postcondition_latency_s": 0.031068063341081142,
-        "latency_s": 0.3012233227491379,
+        "api_latency_s": 0.29484410863369703,
+        "postcondition_latency_s": 0.028481449000537395,
+        "latency_s": 0.3233291143551469,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.031068063341081142,
+          "latency_s": 0.028481449000537395,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.293728749
       },
       "gpu_used_ready_mib": 7267,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-1.5b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:10:42.491584287Z",
+          "ended_at": "2026-07-23T03:10:54.750552836Z",
+          "duration_s": 12.258968552,
+          "success": true
+        },
+        {
+          "model": "qwen-1.5b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:10:54.877968435Z",
+          "ended_at": "2026-07-23T03:10:55.171697177Z",
+          "duration_s": 0.293728749,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-3b",
@@ -346,31 +546,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.369450353085995,
-        "ok": true
+        "latency_s": 13.389964982867241,
+        "ok": true,
+        "state_machine_latency_s": 13.259043615
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2703142836689949,
-        "postcondition_latency_s": 0.03052349016070366,
-        "latency_s": 0.30084264650940895,
+        "api_latency_s": 0.29608230385929346,
+        "postcondition_latency_s": 0.031348698772490025,
+        "latency_s": 0.3274351032450795,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03052349016070366,
+          "latency_s": 0.031348698772490025,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.294997112
       },
       "gpu_used_ready_mib": 7277,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-3b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:10:55.201302418Z",
+          "ended_at": "2026-07-23T03:11:08.460346033Z",
+          "duration_s": 13.259043615,
+          "success": true
+        },
+        {
+          "model": "qwen-3b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:11:08.606025763Z",
+          "ended_at": "2026-07-23T03:11:08.901022872Z",
+          "duration_s": 0.294997112,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-3b",
@@ -379,31 +599,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.368124957196414,
-        "ok": true
+        "latency_s": 13.393217836506665,
+        "ok": true,
+        "state_machine_latency_s": 13.260027628
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.3147024754434824,
-        "postcondition_latency_s": 0.033138005062937737,
-        "latency_s": 0.34784531500190496,
+        "api_latency_s": 0.29163988679647446,
+        "postcondition_latency_s": 0.0301607558503747,
+        "latency_s": 0.32180560659617186,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.033138005062937737,
+          "latency_s": 0.0301607558503747,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.290590005
       },
       "gpu_used_ready_mib": 7277,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-3b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:11:08.933352929Z",
+          "ended_at": "2026-07-23T03:11:22.193380558Z",
+          "duration_s": 13.260027628,
+          "success": true
+        },
+        {
+          "model": "qwen-3b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:11:22.341105764Z",
+          "ended_at": "2026-07-23T03:11:22.631695765Z",
+          "duration_s": 0.290590005,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-3b",
@@ -412,31 +652,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.365949316881597,
-        "ok": true
+        "latency_s": 13.370940425433218,
+        "ok": true,
+        "state_machine_latency_s": 13.261039419
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2704510986804962,
-        "postcondition_latency_s": 0.03147228620946407,
-        "latency_s": 0.30192880518734455,
+        "api_latency_s": 0.2889609718695283,
+        "postcondition_latency_s": 0.032007926143705845,
+        "latency_s": 0.3209728114306927,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03147228620946407,
+          "latency_s": 0.032007926143705845,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.2880041
       },
       "gpu_used_ready_mib": 7277,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-3b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:11:22.662998028Z",
+          "ended_at": "2026-07-23T03:11:35.924037444Z",
+          "duration_s": 13.261039419,
+          "success": true
+        },
+        {
+          "model": "qwen-3b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:11:36.04814269Z",
+          "ended_at": "2026-07-23T03:11:36.336146787Z",
+          "duration_s": 0.2880041,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-3b",
@@ -445,31 +705,51 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 14.365317417308688,
-        "ok": true
+        "latency_s": 13.36833380907774,
+        "ok": true,
+        "state_machine_latency_s": 13.261577694
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.27054844703525305,
-        "postcondition_latency_s": 0.03078080527484417,
-        "latency_s": 0.30133381206542253,
+        "api_latency_s": 0.29965187795460224,
+        "postcondition_latency_s": 0.031637413427233696,
+        "latency_s": 0.3312942227348685,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03078080527484417,
+          "latency_s": 0.031637413427233696,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.298572091
       },
       "gpu_used_ready_mib": 7277,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-3b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:11:36.369180566Z",
+          "ended_at": "2026-07-23T03:11:49.63075826Z",
+          "duration_s": 13.261577694,
+          "success": true
+        },
+        {
+          "model": "qwen-3b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:11:49.752520668Z",
+          "ended_at": "2026-07-23T03:11:50.051092758Z",
+          "duration_s": 0.298572091,
+          "success": true
+        }
+      ]
     },
     {
       "model": "qwen-3b",
@@ -478,45 +758,65 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.373674307018518,
-        "ok": true
+        "latency_s": 13.364865488372743,
+        "ok": true,
+        "state_machine_latency_s": 13.261504232
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2715650228783488,
-        "postcondition_latency_s": 0.033707511611282825,
-        "latency_s": 0.30527863930910826,
+        "api_latency_s": 0.2974057402461767,
+        "postcondition_latency_s": 0.03021086473017931,
+        "latency_s": 0.32762037869542837,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.033707511611282825,
+          "latency_s": 0.03021086473017931,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
-        }
+        },
+        "state_machine_latency_s": 0.296136963
       },
       "gpu_used_ready_mib": 7277,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
-        "wake": "request dispatch through target health-ready and complete streamed inference",
+        "wake": "process state starting through health-ready state",
         "sleep": "POST /api/models/unload/{model} through stopped process and idle-GPU post-condition"
-      }
+      },
+      "lifecycle_profile_events": [
+        {
+          "model": "qwen-3b",
+          "phase": "wake",
+          "started_at": "2026-07-23T03:11:50.0839352Z",
+          "ended_at": "2026-07-23T03:12:03.345439432Z",
+          "duration_s": 13.261504232,
+          "success": true
+        },
+        {
+          "model": "qwen-3b",
+          "phase": "sleep_process",
+          "started_at": "2026-07-23T03:12:03.464703843Z",
+          "ended_at": "2026-07-23T03:12:03.760840802Z",
+          "duration_s": 0.296136963,
+          "success": true
+        }
+      ]
     }
   ],
   "medians": {
     "qwen-0.5b": {
-      "sleep_s": 0.29695856012403965,
-      "wake_s": 12.369814447127283
+      "sleep_s": 0.3291630921885371,
+      "wake_s": 12.25959485
     },
     "qwen-1.5b": {
-      "sleep_s": 0.3009848212823272,
-      "wake_s": 12.368475515395403
+      "sleep_s": 0.3292818842455745,
+      "wake_s": 12.258968552
     },
     "qwen-3b": {
-      "sleep_s": 0.30192880518734455,
-      "wake_s": 13.369450353085995
+      "sleep_s": 0.3274351032450795,
+      "wake_s": 13.261039419
     }
   }
 }

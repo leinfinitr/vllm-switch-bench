@@ -41,18 +41,18 @@
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.29695856012403965,
-      "q1_s": 0.2963341660797596,
-      "q3_s": 0.2995871305465698
+      "median_s": 0.296581208,
+      "q1_s": 0.296552484,
+      "q3_s": 0.299440652
     },
     {
       "model": "qwen-0.5b",
       "system": "llama-swap",
       "phase": "wake",
-      "n": 4,
-      "median_s": 12.369298560544848,
-      "q1_s": 12.36808078433387,
-      "q3_s": 12.373560944804922
+      "n": 5,
+      "median_s": 12.25959485,
+      "q1_s": 12.259152576,
+      "q3_s": 12.260837852
     },
     {
       "model": "qwen-1.5b",
@@ -95,18 +95,18 @@
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.3009848212823272,
-      "q1_s": 0.2984990254044533,
-      "q3_s": 0.3012233227491379
+      "median_s": 0.298077571,
+      "q1_s": 0.295378648,
+      "q3_s": 0.299397854
     },
     {
       "model": "qwen-1.5b",
       "system": "llama-swap",
       "phase": "wake",
-      "n": 4,
-      "median_s": 12.370832445565611,
-      "q1_s": 12.367520439671353,
-      "q3_s": 12.375269992277026
+      "n": 5,
+      "median_s": 12.258968552,
+      "q1_s": 12.258790567,
+      "q3_s": 12.260737124
     },
     {
       "model": "qwen-3b",
@@ -149,18 +149,18 @@
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.30192880518734455,
-      "q1_s": 0.30133381206542253,
-      "q3_s": 0.30527863930910826
+      "median_s": 0.294997112,
+      "q1_s": 0.290590005,
+      "q3_s": 0.296136963
     },
     {
       "model": "qwen-3b",
       "system": "llama-swap",
       "phase": "wake",
-      "n": 4,
-      "median_s": 13.370899632107466,
-      "q1_s": 13.36758104711771,
-      "q3_s": 13.62158508459106
+      "n": 5,
+      "median_s": 13.261039419,
+      "q1_s": 13.260027628,
+      "q3_s": 13.261504232
     }
   ],
   "e2e": {
@@ -213,11 +213,11 @@
     "llama-swap": {
       "path": "/home/ljl/research-systems/llama-swap",
       "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
-      "tracked_dirty": false
+      "tracked_dirty": true
     }
   },
   "plot_policy": {
-    "lifecycle": "median bars with IQR; log y-axis; five samples except llama-swap wake excludes cycle-0 compile/cache warmup and uses four post-warmup samples",
+    "lifecycle": "median points with IQR; log y-axis; five state-machine samples per system/model",
     "e2e": "one fresh 20-request open-loop alternating trace per system; completion latency; 1.5 s scheduled spacing",
     "style": "single-column OSDI-like dimensions; serif fonts; color-blind-safe palette; vector PDF and 300-DPI PNG"
   }

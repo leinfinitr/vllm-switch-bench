@@ -28,7 +28,7 @@ SYSTEM_STYLE = {
 }
 
 
-def json_file(path: Path) -> dict[str, Any]:
+def json_file(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -71,10 +71,22 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
     provenance["llama-swap"] = llama["llama_swap_repo"]
     for model in MODEL_ORDER:
         rows = [row for row in llama["rows"] if row["model"] == model and row["ok"]]
-        values[("llama-swap", model, "sleep")] = [float(row["sleep"]["latency_s"]) for row in rows]
-        # Cycle zero is a one-time compile/cache warmup outlier. The plotted
-        # wake distribution is the post-warmup process cold-start path.
-        values[("llama-swap", model, "wake")] = [float(row["wake"]["latency_s"]) for row in rows[1:]]
+        values[("llama-swap", model, "sleep")] = [
+            float(
+                row["sleep"].get(
+                    "state_machine_latency_s", row["sleep"]["latency_s"]
+                )
+            )
+            for row in rows
+        ]
+        values[("llama-swap", model, "wake")] = [
+            float(
+                row["wake"].get(
+                    "state_machine_latency_s", row["wake"]["latency_s"]
+                )
+            )
+            for row in rows
+        ]
     return values, provenance
 
 
@@ -126,10 +138,10 @@ def plot_lifecycle(values: dict[tuple[str, str, str], list[float]]) -> None:
 
 def plot_e2e() -> dict[str, Any]:
     paths = {
-        "Proposed": RAW / "proposed" / "e2e-alternating.jsonl",
-        "llama-swap": RAW / "llama-swap" / "e2e-alternating.jsonl",
+        "Proposed": RAW / "proposed" / "e2e-alternating.json",
+        "llama-swap": RAW / "llama-swap" / "e2e-alternating.json",
     }
-    rows = {system: jsonl(path) for system, path in paths.items()}
+    rows = {system: json_file(path) for system, path in paths.items()}
     fig, ax = plt.subplots(figsize=(3.35, 2.05), constrained_layout=True)
     for system in ("Proposed", "llama-swap"):
         y = [float(row["completion_latency_ms"]) / 1000 for row in rows[system]]
@@ -199,7 +211,7 @@ def write_summary(values: dict[tuple[str, str, str], list[float]], provenance: d
         "e2e": e2e,
         "provenance": provenance,
         "plot_policy": {
-            "lifecycle": "median bars with IQR; log y-axis; five samples except llama-swap wake excludes cycle-0 compile/cache warmup and uses four post-warmup samples",
+            "lifecycle": "median points with IQR; log y-axis; five state-machine samples per system/model",
             "e2e": "one fresh 20-request open-loop alternating trace per system; completion latency; 1.5 s scheduled spacing",
             "style": "single-column OSDI-like dimensions; serif fonts; color-blind-safe palette; vector PDF and 300-DPI PNG",
         },
