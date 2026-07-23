@@ -165,7 +165,22 @@ def plot_lifecycle(values: dict[tuple[str, str, str], list[float]]) -> None:
         ax.spines[["top", "right"]].set_visible(False)
         ax.legend(frameon=False, ncol=3, loc="lower center", bbox_to_anchor=(0.5, 1.0), columnspacing=0.7, handlelength=1.1)
         for suffix in ("pdf", "png"):
-            fig.savefig(FIG / f"lifecycle-{model}.{suffix}", bbox_inches="tight")
+            if suffix == "pdf":
+                # Matplotlib otherwise embeds the current time, making the
+                # checksumed publication artifact differ across clean rebuilds.
+                fig.savefig(
+                    FIG / f"lifecycle-{model}.{suffix}",
+                    bbox_inches="tight",
+                    metadata={
+                        "Creator": "llm-switch-bench",
+                        "CreationDate": None,
+                        "ModDate": None,
+                    },
+                )
+            else:
+                fig.savefig(
+                    FIG / f"lifecycle-{model}.{suffix}", bbox_inches="tight"
+                )
         plt.close(fig)
 
 
@@ -200,7 +215,21 @@ def plot_e2e() -> dict[str, Any]:
     ax.spines[["top", "right"]].set_visible(False)
     ax.legend(frameon=False, ncol=2, loc="lower center", bbox_to_anchor=(0.5, 1.0))
     for suffix in ("pdf", "png"):
-        fig.savefig(FIG / f"e2e-alternating-request-latency.{suffix}", bbox_inches="tight")
+        if suffix == "pdf":
+            fig.savefig(
+                FIG / f"e2e-alternating-request-latency.{suffix}",
+                bbox_inches="tight",
+                metadata={
+                    "Creator": "llm-switch-bench",
+                    "CreationDate": None,
+                    "ModDate": None,
+                },
+            )
+        else:
+            fig.savefig(
+                FIG / f"e2e-alternating-request-latency.{suffix}",
+                bbox_inches="tight",
+            )
     plt.close(fig)
     return {
         system: {
