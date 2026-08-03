@@ -7,6 +7,7 @@
 - `src/bench_vllm_lifecycle.py`：vLLM cold reload、sleep/wake benchmark。
 - `src/bench_vllm_pin_compare.py`：模型无关的 pinned/pageable profiling 矩阵。
 - `src/bench_vllm_repeated_sleep_l1.py`：重复 sleep/wake、backup reuse、动态回收及 OS memory 观测。
+- `scripts/run_exact_disk_profile.py`：模型无关的 exact runtime disk-backup wrapper，采集 disk I/O、source/fallback、RSS、`MemAvailable`、footprint 与 output equality。
 - `src/bench_request_driven_switch.py`：对统一 OpenAI endpoint 重放冻结的多模型 open-loop trace，记录 transport first byte、semantic TTFT、完成时延和失败。
 - `src/bench_baseline3.py`：显式配置的跨系统结果聚合与运行。
 - `scripts/run_profiling.sh`、`scripts/run_baseline3.sh`：可复用 shell 入口。
@@ -98,6 +99,24 @@ repeated_sleep_l1_steps.csv
 ```
 
 旧 `phase1_two_model_*` 文件只属于历史 run，不是当前 schema。
+
+Exact runtime disk tier 使用独立、模型无关 wrapper；不要等待或硬编码仍在开发的
+vLLM Python/API entrypoint：
+
+```bash
+.venv/bin/python scripts/run_exact_disk_profile.py \
+  --model model=/models/model \
+  --backup-root /home/ljl/research-systems/vllm-model-switch-controller/tmp \
+  --out-dir results/tmp/exact-disk/model/RUN_ID \
+  -- /absolute/python /absolute/model_agnostic_driver.py
+```
+
+wrapper 通过环境变量向 producer 传递 profile/output 路径，默认断言 positive
+spill/read、`source_medium=disk`、zero fallback、worker RSS、host
+`MemAvailable`、disk-footprint growth 和 before/after output equality。输出将
+`raw/`（本机原始证据及 checksum）和 `curated/`（派生 summary/assertions）严格
+分开；两者默认仍是 ignored local evidence，不应未经审核直接作为论文结果。
+完整 contract 和独立重建命令见 `scripts/README.md`。
 
 ## Baseline3
 

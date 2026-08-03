@@ -75,7 +75,8 @@ def read_process_memory_bytes(pid: int) -> dict[str, int]:
     return values
 
 
-def process_tree_rss_mib(pid: int | None) -> float | None:
+def process_tree_rss_bytes(pid: int | None) -> int | None:
+    """Return aggregate RSS for a process and descendants in bytes."""
     if pid is None or psutil is None:
         return None
     try:
@@ -87,9 +88,14 @@ def process_tree_rss_mib(pid: int | None) -> float | None:
                 rss_bytes += int(proc.memory_info().rss)
             except Exception:
                 continue
-        return rss_bytes / 2**20
+        return rss_bytes
     except Exception:
         return None
+
+
+def process_tree_rss_mib(pid: int | None) -> float | None:
+    rss_bytes = process_tree_rss_bytes(pid)
+    return rss_bytes / 2**20 if rss_bytes is not None else None
 
 
 def _container_rss_mib(runtime: str, names: list[str]) -> float | None:

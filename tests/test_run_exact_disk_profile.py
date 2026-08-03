@@ -1,0 +1,222 @@
+from __future__ import annotations
+
+import json
+import os
+import stat
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts" / "run_exact_disk_profile.py"
+DEFAULT_BACKUP_ROOT = Path(
+    "/home/ljl/research-systems/vllm-model-switch-controller/tmp"
+)
+
+
+def make_fake_benchmark(tmp_path: Path) -> Path:
+    path = tmp_path / "fake_benchmark.py"
+    path.write_text(
+        """#!/usr/bin/env python3
+import json
+import os
+from pathlib import Path
+
+profile = Path(os.environ["VLLM_SLEEP_PROFILE_PATH"])
+profile.write_text(
+    json.dumps({
+        "phase": "exact_disk_spill",
+        "disk_spill_bytes": 4,
+        "disk_spill_s": 0.01,
+    }) + "\\n" +
+    json.dumps({
+        "phase": "exact_disk_restore",
+        "disk_read_bytes": 4,
+        "disk_read_s": 0.01,
+        "source_medium": "disk",
+        "fallback": False,
+    }) + "\\n",
+    encoding="utf-8",
+)
+output = Path(os.environ["LLM_SWITCH_BENCH_OUTPUT_OBSERVATION"])
+output.write_text(json.dumps({
+    "schema_version": 1,
+    "before": {"token_ids": [1], "text": "ok"},
+    "after": {"token_ids": [1], "text": "ok"},
+}), encoding="utf-8")
+backup = Path(os.environ["VLLM_EXACT_DISK_BACKUP_ROOT"])
+backup.mkdir(parents=True, exist_ok=True)
+(backup / "payload.ready").write_bytes(b"data")
+print("synthetic benchmark complete")
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
+def run_script(
+    *args: str, env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), *args],
+        cwd=ROOT,
+        env={**os.environ, **(env or {})},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def test_dry_run_uses_controller_tmp_as_default_backup_root(tmp_path: Path):
+    output = tmp_path / "run"
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--out-dir",
+        str(output),
+        "--dry-run",
+        "--",
+        sys.executable,
+        "fake.py",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    plan = json.loads((output / "raw" / "run.json").read_text(encoding="utf-8"))
+    assert Path(plan["backup_root"]) == DEFAULT_BACKUP_ROOT
+    assert plan["model"] == {"name": "model-a", "path": "/models/a"}
+    assert plan["evidence_tier"] == "local_raw"
+    assert not (output / "curated" / "summary.json").exists()
+
+
+def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
+    tmp_path: Path,
+):
+    fake = make_fake_benchmark(tmp_path)
+    output = tmp_path / "run"
+    backup = tmp_path / "backup"
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--backup-root",
+        str(backup),
+        "--out-dir",
+        str(output),
+        "--sample-interval-s",
+        "0.01",
+        "--",
+        sys.executable,
+        str(fake),
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    run = json.loads((output / "raw" / "run.json").read_text(encoding="utf-8"))
+    assert run["command"] == [sys.executable, str(fake)]
+    assert run["command_return_code"] == 0
+    assert run["model"] == {"name": "model-a", "path": "/models/a"}
+    summary = json.loads(
+        (output / "curated" / "summary.json").read_text(encoding="utf-8")
+    )
+    assertions = json.loads(
+        (output / "curated" / "assertions.json").read_text(encoding="utf-8")
+    )
+    assert summary["profile"]["disk_spill_bytes"] == 4
+    assert summary["profile"]["disk_read_bytes"] == 4
+    assert summary["resources"]["sample_count"] >= 1
+    assert summary["resources"]["worker_rss_sample_count"] >= 1
+    assert summary["resources"]["mem_available_sample_count"] >= 1
+    assert summary["resources"]["disk_footprint_peak_bytes"] == 4
+    assert summary["output_equality"]["output_equal"] is True
+    assert assertions["ok"] is True
+    assert (output / "raw" / "command.stdout.log").read_text().strip() == (
+        "synthetic benchmark complete"
+    )
+    manifest = json.loads(
+        (output / "raw" / "evidence_manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["evidence_tier"] == "local_raw"
+    assert "exact_disk_profile.jsonl" in manifest["files"]
+    assert "resources.jsonl" in manifest["files"]
+
+
+def test_runner_preserves_failed_raw_evidence_without_curating(tmp_path: Path):
+    output = tmp_path / "run"
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--backup-root",
+        str(tmp_path / "backup"),
+        "--out-dir",
+        str(output),
+        "--",
+        sys.executable,
+        "-c",
+        "raise SystemExit(7)",
+    )
+
+    assert proc.returncode == 7
+    run = json.loads((output / "raw" / "run.json").read_text(encoding="utf-8"))
+    assert run["command_return_code"] == 7
+    assert (output / "raw" / "evidence_manifest.json").exists()
+    assert not (output / "curated").exists()
+
+
+def test_runner_refuses_prepopulated_backup_root(tmp_path: Path):
+    output = tmp_path / "run"
+    backup = tmp_path / "backup"
+    backup.mkdir()
+    (backup / "unrelated.bin").write_bytes(b"old")
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--backup-root",
+        str(backup),
+        "--out-dir",
+        str(output),
+        "--dry-run",
+        "--",
+        sys.executable,
+        "fake.py",
+    )
+
+    assert proc.returncode == 2
+    assert "backup root must be empty" in proc.stderr
+    assert not output.exists()
+
+
+def test_runner_refuses_to_overwrite_existing_output(tmp_path: Path):
+    output = tmp_path / "run"
+    output.mkdir()
+    sentinel = output / "keep.txt"
+    sentinel.write_text("existing", encoding="utf-8")
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--out-dir",
+        str(output),
+        "--dry-run",
+        "--",
+        sys.executable,
+        "fake.py",
+    )
+
+    assert proc.returncode == 2
+    assert "already exists" in proc.stderr
+    assert sentinel.read_text(encoding="utf-8") == "existing"
+
+
+def test_runner_requires_explicit_model_and_command(tmp_path: Path):
+    missing_model = run_script(
+        "--out-dir", str(tmp_path / "a"), "--", sys.executable, "fake.py"
+    )
+    assert missing_model.returncode == 2
+
+    missing_command = run_script(
+        "--model", "model-a=/models/a", "--out-dir", str(tmp_path / "b")
+    )
+    assert missing_command.returncode == 2

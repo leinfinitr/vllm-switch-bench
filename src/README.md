@@ -131,8 +131,18 @@ pressure/no-pressure 实验分别使用 `--expect-release` / `--no-expect-releas
 - `resources.py`: GPU/CPU/process 资源采样。
 - `sampling.py`: 后台采样循环。
 - `schema.py`: summary CSV 写出字段定义。
+- `exact_disk.py`: exact-disk profile schema 解析、raw checksum 验证、资源/
+  output summary 和 fail-closed assertion。
 
 这些模块由 benchmark 脚本 import，不作为独立 CLI 使用。
+
+### `tool/collect_exact_disk_profile.py`
+
+只读取并校验已完成的 sibling `raw/` evidence，生成 `curated/summary.json` 和
+`curated/assertions.json`。默认要求 command success、positive spill/read、仅 disk
+source、zero fallback、RSS、`MemAvailable`、positive footprint growth 及 output
+equality；所有放宽项都必须通过显式 `--no-require-*` 或 `--allow-fallback` 声明。
+典型命令见 `scripts/README.md`。
 
 ## 结果后处理工具
 
