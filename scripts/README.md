@@ -18,8 +18,9 @@
 `run_exact_disk_profile.py` 不导入尚在开发中的 vLLM API。它在 `--` 后执行任意
 命令，并通过环境变量定义稳定的 benchmark/producer 边界：
 
-- `VLLM_EXACT_DISK_BACKUP_ROOT`：exact backup 根目录；默认
-  `/home/ljl/research-systems/vllm-model-switch-controller/tmp`；
+- `VLLM_EXACT_DISK_BACKUP_ENABLED=1`：启用 exact disk tier；
+- `VLLM_EXACT_DISK_BACKUP_DIR` / `VLLM_CPU_BACKUP_DISK_DIR`：exact backup
+  根目录；默认 `/home/ljl/research-systems/vllm-model-switch-controller/tmp`；
 - `VLLM_SLEEP_PROFILE_PATH`：producer 必须写入的 append-only JSONL；
 - `LLM_SWITCH_BENCH_OUTPUT_OBSERVATION`：producer 必须写入的确定性推理
   before/after JSON；

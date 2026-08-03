@@ -44,7 +44,9 @@ output.write_text(json.dumps({
     "before": {"token_ids": [1], "text": "ok"},
     "after": {"token_ids": [1], "text": "ok"},
 }), encoding="utf-8")
-backup = Path(os.environ["VLLM_EXACT_DISK_BACKUP_ROOT"])
+backup = Path(os.environ["VLLM_EXACT_DISK_BACKUP_DIR"])
+assert os.environ["VLLM_EXACT_DISK_BACKUP_ENABLED"] == "1"
+assert os.environ["VLLM_CPU_BACKUP_DISK_DIR"] == str(backup)
 backup.mkdir(parents=True, exist_ok=True)
 (backup / "payload.ready").write_bytes(b"data")
 print("synthetic benchmark complete")
@@ -76,6 +78,7 @@ def test_dry_run_uses_controller_tmp_as_default_backup_root(tmp_path: Path):
         "model-a=/models/a",
         "--out-dir",
         str(output),
+        "--allow-nonempty-backup-root",
         "--dry-run",
         "--",
         sys.executable,

@@ -240,15 +240,19 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+    if args.dry_run:
+        raw_dir = output_dir / "raw"
+        raw_dir.mkdir(parents=True)
+        run_path = raw_dir / RUN_FILE
+        _write_json(run_path, _base_run_metadata(args))
+        print(output_dir)
+        return 0
 
     raw_dir = output_dir / "raw"
     raw_dir.mkdir(parents=True)
     run_path = raw_dir / RUN_FILE
     run_metadata = _base_run_metadata(args)
     _write_json(run_path, run_metadata)
-    if args.dry_run:
-        print(output_dir)
-        return 0
 
     backup_root.mkdir(parents=True, exist_ok=True)
     profile_path = raw_dir / PROFILE_FILE
@@ -259,7 +263,9 @@ def main(argv: list[str] | None = None) -> int:
     environment = os.environ.copy()
     environment.update(
         {
-            "VLLM_EXACT_DISK_BACKUP_ROOT": str(backup_root),
+            "VLLM_EXACT_DISK_BACKUP_ENABLED": "1",
+            "VLLM_EXACT_DISK_BACKUP_DIR": str(backup_root),
+            "VLLM_CPU_BACKUP_DISK_DIR": str(backup_root),
             "VLLM_SLEEP_PROFILE_PATH": str(profile_path),
             "LLM_SWITCH_BENCH_OUTPUT_OBSERVATION": str(output_observation_path),
             "LLM_SWITCH_BENCH_MODEL_NAME": args.model["name"],
@@ -273,9 +279,10 @@ def main(argv: list[str] | None = None) -> int:
     stop_event = threading.Event()
     sampler_ready_event = threading.Event()
     return_code = 1
-    with stdout_path.open("w", encoding="utf-8") as stdout, stderr_path.open(
-        "w", encoding="utf-8"
-    ) as stderr:
+    with (
+        stdout_path.open("w", encoding="utf-8") as stdout,
+        stderr_path.open("w", encoding="utf-8") as stderr,
+    ):
         try:
             proc = subprocess.Popen(
                 args.command,
