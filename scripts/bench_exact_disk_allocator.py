@@ -4,14 +4,39 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 import torch
 from vllm.device_allocator.cumem import CuMemAllocator
+
+
+def git_metadata(path: Path) -> dict[str, object]:
+    def run(*args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(path), *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+    return {
+        "path": str(path.resolve()),
+        "commit": run("rev-parse", "HEAD"),
+        "branch": run("branch", "--show-current"),
+        "status_porcelain": run("status", "--porcelain", "--untracked-files=all"),
+    }
+
+
+def file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def mem_available_bytes() -> int:
@@ -89,13 +114,33 @@ def main() -> int:
             event for event in events if event.get("phase") == "exact_disk_restore"
         )
         result = {
-            "schema_version": 1,
+            "schema_version": 2,
+            "captured_at_utc": datetime.now(UTC).isoformat(),
+            "argv": list(sys.argv),
+            "cwd": str(Path.cwd()),
+            "producer_sha256": file_sha256(Path(__file__).resolve()),
+            "benchmark_repo": git_metadata(Path(__file__).resolve().parents[1]),
+            "vllm_repo": git_metadata(Path(os.environ["LLM_SWITCH_BENCH_VLLM_REPO"])),
+            "torch_version": torch.__version__,
+            "cuda_version": torch.version.cuda,
+            "gpu_name": torch.cuda.get_device_name(0),
+            "environment": {
+                key: os.environ.get(key)
+                for key in (
+                    "VLLM_EXACT_DISK_BACKUP_ENABLED",
+                    "VLLM_EXACT_DISK_BACKUP_DIR",
+                    "VLLM_EXACT_DISK_BACKUP_DIRECT_IO",
+                    "VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES",
+                )
+            },
             "requested_tensor_bytes": args.bytes,
             "allocator_runtime_bytes": prepared_bytes,
             "disk_spill_bytes": int(spill["disk_backup_written_bytes"]),
             "disk_spill_s": float(spill["disk_backup_write_s"]),
             "disk_read_bytes": int(disk_restore["disk_read_bytes"]),
             "disk_read_s": float(disk_restore["disk_read_s"]),
+            "disk_hash_s": float(disk_restore["disk_hash_s"]),
+            "disk_hash_workers": int(disk_restore["disk_hash_workers"]),
             "disk_copy_h2d_s": float(disk_restore["disk_copy_h2d_s"]),
             "disk_copy_enqueue_s": float(disk_restore["disk_copy_enqueue_s"]),
             "disk_copy_wait_s": float(disk_restore["disk_copy_wait_s"]),
