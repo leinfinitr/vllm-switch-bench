@@ -76,6 +76,20 @@ RUN_ID/
 identity 检查、fresh-checkout checksum 验证后才可复制到 tracked `results/`。
 不要把失败 run 的数值写入 curated baseline。
 
+`bench_exact_disk_allocator.py` 的 pipeline timing 语义：
+
+- `disk_read_s` 是单 reader 的 `preadv` 时间累计；
+- `disk_hash_worker_s` 是所有 SHA-256 worker 的 worker-seconds 总和，不是
+  hash stage wall time，也不能与 `disk_pipeline_wall_s` 相加；
+- `disk_hash_s` 是兼容旧消费者的同值别名；
+- `disk_copy_h2d_s` 是 CUDA event 测得的 device copy duration；
+- `disk_copy_wait_s` 是 host 等待 completion event 的墙钟累计；
+- `disk_pipeline_depth` 是 pinned staging slot 数，不是同时在途的 H2D 数；
+- `disk_pipeline_wall_s` 不含 manifest 预检和 VMM create/map。
+
+聚合 timing 只能证明各阶段在同一 bounded pipeline 中调度；若要正式证明三阶段
+在真实 GPU run 中的同时 overlap，需要保留 per-chunk monotonic interval trace。
+
 已存在的完整 raw run 可以独立重建：
 
 ```bash

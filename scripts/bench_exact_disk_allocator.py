@@ -140,6 +140,7 @@ def main() -> int:
             "disk_read_bytes": int(disk_restore["disk_read_bytes"]),
             "disk_read_s": float(disk_restore["disk_read_s"]),
             "disk_hash_s": float(disk_restore["disk_hash_s"]),
+            "disk_hash_worker_s": float(disk_restore["disk_hash_worker_s"]),
             "disk_hash_workers": int(disk_restore["disk_hash_workers"]),
             "disk_copy_h2d_s": float(disk_restore["disk_copy_h2d_s"]),
             "disk_copy_enqueue_s": float(disk_restore["disk_copy_enqueue_s"]),
