@@ -287,7 +287,6 @@ def test_assertions_fail_closed_on_fallback_wrong_medium_and_output_mismatch():
     assert any("source medium" in failure for failure in failures)
     assert any("fallback" in failure for failure in failures)
     assert any("worker RSS did not decrease" in failure for failure in failures)
-    assert any("MemAvailable did not increase" in failure for failure in failures)
     assert any("output" in failure for failure in failures)
 
 

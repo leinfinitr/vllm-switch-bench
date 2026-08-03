@@ -137,6 +137,8 @@ def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
         str(output),
         "--sample-interval-s",
         "0.01",
+        "--worker-pid",
+        str(os.getpid()),
         "--",
         sys.executable,
         str(fake),

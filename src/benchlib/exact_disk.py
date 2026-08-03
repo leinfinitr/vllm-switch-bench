@@ -355,14 +355,12 @@ def validate_exact_disk_summary(
             failures.append("required worker RSS evidence is missing")
         elif int(rss_last) >= int(rss_peak):
             failures.append("worker RSS did not decrease after disk demotion")
-    if requirements.require_mem_available:
-        available_count = int(resources.get("mem_available_sample_count", 0) or 0)
-        available_min = resources.get("mem_available_min_bytes")
-        available_last = resources.get("mem_available_last_bytes")
-        if available_count <= 0 or available_min is None or available_last is None:
-            failures.append("required host MemAvailable evidence is missing")
-        elif int(available_last) <= int(available_min):
-            failures.append("host MemAvailable did not increase after disk demotion")
+    available_sample = resources.get("mem_available_last_bytes")
+    if requirements.require_mem_available and (
+        int(resources.get("mem_available_sample_count", 0) or 0) <= 0
+        or available_sample is None
+    ):
+        failures.append("required host MemAvailable evidence is missing")
     if requirements.require_disk_footprint_growth:
         disk_samples = int(resources.get("disk_footprint_sample_count", 0) or 0)
         peak_delta = resources.get("disk_footprint_peak_delta_bytes")

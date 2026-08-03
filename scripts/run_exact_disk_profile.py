@@ -67,6 +67,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="External vLLM worker PID whose process tree owns pinned backups.",
     )
+    parser.add_argument(
+        "--profile-path",
+        type=Path,
+        default=None,
+        help="Existing external worker JSONL path; copied into raw evidence after run.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "command",
@@ -300,6 +306,12 @@ def main(argv: list[str] | None = None) -> int:
 
     backup_root.mkdir(parents=True, exist_ok=True)
     profile_path = raw_dir / PROFILE_FILE
+    producer_profile_path = (
+        args.profile_path.resolve() if args.profile_path is not None else profile_path
+    )
+    if args.profile_path is not None:
+        producer_profile_path.parent.mkdir(parents=True, exist_ok=True)
+        producer_profile_path.write_text("", encoding="utf-8")
     output_observation_path = raw_dir / OUTPUT_FILE
     resource_path = raw_dir / RESOURCE_FILE
     stdout_path = raw_dir / "command.stdout.log"
@@ -310,7 +322,7 @@ def main(argv: list[str] | None = None) -> int:
             "VLLM_EXACT_DISK_BACKUP_ENABLED": "1",
             "VLLM_EXACT_DISK_BACKUP_DIR": str(backup_root),
             "VLLM_CPU_BACKUP_DISK_DIR": str(backup_root),
-            "VLLM_SLEEP_PROFILE_PATH": str(profile_path),
+            "VLLM_SLEEP_PROFILE_PATH": str(producer_profile_path),
             "LLM_SWITCH_BENCH_OUTPUT_OBSERVATION": str(output_observation_path),
             "LLM_SWITCH_BENCH_MODEL_NAME": args.model["name"],
             "LLM_SWITCH_BENCH_MODEL_PATH": args.model["path"],
@@ -381,6 +393,8 @@ def main(argv: list[str] | None = None) -> int:
         finished_at=datetime.now(timezone.utc).isoformat(),
     )
     _write_json(run_path, run_metadata)
+    if producer_profile_path != profile_path and producer_profile_path.is_file():
+        profile_path.write_bytes(producer_profile_path.read_bytes())
 
     # Failed commands remain raw-only. This prevents an invalid lifecycle sample
     # from being mistaken for a numeric baseline while preserving its blocker.

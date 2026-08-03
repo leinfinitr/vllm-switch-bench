@@ -88,8 +88,8 @@ def main() -> int:
     )
     results = demotion.get("results", []) if isinstance(demotion, dict) else []
     if not results or not all(
-        bool(result.get("released"))
-        and int(result.get("released_bytes_total", 0)) > 0
+        int(result.get("released_bytes_total", 0)) > 0
+        and int(result.get("remaining_cpu_backup_bytes", 0)) == 0
         and int(result.get("pending_release_bytes", 0)) == 0
         for result in results
         if isinstance(result, dict)
