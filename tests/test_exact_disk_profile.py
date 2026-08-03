@@ -56,8 +56,8 @@ def make_raw_run(tmp_path: Path) -> Path:
             {
                 "elapsed_s": 0.0,
                 "worker_pid": 123,
-                "worker_rss_bytes": 1000,
-                "mem_available_bytes": 8000,
+                "worker_rss_bytes": 3000,
+                "mem_available_bytes": 6000,
                 "disk_footprint_bytes": 0,
             },
             {
@@ -267,9 +267,15 @@ def test_assertions_fail_closed_on_fallback_wrong_medium_and_output_mismatch():
             "fallback_reasons": ["disk unavailable"],
         },
         "resources": {
-            "sample_count": 1,
-            "worker_rss_sample_count": 1,
-            "mem_available_sample_count": 1,
+            "sample_count": 2,
+            "worker_rss_sample_count": 2,
+            "worker_rss_first_bytes": 1000,
+            "worker_rss_peak_bytes": 1000,
+            "worker_rss_last_bytes": 2000,
+            "mem_available_sample_count": 2,
+            "mem_available_first_bytes": 8000,
+            "mem_available_min_bytes": 7000,
+            "mem_available_last_bytes": 7000,
             "disk_footprint_sample_count": 1,
             "disk_footprint_peak_bytes": 4096,
         },
@@ -280,6 +286,8 @@ def test_assertions_fail_closed_on_fallback_wrong_medium_and_output_mismatch():
 
     assert any("source medium" in failure for failure in failures)
     assert any("fallback" in failure for failure in failures)
+    assert any("worker RSS did not decrease" in failure for failure in failures)
+    assert any("MemAvailable did not increase" in failure for failure in failures)
     assert any("output" in failure for failure in failures)
 
 

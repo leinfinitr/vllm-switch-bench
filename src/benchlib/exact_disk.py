@@ -111,9 +111,7 @@ def parse_exact_disk_profile(path: Path) -> dict[str, Any]:
 
     for index, row in enumerate(rows, start=1):
         context = f"{path} line {index}"
-        spill = _paired_metric(
-            row, "disk_spill_bytes", "disk_spill_s", context=context
-        )
+        spill = _paired_metric(row, "disk_spill_bytes", "disk_spill_s", context=context)
         read = _paired_metric(row, "disk_read_bytes", "disk_read_s", context=context)
         is_exact_disk = spill is not None or read is not None
         if not is_exact_disk:
@@ -349,18 +347,24 @@ def validate_exact_disk_summary(
     fallback_count = int(profile.get("fallback_count", 0) or 0)
     if not requirements.allow_fallback and fallback_count:
         failures.append(f"observed {fallback_count} exact-disk fallback event(s)")
-    if requirements.require_worker_rss and int(
-        resources.get("worker_rss_sample_count", 0) or 0
-    ) <= 0:
-        failures.append("required worker RSS evidence is missing")
-    if requirements.require_mem_available and int(
-        resources.get("mem_available_sample_count", 0) or 0
-    ) <= 0:
-        failures.append("required host MemAvailable evidence is missing")
+    if requirements.require_worker_rss:
+        rss_count = int(resources.get("worker_rss_sample_count", 0) or 0)
+        rss_peak = resources.get("worker_rss_peak_bytes")
+        rss_last = resources.get("worker_rss_last_bytes")
+        if rss_count <= 0 or rss_peak is None or rss_last is None:
+            failures.append("required worker RSS evidence is missing")
+        elif int(rss_last) >= int(rss_peak):
+            failures.append("worker RSS did not decrease after disk demotion")
+    if requirements.require_mem_available:
+        available_count = int(resources.get("mem_available_sample_count", 0) or 0)
+        available_min = resources.get("mem_available_min_bytes")
+        available_last = resources.get("mem_available_last_bytes")
+        if available_count <= 0 or available_min is None or available_last is None:
+            failures.append("required host MemAvailable evidence is missing")
+        elif int(available_last) <= int(available_min):
+            failures.append("host MemAvailable did not increase after disk demotion")
     if requirements.require_disk_footprint_growth:
-        disk_samples = int(
-            resources.get("disk_footprint_sample_count", 0) or 0
-        )
+        disk_samples = int(resources.get("disk_footprint_sample_count", 0) or 0)
         peak_delta = resources.get("disk_footprint_peak_delta_bytes")
         # Older hand-collected summaries may only retain a peak. They still
         # prove a footprint exists, but the runner records a baseline/delta.

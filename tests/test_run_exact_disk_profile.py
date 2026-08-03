@@ -20,8 +20,13 @@ def make_fake_benchmark(tmp_path: Path) -> Path:
         """#!/usr/bin/env python3
 import json
 import os
+import time
 from pathlib import Path
 
+# Keep the process alive long enough for the sampler to observe both the
+# pre-demotion high-RSS/low-MemAvailable state and the post-demotion state.
+hold = bytearray(64 * 1024 * 1024)
+time.sleep(0.05)
 profile = Path(os.environ["VLLM_SLEEP_PROFILE_PATH"])
 profile.write_text(
     json.dumps({
@@ -49,6 +54,8 @@ assert os.environ["VLLM_EXACT_DISK_BACKUP_ENABLED"] == "1"
 assert os.environ["VLLM_CPU_BACKUP_DISK_DIR"] == str(backup)
 backup.mkdir(parents=True, exist_ok=True)
 (backup / "payload.ready").write_bytes(b"data")
+del hold
+time.sleep(0.05)
 print("synthetic benchmark complete")
 """,
         encoding="utf-8",
