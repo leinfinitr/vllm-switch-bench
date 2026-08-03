@@ -77,6 +77,27 @@ def run_script(
     )
 
 
+def test_runner_kills_same_process_group_descendants_after_leader_exit(tmp_path: Path):
+    output = tmp_path / "orphan-run"
+    fixture = ROOT / "tests" / "fixtures" / "spawn_orphan.py"
+
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--backup-root",
+        str(tmp_path / "orphan-backup"),
+        "--out-dir",
+        str(output),
+        "--",
+        sys.executable,
+        str(fixture),
+    )
+
+    assert proc.returncode == 2
+    child_pid = int((output / "raw" / "command.stdout.log").read_text().strip())
+    assert not Path(f"/proc/{child_pid}").exists()
+
+
 def test_dry_run_uses_controller_tmp_as_default_backup_root(tmp_path: Path):
     output = tmp_path / "run"
 
@@ -125,6 +146,9 @@ def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
     run = json.loads((output / "raw" / "run.json").read_text(encoding="utf-8"))
     assert run["command"] == [sys.executable, str(fake)]
     assert run["command_return_code"] == 0
+    assert run["worker_pid"] > 0
+    assert run["environment"]["benchmark_repo"]["commit"]
+    assert "status_porcelain" in run["environment"]["benchmark_repo"]
     assert run["model"] == {"name": "model-a", "path": "/models/a"}
     summary = json.loads(
         (output / "curated" / "summary.json").read_text(encoding="utf-8")

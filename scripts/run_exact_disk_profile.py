@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import platform
@@ -60,6 +61,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument("--sample-interval-s", type=float, default=0.25)
+    parser.add_argument(
+        "--worker-pid",
+        type=int,
+        default=None,
+        help="External vLLM worker PID whose process tree owns pinned backups.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "command",
@@ -76,6 +83,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.error("a benchmark command is required after --")
     if args.sample_interval_s <= 0:
         parser.error("--sample-interval-s must be positive")
+    if args.worker_pid is not None and (
+        args.worker_pid <= 0 or not Path(f"/proc/{args.worker_pid}").exists()
+    ):
+        parser.error("--worker-pid must identify a live process")
     return args
 
 
@@ -93,14 +104,24 @@ def _git_metadata(path: Path) -> dict[str, Any]:
         except (OSError, subprocess.SubprocessError):
             return None
 
+    status = run("status", "--porcelain", "--untracked-files=all")
     return {
         "path": str(path.resolve()),
         "commit": run("rev-parse", "HEAD"),
         "branch": run("branch", "--show-current"),
-        "tracked_dirty": bool(
-            run("diff", "--name-only") or run("diff", "--cached", "--name-only")
-        ),
+        "dirty": bool(status),
+        "status_porcelain": status,
     }
+
+
+def _optional_repo_metadata(env_name: str) -> dict[str, Any] | None:
+    value = os.environ.get(env_name)
+    if not value:
+        return None
+    path = Path(value).expanduser().resolve()
+    return (
+        _git_metadata(path) if path.is_dir() else {"path": str(path), "missing": True}
+    )
 
 
 def _directory_size_bytes(path: Path) -> int:
@@ -125,7 +146,7 @@ def _write_json(path: Path, value: dict[str, Any]) -> None:
 
 def _resource_record(
     backup_root: Path,
-    proc: subprocess.Popen[str],
+    worker_pid: int,
     started_monotonic_s: float,
     *,
     disk_footprint_bytes: int | None = None,
@@ -135,8 +156,8 @@ def _resource_record(
         "schema_version": 1,
         "wall_time": datetime.now(timezone.utc).isoformat(),
         "elapsed_s": time.monotonic() - started_monotonic_s,
-        "worker_pid": proc.pid,
-        "worker_rss_bytes": process_tree_rss_bytes(proc.pid),
+        "worker_pid": worker_pid,
+        "worker_rss_bytes": process_tree_rss_bytes(worker_pid),
         "mem_available_bytes": meminfo.get("MemAvailable"),
         "disk_footprint_bytes": (
             _directory_size_bytes(backup_root)
@@ -149,7 +170,7 @@ def _resource_record(
 def _sample_resources(
     path: Path,
     backup_root: Path,
-    proc: subprocess.Popen[str],
+    worker_pid: int,
     interval_s: float,
     stop_event: threading.Event,
     ready_event: threading.Event,
@@ -163,7 +184,7 @@ def _sample_resources(
             json.dumps(
                 _resource_record(
                     backup_root,
-                    proc,
+                    worker_pid,
                     started_monotonic_s,
                     disk_footprint_bytes=initial_disk_footprint_bytes,
                 ),
@@ -176,7 +197,7 @@ def _sample_resources(
         while not stop_event.wait(interval_s):
             handle.write(
                 json.dumps(
-                    _resource_record(backup_root, proc, started_monotonic_s),
+                    _resource_record(backup_root, worker_pid, started_monotonic_s),
                     sort_keys=True,
                 )
                 + "\n"
@@ -186,7 +207,7 @@ def _sample_resources(
         # that finish before one regular sampling interval.
         handle.write(
             json.dumps(
-                _resource_record(backup_root, proc, started_monotonic_s),
+                _resource_record(backup_root, worker_pid, started_monotonic_s),
                 sort_keys=True,
             )
             + "\n"
@@ -194,16 +215,32 @@ def _sample_resources(
         handle.flush()
 
 
+def _process_group_exists(pgid: int) -> bool:
+    try:
+        os.killpg(pgid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
 def _terminate_process_group(proc: subprocess.Popen[str]) -> None:
-    if proc.poll() is not None:
+    pgid = proc.pid
+    if not _process_group_exists(pgid):
         return
     try:
-        os.killpg(proc.pid, signal.SIGTERM)
+        os.killpg(pgid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and _process_group_exists(pgid):
+        time.sleep(0.05)
+    if _process_group_exists(pgid):
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(pgid, signal.SIGKILL)
+    if proc.poll() is None:
         proc.wait(timeout=10)
-    except (ProcessLookupError, subprocess.TimeoutExpired):
-        if proc.poll() is None:
-            os.killpg(proc.pid, signal.SIGKILL)
-            proc.wait(timeout=10)
 
 
 def _base_run_metadata(args: argparse.Namespace) -> dict[str, Any]:
@@ -215,12 +252,19 @@ def _base_run_metadata(args: argparse.Namespace) -> dict[str, Any]:
         "backup_root": str(args.backup_root.resolve()),
         "allow_nonempty_backup_root": args.allow_nonempty_backup_root,
         "sample_interval_s": args.sample_interval_s,
+        "worker_pid": args.worker_pid,
         "command": args.command,
         "command_return_code": None,
         "environment": {
             "python": sys.version,
             "platform": platform.platform(),
             "benchmark_repo": _git_metadata(ROOT),
+            "vllm_repo": _optional_repo_metadata("LLM_SWITCH_BENCH_VLLM_REPO"),
+            "controller_repo": _optional_repo_metadata(
+                "LLM_SWITCH_BENCH_CONTROLLER_REPO"
+            ),
+            "producer_executable": str(Path(args.command[0]).expanduser()),
+            "producer_cwd": str(ROOT),
         },
     }
 
@@ -293,12 +337,13 @@ def main(argv: list[str] | None = None) -> int:
                 text=True,
                 start_new_session=True,
             )
+            worker_pid = proc.pid if args.worker_pid is None else args.worker_pid
             sampler = threading.Thread(
                 target=_sample_resources,
                 args=(
                     resource_path,
                     backup_root,
-                    proc,
+                    worker_pid,
                     args.sample_interval_s,
                     stop_event,
                     sampler_ready_event,
@@ -326,8 +371,12 @@ def main(argv: list[str] | None = None) -> int:
             if proc is not None:
                 _terminate_process_group(proc)
 
+    observed_worker_pid = args.worker_pid
+    if observed_worker_pid is None and proc is not None:
+        observed_worker_pid = proc.pid
     run_metadata.update(
         command_return_code=return_code,
+        worker_pid=observed_worker_pid,
         duration_s=time.monotonic() - started_monotonic_s,
         finished_at=datetime.now(timezone.utc).isoformat(),
     )

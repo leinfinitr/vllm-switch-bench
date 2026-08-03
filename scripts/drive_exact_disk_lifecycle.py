@@ -66,7 +66,10 @@ def infer(base_url: str, model: str, prompt: str, timeout_s: float) -> dict[str,
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
-    parser.add_argument("--served-model-name", default="bench-model")
+    parser.add_argument(
+        "--served-model-name",
+        default=os.environ.get("LLM_SWITCH_BENCH_MODEL_NAME", "bench-model"),
+    )
     parser.add_argument("--prompt", default="The capital of France is")
     parser.add_argument("--ready-timeout-s", type=float, default=300.0)
     args = parser.parse_args()
@@ -83,6 +86,15 @@ def main() -> int:
         {"method": "demote_weight_cpu_backup_to_disk"},
         300.0,
     )
+    results = demotion.get("results", []) if isinstance(demotion, dict) else []
+    if not results or not all(
+        bool(result.get("released"))
+        and int(result.get("released_bytes_total", 0)) > 0
+        and int(result.get("pending_release_bytes", 0)) == 0
+        for result in results
+        if isinstance(result, dict)
+    ):
+        raise RuntimeError(f"disk demotion did not complete: {demotion!r}")
     post_json(f"{args.base_url}/sleep?level=1", {}, 300.0)
     post_json(f"{args.base_url}/wake_up", {}, 300.0)
     after = infer(args.base_url, args.served_model_name, args.prompt, 120.0)
