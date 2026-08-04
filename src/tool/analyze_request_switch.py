@@ -3,12 +3,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 from statistics import median
 from typing import Any
 
-from bench_request_driven_switch import failed_record
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from bench_request_driven_switch import failed_record  # noqa: E402
 
 def percentile(values: list[float], q: float) -> float | None:
     if not values:
