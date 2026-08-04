@@ -1,5 +1,5 @@
 8b3ffab1d88d1e306662d018ddc6ceaeabb97e9e47b0c2f8d3dea6e4bc8712a9  results/release-v0.1/README.md
-b96d96af3af2708069f342d801abc97c6670b8d9204eea5dacf11be712b0557f  results/release-v0.1/campaign.json
+999c298df3f5fe28bddbe1a05048bfb8c673ed5a3a8d7f84a6b217e581f0d543  results/release-v0.1/campaign.json
 2624bc8fef59a062484b968b90be501a9abed5afc33922026e3b1a813ed001ac  results/release-v0.1/checksums.sha256
 3b042dd39ea268d416bc742650d7f6de1cb589b949a8b6b63c6a65e90b5de49a  results/release-v0.1/figures/e2e-alternating-request-latency.pdf
 60439efa92a08b140c2920c79a3ff5da8b03e4511f4266ba3e4104432bbd6601  results/release-v0.1/figures/e2e-alternating-request-latency.png
@@ -17,6 +17,7 @@ b8c90b0bb2902bdd6f2cbde2dd0553ed8c966c7eb42b0e6db151cf2dbf93a9c3  results/releas
 0cbba633df4746136c2a4cbea8546d5c18ddd08061f7f1a4cadbcc04086cc87a  results/release-v0.1/provenance/vllm-provenance-raw.sha256
 3b79bdfca335bcb8f1e84bda2b57ac6f7a84ce9b4416ac3d9ac7b6881b6bdf01  results/release-v0.1/raw/exact-disk/bundle-COMMIT
 5190fd89bbc165b535e1ebbb6313126d3a973ad6eda4232d47d81a54bc6eb153  results/release-v0.1/raw/exact-disk/bundle-manifest.json
+0ac37d58590eabdb4fa1e5998b69e1c016cd7b445b4a336706d344714d0e35e4  results/release-v0.1/raw/exact-disk/disk-footprint.json
 d6dd43eceefcd1b0554d66bfc54cf00022eae4ffaf888dae0d306c190f4e1731  results/release-v0.1/raw/exact-disk/exact_disk_profile.jsonl
 60ad25bd59c79313648e84beff242df67d5a2435964f517ff2830d788e3b8316  results/release-v0.1/raw/exact-disk/output_observation.json
 07a3d23b36cc41dfd6491bed789e4e13460bed34e47830bd093b22c565d94a29  results/release-v0.1/raw/exact-disk/payload-hash.json

@@ -66,7 +66,9 @@ def main() -> int:
         else:
             failures.extend(verify_manifest(manifest, tracked))
 
-    complete_paths = {relative for _, relative in parse_manifest(COMPLETE)} if COMPLETE.is_file() else set()
+    complete_paths = (
+        {relative for _, relative in parse_manifest(COMPLETE)} if COMPLETE.is_file() else set()
+    )
     declared = {
         path.relative_to(ROOT).as_posix()
         for path in ARTIFACT.rglob("*")
@@ -92,14 +94,17 @@ def main() -> int:
     summary = ARTIFACT / "summary.json"
     if summary.is_file():
         payload = json.loads(summary.read_text(encoding="utf-8"))
-        patch_path = payload.get("provenance", {}).get("SwapServeLLM", {}).get(
-            "benchmark_patch"
-        )
+        patch_path = payload.get("provenance", {}).get("SwapServeLLM", {}).get("benchmark_patch")
         if patch_path and not (ARTIFACT / patch_path).is_file():
             failures.append(f"summary references missing path: {patch_path}")
 
     exact_profile = ARTIFACT / "raw/exact-disk/exact_disk_profile.jsonl"
     exact_metadata = ARTIFACT / "raw/exact-disk/run-metadata.json"
+    exact_manifest = ARTIFACT / "raw/exact-disk/bundle-manifest.json"
+    exact_commit = ARTIFACT / "raw/exact-disk/bundle-COMMIT"
+    exact_payload = ARTIFACT / "raw/exact-disk/payload-hash.json"
+    exact_output = ARTIFACT / "raw/exact-disk/output_observation.json"
+    exact_footprint = ARTIFACT / "raw/exact-disk/disk-footprint.json"
     pressure_path = ARTIFACT / "raw/proposed/controller-pressure-release.json"
     if exact_profile.is_file():
         events = [
@@ -129,14 +134,93 @@ def main() -> int:
     else:
         failures.append("exact-disk run metadata is missing")
 
+    if all(
+        path.is_file()
+        for path in (
+            exact_manifest,
+            exact_commit,
+            exact_payload,
+            exact_output,
+            exact_footprint,
+        )
+    ):
+        manifest_bytes = exact_manifest.read_bytes()
+        manifest = json.loads(manifest_bytes)
+        payload_hash = json.loads(exact_payload.read_text(encoding="utf-8"))
+        output = json.loads(exact_output.read_text(encoding="utf-8"))
+        footprint = json.loads(exact_footprint.read_text(encoding="utf-8"))[
+            "filesystem_observation"
+        ]
+        if (
+            exact_commit.read_text(encoding="utf-8").strip()
+            != hashlib.sha256(manifest_bytes).hexdigest()
+        ):
+            failures.append("exact-disk commit marker does not bind the manifest")
+        manifest_bytes_total = int(manifest.get("payload_size_bytes", 0))
+        segment_bytes_total = sum(
+            int(segment.get("nbytes", segment.get("size_bytes", 0)))
+            for segment in manifest.get("segments", [])
+        )
+        if manifest_bytes_total <= 0 or segment_bytes_total != manifest_bytes_total:
+            failures.append("exact-disk manifest payload accounting is inconsistent")
+        if int(payload_hash.get("payload_size_bytes", 0)) != manifest_bytes_total:
+            failures.append("exact-disk payload size does not match the manifest")
+        if (
+            int(footprint.get("logical_size_bytes", 0)) != manifest_bytes_total
+            or int(footprint.get("allocated_bytes", 0)) < manifest_bytes_total
+        ):
+            failures.append("exact-disk physical footprint does not cover the payload")
+        payload_digest = payload_hash.get("payload_sha256")
+        if not isinstance(payload_digest, str) or len(payload_digest) != 64:
+            failures.append("exact-disk payload SHA-256 is invalid")
+        if output.get("before") != output.get("after"):
+            failures.append("exact-disk output differs after restore")
+        demotions = output.get("demotion", {}).get("results", [])
+        if not demotions or any(
+            not row.get("released")
+            or int(row.get("pending_release_bytes", -1)) != 0
+            or int(row.get("released_bytes_total", 0)) != int(row.get("requested_bytes", -1))
+            for row in demotions
+        ):
+            failures.append("exact-disk demotion did not complete its requested release")
+    else:
+        failures.append(
+            "exact-disk manifest, commit, payload hash, output, or footprint evidence is missing"
+        )
+
     if pressure_path.is_file():
         pressure = json.loads(pressure_path.read_text(encoding="utf-8"))
+        before = pressure.get("before", {})
+        after = pressure.get("after", {})
+        queued = int(pressure.get("release_response", {}).get("queued_bytes", 0))
         if int(pressure.get("memavailable_delta_bytes", 0)) <= 0:
             failures.append("controller pressure evidence lacks positive MemAvailable delta")
-        if not any(
-            int(delta) < 0 for delta in pressure.get("client_rss_delta_bytes", {}).values()
-        ):
+        if not any(int(delta) < 0 for delta in pressure.get("client_rss_delta_bytes", {}).values()):
             failures.append("controller pressure evidence lacks a decreasing process RSS")
+        if not pressure.get("release_response", {}).get("ok") or queued <= 0:
+            failures.append("controller pressure release was not accepted")
+        after_pool = after.get("pool_stats", {})
+        if (
+            int(after_pool.get("pending_release_bytes", -1)) != 0
+            or int(after_pool.get("pending_release_request_count", -1)) != 0
+        ):
+            failures.append("controller pressure evidence retains pending releases")
+        before_clients = before.get("clients", {})
+        after_clients = after.get("clients", {})
+        if set(before_clients) != set(after_clients):
+            failures.append("controller pressure evidence changed process incarnations")
+        released_delta = sum(
+            int(after_clients[name].get("released_bytes_total", 0))
+            - int(before_clients[name].get("released_bytes_total", 0))
+            for name in set(before_clients) & set(after_clients)
+        )
+        requested_delta = sum(
+            int(after_clients[name].get("requested_release_bytes_total", 0))
+            - int(before_clients[name].get("requested_release_bytes_total", 0))
+            for name in set(before_clients) & set(after_clients)
+        )
+        if released_delta != queued or requested_delta != queued:
+            failures.append("controller pressure release accounting does not match queued bytes")
     else:
         failures.append("controller physical-memory pressure evidence is missing")
 
