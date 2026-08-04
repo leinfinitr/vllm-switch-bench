@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_swapserve_llm import auth_headers, infer, parse_swapserve_stage_logs, run_swapout_swapin
+from bench_swapservellm import auth_headers, infer, parse_swapserve_stage_logs, run_swapout_swapin
 
 
 class FakeResponse:
@@ -62,10 +62,10 @@ def test_auth_headers_bearer_when_key_present():
 def test_swapout_swapin_sequence_records_evict_restore(monkeypatch):
     fake = FakeClient()
     monkeypatch.setattr(
-        "bench_swapserve_llm.infer",
+        "bench_swapservellm.infer",
         lambda *args, **kwargs: {"ok": True, "ttft_s": 0.1, "client_latency_s": 0.2, "approx_tokens_per_s": 11.0},
     )
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
     row = run_swapout_swapin(
         base_url="http://127.0.0.1:8000",
         client=fake,
@@ -87,7 +87,7 @@ def test_swapout_swapin_sequence_records_evict_restore(monkeypatch):
 def test_non_200_swapin_marks_failure(monkeypatch):
     fake = FakeClient()
     fake.responses[("POST", "/api/swapin")] = [FakeResponse(500, text="nope")]
-    monkeypatch.setattr("bench_swapserve_llm.infer", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr("bench_swapservellm.infer", lambda *args, **kwargs: {"ok": True})
     row = run_swapout_swapin(
         base_url="http://127.0.0.1:8000",
         client=fake,
@@ -104,10 +104,10 @@ def test_non_200_swapin_marks_failure(monkeypatch):
 def test_summary_row_has_system_swapserve_llm(monkeypatch):
     fake = FakeClient()
     monkeypatch.setattr(
-        "bench_swapserve_llm.infer",
+        "bench_swapservellm.infer",
         lambda *args, **kwargs: {"ok": True, "ttft_s": 0.1, "client_latency_s": 0.2, "approx_tokens_per_s": 11.0},
     )
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
     row = run_swapout_swapin(
         base_url="http://127.0.0.1:8000",
         client=fake,
@@ -131,8 +131,8 @@ def test_stage_breakdown_can_be_read_from_log_dir(monkeypatch, tmp_path: Path):
     fake = FakeClient()
     (tmp_path / "swapout.log").write_text("old\n[🔃 SwapOut Stage] Pause container took 12ms\n", encoding="utf-8")
     (tmp_path / "swapin.log").write_text("old\n", encoding="utf-8")
-    monkeypatch.setattr("bench_swapserve_llm.infer", lambda *args, **kwargs: {"ok": True})
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
+    monkeypatch.setattr("bench_swapservellm.infer", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
     # Append new content after offsets are captured inside run_swapout_swapin.
     original_request = fake.request
 
@@ -182,8 +182,8 @@ def test_swapserve_infer_uses_streaming_and_completion_tokens(monkeypatch):
         calls.append({"url": url, "json": json, "headers": headers, "stream": stream})
         return FakeStreamResponse()
 
-    monkeypatch.setattr("bench_swapserve_llm.requests.post", fake_post)
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
+    monkeypatch.setattr("bench_swapservellm.requests.post", fake_post)
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
     row = infer("http://127.0.0.1:8000", "qwen", "short_short", api_key="dummy")
     assert calls[0]["stream"] is True
     assert calls[0]["json"]["stream"] is True
@@ -200,8 +200,8 @@ def test_swapserve_infer_uses_explicit_stream_ttft_when_present(monkeypatch):
             yield 'data: {"choices": [{"delta": {"content": " world"}}], "usage": {"completion_tokens": 2}}'
             yield 'data: [DONE]'
 
-    monkeypatch.setattr("bench_swapserve_llm.requests.post", lambda *args, **kwargs: ExplicitTtftStreamResponse())
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
+    monkeypatch.setattr("bench_swapservellm.requests.post", lambda *args, **kwargs: ExplicitTtftStreamResponse())
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.1, 1.3]).__next__)
     row = infer("http://127.0.0.1:8000", "qwen", "short_short", api_key="dummy")
     assert row["ttft_s"] == pytest.approx(0.012)
     assert row["ttft_available"] is True
@@ -212,9 +212,9 @@ def test_swapserve_infer_uses_explicit_stream_ttft_when_present(monkeypatch):
 def test_swapserve_records_ready_and_evict_memory(monkeypatch):
     fake = FakeClient()
     samples = iter([1000, 600])
-    monkeypatch.setattr("bench_swapserve_llm.query_gpu_memory_used_mib", lambda: next(samples))
-    monkeypatch.setattr("bench_swapserve_llm.infer", lambda *args, **kwargs: {"ok": True})
-    monkeypatch.setattr("bench_swapserve_llm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
+    monkeypatch.setattr("bench_swapservellm.query_gpu_memory_used_mib", lambda: next(samples))
+    monkeypatch.setattr("bench_swapservellm.infer", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr("bench_swapservellm.time.perf_counter", iter([1.0, 1.4, 2.0, 2.6]).__next__)
     row = run_swapout_swapin("http://127.0.0.1:8000", fake, "qwen", "short_short", 0)
     assert row["memory_gpu_used_ready_mib"] == 1000
     assert row["memory_gpu_used_evict_mib"] == 600

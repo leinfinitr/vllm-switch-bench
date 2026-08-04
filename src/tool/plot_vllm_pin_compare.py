@@ -193,7 +193,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Plot vLLM sleep_l1/sleep_l2 pin/no-pin breakdown figures.")
     parser.add_argument("--sleep-l1-dir", type=Path, default=Path("results/profiling/sleep_l1_pin_compare"))
     parser.add_argument("--sleep-l2-dir", type=Path, default=Path("results/profiling/sleep_l2_pin_compare"))
-    parser.add_argument("--out-dir", type=Path, default=Path("docs/reports/figures"))
+    parser.add_argument("--out-dir", type=Path, default=Path("results/tmp/figures/vllm-pin-compare"))
     return parser.parse_args(argv)
 
 

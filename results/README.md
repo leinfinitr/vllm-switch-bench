@@ -1,47 +1,46 @@
 # Result artifact policy
 
-`results/` 只保留每个实验族的最新 curated 输出，不是所有本地运行的日志仓库。
+`results/` is a curated evidence tree, not a dump of every local run. The v0.1 release has one canonical bundle; older families remain only because references, schemas, or provenance make deletion unsafe.
 
-## 可提交内容
+## Status index
 
-- 小型 `metadata.json`、`summary.json/CSV` 和机器可读 curated analysis；
-- 论文图和生成该图所需的最小输入；
-- 明确记录失败/unsupported 的结果，避免只保留成功样本。
+| Path | Status | Policy |
+|---|---|---|
+| [`release-v0.1/`](release-v0.1/) | **Current release candidate** | Single canonical v0.1 bundle; existing data is exploratory until final GPU rerun |
+| `request_switch/latest/` | Historical | Earlier request-driven artifact; superseded by the release bundle and retained for audit |
+| `osdi_20260723/` | Superseded path | Renamed to `release-v0.1/`; no second canonical copy remains |
+| `baselines/` | Historical | Legacy Baseline3 inputs and blocked rows; immutable schemas |
+| `cross_system/` | Historical | Earlier cross-system matrix and blockers; not current headline data |
+| `model_switch_eval/` | Historical | Earlier model-switch evaluation and secondary report export |
+| `profiling/` | Historical mechanism evidence | Useful for mechanism background, not current release claims |
+| `tmp/` | Local/ignored | Disposable staging and failed pilots; never cited directly |
 
-每个可引用 run 至少应记录：命令参数、模型、代码 commit/dirty 状态、软件/硬件环境、原始指标、自动 correctness assertions。物理内存回收结论必须同时包含 application accounting 和 worker RSS/host `MemAvailable`。
+ServerlessLLM is **blocked** for a current numeric row. Exact disk is **blocked pending final v0.1 GPU rerun**. SwapServeLLM and llama-swap are canonical baseline names; historical slugs remain unchanged inside raw data.
 
-## 当前目录布局
+## Publishable bundle requirements
 
-- `osdi_20260723/`：当前阶段的 lifecycle/E2E 论文图和最小 raw evidence。
-- `request_switch/latest/`：当前 request-driven switching curated artifact。
-- `profiling/`：机制验证和 microbenchmark；timestamp 子目录保留实验身份。
-- `baselines/`：历史 Baseline3 结果。
-- `cross_system/`、`model_switch_eval/`：历史跨系统阶段评测。
-- `tmp/`：本地 ignored 输出，可随时删除，不得被报告引用。
+A cited artifact must retain:
 
-当前 artifact 以具名目录保存，不使用无语义的 `final2`、`final3` 或散落在仓库
-根目录的日志。目录迁移后必须同步更新 summary/provenance/checksum 内的路径；
-历史 artifact 不为追求命名一致而重写。
+- frozen manifests, prompts, generation fields, models, and sanitized configs;
+- request- or phase-level raw evidence and structured failure diagnostics;
+- run-start source commits/dirty state, executable/import path, image digest, and environment identity;
+- functional correctness and physical post-conditions where claimed;
+- deterministic summary/figure builders;
+- a publication-subset manifest and a complete-bundle manifest;
+- fully tracked manifest paths verified from a fresh checkout.
 
-没有公开 raw artifact、独立重复和离散度的单点 A/B 只能标记为本地
-observational evidence，不得使用 causal 或 paper-grade 措辞。论文级比较应发布
-带 checksum 的原始 summary/steps，并报告多次独立运行的中位数和 IQR 或置信区间。
+Failed, timed-out, incomplete, or semantically invalid samples must not appear as numeric baselines. Keep them as blocked/failed diagnostics with the attempted denominator and terminal state.
 
-## 不直接提交的内容
+## Immutable raw evidence
 
-- JSONL event stream、server/controller log、临时 YAML；
-- 重复运行和被 supersede 的 timestamp 目录；
-- 模型、trace 或其他大文件。
+Checksummed files under `release-v0.1/raw/` are immutable. Producer-machine absolute paths in those files are provenance, not current configuration, and must not be normalized. To correct or rerun an experiment, create a fresh staged bundle and replace the canonical bundle atomically after review.
 
-这些内容应放在本地 ignored 目录，或发布到带 checksum/永久 URL 的 artifact archive。论文引用的 raw run 若不在仓库内，curated summary 必须标记其 availability；本地相对路径不能视为公开可复现证据。
+## Derived files
 
-## 历史 schema
+Derived summaries and figures may be regenerated only from the declared tracked raw inputs. Builders must be deterministic; run them twice and require identical bytes. Generate `checksums.sha256` first and `all-files.sha256` last.
 
-历史 run 保持原始字段和文件名，不为适配新代码而改写。当前 repeated-sleep harness 输出：
+## Local output
 
-```text
-repeated_sleep_l1_summary.json
-repeated_sleep_l1_steps.csv
-```
+Write live experiments under `results/tmp/<experiment>/<run-id>/` or another ignored staging path. Do not rely on ignored logs for a publication claim. Promote only the reviewed minimal evidence set, never entire caches, model files, secrets, or unfiltered repeated logs.
 
-旧 `phase1_two_model_*` 文件只用于审计既有实验。后处理工具应显式选择输入，不依赖“最新目录”猜测。
+See [`../docs/release-artifact.md`](../docs/release-artifact.md) for the final-rerun transaction.

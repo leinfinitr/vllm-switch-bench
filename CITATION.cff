@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this benchmark harness or its artifacts, please cite it using this metadata."
+title: "LLM Switch Bench"
+type: software
+authors:
+  - family-names: Liu
+    given-names: Jialong
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/leinfinitr/llm-switch-bench"
+url: "https://github.com/leinfinitr/llm-switch-bench"
+keywords:
+  - large language models
+  - model switching
+  - inference serving
+  - benchmarking

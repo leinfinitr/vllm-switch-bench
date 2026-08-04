@@ -9,7 +9,7 @@ configs/*.local.yaml
 *.log
 *.jsonl
 !configs/traces/*.jsonl
-# Curated OSDI evidence is intentionally tracked despite generic raw-output
+# Curated v0.1 evidence is intentionally tracked despite generic raw-output
 # ignores. The artifact checksum must verify in a fresh checkout.
-!results/osdi_20260723/**/*.jsonl
-!results/osdi_20260723/**/*.log
+!results/release-v0.1/**/*.jsonl
+!results/release-v0.1/**/*.log

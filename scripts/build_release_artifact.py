@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULT = ROOT / "results" / "osdi_20260723"
+RESULT = ROOT / "results" / "release-v0.1"
 RAW = RESULT / "raw"
 FIG = RESULT / "figures"
 MODEL_ORDER = ["qwen-0.5b", "qwen-1.5b", "qwen-3b"]
@@ -108,7 +108,7 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
             float(row["wake_s"]) for row in swapserve["rows"]
         ]
     provenance["SwapServeLLM"] = {
-        "path": "/home/ljl/research-systems/SwapServeLLM",
+        "source_url": "https://github.com/rst0git/SwapServeLLM",
         "commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
         "benchmark_patch": "raw/swapserve/benchmark.patch.txt",
     }

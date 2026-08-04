@@ -1,50 +1,36 @@
-# SwapServeLLM 本机运行说明
+# SwapServeLLM
 
-SwapServeLLM 在 Baseline3 中提供容器级 swapout/swapin 参考。它不是 vLLM Sleep Mode，而是通过 router、podman 和 CUDA checkpoint 管理 vLLM backend。
+**Status:** current external lifecycle baseline; final v0.1 GPU rows still require rerun.
 
-## 依赖
+The canonical project name is **SwapServeLLM**. Historical machine-readable slugs and directories use `swapserve_llm`; those identifiers remain unchanged for provenance.
 
-- `/home/ljl/research-systems/SwapServeLLM`，分支 `fix/local-rootless-swapserve`。
-- rootless podman 和用户 podman socket。
-- `docker.io/vllm/vllm-openai:latest` 已在 podman storage 中。
-- `cuda-checkpoint` 在 `PATH` 中。
+SwapServeLLM manages vLLM backends through a router, container runtime, and NVIDIA CUDA checkpoint/restore. It is not vLLM Sleep Mode.
 
-```bash
-systemctl --user start podman.socket
-```
+## Requirements
 
-## 构建
+- a frozen SwapServeLLM source commit and retained benchmark patch;
+- a rootless container runtime and NVIDIA CDI/device access;
+- a digest-pinned vLLM image;
+- a frozen `cuda-checkpoint` commit/binary checksum;
+- a local config derived from a sanitized example, with explicit model mounts and context length.
 
-```bash
-cd /home/ljl/research-systems/SwapServeLLM
-git checkout fix/local-rootless-swapserve
-/home/ljl/program/go/bin/go build   -tags 'containers_image_openpgp exclude_graphdriver_btrfs'   -o /tmp/swapserve-exp/swapservellm .
-```
+## Lifecycle boundary
 
-## 启动
+- sleep ends after synchronous swap-out returns **and** the GPU process disappears/model GPU memory reaches the calibrated idle threshold and the container is paused;
+- wake ends after resume, CUDA restore, vLLM load/readiness, and successful synchronous swap-in; post-wake inference must match the reference output.
 
-使用 `/tmp/swapserve-exp/config.json` 配置模型、日志和 backend 端口后启动：
+Run the adapter only after starting the external router:
 
 ```bash
-cd /tmp/swapserve-exp
-PATH=/tmp/cuda-checkpoint-exp:$PATH SWAPSERVE_CONFIG_PATH=/tmp/swapserve-exp/config.json SWAPSERVE_HF_CACHE=/home/ljl/models/hf SWAPSERVE_SKIP_PULL=1 OPENAI_API_KEY=dummy http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890 /tmp/swapserve-exp/swapservellm
+uv run python src/bench_swapservellm.py \
+  --repo /path/to/SwapServeLLM \
+  --base-url http://127.0.0.1:8000 \
+  --model /path/to/model \
+  --api-key dummy \
+  --log-dir /path/to/swapserve/logs \
+  --prompts short_short \
+  --repeats 5 \
+  --out-dir results/tmp/swapservellm
 ```
 
-验证：
-
-```bash
-curl http://127.0.0.1:8000/v1/models
-```
-
-## 单独运行 adapter
-
-```bash
-cd /home/ljl/research-systems/llm-switch-bench
-.venv/bin/python src/bench_swapserve_llm.py   --repo /home/ljl/research-systems/SwapServeLLM   --base-url http://127.0.0.1:8000   --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct   --api-key dummy   --log-dir /tmp/swapserve-exp/logs   --prompts short_short long_short short_long   --repeats 3   --out-dir results/baselines/swapserve_llm/qwen2p5_0p5b
-```
-
-## 注意事项
-
-- router 默认端口是 `8000`，backend 示例端口是 `8001`。
-- `swapout.log` / `swapin.log` 只含摘要，详细阶段耗时在 router stdout。
-- 当前 patch 包含本机 rootless podman 兼容处理，换机器需要重新验证。
+A 2xx control response alone is insufficient. Retain PID/GPU/container post-conditions and runtime-bound source/image metadata. If max model length or GPU utilization differs from another system, label the row as an operational comparison rather than a same-resource mechanism comparison.

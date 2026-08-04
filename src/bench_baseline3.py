@@ -58,7 +58,7 @@ def build_swapserve_cmd(
 ) -> list[str]:
     return [
         sys.executable,
-        "src/bench_swapserve_llm.py",
+        "src/bench_swapservellm.py",
         "--repo",
         repo,
         "--model",

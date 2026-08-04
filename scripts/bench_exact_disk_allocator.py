@@ -52,7 +52,7 @@ def main() -> int:
     parser.add_argument(
         "--backup-root",
         type=Path,
-        default=Path("/home/ljl/research-systems/vllm-model-switch-controller/tmp"),
+        default=Path("runtime/exact-disk-backups"),
     )
     parser.add_argument("--direct-io", type=int, choices=(0, 1), default=1)
     parser.add_argument("--chunk-bytes", type=int, default=16 * 1024 * 1024)

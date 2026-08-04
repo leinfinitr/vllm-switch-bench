@@ -1,3 +1,3 @@
 # Raw benchmark transcripts preserve terminal carriage returns and whitespace.
-# They are immutable evidence covered by results/osdi_20260723/all-files.sha256.
-results/osdi_20260723/raw/** -whitespace
+# They are immutable evidence covered by results/release-v0.1/all-files.sha256.
+results/release-v0.1/raw/** -whitespace

@@ -3,7 +3,7 @@
 
 Unlike the reusable service-based adapter in ``src/bench_vllm_lifecycle.py``,
 this driver uses the offline ``LLM`` API and emits the compact JSON consumed by
-``results/osdi_20260723``. Level 1 and level 2 intentionally have different
+``results/release-v0.1``. Level 1 and level 2 intentionally have different
 wake transactions: level 2 must recreate weight mappings, reload checkpoint
 weights, and then recreate the KV cache.
 """

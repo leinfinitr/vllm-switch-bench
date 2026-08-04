@@ -1,0 +1,39 @@
+[project]
+name = "llm-switch-bench"
+version = "0.1.0"
+description = "Reproducible harnesses and artifacts for LLM lifecycle and model-switch benchmarks"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+authors = [{ name = "Liu Jialong" }]
+dependencies = [
+  "httpx==0.28.1",
+  "matplotlib==3.10.9",
+  "numpy==2.3.5",
+  "psutil==7.2.2",
+  "pyyaml==6.0.3",
+  "requests==2.34.2",
+]
+
+[dependency-groups]
+dev = [
+  "fastapi==0.136.3",
+  "pytest==9.0.3",
+  "ruff==0.16.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["results", "docs/archive"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/run_exact_disk_profile.py" = ["E402"]
+"src/tool/collect_exact_disk_profile.py" = ["E402"]
+"tests/test_exact_disk_profile.py" = ["E402"]

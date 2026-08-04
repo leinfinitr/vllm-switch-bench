@@ -342,7 +342,7 @@
       "tracked_dirty": false
     },
     "SwapServeLLM": {
-      "path": "/home/ljl/research-systems/SwapServeLLM",
+      "source_url": "https://github.com/rst0git/SwapServeLLM",
       "commit": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
       "benchmark_patch": "raw/swapserve/benchmark.patch.txt"
     },

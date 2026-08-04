@@ -33,9 +33,7 @@ from benchlib.resources import (
     read_meminfo_bytes,
 )
 
-DEFAULT_BACKUP_ROOT = Path(
-    "/home/ljl/research-systems/vllm-model-switch-controller/tmp"
-)
+DEFAULT_BACKUP_ROOT = Path("runtime/exact-disk-backups")
 
 
 def parse_model_spec(value: str) -> dict[str, str]:

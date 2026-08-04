@@ -172,7 +172,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("docs/reports/figures/phase1-two-model-pool-breakdown.pdf"),
+        default=Path("results/tmp/figures/phase1-two-model-pool-breakdown.pdf"),
     )
     parser.add_argument(
         "--title", default="Repeated sleep backup pool: breakdown and inference latency"

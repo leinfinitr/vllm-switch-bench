@@ -1,170 +1,141 @@
 # LLM Switch Bench
 
-本仓库提供 LLM serving 生命周期与模型切换的可复用 benchmark harness、microbenchmark、后处理工具和 curated 结果。实现仓库保持独立；本仓库不保存模型、临时日志或所有本地运行。
+LLM Switch Bench is a research harness and evidence repository for measuring large-language-model lifecycle operations and request-driven model switching. It separates reusable runners, machine-local execution, immutable raw evidence, and deterministic publication artifacts.
 
-## 主要入口
+> **v0.1 release candidate:** code, documentation, environment, and artifact policy are ready for final GPU reruns. The checked-in `results/release-v0.1/` bundle contains existing exploratory data only; it is not the final confirmatory result set.
 
-- `src/bench_vllm_lifecycle.py`：vLLM cold reload、sleep/wake benchmark。
-- `src/bench_vllm_pin_compare.py`：模型无关的 pinned/pageable profiling 矩阵。
-- `src/bench_vllm_repeated_sleep_l1.py`：重复 sleep/wake、backup reuse、动态回收及 OS memory 观测。
-- `scripts/run_exact_disk_profile.py`：模型无关的 exact runtime disk-backup wrapper，采集 disk I/O、source/fallback、RSS、`MemAvailable`、footprint 与 output equality。
-- `src/bench_request_driven_switch.py`：对统一 OpenAI endpoint 重放冻结的多模型 open-loop trace，记录 transport first byte、semantic TTFT、完成时延和失败。
-- `src/bench_baseline3.py`：显式配置的跨系统结果聚合与运行。
-- `scripts/run_profiling.sh`、`scripts/run_baseline3.sh`：可复用 shell 入口。
-- `src/microbench/`：PCIe copy、CuMemAllocator synthetic copy、safetensors allocation 粒度实验。
-- `src/tool/`：只读取已有结果的分析、绘图和合并工具。
+## Scope
 
-## 仓库结构
+The repository provides:
 
-```text
-configs/                    可提交的 example、schedule 和 frozen trace
-docs/
-  baselines/                基线方法与复现语义
-  systems/                  外部系统本机 runbook 与门禁
-  reports/                  阶段性/最终报告及引用图
-  plans/                    历史实施计划，仅用于审计
-results/
-  osdi_20260723/            当前阶段论文图、摘要和最小证据集
-  request_switch/latest/    request-driven switching curated artifact
-  profiling/                allocator、copy 和 sleep/wake 机制实验
-  baselines/                历史 Baseline3 输入
-  cross_system/             历史跨系统矩阵
-  model_switch_eval/        历史模型切换评测
-  tmp/                      本地 ignored 运行目录
-scripts/                    可执行 shell/实验编排和一次性评测 driver
-src/
-  bench_*.py                可复用 benchmark adapter
-  benchlib/                 共享采样、HTTP、配置和 schema
-  microbench/               allocator/PCIe 微基准
-  tool/                     纯后处理、绘图与 artifact builder
-tests/                      与 src/scripts 对应的单元和 schema 测试
-runtime/                    本地 ignored 外部系统运行数据
-```
+- vLLM cold reload and L1/L2 sleep/wake lifecycle runners;
+- repeated L1 sleep/wake profiling for pinned CPU backup reuse and physical reclaim;
+- an open-loop, multi-model OpenAI-compatible request-trace runner;
+- adapters and lifecycle drivers for ServerlessLLM, **SwapServeLLM**, and **llama-swap**;
+- exact runtime disk-backup profiling and evidence collection;
+- deterministic analysis, plotting, and checksum tooling.
 
-`docs/README.md` 是文档索引，`results/README.md` 定义 artifact policy，
-`src/README.md` 解释各执行入口。不要把 `results/tmp/`、`runtime/`、模型或
-未筛选的重复日志提交到仓库。
+Canonical baseline names are **SwapServeLLM** and **llama-swap**. Historical machine-readable slugs such as `swapserve_llm` are retained inside immutable artifacts and legacy code paths; do not rename old raw data.
 
-## 环境
+llama-swap is an automatic request router: the request's `model` field selects the target, and the proxy stops the current model process and starts the target as needed. It has no explicit sleep/wake phase API. Request-trace results therefore include queueing and automatic process switching, while lifecycle profiling uses separately instrumented process-state intervals. See [`docs/systems/llama-swap.md`](docs/systems/llama-swap.md).
 
-```bash
-uv venv --python 3.12 .venv
-uv pip install pytest psutil requests pandas matplotlib pyyaml
-```
-
-vLLM 实验需要该环境能够 import 被测源码 checkout；不要依赖全局 wheel。每个可引用 run 应记录 vLLM/bench commit、dirty state、模型、参数和 GPU/host 信息。
-
-测试与静态检查：
-
-```bash
-.venv/bin/python -m pytest tests -q
-uv run --with ruff ruff check src tests
-```
-
-## 模型无关 profiling
-
-pin/no-pin 矩阵必须显式提供模型，不在脚本名或默认参数中编码模型：
-
-```bash
-MODEL_SPECS='small=/models/small,0.45 large=/models/large,0.55' \
-METHOD=sleep_l1 REPEATS=3 scripts/run_profiling.sh
-```
-
-重复 sleep/wake：
-
-```bash
-.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
-  --models small=/models/small large=/models/large \
-  --out-dir results/profiling/repeated_sleep_l1 \
-  --iterations 5
-```
-
-带 coordinator 的压力实验应声明期望并自动检查物理回收：
-
-```bash
-.venv/bin/python src/bench_vllm_repeated_sleep_l1.py \
-  --models model=/models/model \
-  --coordinator-url http://127.0.0.1:19090 \
-  --iterations 2 \
-  --post-wake-observation-s 3 \
-  --expect-release \
-  --min-worker-rss-reclaim-bytes 1073741824
-```
-
-无压力对照使用 `--no-expect-release`。当前输出是：
+## Repository layout
 
 ```text
-repeated_sleep_l1_summary.json
-repeated_sleep_l1_steps.csv
+configs/                    Portable examples and frozen traces
+src/                        Benchmark entry points and shared libraries
+src/tool/                   Pure analysis and artifact tools
+src/microbench/             CUDA/allocator microbenchmarks
+scripts/                    Orchestration, release builders, and checks
+ tests/                     CPU-only unit and schema tests
+docs/                       Current English runbooks and artifact policy
+docs/archive/reports/       Historical reports; not current instructions
+results/release-v0.1/       Canonical v0.1 release artifact bundle
+results/{baselines,...}/    Historical/superseded result families
+results/tmp/                Ignored local output
+runtime/                    Ignored external-runtime and backup state
 ```
 
-旧 `phase1_two_model_*` 文件只属于历史 run，不是当前 schema。
+[`docs/README.md`](docs/README.md) classifies current and archived documentation. [`results/README.md`](results/README.md) classifies current, historical, blocked, and superseded result families.
 
-Exact runtime disk tier 使用独立、模型无关 wrapper；不要等待或硬编码仍在开发的
-vLLM Python/API entrypoint：
+## Reproducible CPU development environment
+
+Install [uv](https://docs.astral.sh/uv/), then use the locked Python 3.12 environment:
 
 ```bash
-.venv/bin/python scripts/run_exact_disk_profile.py \
-  --model model=/models/model \
-  --backup-root /home/ljl/research-systems/vllm-model-switch-controller/tmp \
-  --out-dir results/tmp/exact-disk/model/RUN_ID \
-  -- /absolute/python /absolute/model_agnostic_driver.py
+uv sync --frozen --group dev
+uv run pytest tests -q
+uv run ruff check src scripts tests
+scripts/check_bash.sh
+uv run python scripts/check_docs.py
+uv run python scripts/verify_release_artifact.py
 ```
 
-wrapper 通过环境变量向 producer 传递 profile/output 路径，默认断言 positive
-spill/read、`source_medium=disk`、zero fallback、worker RSS、host
-`MemAvailable`、disk-footprint growth 和 before/after output equality。输出将
-`raw/`（本机原始证据及 checksum）和 `curated/`（派生 summary/assertions）严格
-分开；两者默认仍是 ignored local evidence，不应未经审核直接作为论文结果。
-完整 contract 和独立重建命令见 `scripts/README.md`。
+This repository is intentionally a **non-package project** (`tool.uv.package = false`). Source entry points are run from the repository root. The lockfile covers CPU development, tests, analysis, and plotting. CUDA, vLLM, model checkpoints, container runtimes, and external baseline repositories are experiment inputs and must be frozen in each run's metadata rather than hidden in the development lock.
 
-## Baseline3
+## Portable configuration
 
-复制 example 并设置本地路径：
+Copy examples to ignored `*.local.yaml` files and replace placeholders:
 
 ```bash
 cp configs/baseline3.example.yaml configs/baseline3.local.yaml
 $EDITOR configs/baseline3.local.yaml
-scripts/run_baseline3.sh
 ```
 
-配置必须显式指定：
+Current code and runbooks do not assume a maintainer home directory. Use paths such as `/path/to/model`, repository-relative output paths, or environment variables. Immutable historical raw evidence may still contain producer-machine paths; those bytes are retained for provenance and protected by checksums.
 
-- `systems.vllm.result_dir`：与当前模型/工作负载对应且包含 `summary.json`；
-- external system repo；
-- ServerlessLLM 的 container model path。
+## Main entry points
 
-聚合器不会猜测“最新 Qwen run”或 host-to-container mount，避免跨模型污染。localhost control traffic 不继承环境 HTTP proxy。
+### vLLM lifecycle
 
-## 结果与报告
+```bash
+uv run python src/bench_vllm_lifecycle.py \
+  --model /path/to/Qwen2.5-0.5B-Instruct \
+  --python .venv/bin/python \
+  --workdir /path/to/vllm \
+  --methods sleep_l1 sleep_l2 \
+  --prompts short_short \
+  --repeats 5 \
+  --out-dir results/tmp/vllm-lifecycle
+```
 
-请求驱动切换：
+### Repeated L1 sleep/wake
+
+```bash
+uv run python src/bench_vllm_repeated_sleep_l1.py \
+  --models small=/path/to/small-model large=/path/to/large-model \
+  --out-dir results/tmp/repeated-sleep-l1 \
+  --iterations 5
+```
+
+Use `--expect-release` with physical RSS/`MemAvailable` thresholds for pressure runs and `--no-expect-release --expect-reuse` for controls.
+
+### Request-driven switching
 
 ```bash
 BASE_URL=http://127.0.0.1:9000 \
 TRACE=configs/traces/request-switch-alternating.jsonl \
-OUTPUT=results/tmp/request-switch/w1.jsonl \
+OUTPUT=results/tmp/request-switch/alternating.jsonl \
 scripts/run_request_switch.sh
 ```
 
-manifest 使用绝对 `scheduled_offset_s`，每个请求独立调度且共享一个 async HTTP client；失败和 timeout 仍写入输出。仓库提供 alternating 与 burst-locality 两条小 trace。
+The trace uses absolute monotonic arrival offsets. A strict success requires HTTP 2xx, no transport/protocol error, a complete SSE stream, semantic first-token timing, and non-empty semantic output. Failed requests remain in raw output.
 
-- artifact policy：`results/README.md`；
-- physical reclaim curated summary：`results/profiling/physical_reclaim_validation.json`；
-- Baseline3：`docs/reports/baseline3-qwen2p5-*.md`；
-- pin/no-pin：`docs/reports/vllm-pin-compare.md`；
-- historical repeated-sleep runs：`docs/reports/phase1-two-model-pool.md`；
-- copy microbench：`docs/reports/cumem-copy-microbench.md`。
-- request-driven multi-model switching：`docs/reports/request-driven-multi-model-switch.md`，最新 curated artifact 位于 `results/request_switch/latest/`。
-- 当前阶段 OSDI-style lifecycle/E2E 汇总：`results/osdi_20260723/README.md`。
+### Exact disk tier
 
-历史报告保留当时的路径、字段和结论以便审计，不代表当前 CLI。当前复现命令以本 README、`src/README.md` 和 `--help` 为准。
+```bash
+uv run python scripts/run_exact_disk_profile.py \
+  --model model=/path/to/model \
+  --backup-root runtime/exact-disk-backups \
+  --out-dir results/tmp/exact-disk/model/RUN_ID \
+  -- /path/to/python /path/to/model_agnostic_driver.py
+```
 
-## 论文实验最低要求
+The wrapper records disk I/O, source/fallback, process RSS, host `MemAvailable`, footprint growth, and output equality. It keeps raw and curated output separate and refuses to overwrite an existing destination.
 
-1. 成功和失败样本都保留，禁止只筛选成功 run。
-2. 比较组使用相同模型、prompt、dtype、GPU budget 和软件版本。
-3. 报告 raw samples、重复次数和聚合方法，不只给均值。
-4. logical release 用 application accounting；physical reclaim 同时用 worker RSS 和 host `MemAvailable`。
-5. pressure/no-pressure 成对运行，并由 harness assertion 判定 release、reuse 和最小物理恢复。
-6. 不通过耗尽共享机器 RAM 触发压力；使用提高水位的安全受控测试。
+## Release artifact
+
+`results/release-v0.1/` is the only canonical release artifact root. Rebuild and verify it from retained inputs with:
+
+```bash
+uv run python scripts/build_release_artifact.py
+uv run python scripts/build_release_checksums.py
+uv run python scripts/verify_release_artifact.py
+```
+
+The final GPU campaign must publish a new atomic bundle with runtime-bound commits/images/configs and must not mix existing exploratory rows with final reruns. Exact-disk measurements are part of v0.1 scope but remain blocked pending the final GPU artifact run.
+
+## Result rules
+
+1. Preserve successful, failed, timed-out, and blocked attempts with explicit status.
+2. Never publish failed or semantically invalid samples as numeric baselines.
+3. Define sleep and wake endpoints separately; only sum them when the metric is explicitly switch time.
+4. Require application accounting plus OS/GPU-visible evidence for physical release claims.
+5. Freeze model, prompt, dtype, context, GPU budget, source/image identity, and workload semantics.
+6. Build derived files deterministically from tracked inputs and verify both checksum manifests in a fresh checkout.
+
+See [`docs/release-artifact.md`](docs/release-artifact.md), [`results/README.md`](results/README.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License and citation
+
+The code is released under the [MIT License](LICENSE). Citation metadata is provided in [`CITATION.cff`](CITATION.cff).

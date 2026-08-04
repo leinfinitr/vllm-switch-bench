@@ -9,9 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "run_exact_disk_profile.py"
-DEFAULT_BACKUP_ROOT = Path(
-    "/home/ljl/research-systems/vllm-model-switch-controller/tmp"
-)
+DEFAULT_BACKUP_ROOT = (ROOT / "runtime" / "exact-disk-backups").resolve()
 
 
 def make_fake_benchmark(tmp_path: Path) -> Path:
@@ -98,7 +96,7 @@ def test_runner_kills_same_process_group_descendants_after_leader_exit(tmp_path:
     assert not Path(f"/proc/{child_pid}").exists()
 
 
-def test_dry_run_uses_controller_tmp_as_default_backup_root(tmp_path: Path):
+def test_dry_run_uses_repo_local_default_backup_root(tmp_path: Path):
     output = tmp_path / "run"
 
     proc = run_script(

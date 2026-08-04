@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master, "release/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.13"
+          enable-cache: true
+      - name: Install the locked development environment
+        run: uv sync --frozen --group dev
+      - name: Unit tests
+        run: uv run pytest tests -q
+      - name: Python lint
+        run: uv run ruff check src scripts tests
+      - name: Bash syntax
+        run: scripts/check_bash.sh
+      - name: Documentation and portability
+        run: uv run python scripts/check_docs.py
+      - name: Release artifact integrity
+        run: uv run python scripts/verify_release_artifact.py
+      - name: Git whitespace
+        run: git diff --check HEAD^
