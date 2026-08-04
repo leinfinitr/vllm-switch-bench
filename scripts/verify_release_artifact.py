@@ -122,6 +122,14 @@ def main() -> int:
             failures.append("exact-disk profile has no physical spill bytes")
         if sum(int(event.get("disk_read_bytes", 0)) for event in events) <= 0:
             failures.append("exact-disk profile has no physical restore bytes")
+        allocator_sleeps = [event for event in events if event.get("phase") == "allocator_sleep"]
+        if not allocator_sleeps or any(
+            int(event.get("cpu_backup_host_cache_flush_errors", -1)) != 0
+            or int(event.get("cpu_backup_host_cache_flush_count", 0)) <= 0
+            or int(event.get("cpu_backup_release_bytes", 0)) <= 0
+            for event in allocator_sleeps
+        ):
+            failures.append("exact-disk profile lacks a successful host-cache flush/release")
     else:
         failures.append("exact-disk profile is missing")
 
@@ -199,6 +207,10 @@ def main() -> int:
             failures.append("controller pressure evidence lacks a decreasing process RSS")
         if not pressure.get("release_response", {}).get("ok") or queued <= 0:
             failures.append("controller pressure release was not accepted")
+        if int(pressure.get("memavailable_delta_bytes", 0)) != int(
+            after.get("memavailable_bytes", 0)
+        ) - int(before.get("memavailable_bytes", 0)):
+            failures.append("controller MemAvailable delta is inconsistent with snapshots")
         after_pool = after.get("pool_stats", {})
         if (
             int(after_pool.get("pending_release_bytes", -1)) != 0
@@ -209,6 +221,19 @@ def main() -> int:
         after_clients = after.get("clients", {})
         if set(before_clients) != set(after_clients):
             failures.append("controller pressure evidence changed process incarnations")
+        elif any(
+            int(before_clients[name].get("pid", -1)) != int(after_clients[name].get("pid", -2))
+            for name in before_clients
+        ):
+            failures.append("controller pressure evidence changed client PIDs")
+        observed_rss_deltas = pressure.get("client_rss_delta_bytes", {})
+        if set(observed_rss_deltas) != set(before_clients) or any(
+            int(observed_rss_deltas[name])
+            != int(after_clients[name].get("process_tree_rss_bytes", 0))
+            - int(before_clients[name].get("process_tree_rss_bytes", 0))
+            for name in set(before_clients) & set(after_clients)
+        ):
+            failures.append("controller RSS deltas are inconsistent with snapshots")
         released_delta = sum(
             int(after_clients[name].get("released_bytes_total", 0))
             - int(before_clients[name].get("released_bytes_total", 0))
