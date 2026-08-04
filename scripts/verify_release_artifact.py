@@ -184,6 +184,15 @@ def main() -> int:
                 or matrix_rows[0].get("requests") != len(trace_rows)
             ):
                 failures.append("E2E matrix summary is incomplete or unsuccessful")
+            published_e2e_path = ARTIFACT / "raw/proposed/e2e-alternating.json"
+            if published_e2e_path.is_file():
+                published_rows = json.loads(published_e2e_path.read_text())
+                if published_rows != output_rows:
+                    failures.append(
+                        "published Proposed E2E rows differ from the digest-bound output"
+                    )
+            else:
+                failures.append("published Proposed E2E rows are missing")
     else:
         failures.append("E2E trace/output identity inputs are incomplete")
 
