@@ -85,11 +85,17 @@ def main() -> int:
     # Nested producer manifests must be self-contained release-relative indexes,
     # never pointers back to a collector's local ignored tree.
     for manifest in sorted((ARTIFACT / "provenance").glob("*.sha256")):
-        for _digest, relative in parse_manifest(manifest):
+        for expected_digest, relative in parse_manifest(manifest):
             if Path(relative).is_absolute() or ".." in Path(relative).parts:
                 failures.append(f"non-portable nested provenance path: {relative}")
-            elif not (ARTIFACT / relative).is_file():
+                continue
+            candidate = ARTIFACT / relative
+            if candidate.is_symlink():
+                failures.append(f"nested provenance path is a symlink: {relative}")
+            elif not candidate.is_file():
                 failures.append(f"nested provenance path is missing: {relative}")
+            elif hashlib.sha256(candidate.read_bytes()).hexdigest() != expected_digest:
+                failures.append(f"nested provenance checksum mismatch: {relative}")
 
     summary = ARTIFACT / "summary.json"
     if summary.is_file():
