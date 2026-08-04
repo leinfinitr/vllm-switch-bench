@@ -27,7 +27,7 @@
     "controller_release_tag": "v0.1.2",
     "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
     "benchmark_release_commit": "07d167068b60953494d12eebd08f3618c4256864",
-    "benchmark_release_tag": "v0.1.2",
+    "benchmark_release_tag": "v0.1.3",
     "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
     "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe"
   }
