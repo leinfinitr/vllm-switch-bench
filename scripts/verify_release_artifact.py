@@ -33,7 +33,17 @@ def parse_manifest(path: Path) -> list[tuple[str, str]]:
 
 
 def tracked_paths() -> set[str]:
-    output = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT)
+    try:
+        output = subprocess.check_output(
+            ["git", "ls-files", "-z"], cwd=ROOT, stderr=subprocess.DEVNULL
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Release archives intentionally omit .git. The immutable complete
+        # manifest becomes the packaged tracked-file inventory in that case.
+        return {relative for _digest, relative in parse_manifest(COMPLETE)} | {
+            PUBLICATION.relative_to(ROOT).as_posix(),
+            COMPLETE.relative_to(ROOT).as_posix(),
+        }
     return {item.decode() for item in output.split(b"\0") if item}
 
 
