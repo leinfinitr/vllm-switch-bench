@@ -1,6 +1,6 @@
 # vLLM sleep-mode baseline
 
-**Status:** current runnable baseline; final v0.1 GPU rows still require rerun.
+**Status:** current runnable baseline; final v0.1 GPU rows are published.
 
 The harness keeps lifecycle phases separate:
 

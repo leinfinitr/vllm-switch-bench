@@ -1,6 +1,6 @@
 # SwapServeLLM
 
-**Status:** current external lifecycle baseline; final v0.1 GPU rows still require rerun.
+**Status:** current external lifecycle baseline; final v0.1 GPU rows are published.
 
 The canonical project name is **SwapServeLLM**. Historical machine-readable slugs and directories use `swapserve_llm`; those identifiers remain unchanged for provenance.
 

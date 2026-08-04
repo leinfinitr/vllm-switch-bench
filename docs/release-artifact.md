@@ -2,7 +2,9 @@
 
 ## Status
 
-`results/release-v0.1/` is the single canonical release artifact root. The current bundle is an **exploratory carry-forward built from existing data** and proves the publication pipeline, not final confirmatory results. Final GPU artifact reruns are deliberately deferred.
+`results/release-v0.1/` is the single canonical release artifact root. The
+current bundle is the final 2026-08-04 v0.1 single-node, single-GPU campaign.
+It is a research preview, not a production or cluster-scale result set.
 
 ## Layout
 
@@ -10,7 +12,8 @@
 results/release-v0.1/
   README.md                 Human-readable scope, boundaries, status, and blockers
   raw/                      Immutable retained producer evidence
-  configs/                  Exact sanitized run configurations and frozen trace
+  campaign.json             Scope and immutable source identities
+  provenance/               Producer checksums and binary identities
   lifecycle-summary.csv     Deterministic lifecycle aggregate
   summary.json              Deterministic complete aggregate and provenance
   figures/                  Deterministic PDF/PNG outputs
@@ -56,4 +59,5 @@ Any blocked system remains in a structured `blocked/` or status record and is ex
 
 Sleep/evict and wake/restore remain separate. Only an explicitly named switch-time metric may sum them. llama-swap's automatic routing E2E latency includes queueing and process switching, while its lifecycle rows come from process-state instrumentation; the two are not interchangeable.
 
-All current v0.1 results remain exploratory until the final independent reset-block campaign is complete.
+The final campaign and deterministic rebuild are complete. Future corrections
+must create a new staged bundle rather than modify checksummed raw evidence.

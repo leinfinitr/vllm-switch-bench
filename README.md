@@ -2,7 +2,11 @@
 
 LLM Switch Bench is a research harness and evidence repository for measuring large-language-model lifecycle operations and request-driven model switching. It separates reusable runners, machine-local execution, immutable raw evidence, and deterministic publication artifacts.
 
-> **v0.1 release candidate:** code, documentation, environment, and artifact policy are ready for final GPU reruns. The checked-in `results/release-v0.1/` bundle contains existing exploratory data only; it is not the final confirmatory result set.
+> **v0.1 research preview:** the checked-in `results/release-v0.1/` bundle is
+> the final single-node, single-GPU release campaign. It contains five lifecycle
+> cycles per model/system, strict request traces, stock-vLLM instrumentation,
+> and an exact-disk GPU restore run. It is not a production or cluster-scale
+> evaluation.
 
 ## Scope
 
@@ -31,7 +35,6 @@ scripts/                    Orchestration, release builders, and checks
 docs/                       Current English runbooks and artifact policy
 docs/archive/reports/       Historical reports; not current instructions
 results/release-v0.1/       Canonical v0.1 release artifact bundle
-results/{baselines,...}/    Historical/superseded result families
 results/tmp/                Ignored local output
 runtime/                    Ignored external-runtime and backup state
 ```
@@ -123,7 +126,9 @@ uv run python scripts/build_release_checksums.py
 uv run python scripts/verify_release_artifact.py
 ```
 
-The final GPU campaign must publish a new atomic bundle with runtime-bound commits/images/configs and must not mix existing exploratory rows with final reruns. Exact-disk measurements are part of v0.1 scope but remain blocked pending the final GPU artifact run.
+The bundle was atomically replaced after the final GPU campaign. Exact-disk
+measurements are included under `raw/exact-disk/`; ServerlessLLM remains a
+structured blocker and is excluded from numeric plots.
 
 ## Result rules
 
@@ -138,4 +143,4 @@ See [`docs/release-artifact.md`](docs/release-artifact.md), [`results/README.md`
 
 ## License and citation
 
-The code is released under the [MIT License](LICENSE). Citation metadata is provided in [`CITATION.cff`](CITATION.cff).
+The code is released under the [Apache License 2.0](LICENSE). Citation metadata is provided in [`CITATION.cff`](CITATION.cff).

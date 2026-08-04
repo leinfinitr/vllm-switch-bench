@@ -38,6 +38,7 @@ ee19af22e2ab55a988c76352fbc3ad29cb1bc0cebe3bf7f6d9e6cef284a056f7  results/releas
 715e59a7d903fc8c463da0c30d6482c8395f931c0776ca68f977b330aaae80c6  results/release-v0.1/raw/proposed/qwen-3b.json
 e65a3c28e5ef3447be4497f4641edc946243e5fb84f7d03f8b34f9a6fc2ae083  results/release-v0.1/raw/proposed/qwen-3b.sleep_profile.jsonl
 b0d079891a1d20d15158463aebfed51434e2359050490dcd9bf262b24d265bb7  results/release-v0.1/raw/serverless/status.json
+82d9cf6ff94bc975909173cb28a1654f5077c1fb3946e9d1bd5018d8a6028a42  results/release-v0.1/raw/swapserve/benchmark.patch.txt
 174a3e39a331118c468b596453c2cef6971c76f64cbabab93fc472e116098931  results/release-v0.1/raw/swapserve/qwen-0.5b.json
 deb4c8854dc4eabd653f6d7f6a094481425b0c637ecc8f86caf93fb23e57eb46  results/release-v0.1/raw/swapserve/qwen-1.5b.json
 685dde3bbb94246fe5d34031291608d8c0e4b671be485fac01a3c380e9e220ab  results/release-v0.1/raw/swapserve/qwen-3b.json

@@ -6,7 +6,7 @@ authors:
   - family-names: Liu
     given-names: Jialong
 version: 0.1.0
-license: MIT
+license: Apache-2.0
 repository-code: "https://github.com/leinfinitr/llm-switch-bench"
 url: "https://github.com/leinfinitr/llm-switch-bench"
 keywords:
