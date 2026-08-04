@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -106,6 +107,85 @@ def main() -> int:
                 failures.append(f"nested provenance path is missing: {relative}")
             elif hashlib.sha256(candidate.read_bytes()).hexdigest() != expected_digest:
                 failures.append(f"nested provenance checksum mismatch: {relative}")
+
+    trace_path = ARTIFACT / (
+        "raw/provenance-inputs/proposed-e2e-raw/request-switch-alternating.jsonl"
+    )
+    e2e_output_path = ARTIFACT / (
+        "raw/provenance-inputs/proposed-e2e-raw/proposed-request-switch-alternating-r0.jsonl"
+    )
+    matrix_path = ARTIFACT / "raw/provenance-inputs/proposed-e2e-raw/matrix.json"
+    if trace_path.is_file() and e2e_output_path.is_file() and matrix_path.is_file():
+        try:
+            trace_rows = [json.loads(line) for line in trace_path.read_text().splitlines() if line]
+            output_rows = [
+                json.loads(line) for line in e2e_output_path.read_text().splitlines() if line
+            ]
+            matrix_rows = json.loads(matrix_path.read_text())
+        except (json.JSONDecodeError, OSError) as exc:
+            failures.append(f"cannot parse E2E trace/output identity inputs: {exc}")
+        else:
+            trace_by_id = {row.get("request_id"): row for row in trace_rows}
+            output_by_id = {row.get("request_id"): row for row in output_rows}
+            if None in trace_by_id or len(trace_by_id) != len(trace_rows):
+                failures.append("E2E trace has missing or duplicate request IDs")
+            if None in output_by_id or len(output_by_id) != len(output_rows):
+                failures.append("E2E output has missing or duplicate request IDs")
+            if set(trace_by_id) != set(output_by_id):
+                failures.append("E2E trace/output request IDs differ")
+            identity_fields = (
+                "endpoint",
+                "model",
+                "prompt_name",
+                "max_tokens",
+                "temperature",
+                "seed",
+                "stream",
+                "scheduled_offset_s",
+            )
+            for request_id in set(trace_by_id) & set(output_by_id):
+                trace = trace_by_id[request_id]
+                output = output_by_id[request_id]
+                if any(output.get(field) != trace.get(field) for field in identity_fields):
+                    failures.append(f"E2E trace/output identity mismatch: {request_id}")
+                    break
+                timings = (
+                    output.get("completion_latency_ms"),
+                    output.get("semantic_ttft_ms"),
+                    output.get("dispatch_lag_ms"),
+                )
+                if any(
+                    isinstance(value, bool)
+                    or not isinstance(value, (int, float))
+                    or not math.isfinite(value)
+                    or value < 0
+                    for value in timings
+                ):
+                    failures.append(f"E2E output has invalid timings: {request_id}")
+                    break
+                if (
+                    output.get("status") != 200
+                    or output.get("error") is not None
+                    or output.get("stream_done") is not True
+                    or not str(output.get("output_text", "")).strip()
+                ):
+                    failures.append(f"E2E output fails strict success: {request_id}")
+                    break
+            expected_trace_sha = hashlib.sha256(trace_path.read_bytes()).hexdigest()
+            expected_output_sha = hashlib.sha256(e2e_output_path.read_bytes()).hexdigest()
+            if len(matrix_rows) != 1 or matrix_rows[0].get("manifest_sha256") != expected_trace_sha:
+                failures.append("E2E matrix is not bound to the frozen trace")
+            if len(matrix_rows) != 1 or matrix_rows[0].get("output_sha256") != expected_output_sha:
+                failures.append("E2E matrix is not bound to the retained output")
+            if len(matrix_rows) == 1 and (
+                matrix_rows[0].get("return_code") != 0
+                or matrix_rows[0].get("failed") != 0
+                or matrix_rows[0].get("rows") != len(trace_rows)
+                or matrix_rows[0].get("requests") != len(trace_rows)
+            ):
+                failures.append("E2E matrix summary is incomplete or unsuccessful")
+    else:
+        failures.append("E2E trace/output identity inputs are incomplete")
 
     summary = ARTIFACT / "summary.json"
     if summary.is_file():
