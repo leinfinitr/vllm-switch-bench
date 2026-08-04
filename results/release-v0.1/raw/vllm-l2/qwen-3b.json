@@ -1,0 +1,277 @@
+{
+  "created_at": "2026-08-04T11:40:33.288848+00:00",
+  "system": "vLLM L2",
+  "model": "qwen-3b",
+  "model_path": "/home/ljl/models/hf/Qwen2.5-3B-Instruct",
+  "cycles": 5,
+  "sleep_level": 2,
+  "rows": [
+    {
+      "cycle": 0,
+      "sleep_s": 0.16847399063408375,
+      "wake_s": 1.481755525805056,
+      "output_match": true,
+      "output": " You are allowed to use up to "
+    },
+    {
+      "cycle": 1,
+      "sleep_s": 0.15914852730929852,
+      "wake_s": 1.5376146491616964,
+      "output_match": true,
+      "output": " You are allowed to use up to "
+    },
+    {
+      "cycle": 2,
+      "sleep_s": 0.15876482613384724,
+      "wake_s": 1.477532991208136,
+      "output_match": true,
+      "output": " You are allowed to use up to "
+    },
+    {
+      "cycle": 3,
+      "sleep_s": 0.15891772974282503,
+      "wake_s": 1.4429530892521143,
+      "output_match": true,
+      "output": " You are allowed to use up to "
+    },
+    {
+      "cycle": 4,
+      "sleep_s": 0.15874982625246048,
+      "wake_s": 1.4162585968151689,
+      "output_match": true,
+      "output": " You are allowed to use up to "
+    }
+  ],
+  "sleep_events": [
+    {
+      "accounted_s": 0.16180982813239098,
+      "allocation_count": 148,
+      "allocations_by_tag": {
+        "kv_cache": 36,
+        "weights": 112
+      },
+      "assign_backup_s": 0.0,
+      "backup_bytes": 0,
+      "backup_bytes_by_tag": {},
+      "bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_count": 0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_data_ptr_s": 0.0,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 1.4306046068668365e-05,
+      "discard_bytes": 7144996864,
+      "discard_bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "empty_cache_s": 0.009052189998328686,
+      "gc_s": 0.0007873512804508209,
+      "latency_s": 0.16181121300905943,
+      "logger_s": 0.00018666870892047882,
+      "loop_accounted_s": 0.15175045561045408,
+      "loop_s": 0.151783618144691,
+      "loop_unaccounted_s": 3.316253423690796e-05,
+      "metadata_s": 2.386234700679779e-05,
+      "monotonic_s": 7258816.255583994,
+      "offload_tags": [],
+      "phase": "allocator_sleep",
+      "pid": 503343,
+      "total_bytes": 7144996864,
+      "ts": 1785843624.2693841,
+      "unaccounted_s": 1.3848766684532166e-06,
+      "unmap_release_s": 0.15166617278009653
+    },
+    {
+      "accounted_s": 0.15474595967680216,
+      "allocation_count": 148,
+      "allocations_by_tag": {
+        "kv_cache": 36,
+        "weights": 112
+      },
+      "assign_backup_s": 0.0,
+      "backup_bytes": 0,
+      "backup_bytes_by_tag": {},
+      "bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_count": 0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_data_ptr_s": 0.0,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 1.5387311577796936e-05,
+      "discard_bytes": 7144996864,
+      "discard_bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "empty_cache_s": 0.00017440132796764374,
+      "gc_s": 0.0008429884910583496,
+      "latency_s": 0.15474676340818405,
+      "logger_s": 0.00024332664906978607,
+      "loop_accounted_s": 0.15345694590359926,
+      "loop_s": 0.15348524320870638,
+      "loop_unaccounted_s": 2.82973051071167e-05,
+      "metadata_s": 2.4653039872646332e-05,
+      "monotonic_s": 7258817.983271558,
+      "offload_tags": [],
+      "phase": "allocator_sleep",
+      "pid": 503343,
+      "total_bytes": 7144996864,
+      "ts": 1785843625.9970715,
+      "unaccounted_s": 8.03731381893158e-07,
+      "unmap_release_s": 0.15336807072162628
+    },
+    {
+      "accounted_s": 0.15435888059437275,
+      "allocation_count": 148,
+      "allocations_by_tag": {
+        "kv_cache": 36,
+        "weights": 112
+      },
+      "assign_backup_s": 0.0,
+      "backup_bytes": 0,
+      "backup_bytes_by_tag": {},
+      "bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_count": 0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_data_ptr_s": 0.0,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 1.4661811292171478e-05,
+      "discard_bytes": 7144996864,
+      "discard_bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "empty_cache_s": 0.00019333511590957642,
+      "gc_s": 0.0008575059473514557,
+      "latency_s": 0.1543593890964985,
+      "logger_s": 0.00021041277796030045,
+      "loop_accounted_s": 0.15305844321846962,
+      "loop_s": 0.15309762675315142,
+      "loop_unaccounted_s": 3.918353468179703e-05,
+      "metadata_s": 2.3339875042438507e-05,
+      "monotonic_s": 7258819.766146035,
+      "offload_tags": [],
+      "phase": "allocator_sleep",
+      "pid": 503343,
+      "total_bytes": 7144996864,
+      "ts": 1785843627.7799463,
+      "unaccounted_s": 5.085021257400513e-07,
+      "unmap_release_s": 0.15297370683401823
+    },
+    {
+      "accounted_s": 0.15452334843575954,
+      "allocation_count": 148,
+      "allocations_by_tag": {
+        "kv_cache": 36,
+        "weights": 112
+      },
+      "assign_backup_s": 0.0,
+      "backup_bytes": 0,
+      "backup_bytes_by_tag": {},
+      "bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_count": 0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_data_ptr_s": 0.0,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 1.6205012798309326e-05,
+      "discard_bytes": 7144996864,
+      "discard_bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "empty_cache_s": 0.00019354186952114105,
+      "gc_s": 0.0007027005776762962,
+      "latency_s": 0.15452386625111103,
+      "logger_s": 0.00021250639110803604,
+      "loop_accounted_s": 0.1533881863579154,
+      "loop_s": 0.15341459959745407,
+      "loop_unaccounted_s": 2.6413239538669586e-05,
+      "metadata_s": 2.4878419935703278e-05,
+      "monotonic_s": 7258821.48886887,
+      "offload_tags": [],
+      "phase": "allocator_sleep",
+      "pid": 503343,
+      "total_bytes": 7144996864,
+      "ts": 1785843629.502669,
+      "unaccounted_s": 5.178153514862061e-07,
+      "unmap_release_s": 0.1532977046445012
+    },
+    {
+      "accounted_s": 0.15432680025696754,
+      "allocation_count": 148,
+      "allocations_by_tag": {
+        "kv_cache": 36,
+        "weights": 112
+      },
+      "assign_backup_s": 0.0,
+      "backup_bytes": 0,
+      "backup_bytes_by_tag": {},
+      "bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "copy_d2h_s": 0.0,
+      "cpu_backup_alloc_count": 0,
+      "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_data_ptr_s": 0.0,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 1.5261583030223846e-05,
+      "discard_bytes": 7144996864,
+      "discard_bytes_by_tag": {
+        "kv_cache": 830472192,
+        "weights": 6314524672
+      },
+      "empty_cache_s": 0.00019782781600952148,
+      "gc_s": 0.0007072901353240013,
+      "latency_s": 0.15432736463844776,
+      "logger_s": 0.0002131303772330284,
+      "loop_accounted_s": 0.1531819049268961,
+      "loop_s": 0.153208551928401,
+      "loop_unaccounted_s": 2.664700150489807e-05,
+      "metadata_s": 2.4164095520973206e-05,
+      "monotonic_s": 7258823.177203702,
+      "offload_tags": [],
+      "phase": "allocator_sleep",
+      "pid": 503343,
+      "total_bytes": 7144996864,
+      "ts": 1785843631.1910038,
+      "unaccounted_s": 5.6438148021698e-07,
+      "unmap_release_s": 0.15309310518205166
+    }
+  ],
+  "medians": {
+    "sleep_s": 0.15891772974282503,
+    "wake_s": 1.477532991208136
+  },
+  "mechanism_check": {
+    "all_outputs_match": true,
+    "all_sleep_copy_d2h_zero": true,
+    "all_sleep_reused_bytes_positive": false
+  },
+  "environment": {
+    "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
+    "vllm": {
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
+      "tracked_dirty": false
+    }
+  },
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/vllm-stock-l2/qwen-3b.sleep_profile.jsonl"
+}

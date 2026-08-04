@@ -1,0 +1,160 @@
+{
+  "mode": "release",
+  "switches": [
+    {
+      "model": "qwen-0.5b",
+      "latency_s": 0.13250091392546892
+    },
+    {
+      "model": "qwen-1.5b",
+      "latency_s": 0.4768726918846369
+    },
+    {
+      "model": "qwen-0.5b",
+      "latency_s": 0.2554530240595341
+    },
+    {
+      "model": "qwen-1.5b",
+      "latency_s": 0.3795807147398591
+    },
+    {
+      "model": "qwen-0.5b",
+      "latency_s": 0.25558285880833864
+    }
+  ],
+  "before": {
+    "captured_at": 1785839166.5050623,
+    "memavailable_bytes": 42700582912,
+    "clients": {
+      "release-v0.1-qwen-0.5b-455152-1785839128055053072": {
+        "pid": 455152,
+        "rss_bytes": 3828781056,
+        "process_tree_rss_bytes": 3828781056,
+        "total_bytes": 1048576000,
+        "released_bytes_total": 0,
+        "required_for_restore_bytes": 0,
+        "cache_only_bytes": 1048576000,
+        "requested_release_bytes_total": 0
+      },
+      "release-v0.1-qwen-1.5b-455321-1785839141047152084": {
+        "pid": 455321,
+        "rss_bytes": 5912047616,
+        "process_tree_rss_bytes": 5912047616,
+        "total_bytes": 3250585600,
+        "released_bytes_total": 0,
+        "required_for_restore_bytes": 3250585600,
+        "cache_only_bytes": 0,
+        "requested_release_bytes_total": 0
+      }
+    },
+    "pool_stats": {
+      "client_count": 2,
+      "total_bytes": 4299161600,
+      "global_cap_bytes": null,
+      "default_model_priority": 0,
+      "model_priorities": {},
+      "over_cap_bytes": 0,
+      "required_for_restore_bytes": 3250585600,
+      "cache_only_bytes": 1048576000,
+      "invalid_bytes": 0,
+      "free_local_bytes": 0,
+      "disk_backup_current_bytes": 4299161600,
+      "disk_backup_reserved_bytes": 4299161600,
+      "disk_backup_client_count": 2,
+      "ram_reclaimable_without_disk_bytes": 1048576000,
+      "ram_reclaimable_with_disk_bytes": 3250585600,
+      "evictable_bytes": 4299161600,
+      "pending_release_bytes": 0,
+      "pending_release_request_count": 0
+    },
+    "memory_pressure": {
+      "enabled": false,
+      "state": "disabled",
+      "reclaim_available_ratio": null,
+      "recovery_available_ratio": null,
+      "reclaim_available_bytes": 0,
+      "recovery_available_bytes": 0,
+      "reclaim_watermark_bytes": 0,
+      "recovery_watermark_bytes": 0,
+      "low_samples": 0,
+      "target_release_bytes": 0,
+      "last_queued": {},
+      "total_requested_bytes": 0,
+      "unresolved_pressure_bytes": 0,
+      "probe_errors": 0,
+      "last_error": null
+    }
+  },
+  "release_response": {
+    "ok": true,
+    "queued_bytes": 1048576000
+  },
+  "after": {
+    "captured_at": 1785839171.5221708,
+    "memavailable_bytes": 44378746880,
+    "clients": {
+      "release-v0.1-qwen-0.5b-455152-1785839128055053072": {
+        "pid": 455152,
+        "rss_bytes": 1981227008,
+        "process_tree_rss_bytes": 1981227008,
+        "total_bytes": 0,
+        "released_bytes_total": 1048576000,
+        "required_for_restore_bytes": 0,
+        "cache_only_bytes": 0,
+        "requested_release_bytes_total": 1048576000
+      },
+      "release-v0.1-qwen-1.5b-455321-1785839141047152084": {
+        "pid": 455321,
+        "rss_bytes": 5912047616,
+        "process_tree_rss_bytes": 5912047616,
+        "total_bytes": 3250585600,
+        "released_bytes_total": 0,
+        "required_for_restore_bytes": 3250585600,
+        "cache_only_bytes": 0,
+        "requested_release_bytes_total": 0
+      }
+    },
+    "pool_stats": {
+      "client_count": 2,
+      "total_bytes": 3250585600,
+      "global_cap_bytes": null,
+      "default_model_priority": 0,
+      "model_priorities": {},
+      "over_cap_bytes": 0,
+      "required_for_restore_bytes": 3250585600,
+      "cache_only_bytes": 0,
+      "invalid_bytes": 0,
+      "free_local_bytes": 0,
+      "disk_backup_current_bytes": 4299161600,
+      "disk_backup_reserved_bytes": 4299161600,
+      "disk_backup_client_count": 2,
+      "ram_reclaimable_without_disk_bytes": 0,
+      "ram_reclaimable_with_disk_bytes": 3250585600,
+      "evictable_bytes": 3250585600,
+      "pending_release_bytes": 0,
+      "pending_release_request_count": 0
+    },
+    "memory_pressure": {
+      "enabled": false,
+      "state": "disabled",
+      "reclaim_available_ratio": null,
+      "recovery_available_ratio": null,
+      "reclaim_available_bytes": 0,
+      "recovery_available_bytes": 0,
+      "reclaim_watermark_bytes": 0,
+      "recovery_watermark_bytes": 0,
+      "low_samples": 0,
+      "target_release_bytes": 0,
+      "last_queued": {},
+      "total_requested_bytes": 0,
+      "unresolved_pressure_bytes": 0,
+      "probe_errors": 0,
+      "last_error": null
+    }
+  },
+  "memavailable_delta_bytes": 1678163968,
+  "client_rss_delta_bytes": {
+    "release-v0.1-qwen-0.5b-455152-1785839128055053072": -1847554048,
+    "release-v0.1-qwen-1.5b-455321-1785839141047152084": 0
+  }
+}

@@ -1,65 +1,292 @@
 {
-  "created_at": "2026-07-23T02:42:28.043992+00:00",
+  "created_at": "2026-08-04T11:38:03.952603+00:00",
   "system": "vLLM L1",
   "model": "qwen-0.5b",
   "model_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
   "cycles": 5,
+  "sleep_level": 1,
   "rows": [
     {
       "cycle": 0,
-      "sleep_s": 0.4149699183180928,
-      "wake_s": 0.1739828735589981,
+      "sleep_s": 0.4151056222617626,
+      "wake_s": 0.3183130342513323,
       "output_match": true,
       "output": " Yes, I can do that. I"
     },
     {
       "cycle": 1,
-      "sleep_s": 0.08933353237807751,
-      "wake_s": 0.15398158505558968,
+      "sleep_s": 0.0857049897313118,
+      "wake_s": 0.3154966617003083,
       "output_match": true,
       "output": " Yes, I can do that. I"
     },
     {
       "cycle": 2,
-      "sleep_s": 0.08970199804753065,
-      "wake_s": 0.15386532619595528,
+      "sleep_s": 0.08587905298918486,
+      "wake_s": 0.31531245820224285,
       "output_match": true,
       "output": " Yes, I can do that. I"
     },
     {
       "cycle": 3,
-      "sleep_s": 0.08928144257515669,
-      "wake_s": 0.1542814252898097,
+      "sleep_s": 0.08555757720023394,
+      "wake_s": 0.31445261370390654,
       "output_match": true,
       "output": " Yes, I can do that. I"
     },
     {
       "cycle": 4,
-      "sleep_s": 0.08979170583188534,
-      "wake_s": 0.1537927845492959,
+      "sleep_s": 0.08565117418766022,
+      "wake_s": 0.31446624267846346,
       "output_match": true,
       "output": " Yes, I can do that. I"
     }
   ],
-  "sleep_events": [],
+  "sleep_events": [
+    {
+      "accounted_s": 0.4119769614189863,
+      "allocation_count": 65,
+      "allocations_by_tag": {
+        "kv_cache": 24,
+        "weights": 41
+      },
+      "assign_backup_s": 1.843087375164032e-05,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 6291456000,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.05461445823311806,
+      "cpu_backup_alloc_count": 41,
+      "cpu_backup_alloc_s": 0.3264693384990096,
+      "cpu_backup_data_ptr_s": 3.2483600080013275e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 4.993751645088196e-06,
+      "discard_bytes": 6291456000,
+      "discard_bytes_by_tag": {
+        "kv_cache": 6291456000
+      },
+      "empty_cache_s": 0.002985580824315548,
+      "gc_s": 0.001131630502641201,
+      "latency_s": 0.41197784524410963,
+      "logger_s": 0.0001307399943470955,
+      "loop_accounted_s": 0.407699141651392,
+      "loop_s": 0.4077290100976825,
+      "loop_unaccounted_s": 2.986844629049301e-05,
+      "metadata_s": 3.626290708780289e-05,
+      "monotonic_s": 7258673.241320559,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502303,
+      "total_bytes": 7340032000,
+      "ts": 1785843481.2551208,
+      "unaccounted_s": 8.838251233100891e-07,
+      "unmap_release_s": 0.02646546997129917
+    },
+    {
+      "accounted_s": 0.083362627774477,
+      "allocation_count": 65,
+      "allocations_by_tag": {
+        "kv_cache": 24,
+        "weights": 41
+      },
+      "assign_backup_s": 3.268010914325714e-06,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 6291456000,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.05335910618305206,
+      "cpu_backup_alloc_count": 41,
+      "cpu_backup_alloc_s": 7.52648338675499e-05,
+      "cpu_backup_data_ptr_s": 6.137415766716003e-06,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.4158507585525513e-06,
+      "discard_bytes": 6291456000,
+      "discard_bytes_by_tag": {
+        "kv_cache": 6291456000
+      },
+      "empty_cache_s": 0.0008336473256349564,
+      "gc_s": 0.00010894425213336945,
+      "latency_s": 0.08336324151605368,
+      "logger_s": 9.235180914402008e-05,
+      "loop_accounted_s": 0.08231217879801989,
+      "loop_s": 0.08232768438756466,
+      "loop_unaccounted_s": 1.5505589544773102e-05,
+      "metadata_s": 1.3739801943302155e-05,
+      "monotonic_s": 7258673.666171041,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502303,
+      "total_bytes": 7340032000,
+      "ts": 1785843481.6799712,
+      "unaccounted_s": 6.137415766716003e-07,
+      "unmap_release_s": 0.028821732848882675
+    },
+    {
+      "accounted_s": 0.08335017878562212,
+      "allocation_count": 65,
+      "allocations_by_tag": {
+        "kv_cache": 24,
+        "weights": 41
+      },
+      "assign_backup_s": 2.9224902391433716e-06,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 6291456000,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.053344300016760826,
+      "cpu_backup_alloc_count": 41,
+      "cpu_backup_alloc_s": 7.042195647954941e-05,
+      "cpu_backup_data_ptr_s": 6.143003702163696e-06,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.2081658244132996e-06,
+      "discard_bytes": 6291456000,
+      "discard_bytes_by_tag": {
+        "kv_cache": 6291456000
+      },
+      "empty_cache_s": 0.0008511794731020927,
+      "gc_s": 0.00010889023542404175,
+      "latency_s": 0.083351188339293,
+      "logger_s": 7.476657629013062e-05,
+      "loop_accounted_s": 0.08230259735137224,
+      "loop_s": 0.08231534250080585,
+      "loop_unaccounted_s": 1.2745149433612823e-05,
+      "metadata_s": 1.370999962091446e-05,
+      "monotonic_s": 7258674.087670829,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502303,
+      "total_bytes": 7340032000,
+      "ts": 1785843482.101471,
+      "unaccounted_s": 1.0095536708831787e-06,
+      "unmap_release_s": 0.0288346316665411
+    },
+    {
+      "accounted_s": 0.08330474700778723,
+      "allocation_count": 65,
+      "allocations_by_tag": {
+        "kv_cache": 24,
+        "weights": 41
+      },
+      "assign_backup_s": 2.7818605303764343e-06,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 6291456000,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.053334969095885754,
+      "cpu_backup_alloc_count": 41,
+      "cpu_backup_alloc_s": 7.002893835306168e-05,
+      "cpu_backup_data_ptr_s": 7.058493793010712e-06,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.3283064365386963e-06,
+      "discard_bytes": 6291456000,
+      "discard_bytes_by_tag": {
+        "kv_cache": 6291456000
+      },
+      "empty_cache_s": 0.0008777407929301262,
+      "gc_s": 8.739903569221497e-05,
+      "latency_s": 0.08330509718507528,
+      "logger_s": 6.240047514438629e-05,
+      "loop_accounted_s": 0.0822645965963602,
+      "loop_s": 0.0822772067040205,
+      "loop_unaccounted_s": 1.2610107660293579e-05,
+      "metadata_s": 1.3971701264381409e-05,
+      "monotonic_s": 7258674.50836061,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502303,
+      "total_bytes": 7340032000,
+      "ts": 1785843482.522161,
+      "unaccounted_s": 3.501772880554199e-07,
+      "unmap_release_s": 0.02880508452653885
+    },
+    {
+      "accounted_s": 0.08329194877296686,
+      "allocation_count": 65,
+      "allocations_by_tag": {
+        "kv_cache": 24,
+        "weights": 41
+      },
+      "assign_backup_s": 2.566725015640259e-06,
+      "backup_bytes": 1048576000,
+      "backup_bytes_by_tag": {
+        "weights": 1048576000
+      },
+      "bytes_by_tag": {
+        "kv_cache": 6291456000,
+        "weights": 1048576000
+      },
+      "copy_d2h_s": 0.05334520619362593,
+      "cpu_backup_alloc_count": 41,
+      "cpu_backup_alloc_s": 6.803963333368301e-05,
+      "cpu_backup_data_ptr_s": 5.8105215430259705e-06,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.2258609533309937e-06,
+      "discard_bytes": 6291456000,
+      "discard_bytes_by_tag": {
+        "kv_cache": 6291456000
+      },
+      "empty_cache_s": 0.0008684583008289337,
+      "gc_s": 8.980371057987213e-05,
+      "latency_s": 0.0832922961562872,
+      "logger_s": 7.04033300280571e-05,
+      "loop_accounted_s": 0.08225067798048258,
+      "loop_s": 0.08226328343153,
+      "loop_unaccounted_s": 1.2605451047420502e-05,
+      "metadata_s": 1.3852491974830627e-05,
+      "monotonic_s": 7258674.928559488,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502303,
+      "total_bytes": 7340032000,
+      "ts": 1785843482.9423594,
+      "unaccounted_s": 3.473833203315735e-07,
+      "unmap_release_s": 0.028781107626855373
+    }
+  ],
   "medians": {
-    "sleep_s": 0.08970199804753065,
-    "wake_s": 0.15398158505558968
+    "sleep_s": 0.0857049897313118,
+    "wake_s": 0.31531245820224285
   },
   "mechanism_check": {
     "all_outputs_match": true,
-    "all_sleep_copy_d2h_zero": null,
-    "all_sleep_reused_bytes_positive": null
+    "all_sleep_copy_d2h_zero": false,
+    "all_sleep_reused_bytes_positive": false
   },
   "environment": {
     "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
     "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
     "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
     "vllm": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     }
   },
-  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-stock/qwen-0.5b.sleep_profile.jsonl"
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/vllm-stock-l1/qwen-0.5b.sleep_profile.jsonl"
 }

@@ -1,42 +1,43 @@
 {
-  "created_at": "2026-07-23T02:42:56.019938+00:00",
+  "created_at": "2026-08-04T11:37:13.516255+00:00",
   "system": "Proposed",
   "model": "qwen-1.5b",
   "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
   "cycles": 5,
+  "sleep_level": 1,
   "rows": [
     {
       "cycle": 0,
-      "sleep_s": 0.10497540514916182,
-      "wake_s": 0.26793962623924017,
+      "sleep_s": 0.11071232985705137,
+      "wake_s": 0.34164948388934135,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 1,
-      "sleep_s": 0.09830331057310104,
-      "wake_s": 0.2633993960916996,
+      "sleep_s": 0.10558245331048965,
+      "wake_s": 0.3362028365954757,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 2,
-      "sleep_s": 0.09820562228560448,
-      "wake_s": 0.26409988570958376,
+      "sleep_s": 0.10559959430247545,
+      "wake_s": 0.33664548862725496,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 3,
-      "sleep_s": 0.09820419456809759,
-      "wake_s": 0.26373637840151787,
+      "sleep_s": 0.1053255321457982,
+      "wake_s": 0.33662478160113096,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 4,
-      "sleep_s": 0.09847690165042877,
-      "wake_s": 0.2634820006787777,
+      "sleep_s": 0.10552578512579203,
+      "wake_s": 0.33280964475125074,
       "output_match": true,
       "output": " 2023-01"
     }
@@ -49,37 +50,39 @@
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 1291845632,
+        "kv_cache": 3875536896,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
       "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_allocated_bytes": 0,
       "cpu_backup_coordinator_enabled": false,
       "cpu_backup_host_cache_flush_count": 0,
       "cpu_backup_host_cache_flush_errors": 0,
       "cpu_backup_pin_memory": true,
       "cpu_backup_pool_free_bytes": 0,
-      "cpu_backup_pool_hit_count": 0,
-      "cpu_backup_pool_miss_count": 0,
       "cpu_backup_pool_reserved_bytes": 3250585600,
       "cpu_backup_release_bytes": 0,
       "cpu_backup_release_count": 0,
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
-      "discard_bytes": 1291845632,
+      "diagnostic_only": true,
+      "discard_bytes": 3875536896,
       "discard_bytes_by_tag": {
-        "kv_cache": 1291845632
+        "kv_cache": 3875536896
       },
-      "latency_s": 0.10297792684286833,
-      "monotonic_s": 6189765.20577539,
+      "latency_s": 0.10871150903403759,
+      "monotonic_s": 7258622.314993026,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 3480646,
-      "total_bytes": 4542431232,
-      "ts": 1784774573.2195756,
-      "unmap_release_s": 0.09626456815749407
+      "pid": 501823,
+      "schema": "aipc2.vllm.sleep-backup-profile",
+      "schema_version": 1,
+      "total_bytes": 7126122496,
+      "ts": 1785843430.328793,
+      "unmap_release_s": 0.10335395112633705
     },
     {
       "allocation_count": 104,
@@ -88,37 +91,39 @@
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 1291845632,
+        "kv_cache": 3875536896,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
       "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_allocated_bytes": 0,
       "cpu_backup_coordinator_enabled": false,
       "cpu_backup_host_cache_flush_count": 0,
       "cpu_backup_host_cache_flush_errors": 0,
       "cpu_backup_pin_memory": true,
       "cpu_backup_pool_free_bytes": 0,
-      "cpu_backup_pool_hit_count": 0,
-      "cpu_backup_pool_miss_count": 0,
       "cpu_backup_pool_reserved_bytes": 3250585600,
       "cpu_backup_release_bytes": 0,
       "cpu_backup_release_count": 0,
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
-      "discard_bytes": 1291845632,
+      "diagnostic_only": true,
+      "discard_bytes": 3875536896,
       "discard_bytes_by_tag": {
-        "kv_cache": 1291845632
+        "kv_cache": 3875536896
       },
-      "latency_s": 0.09657882805913687,
-      "monotonic_s": 6189765.619378162,
+      "latency_s": 0.1038325373083353,
+      "monotonic_s": 7258622.812681871,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 3480646,
-      "total_bytes": 4542431232,
-      "ts": 1784774573.6331785,
-      "unmap_release_s": 0.09623795840889215
+      "pid": 501823,
+      "schema": "aipc2.vllm.sleep-backup-profile",
+      "schema_version": 1,
+      "total_bytes": 7126122496,
+      "ts": 1785843430.8264818,
+      "unmap_release_s": 0.10348901152610779
     },
     {
       "allocation_count": 104,
@@ -127,37 +132,39 @@
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 1291845632,
+        "kv_cache": 3875536896,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
       "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_allocated_bytes": 0,
       "cpu_backup_coordinator_enabled": false,
       "cpu_backup_host_cache_flush_count": 0,
       "cpu_backup_host_cache_flush_errors": 0,
       "cpu_backup_pin_memory": true,
       "cpu_backup_pool_free_bytes": 0,
-      "cpu_backup_pool_hit_count": 0,
-      "cpu_backup_pool_miss_count": 0,
       "cpu_backup_pool_reserved_bytes": 3250585600,
       "cpu_backup_release_bytes": 0,
       "cpu_backup_release_count": 0,
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
-      "discard_bytes": 1291845632,
+      "diagnostic_only": true,
+      "discard_bytes": 3875536896,
       "discard_bytes_by_tag": {
-        "kv_cache": 1291845632
+        "kv_cache": 3875536896
       },
-      "latency_s": 0.09647051151841879,
-      "monotonic_s": 6189766.02815414,
+      "latency_s": 0.1036655930802226,
+      "monotonic_s": 7258623.305074567,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 3480646,
-      "total_bytes": 4542431232,
-      "ts": 1784774574.0419543,
-      "unmap_release_s": 0.09617724642157555
+      "pid": 501823,
+      "schema": "aipc2.vllm.sleep-backup-profile",
+      "schema_version": 1,
+      "total_bytes": 7126122496,
+      "ts": 1785843431.3188746,
+      "unmap_release_s": 0.10339157842099667
     },
     {
       "allocation_count": 104,
@@ -166,37 +173,39 @@
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 1291845632,
+        "kv_cache": 3875536896,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
       "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_allocated_bytes": 0,
       "cpu_backup_coordinator_enabled": false,
       "cpu_backup_host_cache_flush_count": 0,
       "cpu_backup_host_cache_flush_errors": 0,
       "cpu_backup_pin_memory": true,
       "cpu_backup_pool_free_bytes": 0,
-      "cpu_backup_pool_hit_count": 0,
-      "cpu_backup_pool_miss_count": 0,
       "cpu_backup_pool_reserved_bytes": 3250585600,
       "cpu_backup_release_bytes": 0,
       "cpu_backup_release_count": 0,
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
-      "discard_bytes": 1291845632,
+      "diagnostic_only": true,
+      "discard_bytes": 3875536896,
       "discard_bytes_by_tag": {
-        "kv_cache": 1291845632
+        "kv_cache": 3875536896
       },
-      "latency_s": 0.09646495152264833,
-      "monotonic_s": 6189766.437800685,
+      "latency_s": 0.10371295735239983,
+      "monotonic_s": 7258623.797596671,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 3480646,
-      "total_bytes": 4542431232,
-      "ts": 1784774574.4516008,
-      "unmap_release_s": 0.0961764995008707
+      "pid": 501823,
+      "schema": "aipc2.vllm.sleep-backup-profile",
+      "schema_version": 1,
+      "total_bytes": 7126122496,
+      "ts": 1785843431.8113968,
+      "unmap_release_s": 0.10342443827539682
     },
     {
       "allocation_count": 104,
@@ -205,42 +214,44 @@
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 1291845632,
+        "kv_cache": 3875536896,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
       "cpu_backup_alloc_s": 0.0,
+      "cpu_backup_allocated_bytes": 0,
       "cpu_backup_coordinator_enabled": false,
       "cpu_backup_host_cache_flush_count": 0,
       "cpu_backup_host_cache_flush_errors": 0,
       "cpu_backup_pin_memory": true,
       "cpu_backup_pool_free_bytes": 0,
-      "cpu_backup_pool_hit_count": 0,
-      "cpu_backup_pool_miss_count": 0,
       "cpu_backup_pool_reserved_bytes": 3250585600,
       "cpu_backup_release_bytes": 0,
       "cpu_backup_release_count": 0,
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
-      "discard_bytes": 1291845632,
+      "diagnostic_only": true,
+      "discard_bytes": 3875536896,
       "discard_bytes_by_tag": {
-        "kv_cache": 1291845632
+        "kv_cache": 3875536896
       },
-      "latency_s": 0.09647804033011198,
-      "monotonic_s": 6189766.847284041,
+      "latency_s": 0.10367342829704285,
+      "monotonic_s": 7258624.290216981,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 3480646,
-      "total_bytes": 4542431232,
-      "ts": 1784774574.8610842,
-      "unmap_release_s": 0.09618360549211502
+      "pid": 501823,
+      "schema": "aipc2.vllm.sleep-backup-profile",
+      "schema_version": 1,
+      "total_bytes": 7126122496,
+      "ts": 1785843432.3040168,
+      "unmap_release_s": 0.10338328033685684
     }
   ],
   "medians": {
-    "sleep_s": 0.09830331057310104,
-    "wake_s": 0.26373637840151787
+    "sleep_s": 0.10558245331048965,
+    "wake_s": 0.33662478160113096
   },
   "mechanism_check": {
     "all_outputs_match": true,
@@ -253,9 +264,9 @@
     "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
     "vllm": {
       "path": "/home/ljl/research-systems/vllm",
-      "commit": "4a0e87b62df1e72edb75e01e92614da6dd00a7d3",
+      "commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
       "tracked_dirty": false
     }
   },
-  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/proposed/qwen-1.5b.sleep_profile.jsonl"
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/proposed/qwen-1.5b.sleep_profile.jsonl"
 }

@@ -5,340 +5,337 @@
       "system": "Proposed",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.07275940477848053,
-      "q1_s": 0.0727581949904561,
-      "q3_s": 0.0737732145935297
+      "median_s": 0.050741168670356274,
+      "q1_s": 0.05066548567265272,
+      "q3_s": 0.05106340628117323
     },
     {
       "model": "qwen-0.5b",
       "system": "Proposed",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.15669931285083294,
-      "q1_s": 0.15613765455782413,
-      "q3_s": 0.1572078224271536
+      "median_s": 0.29231134708970785,
+      "q1_s": 0.29048121627420187,
+      "q3_s": 0.2967609576880932
     },
     {
       "model": "qwen-0.5b",
       "system": "vLLM L1",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.08970199804753065,
-      "q1_s": 0.08933353237807751,
-      "q3_s": 0.08979170583188534
+      "median_s": 0.0857049897313118,
+      "q1_s": 0.08565117418766022,
+      "q3_s": 0.08587905298918486
     },
     {
       "model": "qwen-0.5b",
       "system": "vLLM L1",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.15398158505558968,
-      "q1_s": 0.15386532619595528,
-      "q3_s": 0.1542814252898097
+      "median_s": 0.31531245820224285,
+      "q1_s": 0.31446624267846346,
+      "q3_s": 0.3154966617003083
     },
     {
       "model": "qwen-0.5b",
       "system": "vLLM L2",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.0622306689620018,
-      "q1_s": 0.06100630946457386,
-      "q3_s": 0.062421238981187344
+      "median_s": 0.053775690495967865,
+      "q1_s": 0.0537654934450984,
+      "q3_s": 0.05385342426598072
     },
     {
       "model": "qwen-0.5b",
       "system": "vLLM L2",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.29365903604775667,
-      "q1_s": 0.28134050127118826,
-      "q3_s": 0.3040325539186597
+      "median_s": 0.4308017557486892,
+      "q1_s": 0.4298224952071905,
+      "q3_s": 0.4318449907004833
     },
     {
       "model": "qwen-0.5b",
       "system": "SwapServeLLM",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.4126087436452508,
-      "q1_s": 0.4106977693736553,
-      "q3_s": 0.4128348892554641
+      "median_s": 0.44082711078226566,
+      "q1_s": 0.4385090693831444,
+      "q3_s": 0.4429585738107562
     },
     {
       "model": "qwen-0.5b",
       "system": "SwapServeLLM",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.3969401139765978,
-      "q1_s": 0.395999520085752,
-      "q3_s": 0.3985619228333235
+      "median_s": 0.43157107662409544,
+      "q1_s": 0.4295143522322178,
+      "q3_s": 0.4316222183406353
     },
     {
       "model": "qwen-0.5b",
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.296581208,
-      "q1_s": 0.296552484,
-      "q3_s": 0.299440652
+      "median_s": 0.311849107,
+      "q1_s": 0.295493644,
+      "q3_s": 0.327733921
     },
     {
       "model": "qwen-0.5b",
       "system": "llama-swap",
       "phase": "wake",
       "n": 5,
-      "median_s": 12.25959485,
-      "q1_s": 12.259152576,
-      "q3_s": 12.260837852
+      "median_s": 11.273113973,
+      "q1_s": 11.272652902,
+      "q3_s": 11.273204252
     },
     {
       "model": "qwen-1.5b",
       "system": "Proposed",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.09830331057310104,
-      "q1_s": 0.09820562228560448,
-      "q3_s": 0.09847690165042877
+      "median_s": 0.10558245331048965,
+      "q1_s": 0.10552578512579203,
+      "q3_s": 0.10559959430247545
     },
     {
       "model": "qwen-1.5b",
       "system": "Proposed",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.26373637840151787,
-      "q1_s": 0.2634820006787777,
-      "q3_s": 0.26409988570958376
+      "median_s": 0.33662478160113096,
+      "q1_s": 0.3362028365954757,
+      "q3_s": 0.33664548862725496
     },
     {
       "model": "qwen-1.5b",
       "system": "vLLM L1",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.2001335583627224,
-      "q1_s": 0.20003367122262716,
-      "q3_s": 0.20059684850275517
+      "median_s": 0.20587693247944117,
+      "q1_s": 0.20535635203123093,
+      "q3_s": 0.2060784948989749
     },
     {
       "model": "qwen-1.5b",
       "system": "vLLM L1",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.2643505437299609,
-      "q1_s": 0.2643032241612673,
-      "q3_s": 0.2649392820894718
+      "median_s": 0.33504830207675695,
+      "q1_s": 0.3341145562008023,
+      "q3_s": 0.33517206367105246
     },
     {
       "model": "qwen-1.5b",
       "system": "vLLM L2",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.11721284501254559,
-      "q1_s": 0.11713685933500528,
-      "q3_s": 0.11893889587372541
+      "median_s": 0.10863084625452757,
+      "q1_s": 0.10848758835345507,
+      "q3_s": 0.10880979523062706
     },
     {
       "model": "qwen-1.5b",
       "system": "vLLM L2",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.6536334902048111,
-      "q1_s": 0.650479587726295,
-      "q3_s": 0.7093137437477708
+      "median_s": 0.6951010785996914,
+      "q1_s": 0.694784346036613,
+      "q3_s": 0.6952484678477049
     },
     {
       "model": "qwen-1.5b",
       "system": "SwapServeLLM",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.6203934838995337,
-      "q1_s": 0.6188639970496297,
-      "q3_s": 0.6358181312680244
+      "median_s": 0.6618002168834209,
+      "q1_s": 0.6570898648351431,
+      "q3_s": 0.6622531302273273
     },
     {
       "model": "qwen-1.5b",
       "system": "SwapServeLLM",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.606721525080502,
-      "q1_s": 0.6042717332020402,
-      "q3_s": 0.6140718059614301
+      "median_s": 0.6560735246166587,
+      "q1_s": 0.6528878984972835,
+      "q3_s": 0.6600196529179811
     },
     {
       "model": "qwen-1.5b",
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.298077571,
-      "q1_s": 0.295378648,
-      "q3_s": 0.299397854
+      "median_s": 0.292531394,
+      "q1_s": 0.292505052,
+      "q3_s": 0.29787409
     },
     {
       "model": "qwen-1.5b",
       "system": "llama-swap",
       "phase": "wake",
       "n": 5,
-      "median_s": 12.258968552,
-      "q1_s": 12.258790567,
-      "q3_s": 12.260737124
+      "median_s": 12.273512146,
+      "q1_s": 12.272566358,
+      "q3_s": 12.275101267
     },
     {
       "model": "qwen-3b",
       "system": "Proposed",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.15588403027504683,
-      "q1_s": 0.1557814246043563,
-      "q3_s": 0.1571155423298478
+      "median_s": 0.15661145467311144,
+      "q1_s": 0.15658946614712477,
+      "q3_s": 0.1567243067547679
     },
     {
       "model": "qwen-3b",
       "system": "Proposed",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.4773695860058069,
-      "q1_s": 0.47639763727784157,
-      "q3_s": 0.47830558754503727
+      "median_s": 0.47706698160618544,
+      "q1_s": 0.47669821605086327,
+      "q3_s": 0.4771578721702099
     },
     {
       "model": "qwen-3b",
       "system": "vLLM L1",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.3528639720752835,
-      "q1_s": 0.35279009491205215,
-      "q3_s": 0.3540599336847663
+      "median_s": 0.3490944169461727,
+      "q1_s": 0.34870145935565233,
+      "q3_s": 0.3492412315681577
     },
     {
       "model": "qwen-3b",
       "system": "vLLM L1",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.47725914884358644,
-      "q1_s": 0.4765551798045635,
-      "q3_s": 0.4775986121967435
+      "median_s": 0.47435503732413054,
+      "q1_s": 0.4740958968177438,
+      "q3_s": 0.4750942764803767
     },
     {
       "model": "qwen-3b",
       "system": "vLLM L2",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.17011544108390808,
-      "q1_s": 0.16940237395465374,
-      "q3_s": 0.17110721953213215
+      "median_s": 0.15891772974282503,
+      "q1_s": 0.15876482613384724,
+      "q3_s": 0.15914852730929852
     },
     {
       "model": "qwen-3b",
       "system": "vLLM L2",
       "phase": "wake",
       "n": 5,
-      "median_s": 1.5237060813233256,
-      "q1_s": 1.5146344704553485,
-      "q3_s": 1.5435133567079902
+      "median_s": 1.477532991208136,
+      "q1_s": 1.4429530892521143,
+      "q3_s": 1.481755525805056
     },
     {
       "model": "qwen-3b",
       "system": "SwapServeLLM",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.9089099299162626,
-      "q1_s": 0.9070155592635274,
-      "q3_s": 0.9090828318148851
+      "median_s": 0.9314349535852671,
+      "q1_s": 0.9248143965378404,
+      "q3_s": 0.9322177264839411
     },
     {
       "model": "qwen-3b",
       "system": "SwapServeLLM",
       "phase": "wake",
       "n": 5,
-      "median_s": 0.9851995268836617,
-      "q1_s": 0.9833247475326061,
-      "q3_s": 0.9880281873047352
+      "median_s": 1.0165607379749417,
+      "q1_s": 1.0141072804108262,
+      "q3_s": 1.0288763623684645
     },
     {
       "model": "qwen-3b",
       "system": "llama-swap",
       "phase": "sleep",
       "n": 5,
-      "median_s": 0.294997112,
-      "q1_s": 0.290590005,
-      "q3_s": 0.296136963
+      "median_s": 0.29239115,
+      "q1_s": 0.287881607,
+      "q3_s": 0.299045366
     },
     {
       "model": "qwen-3b",
       "system": "llama-swap",
       "phase": "wake",
       "n": 5,
-      "median_s": 13.261039419,
-      "q1_s": 13.260027628,
-      "q3_s": 13.261504232
+      "median_s": 13.275931994,
+      "q1_s": 13.275597484,
+      "q3_s": 13.276225743
     }
   ],
   "e2e": {
     "Proposed": {
       "requests": 20,
       "failed": 0,
-      "median_s": 0.796468906570226,
-      "min_s": 0.3148356657475233,
-      "max_s": 1.0377309108152986
+      "median_s": 0.8592341188341379,
+      "min_s": 0.27825945895165205,
+      "max_s": 1.0812097070738673
     },
     "llama-swap": {
       "requests": 20,
       "failed": 0,
-      "median_s": 45.889654784463346,
-      "min_s": 25.608995907008648,
-      "max_s": 66.18138026632369
+      "median_s": 12.867600118741393,
+      "min_s": 0.5950972540304065,
+      "max_s": 25.13788827136159
     }
   },
   "provenance": {
     "Proposed:qwen-0.5b": {
       "path": "/home/ljl/research-systems/vllm",
-      "commit": "4a0e87b62df1e72edb75e01e92614da6dd00a7d3",
+      "commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
       "tracked_dirty": false
     },
     "Proposed:qwen-1.5b": {
       "path": "/home/ljl/research-systems/vllm",
-      "commit": "4a0e87b62df1e72edb75e01e92614da6dd00a7d3",
+      "commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
       "tracked_dirty": false
     },
     "Proposed:qwen-3b": {
       "path": "/home/ljl/research-systems/vllm",
-      "commit": "4a0e87b62df1e72edb75e01e92614da6dd00a7d3",
+      "commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
       "tracked_dirty": false
     },
     "vLLM L1:qwen-0.5b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "vLLM L1:qwen-1.5b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "vLLM L1:qwen-3b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "llama-swap": {
-      "path": "/home/ljl/research-systems/llama-swap",
+      "path": "/home/ljl/research-systems/llama-swap-profile-worktree",
       "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
       "tracked_dirty": true
     },
     "vLLM L2:qwen-0.5b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
-      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "vLLM L2:qwen-1.5b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
-      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "vLLM L2:qwen-3b": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
-      "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     },
     "SwapServeLLM": {

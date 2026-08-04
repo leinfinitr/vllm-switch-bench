@@ -1,0 +1,22 @@
+{
+  "after": {
+    "finish_reason": "length",
+    "text": " Paris. It was founded in 789 AD by Charlemagne,"
+  },
+  "before": {
+    "finish_reason": "length",
+    "text": " Paris. It was founded in 789 AD by Charlemagne,"
+  },
+  "demotion": {
+    "results": [
+      {
+        "pending_release_bytes": 0,
+        "released": true,
+        "released_bytes_total": 1048576000,
+        "remaining_cpu_backup_bytes": 0,
+        "requested_bytes": 1048576000
+      }
+    ]
+  },
+  "schema_version": 1
+}

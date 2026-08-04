@@ -89,17 +89,18 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
             )
             for row in rows
         ]
-        l2_path = sorted((RAW / "vllm-l2-runs" / model).glob("*/summary.json"))[-1]
-        l2_rows = [row for row in json_file(l2_path) if row["ok"]]
+        # Final v0.1 collection uses the same strict in-process producer for
+        # all vLLM cells, including the full L2 wake transaction.
+        l2_path = RAW / "vllm-l2" / f"{model}.json"
+        l2_data = json_file(l2_path)
+        l2_rows = [row for row in l2_data["rows"] if row["output_match"]]
         values[("vLLM L2", model, "sleep")] = [
-            float(row["evict"]["latency_s"]) for row in l2_rows
+            float(row["sleep_s"]) for row in l2_rows
         ]
         values[("vLLM L2", model, "wake")] = [
-            float(row["restore"]["latency_s"]) for row in l2_rows
+            float(row["wake_s"]) for row in l2_rows
         ]
-        provenance[f"vLLM L2:{model}"] = json_file(
-            l2_path.with_name("metadata.json")
-        )["engine_git"]
+        provenance[f"vLLM L2:{model}"] = l2_data["environment"]["vllm"]
         swapserve = json_file(RAW / "swapserve" / f"{model}.json")
         values[("SwapServeLLM", model, "sleep")] = [
             float(row["sleep_s"]) for row in swapserve["rows"]

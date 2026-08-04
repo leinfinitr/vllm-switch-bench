@@ -1,65 +1,292 @@
 {
-  "created_at": "2026-07-23T02:43:13.975261+00:00",
+  "created_at": "2026-08-04T11:38:55.790667+00:00",
   "system": "vLLM L1",
   "model": "qwen-1.5b",
   "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
   "cycles": 5,
+  "sleep_level": 1,
   "rows": [
     {
       "cycle": 0,
-      "sleep_s": 0.9012561971321702,
-      "wake_s": 0.2666047429665923,
+      "sleep_s": 0.9268926810473204,
+      "wake_s": 0.35064322873950005,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 1,
-      "sleep_s": 0.20003367122262716,
-      "wake_s": 0.26412632782012224,
+      "sleep_s": 0.20535635203123093,
+      "wake_s": 0.33504830207675695,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 2,
-      "sleep_s": 0.2001335583627224,
-      "wake_s": 0.2649392820894718,
+      "sleep_s": 0.20587693247944117,
+      "wake_s": 0.3341145562008023,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 3,
-      "sleep_s": 0.19991069938987494,
-      "wake_s": 0.2643505437299609,
+      "sleep_s": 0.2060784948989749,
+      "wake_s": 0.33280294947326183,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 4,
-      "sleep_s": 0.20059684850275517,
-      "wake_s": 0.2643032241612673,
+      "sleep_s": 0.20507681462913752,
+      "wake_s": 0.33517206367105246,
       "output_match": true,
       "output": " 2023-01"
     }
   ],
-  "sleep_events": [],
+  "sleep_events": [
+    {
+      "accounted_s": 0.924395346082747,
+      "allocation_count": 104,
+      "allocations_by_tag": {
+        "kv_cache": 28,
+        "weights": 76
+      },
+      "assign_backup_s": 2.7723610401153564e-05,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3875536896,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16867451928555965,
+      "cpu_backup_alloc_count": 76,
+      "cpu_backup_alloc_s": 0.7124022804200649,
+      "cpu_backup_data_ptr_s": 6.571784615516663e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 6.647780537605286e-06,
+      "discard_bytes": 3875536896,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3875536896
+      },
+      "empty_cache_s": 0.00505409948527813,
+      "gc_s": 0.0011393604800105095,
+      "latency_s": 0.9243962299078703,
+      "logger_s": 0.0001294948160648346,
+      "loop_accounted_s": 0.9180254992097616,
+      "loop_s": 0.9180723913013935,
+      "loop_unaccounted_s": 4.689209163188934e-05,
+      "metadata_s": 6.908364593982697e-05,
+      "monotonic_s": 7258724.223533804,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502714,
+      "total_bytes": 7126122496,
+      "ts": 1785843532.237334,
+      "unaccounted_s": 8.838251233100891e-07,
+      "unmap_release_s": 0.036677999421954155
+    },
+    {
+      "accounted_s": 0.20336295291781425,
+      "allocation_count": 104,
+      "allocations_by_tag": {
+        "kv_cache": 28,
+        "weights": 76
+      },
+      "assign_backup_s": 5.398876965045929e-06,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3875536896,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16492746584117413,
+      "cpu_backup_alloc_count": 76,
+      "cpu_backup_alloc_s": 0.00013771001249551773,
+      "cpu_backup_data_ptr_s": 1.0358169674873352e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 3.3276155591011047e-06,
+      "discard_bytes": 3875536896,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3875536896
+      },
+      "empty_cache_s": 6.348825991153717e-06,
+      "gc_s": 0.00013642292469739914,
+      "latency_s": 0.20336366165429354,
+      "logger_s": 0.0001099761575460434,
+      "loop_accounted_s": 0.2030889242887497,
+      "loop_s": 0.20311020500957966,
+      "loop_unaccounted_s": 2.1280720829963684e-05,
+      "metadata_s": 2.5073997676372528e-05,
+      "monotonic_s": 7258724.832096525,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502714,
+      "total_bytes": 7126122496,
+      "ts": 1785843532.8458967,
+      "unaccounted_s": 7.087364792823792e-07,
+      "unmap_release_s": 0.03793002665042877
+    },
+    {
+      "accounted_s": 0.203748295083642,
+      "allocation_count": 104,
+      "allocations_by_tag": {
+        "kv_cache": 28,
+        "weights": 76
+      },
+      "assign_backup_s": 5.416572093963623e-06,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3875536896,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16538841370493174,
+      "cpu_backup_alloc_count": 76,
+      "cpu_backup_alloc_s": 0.00012618768960237503,
+      "cpu_backup_data_ptr_s": 1.055002212524414e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 3.1637027859687805e-06,
+      "discard_bytes": 3875536896,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3875536896
+      },
+      "empty_cache_s": 8.063390851020813e-06,
+      "gc_s": 0.00011691730469465256,
+      "latency_s": 0.203749124892056,
+      "logger_s": 0.00012857280671596527,
+      "loop_accounted_s": 0.2034748811274767,
+      "loop_s": 0.20349474158138037,
+      "loop_unaccounted_s": 1.986045390367508e-05,
+      "metadata_s": 2.6610679924488068e-05,
+      "monotonic_s": 7258725.425155027,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502714,
+      "total_bytes": 7126122496,
+      "ts": 1785843533.4389553,
+      "unaccounted_s": 8.298084139823914e-07,
+      "unmap_release_s": 0.037864552810788155
+    },
+    {
+      "accounted_s": 0.2039129612967372,
+      "allocation_count": 104,
+      "allocations_by_tag": {
+        "kv_cache": 28,
+        "weights": 76
+      },
+      "assign_backup_s": 7.222406566143036e-06,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3875536896,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16534458473324776,
+      "cpu_backup_alloc_count": 76,
+      "cpu_backup_alloc_s": 0.00015873555094003677,
+      "cpu_backup_data_ptr_s": 1.1916272342205048e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.9010698199272156e-06,
+      "discard_bytes": 3875536896,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3875536896
+      },
+      "empty_cache_s": 6.654299795627594e-06,
+      "gc_s": 0.00011733733117580414,
+      "latency_s": 0.20391333103179932,
+      "logger_s": 0.00011634547263383865,
+      "loop_accounted_s": 0.20365257002413273,
+      "loop_s": 0.20367262419313192,
+      "loop_unaccounted_s": 2.00541689991951e-05,
+      "metadata_s": 2.7428381145000458e-05,
+      "monotonic_s": 7258726.017619564,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502714,
+      "total_bytes": 7126122496,
+      "ts": 1785843534.0314198,
+      "unaccounted_s": 3.6973506212234497e-07,
+      "unmap_release_s": 0.03804481960833073
+    },
+    {
+      "accounted_s": 0.203241603448987,
+      "allocation_count": 104,
+      "allocations_by_tag": {
+        "kv_cache": 28,
+        "weights": 76
+      },
+      "assign_backup_s": 5.0477683544158936e-06,
+      "backup_bytes": 3250585600,
+      "backup_bytes_by_tag": {
+        "weights": 3250585600
+      },
+      "bytes_by_tag": {
+        "kv_cache": 3875536896,
+        "weights": 3250585600
+      },
+      "copy_d2h_s": 0.16489562578499317,
+      "cpu_backup_alloc_count": 76,
+      "cpu_backup_alloc_s": 0.0001411205157637596,
+      "cpu_backup_data_ptr_s": 1.0342337191104889e-05,
+      "cpu_backup_pin_memory": true,
+      "discard_accounting_s": 2.8731301426887512e-06,
+      "discard_bytes": 3875536896,
+      "discard_bytes_by_tag": {
+        "kv_cache": 3875536896
+      },
+      "empty_cache_s": 7.689930498600006e-06,
+      "gc_s": 0.00010672863572835922,
+      "latency_s": 0.20324197970330715,
+      "logger_s": 0.00010633841156959534,
+      "loop_accounted_s": 0.20300270896404982,
+      "loop_s": 0.20302084647119045,
+      "loop_unaccounted_s": 1.8137507140636444e-05,
+      "metadata_s": 2.5122426450252533e-05,
+      "monotonic_s": 7258726.60684528,
+      "offload_tags": [
+        "weights"
+      ],
+      "phase": "allocator_sleep",
+      "pid": 502714,
+      "total_bytes": 7126122496,
+      "ts": 1785843534.6206453,
+      "unaccounted_s": 3.762543201446533e-07,
+      "unmap_release_s": 0.03787363599985838
+    }
+  ],
   "medians": {
-    "sleep_s": 0.2001335583627224,
-    "wake_s": 0.2643505437299609
+    "sleep_s": 0.20587693247944117,
+    "wake_s": 0.33504830207675695
   },
   "mechanism_check": {
     "all_outputs_match": true,
-    "all_sleep_copy_d2h_zero": null,
-    "all_sleep_reused_bytes_positive": null
+    "all_sleep_copy_d2h_zero": false,
+    "all_sleep_reused_bytes_positive": false
   },
   "environment": {
     "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
     "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
     "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
     "vllm": {
-      "path": "/home/ljl/research-systems/vllm-upstream-l1",
-      "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+      "path": "/home/ljl/research-systems/vllm-stock-profile",
+      "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
       "tracked_dirty": false
     }
   },
-  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/osdi_20260723/raw/vllm-stock/qwen-1.5b.sleep_profile.jsonl"
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/vllm-stock-l1/qwen-1.5b.sleep_profile.jsonl"
 }
