@@ -19,14 +19,14 @@
   ],
   "source_commits": {
     "vllm_collection": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
-    "vllm_release": "ee080ad73c4a4d0ae90a65975c627f7f06bce13d",
+    "vllm_release": "71071ce4d0bc65e38acf2da76eb8c6fb05b9454d",
     "vllm_upstream_baseline": "0decac0d96c42b49572498019f0a0e3600f50398",
     "vllm_stock_profiling": "03e5ae257135073ddddbcd1264697f24c1c62e08",
     "controller_collection": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
     "controller_lifecycle_fix": "87c30a4d626670f8c2af780699fd5fb7182d2ddf",
     "controller_release_tag": "v0.1.5",
     "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
-    "benchmark_release_commit": "9368b9bcf485ce47bef1df43a417ddfc0ea0635a",
+    "benchmark_artifact_closure": "9368b9be2c18bc537ca3ac9d80f0c283e1c64bd7",
     "benchmark_release_tag": "v0.1.6",
     "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
     "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe"
