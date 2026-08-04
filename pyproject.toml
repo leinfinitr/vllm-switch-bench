@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Reproducible harnesses and artifacts for LLM lifecycle and model-switch benchmarks"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-license = "MIT"
+license = "Apache-2.0"
 authors = [{ name = "Liu Jialong" }]
 dependencies = [
   "httpx==0.28.1",
