@@ -1,6 +1,6 @@
 [project]
 name = "llm-switch-bench"
-version = "0.1.0"
+version = "0.1.1"
 description = "Reproducible harnesses and artifacts for LLM lifecycle and model-switch benchmarks"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
