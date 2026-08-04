@@ -20,6 +20,7 @@ b8c90b0bb2902bdd6f2cbde2dd0553ed8c966c7eb42b0e6db151cf2dbf93a9c3  results/releas
 d6dd43eceefcd1b0554d66bfc54cf00022eae4ffaf888dae0d306c190f4e1731  results/release-v0.1/raw/exact-disk/exact_disk_profile.jsonl
 60ad25bd59c79313648e84beff242df67d5a2435964f517ff2830d788e3b8316  results/release-v0.1/raw/exact-disk/output_observation.json
 07a3d23b36cc41dfd6491bed789e4e13460bed34e47830bd093b22c565d94a29  results/release-v0.1/raw/exact-disk/payload-hash.json
+c5c4ac55a50005520ffac480a083d68b9121c604f980354444ec5ab27e31b641  results/release-v0.1/raw/exact-disk/run-metadata.json
 591376d831dc018496ea55a49f9c80925a1e669fe6cd224b35b059728f6ddf4d  results/release-v0.1/raw/llama-swap/e2e-alternating.json
 594b0bca0b292393d1e6f4d85fd045fddef7885d3e69c3616bf6c998fe53dab9  results/release-v0.1/raw/llama-swap/e2e-alternating.jsonl
 e935d4385c70199dd64793cbcd64f86add3bd0f2c447ff0cd17ce9c05d07ea1e  results/release-v0.1/raw/llama-swap/lifecycle-profile.jsonl

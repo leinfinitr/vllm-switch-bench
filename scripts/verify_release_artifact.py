@@ -99,6 +99,7 @@ def main() -> int:
             failures.append(f"summary references missing path: {patch_path}")
 
     exact_profile = ARTIFACT / "raw/exact-disk/exact_disk_profile.jsonl"
+    exact_metadata = ARTIFACT / "raw/exact-disk/run-metadata.json"
     pressure_path = ARTIFACT / "raw/proposed/controller-pressure-release.json"
     if exact_profile.is_file():
         events = [
@@ -118,6 +119,15 @@ def main() -> int:
             failures.append("exact-disk profile has no physical restore bytes")
     else:
         failures.append("exact-disk profile is missing")
+
+    if exact_metadata.is_file():
+        metadata = json.loads(exact_metadata.read_text(encoding="utf-8"))
+        if not metadata.get("engine", {}).get("collection_commit"):
+            failures.append("exact-disk run metadata lacks engine commit")
+        if not metadata.get("model") or not metadata.get("launch_parameters"):
+            failures.append("exact-disk run metadata lacks model or launch parameters")
+    else:
+        failures.append("exact-disk run metadata is missing")
 
     if pressure_path.is_file():
         pressure = json.loads(pressure_path.read_text(encoding="utf-8"))
