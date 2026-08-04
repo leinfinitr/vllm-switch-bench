@@ -1,0 +1,46 @@
+{
+  "system": "SwapServeLLM",
+  "model": "/models/hf/Qwen2.5-1.5B-Instruct",
+  "rows": [
+    {
+      "cycle": 0,
+      "sleep_s": 0.6570898648351431,
+      "wake_s": 0.6560735246166587,
+      "sleep_gpu_mib": 0,
+      "output_match": true
+    },
+    {
+      "cycle": 1,
+      "sleep_s": 0.6622531302273273,
+      "wake_s": 0.6516338856890798,
+      "sleep_gpu_mib": 0,
+      "output_match": true
+    },
+    {
+      "cycle": 2,
+      "sleep_s": 0.6503998609259725,
+      "wake_s": 0.6604194305837154,
+      "sleep_gpu_mib": 0,
+      "output_match": true
+    },
+    {
+      "cycle": 3,
+      "sleep_s": 0.6646432252600789,
+      "wake_s": 0.6528878984972835,
+      "sleep_gpu_mib": 0,
+      "output_match": true
+    },
+    {
+      "cycle": 4,
+      "sleep_s": 0.6618002168834209,
+      "wake_s": 0.6600196529179811,
+      "sleep_gpu_mib": 0,
+      "output_match": true
+    }
+  ],
+  "medians": {
+    "sleep_s": 0.6618002168834209,
+    "wake_s": 0.6560735246166587
+  },
+  "all_outputs_match": true
+}

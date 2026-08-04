@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -78,6 +79,56 @@ def main() -> int:
             failures.append(f"complete manifest omits: {missing}")
         if extra:
             failures.append(f"complete manifest has unexpected paths: {extra}")
+
+    # Nested producer manifests must be self-contained release-relative indexes,
+    # never pointers back to a collector's local ignored tree.
+    for manifest in sorted((ARTIFACT / "provenance").glob("*.sha256")):
+        for _digest, relative in parse_manifest(manifest):
+            if Path(relative).is_absolute() or ".." in Path(relative).parts:
+                failures.append(f"non-portable nested provenance path: {relative}")
+            elif not (ARTIFACT / relative).is_file():
+                failures.append(f"nested provenance path is missing: {relative}")
+
+    summary = ARTIFACT / "summary.json"
+    if summary.is_file():
+        payload = json.loads(summary.read_text(encoding="utf-8"))
+        patch_path = payload.get("provenance", {}).get("SwapServeLLM", {}).get(
+            "benchmark_patch"
+        )
+        if patch_path and not (ARTIFACT / patch_path).is_file():
+            failures.append(f"summary references missing path: {patch_path}")
+
+    exact_profile = ARTIFACT / "raw/exact-disk/exact_disk_profile.jsonl"
+    pressure_path = ARTIFACT / "raw/proposed/controller-pressure-release.json"
+    if exact_profile.is_file():
+        events = [
+            json.loads(line)
+            for line in exact_profile.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        phases = {event.get("phase") for event in events}
+        required_phases = {"exact_disk_spill", "exact_disk_demotion", "exact_disk_restore"}
+        if not required_phases <= phases:
+            failures.append("exact-disk profile omits required lifecycle phases")
+        if any(event.get("fallback") is True for event in events):
+            failures.append("exact-disk profile contains a fallback event")
+        if sum(int(event.get("disk_spill_bytes", 0)) for event in events) <= 0:
+            failures.append("exact-disk profile has no physical spill bytes")
+        if sum(int(event.get("disk_read_bytes", 0)) for event in events) <= 0:
+            failures.append("exact-disk profile has no physical restore bytes")
+    else:
+        failures.append("exact-disk profile is missing")
+
+    if pressure_path.is_file():
+        pressure = json.loads(pressure_path.read_text(encoding="utf-8"))
+        if int(pressure.get("memavailable_delta_bytes", 0)) <= 0:
+            failures.append("controller pressure evidence lacks positive MemAvailable delta")
+        if not any(
+            int(delta) < 0 for delta in pressure.get("client_rss_delta_bytes", {}).values()
+        ):
+            failures.append("controller pressure evidence lacks a decreasing process RSS")
+    else:
+        failures.append("controller physical-memory pressure evidence is missing")
 
     if failures:
         print("release artifact verification failed:", file=sys.stderr)

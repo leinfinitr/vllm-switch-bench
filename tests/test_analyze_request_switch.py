@@ -25,6 +25,7 @@ def test_summarize_request_switch_keeps_failures(tmp_path):
                         "stream_done": True,
                         "semantic_ttft_ms": 10,
                         "completion_latency_ms": 20,
+                        "output_text": "ok",
                     }
                 ),
                 json.dumps({"status": 500, "error": "x", "completion_latency_ms": 30}),

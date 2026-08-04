@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 import statistics
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from bench_request_driven_switch import failed_record  # noqa: E402
+
 RESULT = ROOT / "results" / "release-v0.1"
 RAW = RESULT / "raw"
 FIG = RESULT / "figures"
@@ -36,6 +41,11 @@ def json_file(path: Path) -> Any:
 
 def jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(f"release artifact validation failed: {message}")
 
 
 def configure() -> None:
@@ -66,6 +76,11 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
     for system, directory in (("Proposed", "proposed"), ("vLLM L1", "vllm-stock")):
         for model in MODEL_ORDER:
             data = json_file(RAW / directory / f"{model}.json")
+            require(len(data["rows"]) == 5, f"{system}/{model} must have five lifecycle rows")
+            require(
+                all(row.get("output_match") is True for row in data["rows"]),
+                f"{system}/{model} has an output mismatch",
+            )
             provenance[f"{system}:{model}"] = data["environment"]["vllm"]
             values[(system, model, "sleep")] = [float(row["sleep_s"]) for row in data["rows"]]
             values[(system, model, "wake")] = [float(row["wake_s"]) for row in data["rows"]]
@@ -73,6 +88,7 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
     provenance["llama-swap"] = llama["llama_swap_repo"]
     for model in MODEL_ORDER:
         rows = [row for row in llama["rows"] if row["model"] == model and row["ok"]]
+        require(len(rows) == 5, f"llama-swap/{model} must have five successful rows")
         values[("llama-swap", model, "sleep")] = [
             float(
                 row["sleep"].get(
@@ -94,6 +110,7 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
         l2_path = RAW / "vllm-l2" / f"{model}.json"
         l2_data = json_file(l2_path)
         l2_rows = [row for row in l2_data["rows"] if row["output_match"]]
+        require(len(l2_rows) == 5, f"vLLM L2/{model} must have five matching rows")
         values[("vLLM L2", model, "sleep")] = [
             float(row["sleep_s"]) for row in l2_rows
         ]
@@ -102,6 +119,15 @@ def lifecycle_samples() -> tuple[dict[tuple[str, str, str], list[float]], dict[s
         ]
         provenance[f"vLLM L2:{model}"] = l2_data["environment"]["vllm"]
         swapserve = json_file(RAW / "swapserve" / f"{model}.json")
+        require(len(swapserve["rows"]) == 5, f"SwapServeLLM/{model} must have five rows")
+        require(
+            all(row.get("output_match") is True for row in swapserve["rows"]),
+            f"SwapServeLLM/{model} has an output mismatch",
+        )
+        require(
+            all(float(row.get("sleep_gpu_mib", -1)) == 0 for row in swapserve["rows"]),
+            f"SwapServeLLM/{model} did not fully release model GPU memory",
+        )
         values[("SwapServeLLM", model, "sleep")] = [
             float(row["sleep_s"]) for row in swapserve["rows"]
         ]
@@ -191,6 +217,14 @@ def plot_e2e() -> dict[str, Any]:
         "llama-swap": RAW / "llama-swap" / "e2e-alternating.json",
     }
     rows = {system: json_file(path) for system, path in paths.items()}
+    for system, system_rows in rows.items():
+        require(len(system_rows) == 20, f"{system} E2E trace must contain 20 requests")
+        require(
+            len({row.get("request_id") for row in system_rows}) == len(system_rows),
+            f"{system} E2E request IDs must be unique",
+        )
+        failed = [row for row in system_rows if failed_record(row)]
+        require(not failed, f"{system} E2E trace contains {len(failed)} strict failures")
     fig, ax = plt.subplots(figsize=(3.35, 2.05), constrained_layout=True)
     for system in ("Proposed", "llama-swap"):
         y = [float(row["completion_latency_ms"]) / 1000 for row in rows[system]]
@@ -235,7 +269,7 @@ def plot_e2e() -> dict[str, Any]:
     return {
         system: {
             "requests": len(system_rows),
-            "failed": sum(bool(row.get("error")) or int(row.get("status", 0)) != 200 for row in system_rows),
+            "failed": sum(failed_record(row) for row in system_rows),
             "median_s": statistics.median(float(row["completion_latency_ms"]) / 1000 for row in system_rows),
             "min_s": min(float(row["completion_latency_ms"]) / 1000 for row in system_rows),
             "max_s": max(float(row["completion_latency_ms"]) / 1000 for row in system_rows),

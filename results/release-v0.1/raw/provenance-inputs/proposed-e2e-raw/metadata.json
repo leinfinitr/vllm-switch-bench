@@ -1,0 +1,56 @@
+{
+  "created_at": "2026-08-04T11:54:53.167846+00:00",
+  "argv": [
+    "/home/ljl/research-systems/llm-switch-bench/scripts/run_cross_system_matrix.py",
+    "--systems",
+    "proposed=http://127.0.0.1:18300",
+    "--manifests",
+    "/home/ljl/research-systems/llm-switch-bench/results/release-v0.1/configs/request-switch-alternating.jsonl",
+    "--repeats",
+    "1",
+    "--order-seed",
+    "20260721",
+    "--request-timeout-s",
+    "180",
+    "--ready-timeout-s",
+    "240",
+    "--out-dir",
+    "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/proposed-e2e/matrix"
+  ],
+  "systems": [
+    {
+      "name": "proposed",
+      "base_url": "http://127.0.0.1:18300",
+      "launch": null,
+      "cwd": null,
+      "ready_url": null,
+      "env": null
+    }
+  ],
+  "manifests": [
+    {
+      "path": "/home/ljl/research-systems/llm-switch-bench/results/release-v0.1/configs/request-switch-alternating.jsonl",
+      "repo_relative_path": "results/release-v0.1/configs/request-switch-alternating.jsonl",
+      "sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb"
+    }
+  ],
+  "repeats": 1,
+  "order_seed": 20260721,
+  "order": [
+    {
+      "system": "proposed",
+      "manifest": "request-switch-alternating.jsonl",
+      "repeat": 0
+    }
+  ],
+  "machine": {
+    "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+  },
+  "benchmark_git": {
+    "path": "/home/ljl/research-systems/llm-switch-bench",
+    "commit": "9ad35876ba1b7921f8e1547698a1a8412709078e",
+    "tree": "08e1c4c852b00e12ccdd3a12aca66e10d552b5e6",
+    "tracked_dirty": false
+  }
+}

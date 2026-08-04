@@ -116,13 +116,20 @@ def validate_manifest_identity(
     rows = [json.loads(line) for line in output_path.read_text().splitlines() if line]
     if len(rows) != len(expected):
         raise ValueError(f"row count mismatch: expected={len(expected)} actual={len(rows)}")
+    expected_by_id = {str(request["request_id"]): request for request in expected}
+    rows_by_id = {str(row.get("request_id")): row for row in rows}
+    if len(expected_by_id) != len(expected) or len(rows_by_id) != len(rows):
+        raise ValueError("request IDs must be unique in manifest and output")
+    if rows_by_id.keys() != expected_by_id.keys():
+        raise ValueError("request ID set mismatch between manifest and output")
     frozen_fields = tuple(sorted(REQUIRED_FIELDS))
-    for index, (request, row) in enumerate(zip(expected, rows, strict=True)):
+    for request_id, request in expected_by_id.items():
+        row = rows_by_id[request_id]
         frozen = tuple(request.get(field) for field in frozen_fields)
         observed = tuple(row.get(field) for field in frozen_fields)
         if frozen != observed:
             raise ValueError(
-                f"request identity mismatch at row {index}: {observed} != {frozen}"
+                f"request identity mismatch for {request_id}: {observed} != {frozen}"
             )
     return rows
 

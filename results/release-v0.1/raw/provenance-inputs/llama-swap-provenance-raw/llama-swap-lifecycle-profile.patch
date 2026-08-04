@@ -1,0 +1,96 @@
+diff --git a/internal/process/process_command.go b/internal/process/process_command.go
+index 2ecd003..8ded925 100644
+--- a/internal/process/process_command.go
++++ b/internal/process/process_command.go
+@@ -2,14 +2,17 @@ package process
+ 
+ import (
+ 	"context"
++	"encoding/json"
+ 	"fmt"
+ 	"net"
+ 	"net/http"
+ 	"net/http/httptest"
+ 	"net/http/httputil"
+ 	"net/url"
++	"os"
+ 	"os/exec"
+ 	"strings"
++	"sync"
+ 	"sync/atomic"
+ 	"time"
+ 
+@@ -21,6 +24,44 @@ import (
+ 
+ var ErrStartAborted = fmt.Errorf("aborted")
+ 
++var lifecycleProfileMu sync.Mutex
++
++type lifecycleProfileEvent struct {
++	Model       string  `json:"model"`
++	Phase       string  `json:"phase"`
++	StartedAt   string  `json:"started_at"`
++	EndedAt     string  `json:"ended_at"`
++	DurationSec float64 `json:"duration_s"`
++	Success     bool    `json:"success"`
++}
++
++func emitLifecycleProfile(model, phase string, started time.Time, success bool) {
++	path := os.Getenv("LLAMA_SWAP_LIFECYCLE_PROFILE_PATH")
++	if path == "" {
++		return
++	}
++	ended := time.Now()
++	payload, err := json.Marshal(lifecycleProfileEvent{
++		Model:       model,
++		Phase:       phase,
++		StartedAt:   started.UTC().Format(time.RFC3339Nano),
++		EndedAt:     ended.UTC().Format(time.RFC3339Nano),
++		DurationSec: ended.Sub(started).Seconds(),
++		Success:     success,
++	})
++	if err != nil {
++		return
++	}
++	lifecycleProfileMu.Lock()
++	defer lifecycleProfileMu.Unlock()
++	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
++	if err != nil {
++		return
++	}
++	defer file.Close()
++	_, _ = file.Write(append(payload, '\n'))
++}
++
+ // cmdWaitDelay is the upper bound the runtime will wait for child I/O to
+ // drain after the process exits before force-closing the stdout/stderr
+ // pipes. Required so that cmd.Wait() returns even when a forked grandchild
+@@ -129,11 +170,28 @@ func (p *ProcessCommand) run() {
+ 	// p.state mirrors `state` so State() can observe transitions; setState
+ 	// writes both.
+ 	state := StateStopped
++	var wakeStartedAt, sleepStartedAt time.Time
+ 	setState := func(s ProcessState) {
+ 		old := state
++		now := time.Now()
+ 		state = s
+ 		p.state.Store(s)
+ 		if old != s {
++			switch {
++			case old == StateStopped && s == StateStarting:
++				wakeStartedAt = now
++			case old == StateStarting && s == StateReady && !wakeStartedAt.IsZero():
++				emitLifecycleProfile(p.id, "wake", wakeStartedAt, true)
++				wakeStartedAt = time.Time{}
++			case old == StateStarting && s == StateStopped && !wakeStartedAt.IsZero():
++				emitLifecycleProfile(p.id, "wake", wakeStartedAt, false)
++				wakeStartedAt = time.Time{}
++			case old == StateReady && s == StateStopping:
++				sleepStartedAt = now
++			case old == StateStopping && s == StateStopped && !sleepStartedAt.IsZero():
++				emitLifecycleProfile(p.id, "sleep_process", sleepStartedAt, true)
++				sleepStartedAt = time.Time{}
++			}
+ 			event.Emit(shared.ProcessStateChangeEvent{
+ 				ProcessName: p.id,
+ 				OldState:    string(old),

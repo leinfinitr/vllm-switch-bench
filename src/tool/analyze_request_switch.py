@@ -8,6 +8,8 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
+from bench_request_driven_switch import failed_record
+
 def percentile(values: list[float], q: float) -> float | None:
     if not values:
         return None
@@ -99,14 +101,7 @@ def summarize(root: Path) -> dict[str, Any]:
         )
     summary: dict[str, Any] = {}
     for workload, rows in grouped.items():
-        successful = [
-            row
-            for row in rows
-            if row.get("status")
-            and 200 <= int(row["status"]) < 300
-            and not row.get("error")
-            and row.get("stream_done") is True
-        ]
+        successful = [row for row in rows if not failed_record(row)]
         ttft = [
             float(row["semantic_ttft_ms"])
             for row in successful

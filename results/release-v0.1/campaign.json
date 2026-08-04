@@ -21,8 +21,10 @@
     "vllm": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
     "vllm_upstream_baseline": "0decac0d96c42b49572498019f0a0e3600f50398",
     "vllm_stock_profiling": "03e5ae257135073ddddbcd1264697f24c1c62e08",
-    "controller": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
-    "benchmark": "9ad35876ba1b7921f8e1547698a1a8412709078e",
+    "controller_collection": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
+    "controller_release": "ca68ef7",
+    "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
+    "benchmark_release": "post-1cdde35 patch release",
     "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
     "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe"
   }

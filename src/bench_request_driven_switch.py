@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import math
 import time
 from pathlib import Path
 from typing import Any
@@ -137,6 +138,11 @@ async def _dispatch_one(
 
 def failed_record(record: dict[str, Any]) -> bool:
     status = record.get("status")
+    timing_fields = ("semantic_ttft_ms", "completion_latency_ms", "tpot_ms")
+    timings_valid = all(
+        value is None or (isinstance(value, (int, float)) and math.isfinite(float(value)))
+        for value in (record.get(field) for field in timing_fields)
+    )
     return (
         status is None
         or not 200 <= int(status) < 300
@@ -144,6 +150,7 @@ def failed_record(record: dict[str, Any]) -> bool:
         or not bool(record.get("stream_done"))
         or record.get("semantic_ttft_ms") is None
         or not str(record.get("output_text") or "").strip()
+        or not timings_valid
     )
 
 
@@ -186,6 +193,8 @@ async def main_async() -> None:
     write_jsonl(args.output, records)
     failed = sum(failed_record(record) for record in records)
     print(json.dumps({"requests": len(records), "failed": failed, "output": args.output}))
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

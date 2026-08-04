@@ -1,4 +1,4 @@
-cd323c45283a61ff044cf9b13b7287d8c8247fb135c59c68e92cdfd2563dfa8f  /home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/proposed-e2e/matrix/matrix.json
-bd03ba216a50d551cc86165d717071f67a18e22de52ae3bd17ecf640f3ad13dd  /home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/proposed-e2e/matrix/metadata.json
-b5c9f5d7bbc201ca25c26689cf129b18859f1c3302b18867b9d7abc541366d60  /home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/proposed-e2e/matrix/proposed-request-switch-alternating-r0.run.json
-3b16a51405003bf0a8dc20d6a8d2b12422ef51bc86b698c8b7776c2b71c00c3d  /home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/proposed-e2e/matrix/proposed-request-switch-alternating-r0.jsonl
+cd323c45283a61ff044cf9b13b7287d8c8247fb135c59c68e92cdfd2563dfa8f  raw/provenance-inputs/proposed-e2e-raw/matrix.json
+bd03ba216a50d551cc86165d717071f67a18e22de52ae3bd17ecf640f3ad13dd  raw/provenance-inputs/proposed-e2e-raw/metadata.json
+b5c9f5d7bbc201ca25c26689cf129b18859f1c3302b18867b9d7abc541366d60  raw/provenance-inputs/proposed-e2e-raw/proposed-request-switch-alternating-r0.run.json
+3b16a51405003bf0a8dc20d6a8d2b12422ef51bc86b698c8b7776c2b71c00c3d  raw/provenance-inputs/proposed-e2e-raw/proposed-request-switch-alternating-r0.jsonl
