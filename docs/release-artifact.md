@@ -31,6 +31,13 @@ uv run python scripts/verify_release_artifact.py
 
 The builder reads only tracked files below `results/release-v0.1/raw/`. It does not launch services or GPUs. `build_release_checksums.py` must run after all derived outputs. `verify_release_artifact.py` checks bytes, tracked-path closure, and exact complete-manifest coverage.
 
+The retained Proposed E2E matrix predates the run-start executable-provenance
+requirement below: it authenticates the benchmark checkout and frozen trace but
+does not independently bind the controller/engine binaries, dirty states,
+configuration, or model revision that served those requests. Release-level
+source identities are post-run labels and must not be cited as if they were
+captured by the per-run metadata.
+
 ## Final-rerun publication transaction
 
 The final GPU campaign must use a fresh staging root such as `results/tmp/release-v0.1-<run-id>/`; it must not write into the canonical bundle incrementally.

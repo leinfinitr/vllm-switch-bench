@@ -193,6 +193,65 @@ def main() -> int:
                     )
             else:
                 failures.append("published Proposed E2E rows are missing")
+
+            llama_e2e_path = ARTIFACT / "raw/llama-swap/e2e-alternating.json"
+            llama_e2e_jsonl_path = ARTIFACT / "raw/llama-swap/e2e-alternating.jsonl"
+            if llama_e2e_path.is_file() and llama_e2e_jsonl_path.is_file():
+                try:
+                    llama_rows = json.loads(llama_e2e_path.read_text())
+                    llama_jsonl_rows = [
+                        json.loads(line)
+                        for line in llama_e2e_jsonl_path.read_text().splitlines()
+                        if line
+                    ]
+                except (json.JSONDecodeError, OSError) as exc:
+                    failures.append(f"cannot parse llama-swap E2E evidence: {exc}")
+                else:
+                    if llama_rows != llama_jsonl_rows:
+                        failures.append("published llama-swap E2E rows differ from retained JSONL")
+                    llama_by_id = {row.get("request_id"): row for row in llama_rows}
+                    if None in llama_by_id or len(llama_by_id) != len(llama_rows):
+                        failures.append(
+                            "llama-swap E2E output has missing or duplicate request IDs"
+                        )
+                    if set(trace_by_id) != set(llama_by_id):
+                        failures.append("llama-swap trace/output request IDs differ")
+                    for request_id in set(trace_by_id) & set(llama_by_id):
+                        trace = trace_by_id[request_id]
+                        output = llama_by_id[request_id]
+                        if any(output.get(field) != trace.get(field) for field in identity_fields):
+                            failures.append(
+                                f"llama-swap trace/output identity mismatch: {request_id}"
+                            )
+                            break
+                        timings = (
+                            output.get("completion_latency_ms"),
+                            output.get("semantic_ttft_ms"),
+                            output.get("dispatch_lag_ms"),
+                        )
+                        if any(
+                            isinstance(value, bool)
+                            or not isinstance(value, (int, float))
+                            or not math.isfinite(value)
+                            or value < 0
+                            for value in timings
+                        ):
+                            failures.append(
+                                f"llama-swap E2E output has invalid timings: {request_id}"
+                            )
+                            break
+                        if (
+                            output.get("status") != 200
+                            or output.get("error") is not None
+                            or output.get("stream_done") is not True
+                            or not str(output.get("output_text", "")).strip()
+                        ):
+                            failures.append(
+                                f"llama-swap E2E output fails strict success: {request_id}"
+                            )
+                            break
+            else:
+                failures.append("llama-swap E2E evidence is incomplete")
     else:
         failures.append("E2E trace/output identity inputs are incomplete")
 

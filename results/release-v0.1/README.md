@@ -21,6 +21,15 @@ Each lifecycle cell contains five successful cycles for Qwen2.5 0.5B, 1.5B,
 and 3B. The Proposed and llama-swap request traces contain 20 strict-success
 streaming requests with a fixed 1.5-second alternating schedule.
 
+The retained Proposed E2E matrix metadata is run-bound only to benchmark commit
+`9ad35876ba1b7921f8e1547698a1a8412709078e` and the frozen trace digest. It did
+not capture controller/engine commits, dirty states, import paths, config hash,
+or model revision at run start. The controller/engine identities in
+`campaign.json` are post-run campaign labels, not independent executable
+provenance for those request rows. Accordingly, the E2E data supports a local
+observation at the disclosed campaign setup, not fresh-clone reproduction of
+the exact executing service binaries.
+
 ## v0.1 mechanism evidence
 
 The Proposed allocator profiles show pinned clean-backup reuse in every cycle:
