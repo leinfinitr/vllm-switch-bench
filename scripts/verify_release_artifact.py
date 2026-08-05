@@ -9,6 +9,7 @@ import math
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT = ROOT / "results" / "release-v0.1"
@@ -271,6 +272,8 @@ def main() -> int:
     exact_output = ARTIFACT / "raw/exact-disk/output_observation.json"
     exact_footprint = ARTIFACT / "raw/exact-disk/disk-footprint.json"
     pressure_path = ARTIFACT / "raw/proposed/controller-pressure-release.json"
+    manifest_bytes_total = 0
+    allocator_sleeps: list[dict[str, Any]] = []
     if exact_profile.is_file():
         events = [
             json.loads(line)
@@ -350,11 +353,18 @@ def main() -> int:
             failures.append("exact-disk payload SHA-256 is invalid")
         if output.get("before") != output.get("after"):
             failures.append("exact-disk output differs after restore")
+        if allocator_sleeps and any(
+            int(event.get("backup_bytes", 0)) != manifest_bytes_total
+            or int(event.get("cpu_backup_release_bytes", 0)) != manifest_bytes_total
+            for event in allocator_sleeps
+        ):
+            failures.append("exact-disk allocator release does not match the authenticated payload")
         demotions = output.get("demotion", {}).get("results", [])
         if not demotions or any(
             not row.get("released")
             or int(row.get("pending_release_bytes", -1)) != 0
             or int(row.get("released_bytes_total", 0)) != int(row.get("requested_bytes", -1))
+            or int(row.get("requested_bytes", 0)) != manifest_bytes_total
             for row in demotions
         ):
             failures.append("exact-disk demotion did not complete its requested release")
@@ -370,7 +380,13 @@ def main() -> int:
         queued = int(pressure.get("release_response", {}).get("queued_bytes", 0))
         if not pressure.get("release_response", {}).get("ok") or queued <= 0:
             failures.append("controller pressure release was not accepted")
-        material_release_bytes = int(queued * MATERIAL_RELEASE_RATIO)
+        before_pool = before.get("pool_stats", {})
+        authenticated_reclaimable = int(before_pool.get("ram_reclaimable_without_disk_bytes", 0))
+        if authenticated_reclaimable <= 0 or queued != authenticated_reclaimable:
+            failures.append(
+                "controller pressure queue does not match the pre-release reclaimable footprint"
+            )
+        material_release_bytes = max(1, int(authenticated_reclaimable * MATERIAL_RELEASE_RATIO))
         memavailable_delta = int(pressure.get("memavailable_delta_bytes", 0))
         process_rss_drop = -sum(
             min(int(delta), 0) for delta in pressure.get("client_rss_delta_bytes", {}).values()
