@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT = ROOT / "results" / "release-v0.1"
 PUBLICATION = ARTIFACT / "checksums.sha256"
 COMPLETE = ARTIFACT / "all-files.sha256"
+MATERIAL_RELEASE_RATIO = 0.5
 
 
 def parse_manifest(path: Path) -> list[tuple[str, str]]:
@@ -290,10 +291,12 @@ def main() -> int:
         if not allocator_sleeps or any(
             int(event.get("cpu_backup_host_cache_flush_errors", -1)) != 0
             or int(event.get("cpu_backup_host_cache_flush_count", 0)) <= 0
-            or int(event.get("cpu_backup_release_bytes", 0)) <= 0
+            or int(event.get("cpu_backup_release_count", 0)) <= 0
+            or int(event.get("cpu_backup_release_bytes", 0)) < int(event.get("backup_bytes", 0))
+            or int(event.get("backup_bytes", 0)) <= 0
             for event in allocator_sleeps
         ):
-            failures.append("exact-disk profile lacks a successful host-cache flush/release")
+            failures.append("exact-disk profile lacks a material full-backup host-cache release")
     else:
         failures.append("exact-disk profile is missing")
 
@@ -365,12 +368,21 @@ def main() -> int:
         before = pressure.get("before", {})
         after = pressure.get("after", {})
         queued = int(pressure.get("release_response", {}).get("queued_bytes", 0))
-        if int(pressure.get("memavailable_delta_bytes", 0)) <= 0:
-            failures.append("controller pressure evidence lacks positive MemAvailable delta")
-        if not any(int(delta) < 0 for delta in pressure.get("client_rss_delta_bytes", {}).values()):
-            failures.append("controller pressure evidence lacks a decreasing process RSS")
         if not pressure.get("release_response", {}).get("ok") or queued <= 0:
             failures.append("controller pressure release was not accepted")
+        material_release_bytes = int(queued * MATERIAL_RELEASE_RATIO)
+        memavailable_delta = int(pressure.get("memavailable_delta_bytes", 0))
+        process_rss_drop = -sum(
+            min(int(delta), 0) for delta in pressure.get("client_rss_delta_bytes", {}).values()
+        )
+        if memavailable_delta < material_release_bytes:
+            failures.append(
+                "controller pressure MemAvailable recovery is not material relative to queued bytes"
+            )
+        if process_rss_drop < material_release_bytes:
+            failures.append(
+                "controller pressure process RSS recovery is not material relative to queued bytes"
+            )
         if int(pressure.get("memavailable_delta_bytes", 0)) != int(
             after.get("memavailable_bytes", 0)
         ) - int(before.get("memavailable_bytes", 0)):
