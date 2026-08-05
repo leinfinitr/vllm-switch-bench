@@ -26,8 +26,8 @@
     "controller_lifecycle_fix": "87c30a4d626670f8c2af780699fd5fb7182d2ddf",
     "controller_release_tag": "v0.1.5",
     "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
-    "benchmark_artifact_closure": "9368b9be2c18bc537ca3ac9d80f0c283e1c64bd7",
-    "benchmark_release_tag": "v0.1.6",
+    "benchmark_artifact_closure": "25af5b66672c7eb90b8ac9d9f15380b0c6638884",
+    "benchmark_release_tag": "v0.1.7",
     "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
     "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe"
   }

@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Liu
     given-names: Jialong
-version: 0.1.6
+version: 0.1.7
 license: Apache-2.0
 repository-code: "https://github.com/leinfinitr/llm-switch-bench"
 url: "https://github.com/leinfinitr/llm-switch-bench"
