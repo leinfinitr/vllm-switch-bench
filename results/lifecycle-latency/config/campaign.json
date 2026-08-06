@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "models": ["qwen-0.5b", "qwen-1.5b", "qwen-3b"],
+  "systems": ["Proposed", "vLLM L1", "vLLM L2", "SwapServeLLM", "llama-swap"],
+  "phases": ["sleep", "wake"],
+  "samples_per_cell": 5,
+  "aggregation": {
+    "center": "median",
+    "lower": "order statistic 2 of 5 (q1_s)",
+    "upper": "order statistic 4 of 5 (q3_s)"
+  },
+  "metric_boundary": "Lifecycle state-machine latency in seconds; request generation is excluded."
+}

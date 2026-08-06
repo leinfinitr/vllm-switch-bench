@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "payload_size_bytes": 1048576000,
+  "required_phases": ["exact_disk_spill", "exact_disk_demotion", "allocator_sleep"],
+  "require_payload_hash": true,
+  "require_segment_and_chunk_checksums": true,
+  "require_material_disk_footprint": true,
+  "require_completed_demotion": true,
+  "require_output_equality": true,
+  "note": "The 1 GiB payload itself is intentionally omitted; its digest and runtime bundle/chunk checksums remain correctness evidence."
+}

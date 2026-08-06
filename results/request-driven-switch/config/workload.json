@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "workload": "alternating model requests",
+  "request_count": 20,
+  "systems": ["Proposed", "llama-swap"],
+  "request_ids": {
+    "prefix": "w1-",
+    "range": [0, 19],
+    "format": "w1-%03d"
+  },
+  "success_predicate": "HTTP 200, no error, and complete stream marker",
+  "metric": "request completion latency from the frozen open-loop schedule",
+  "provenance_scope": "Historical v0.1 local observation; producer rows do not runtime-bind controller or engine commits, import path, or config hash."
+}

@@ -1,0 +1,39 @@
+{
+  "external_binary_contracts": {
+    "SwapServeLLM": {
+      "asset_url": "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/SwapServeLLM",
+      "sha256": "7d463c42e3d0c965cba078d77a2abb053ba02f2a27a2303d32e5dccecffae091",
+      "size_bytes": 54774096
+    },
+    "llama-swap-profiled": {
+      "asset_url": "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/llama-swap-profiled",
+      "sha256": "196148236fad99b32cb86c04d9297cfe0eaca68d204c920e3aeff290d04a024b",
+      "size_bytes": 20973543
+    }
+  },
+  "family": "lifecycle-latency",
+  "generated_by": "llm_switch_bench.artifacts",
+  "historical_runtime_provenance_limitation": "The v0.1 E2E producer data did not runtime-bind controller/engine commits, import path, or config hash; it is a historical local observation, not an exact fresh-clone runtime reproduction.",
+  "schema_version": 1,
+  "source": "Migrated from tracked v0.1 raw evidence; no new run was generated in this refactor.",
+  "tracked_files": [
+    "README.md",
+    "figures/lifecycle-latency.pdf",
+    "figures/lifecycle-latency.png",
+    "raw/llama-swap/lifecycle.json",
+    "raw/proposed/qwen-0.5b.json",
+    "raw/proposed/qwen-1.5b.json",
+    "raw/proposed/qwen-3b.json",
+    "raw/swapserve/qwen-0.5b.json",
+    "raw/swapserve/qwen-1.5b.json",
+    "raw/swapserve/qwen-3b.json",
+    "raw/vllm-l2/qwen-0.5b.json",
+    "raw/vllm-l2/qwen-1.5b.json",
+    "raw/vllm-l2/qwen-3b.json",
+    "raw/vllm-stock/qwen-0.5b.json",
+    "raw/vllm-stock/qwen-1.5b.json",
+    "raw/vllm-stock/qwen-3b.json",
+    "summary.csv",
+    "summary.json"
+  ]
+}

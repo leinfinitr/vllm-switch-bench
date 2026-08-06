@@ -1,0 +1,37 @@
+{
+  "reclaim": {
+    "client_rss_delta_bytes": {
+      "release-v0.1-qwen-0.5b-455152-1785839128055053072": -1847554048,
+      "release-v0.1-qwen-1.5b-455321-1785839141047152084": 0
+    },
+    "flush_success": true,
+    "memavailable_delta_bytes": 1678163968,
+    "pending_release_bytes": 0,
+    "pending_release_request_count": 0,
+    "released_delta_bytes": 1048576000,
+    "requested_bytes": 1048576000
+  },
+  "reuse": [
+    {
+      "events": 5,
+      "max_copy_d2h_s": 0.0,
+      "min_reuse_count": 41,
+      "min_reused_bytes": 1048576000,
+      "model": "qwen-0.5b"
+    },
+    {
+      "events": 5,
+      "max_copy_d2h_s": 0.0,
+      "min_reuse_count": 76,
+      "min_reused_bytes": 3250585600,
+      "model": "qwen-1.5b"
+    },
+    {
+      "events": 5,
+      "max_copy_d2h_s": 0.0,
+      "min_reuse_count": 112,
+      "min_reused_bytes": 6314524672,
+      "model": "qwen-3b"
+    }
+  ]
+}

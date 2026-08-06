@@ -1,83 +1,0 @@
-INFO 08-04 19:37:43 [utils.py:278] non-default args: {'dtype': 'float16', 'max_model_len': 1024, 'gpu_memory_utilization': 0.8, 'disable_log_stats': True, 'enable_sleep_mode': True, 'model': '/home/ljl/models/hf/Qwen2.5-0.5B-Instruct'}
-WARNING 08-04 19:37:43 [envs.py:2062] Unknown vLLM environment variable detected: VLLM_USE_V1
-INFO 08-04 19:37:43 [model.py:541] Enabling cumem allocator because sleep mode requires it.
-INFO 08-04 19:37:43 [model.py:617] Resolved architecture: Qwen2ForCausalLM
-WARNING 08-04 19:37:43 [model.py:2090] Casting torch.bfloat16 to torch.float16.
-INFO 08-04 19:37:43 [model.py:1752] Using max model len 1024
-INFO 08-04 19:37:43 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=8192.
-INFO 08-04 19:37:43 [vllm.py:977] Asynchronous scheduling is enabled.
-INFO 08-04 19:37:43 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
-(EngineCore pid=502303) INFO 08-04 19:37:45 [core.py:112] Initializing a V1 LLM engine (v0.22.2.dev3+g03e5ae257) with config: model='/home/ljl/models/hf/Qwen2.5-0.5B-Instruct', speculative_config=None, tokenizer='/home/ljl/models/hf/Qwen2.5-0.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=1024, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=/home/ljl/models/hf/Qwen2.5-0.5B-Instruct, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, moe_backend='auto', linear_backend='auto')
-(EngineCore pid=502303) INFO 08-04 19:37:45 [parallel_state.py:1422] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://192.168.12.46:58181 backend=nccl
-(EngineCore pid=502303) INFO 08-04 19:37:45 [parallel_state.py:1735] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
-(EngineCore pid=502303) INFO 08-04 19:37:46 [topk_topp_sampler.py:45] Using FlashInfer for top-p & top-k sampling.
-(EngineCore pid=502303) INFO 08-04 19:37:46 [gpu_model_runner.py:5041] Starting to load model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct...
-(EngineCore pid=502303) INFO 08-04 19:37:46 [cuda.py:378] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
-(EngineCore pid=502303) INFO 08-04 19:37:46 [flash_attn.py:636] Using FlashAttention version 2
-(EngineCore pid=502303) INFO 08-04 19:37:46 [weight_utils.py:922] Filesystem type for checkpoints: EXT4. Checkpoint size: 0.92 GiB. Available RAM: 52.81 GiB.
-(EngineCore pid=502303) INFO 08-04 19:37:46 [weight_utils.py:945] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
-(EngineCore pid=502303) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
-(EngineCore pid=502303) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  6.32it/s]
-(EngineCore pid=502303) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  6.31it/s]
-(EngineCore pid=502303) 
-(EngineCore pid=502303) INFO 08-04 19:37:46 [default_loader.py:397] Loading weights took 0.17 seconds
-(EngineCore pid=502303) INFO 08-04 19:37:46 [gpu_model_runner.py:5136] Model loading took 0.93 GiB memory and 0.379811 seconds
-(EngineCore pid=502303) INFO 08-04 19:37:49 [backends.py:1089] Using cache directory: /home/ljl/.cache/vllm/torch_compile_cache/bb6286b9bf/rank_0_0/backbone for vLLM's torch.compile
-(EngineCore pid=502303) INFO 08-04 19:37:49 [backends.py:1148] Dynamo bytecode transform time: 2.10 s
-(EngineCore pid=502303) INFO 08-04 19:37:51 [backends.py:378] Cache the graph of compile range (1, 8192) for later use
-(EngineCore pid=502303) INFO 08-04 19:37:52 [backends.py:393] Compiling a graph for compile range (1, 8192) takes 3.52 s
-(EngineCore pid=502303) INFO 08-04 19:37:53 [decorators.py:708] saved AOT compiled function to /home/ljl/.cache/vllm/torch_compile_cache/torch_aot_compile/05c3eb4a3f18207de97bb13d5abbae9cd7653c224fbc1f24127e50905a7c8559/rank_0_0/model
-(EngineCore pid=502303) INFO 08-04 19:37:53 [monitor.py:53] torch.compile took 6.18 s in total
-(EngineCore pid=502303) INFO 08-04 19:37:53 [monitor.py:81] Initial profiling/warmup run took 0.18 s
-(EngineCore pid=502303) INFO 08-04 19:37:57 [gpu_model_runner.py:6356] Profiling CUDA graph memory: PIECEWISE=51 (largest=512), FULL=35 (largest=256)
-(EngineCore pid=502303) INFO 08-04 19:37:58 [gpu_model_runner.py:6442] Estimated CUDA graph memory: 0.28 GiB total
-(EngineCore pid=502303) INFO 08-04 19:37:58 [gpu_worker.py:524] Available KV cache memory: 5.85 GiB
-(EngineCore pid=502303) INFO 08-04 19:37:58 [gpu_worker.py:539] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.8000 is equivalent to --gpu-memory-utilization=0.7710 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.8290. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
-(EngineCore pid=502303) INFO 08-04 19:37:58 [kv_cache_utils.py:1733] GPU KV cache size: 511,504 tokens
-(EngineCore pid=502303) INFO 08-04 19:37:58 [kv_cache_utils.py:1734] Maximum concurrency for 1,024 tokens per request: 499.52x
-(EngineCore pid=502303) Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  14%|█▎        | 7/51 [00:00<00:00, 62.71it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  29%|██▉       | 15/51 [00:00<00:00, 68.10it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  45%|████▌     | 23/51 [00:00<00:00, 69.82it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  63%|██████▎   | 32/51 [00:00<00:00, 74.86it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  80%|████████  | 41/51 [00:00<00:00, 79.70it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 51/51 [00:00<00:00, 79.97it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 51/51 [00:00<00:00, 76.29it/s]
-(EngineCore pid=502303) Capturing CUDA graphs (decode, FULL):   0%|          | 0/35 [00:00<?, ?it/s]Capturing CUDA graphs (decode, FULL):  23%|██▎       | 8/35 [00:00<00:00, 79.14it/s]Capturing CUDA graphs (decode, FULL):  51%|█████▏    | 18/35 [00:00<00:00, 91.03it/s]Capturing CUDA graphs (decode, FULL):  83%|████████▎ | 29/35 [00:00<00:00, 98.26it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 35/35 [00:00<00:00, 97.84it/s]
-(EngineCore pid=502303) INFO 08-04 19:38:00 [gpu_model_runner.py:6533] Graph capturing finished in 1 secs, took 0.37 GiB
-(EngineCore pid=502303) INFO 08-04 19:38:00 [gpu_worker.py:677] CUDA graph pool memory: 0.37 GiB (actual), 0.28 GiB (estimated), difference: 0.09 GiB (24.7%).
-(EngineCore pid=502303) INFO 08-04 19:38:00 [jit_monitor.py:54] Kernel JIT monitor activated — Triton JIT compilations during inference will be logged as warnings.
-(EngineCore pid=502303) INFO 08-04 19:38:00 [core.py:302] init engine (profile, create kv cache, warmup model) took 13.29 s (compilation: 6.18 s)
-(EngineCore pid=502303) INFO 08-04 19:38:00 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
-(EngineCore pid=502303) WARNING 08-04 19:38:00 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
-(EngineCore pid=502303) INFO 08-04 19:38:00 [core.py:736] Waiting for in-flight requests to complete before sleeping...
-(EngineCore pid=502303) INFO 08-04 19:38:00 [block_pool.py:482] Successfully reset prefix cache
-(EngineCore pid=502303) INFO 08-04 19:38:01 [cumem.py:273] CuMemAllocator: sleep freed 6.84 GiB memory in total, of which 0.98 GiB is backed up in CPU and the rest 5.86 GiB is discarded directly.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [gpu_worker.py:192] Sleep mode freed 7.13 GiB memory, 1.12 GiB memory is still in use.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [abstract.py:339] It took 0.412590 seconds to fall asleep.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [abstract.py:364] It took 0.317342 seconds to wake up tags {'weights', 'kv_cache'}.
-{"cycle": 0, "sleep_s": 0.4151056222617626, "wake_s": 0.3183130342513323, "output_match": true, "output": " Yes, I can do that. I"}
-(EngineCore pid=502303) INFO 08-04 19:38:01 [core.py:736] Waiting for in-flight requests to complete before sleeping...
-(EngineCore pid=502303) INFO 08-04 19:38:01 [block_pool.py:482] Successfully reset prefix cache
-(EngineCore pid=502303) INFO 08-04 19:38:01 [cumem.py:273] CuMemAllocator: sleep freed 6.84 GiB memory in total, of which 0.98 GiB is backed up in CPU and the rest 5.86 GiB is discarded directly.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [gpu_worker.py:192] Sleep mode freed 6.84 GiB memory, 1.12 GiB memory is still in use.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [abstract.py:339] It took 0.083647 seconds to fall asleep.
-(EngineCore pid=502303) INFO 08-04 19:38:01 [abstract.py:364] It took 0.314502 seconds to wake up tags {'weights', 'kv_cache'}.
-{"cycle": 1, "sleep_s": 0.0857049897313118, "wake_s": 0.3154966617003083, "output_match": true, "output": " Yes, I can do that. I"}
-(EngineCore pid=502303) INFO 08-04 19:38:02 [core.py:736] Waiting for in-flight requests to complete before sleeping...
-(EngineCore pid=502303) INFO 08-04 19:38:02 [block_pool.py:482] Successfully reset prefix cache
-(EngineCore pid=502303) INFO 08-04 19:38:02 [cumem.py:273] CuMemAllocator: sleep freed 6.84 GiB memory in total, of which 0.98 GiB is backed up in CPU and the rest 5.86 GiB is discarded directly.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [gpu_worker.py:192] Sleep mode freed 6.84 GiB memory, 1.12 GiB memory is still in use.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [abstract.py:339] It took 0.083581 seconds to fall asleep.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [abstract.py:364] It took 0.314397 seconds to wake up tags {'weights', 'kv_cache'}.
-{"cycle": 2, "sleep_s": 0.08587905298918486, "wake_s": 0.31531245820224285, "output_match": true, "output": " Yes, I can do that. I"}
-(EngineCore pid=502303) INFO 08-04 19:38:02 [core.py:736] Waiting for in-flight requests to complete before sleeping...
-(EngineCore pid=502303) INFO 08-04 19:38:02 [block_pool.py:482] Successfully reset prefix cache
-(EngineCore pid=502303) INFO 08-04 19:38:02 [cumem.py:273] CuMemAllocator: sleep freed 6.84 GiB memory in total, of which 0.98 GiB is backed up in CPU and the rest 5.86 GiB is discarded directly.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [gpu_worker.py:192] Sleep mode freed 6.84 GiB memory, 1.12 GiB memory is still in use.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [abstract.py:339] It took 0.083525 seconds to fall asleep.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [abstract.py:364] It took 0.313461 seconds to wake up tags {'weights', 'kv_cache'}.
-{"cycle": 3, "sleep_s": 0.08555757720023394, "wake_s": 0.31445261370390654, "output_match": true, "output": " Yes, I can do that. I"}
-(EngineCore pid=502303) INFO 08-04 19:38:02 [core.py:736] Waiting for in-flight requests to complete before sleeping...
-(EngineCore pid=502303) INFO 08-04 19:38:02 [block_pool.py:482] Successfully reset prefix cache
-(EngineCore pid=502303) INFO 08-04 19:38:02 [cumem.py:273] CuMemAllocator: sleep freed 6.84 GiB memory in total, of which 0.98 GiB is backed up in CPU and the rest 5.86 GiB is discarded directly.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [gpu_worker.py:192] Sleep mode freed 6.84 GiB memory, 1.12 GiB memory is still in use.
-(EngineCore pid=502303) INFO 08-04 19:38:02 [abstract.py:339] It took 0.083538 seconds to fall asleep.
-(EngineCore pid=502303) INFO 08-04 19:38:03 [abstract.py:364] It took 0.313573 seconds to wake up tags {'weights', 'kv_cache'}.
-{"cycle": 4, "sleep_s": 0.08565117418766022, "wake_s": 0.31446624267846346, "output_match": true, "output": " Yes, I can do that. I"}
-(EngineCore pid=502303) INFO 08-04 19:38:03 [core.py:1266] Shutdown initiated (timeout=0)
-(EngineCore pid=502303) INFO 08-04 19:38:03 [core.py:1289] Shutdown complete
-/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/vllm-stock-l1/qwen-0.5b.json

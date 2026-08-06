@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "models": ["qwen-0.5b", "qwen-1.5b", "qwen-3b"],
+  "repeated_sleep_profiles_per_model": 5,
+  "reuse_claim": {
+    "minimum_reuse_count": 1,
+    "minimum_reused_bytes": 1,
+    "maximum_repeated_copy_d2h_s": 0.0
+  },
+  "reclaim_claim": {
+    "requested_must_equal_released": true,
+    "pending_release_bytes": 0,
+    "pending_release_request_count": 0,
+    "require_memavailable_increase": true,
+    "require_client_rss_decrease": true
+  }
+}

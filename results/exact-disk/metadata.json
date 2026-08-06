@@ -1,0 +1,20 @@
+{
+  "family": "exact-disk",
+  "generated_by": "llm_switch_bench.artifacts",
+  "historical_runtime_provenance_limitation": "The v0.1 E2E producer data did not runtime-bind controller/engine commits, import path, or config hash; it is a historical local observation, not an exact fresh-clone runtime reproduction.",
+  "schema_version": 1,
+  "source": "Migrated from tracked v0.1 raw evidence; no new run was generated in this refactor.",
+  "tracked_files": [
+    "README.md",
+    "figures/exact-disk.pdf",
+    "figures/exact-disk.png",
+    "raw/exact-disk/bundle-COMMIT",
+    "raw/exact-disk/bundle-manifest.json",
+    "raw/exact-disk/disk-footprint.json",
+    "raw/exact-disk/exact_disk_profile.jsonl",
+    "raw/exact-disk/output_observation.json",
+    "raw/exact-disk/payload-hash.json",
+    "raw/exact-disk/run-metadata.json",
+    "summary.json"
+  ]
+}

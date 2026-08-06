@@ -1,0 +1,17 @@
+{
+  "family": "request-driven-switch",
+  "generated_by": "llm_switch_bench.artifacts",
+  "historical_runtime_provenance_limitation": "The v0.1 E2E producer data did not runtime-bind controller/engine commits, import path, or config hash; it is a historical local observation, not an exact fresh-clone runtime reproduction.",
+  "schema_version": 1,
+  "source": "Migrated from tracked v0.1 raw evidence; no new run was generated in this refactor.",
+  "tracked_files": [
+    "README.md",
+    "figures/request-timeline.pdf",
+    "figures/request-timeline.png",
+    "raw/llama-swap/e2e-alternating.json",
+    "raw/llama-swap/e2e-alternating.jsonl",
+    "raw/proposed/e2e-alternating.json",
+    "raw/proposed/e2e-alternating.jsonl",
+    "summary.json"
+  ]
+}

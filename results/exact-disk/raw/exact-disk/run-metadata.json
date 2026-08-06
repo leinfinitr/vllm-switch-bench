@@ -1,0 +1,39 @@
+{
+  "collected_at": "2026-08-04",
+  "engine": {
+    "collection_commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
+    "repository": "https://github.com/leinfinitr/vllm",
+    "upstream_base": "0decac0d96c42b49572498019f0a0e3600f50398"
+  },
+  "environment": {
+    "VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES": "16777216",
+    "VLLM_EXACT_DISK_BACKUP_DIRECT_IO": "1",
+    "VLLM_EXACT_DISK_BACKUP_ENABLED": "1",
+    "VLLM_SERVER_DEV_MODE": "1",
+    "VLLM_SLEEP_PROFILE_PATH": "server.sleep-profile.jsonl"
+  },
+  "launch_parameters": {
+    "dtype": "half",
+    "enable_sleep_mode": true,
+    "gpu_memory_utilization": 0.8,
+    "max_model_len": 1024
+  },
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "retention": {
+    "commit_marker": "bundle-COMMIT",
+    "manifest": "bundle-manifest.json (runtime segment checksum and offset manifest; allocator pointers removed as non-semantic process-local data)",
+    "output_observation": "output_observation.json",
+    "payload": "omitted from Git; payload size and SHA-256 retained",
+    "profile": "exact_disk_profile.jsonl"
+  },
+  "runtime": {
+    "cuda_home_version": "13.0",
+    "gpu": "NVIDIA GeForce RTX 3080",
+    "gpu_memory_mib": 10240,
+    "python": "3.12",
+    "torch": "2.11.0+cu130"
+  },
+  "schema_version": 1,
+  "scope": "single-node single-GPU Linux/NVIDIA research preview",
+  "served_model_name": "qwen-0.5b"
+}
