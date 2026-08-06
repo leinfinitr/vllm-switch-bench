@@ -14,7 +14,7 @@ layout.
 | Path | Scope | Summary and figure |
 |---|---|---|
 | [`lifecycle-latency/`](lifecycle-latency/README.md) | Five retained sleep/wake observations for each supported model/system cell | [`summary.json`](lifecycle-latency/summary.json) · [PNG](lifecycle-latency/figures/lifecycle-latency.png) · [PDF](lifecycle-latency/figures/lifecycle-latency.pdf) |
-| [`request-driven-switch/`](request-driven-switch/README.md) | Retained 20-request alternating traces for Proposed and llama-swap | [`summary.json`](request-driven-switch/summary.json) · [PNG](request-driven-switch/figures/request-timeline.png) · [PDF](request-driven-switch/figures/request-timeline.pdf) |
+| [`request-driven-switch/`](request-driven-switch/README.md) | Retained 20-request alternating traces for Proposed and llama-swap; JSON arrays are canonical builder inputs and JSONL rows are retained source evidence | [`summary.json`](request-driven-switch/summary.json) · [PNG](request-driven-switch/figures/request-timeline.png) · [PDF](request-driven-switch/figures/request-timeline.pdf) |
 | [`backup-reuse-reclaim/`](backup-reuse-reclaim/README.md) | Repeated exact CPU-backup reuse plus one host-pressure reclaim observation | [`summary.json`](backup-reuse-reclaim/summary.json) · [PNG](backup-reuse-reclaim/figures/backup-reuse.png) · [PDF](backup-reuse-reclaim/figures/backup-reuse.pdf) |
 | [`exact-disk/`](exact-disk/README.md) | One retained exact-runtime-byte spill, CPU release, and disk restore observation | [`summary.json`](exact-disk/summary.json) · [PNG](exact-disk/figures/exact-disk.png) · [PDF](exact-disk/figures/exact-disk.pdf) |
 
@@ -58,9 +58,10 @@ Before replacing or adding retained measurement evidence, a contribution must pr
 8. two clean rebuilds from a fresh checkout.
 
 The retained v0.1 E2E evidence does **not** satisfy the modern runtime-binding requirement:
-its producer did not bind engine/controller commits, imported path, or configuration hash.
-It is explicitly a historical local observation. Deterministic rebuilding verifies the
-retained interpretation; it does not repair that provenance gap or create new data.
+its producer did not bind engine/controller commits, dirty states, executable/import paths,
+configuration hash, or model revision. It is explicitly a historical local observation.
+Deterministic rebuilding verifies the retained interpretation; it does not repair that
+provenance gap or create new data.
 
 ## Rebuild and validate
 
@@ -77,8 +78,8 @@ git diff --exit-code -- results
 scripts/tracked-ignore.sh
 ```
 
-`build_all` reconstructs summaries, figures, and metadata from retained raw inputs and also
-rejects stray top-level result families by removing them from its generated view.
+`build_all` reconstructs summaries, figures, and metadata from retained raw inputs. It does
+not delete unrelated paths; `validate_all` rejects any stray top-level result family.
 `validate_all` enforces exact family shape and semantic contracts: matrix cardinality,
 sample counts, finite positive metrics, frozen request identity/order, strict request
 success, raw-to-summary equality, backup reuse/reclaim settlement, exact-disk chunk layout,
