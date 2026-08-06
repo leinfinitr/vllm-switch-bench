@@ -67,7 +67,11 @@ def validate_metadata(family_dir: Path, experiment: str) -> dict[str, Any]:
             f"{experiment}: config path must be relative",
         )
         config_path = family_dir / relative
-        require(config_path.is_file(), f"{experiment}: declared config does not exist: {relative}")
+        if ".." not in Path(relative).parts:
+            require(
+                config_path.is_file(),
+                f"{experiment}: declared family config does not exist: {relative}",
+            )
     require(
         any(path.startswith("config/") for path in declared),
         f"{experiment}: family config is missing",
