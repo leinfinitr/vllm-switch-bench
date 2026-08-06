@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from llm_switch_bench import check_docs, tracked_ignore
 from llm_switch_bench.artifacts import (
     EXTERNAL_CONTRACTS,
     build_all,
@@ -28,6 +29,13 @@ from llm_switch_bench.validation.validate_all import validate_all
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 FAMILIES = {"lifecycle-latency", "request-driven-switch", "backup-reuse-reclaim", "exact-disk"}
+
+
+@pytest.mark.parametrize("entrypoint", [check_docs.main, tracked_ignore.main])
+def test_policy_entrypoints_reject_unknown_arguments(entrypoint) -> None:
+    with pytest.raises(SystemExit) as error:
+        entrypoint(["--definitely-invalid"])
+    assert error.value.code == 2
 
 
 def digest_tree(root: Path = RESULTS) -> dict[str, str]:

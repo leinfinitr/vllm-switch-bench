@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+
 from llm_switch_bench.common.provenance import repository_root
 
 ROOT = repository_root()
@@ -31,7 +33,9 @@ REQUIRED_DISCLOSURES = [
 ]
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Check current benchmark documentation policy.")
+    parser.parse_args(argv)
     paths = REQUIRED_DOCS + EXPERIMENT_DOCS
     missing = [path for path in paths if not path.exists()]
     if missing:
