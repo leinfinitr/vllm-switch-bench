@@ -36,7 +36,10 @@ experiment documents above define the current result contracts:
 
 ## Reading the retained values
 
-The historical E2E producer did not runtime-bind controller or engine commits, dirty states, executable/import paths, configuration hash, or model revision. Those numbers are a historical local observation, not an exact fresh-checkout runtime reproduction.
+The current summaries and figures are deterministic transformations of tracked raw evidence,
+not new measurements. The historical E2E producer did not runtime-bind controller or engine
+commits, dirty states, executable/import paths, configuration hash, or model revision. Those
+numbers are a historical local observation, not an exact fresh-checkout runtime reproduction.
 A fresh checkout can reproduce the summaries, figures, and validator outcomes, but not the
 original GPU execution from the retained metadata alone.
 
