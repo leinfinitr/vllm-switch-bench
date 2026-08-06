@@ -28,7 +28,7 @@ def validate_all(results_root: Path | None = None) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate all current result families")
     parser.add_argument("--results-root", type=Path)
-    args = parser.parse_args([] if argv is None else argv)
+    args = parser.parse_args(argv)
     validate_all(args.results_root)
     return 0
 

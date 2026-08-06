@@ -24,6 +24,7 @@ from llm_switch_bench.validation.lifecycle_latency.validate import (
 from llm_switch_bench.validation.request_driven_switch.validate import (
     validate_family as validate_request,
 )
+from llm_switch_bench.validation import validate_all as validate_all_module
 from llm_switch_bench.validation.validate_all import validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,7 +32,10 @@ RESULTS = ROOT / "results"
 FAMILIES = {"lifecycle-latency", "request-driven-switch", "backup-reuse-reclaim", "exact-disk"}
 
 
-@pytest.mark.parametrize("entrypoint", [check_docs.main, tracked_ignore.main])
+@pytest.mark.parametrize(
+    "entrypoint",
+    [check_docs.main, tracked_ignore.main, validate_all_module.main],
+)
 def test_policy_entrypoints_reject_unknown_arguments(entrypoint) -> None:
     with pytest.raises(SystemExit) as error:
         entrypoint(["--definitely-invalid"])
