@@ -1,27 +1,105 @@
-# Request-driven switch
+# Request-driven switch experiment
 
 ## Question
 
-What request completion latencies were observed when one endpoint received a frozen 20-request alternating-model schedule and the serving system performed the required switches?
+When a frozen open-loop trace alternates model names at an OpenAI-compatible endpoint, what
+request completion latency and failure behavior are observed for Proposed and llama-swap?
 
-## Metric boundary
+## Metric
 
-Completion latency is measured from client dispatch to completed streaming response; `dispatch_lag_ms` separately records lateness relative to each absolute scheduled arrival. A retained row is successful only when it has HTTP 2xx status, no recorded error, a complete stream marker, a semantic first-token timestamp, and non-empty semantic output. This curve includes queueing, switching, and generation; it is not lifecycle wake latency.
+The primary metric is per-request completion latency in seconds, measured from client
+dispatch through complete semantic streamed output. The summary reports request count,
+failed count, minimum, median, and maximum completion latency for each system.
+
+A retained request is successful only when it has no recorded error, HTTP status 200, and a
+complete SSE stream (`stream_done=true`). Semantic TTFT and TPOT are retained in request
+rows, but the current family figure plots completion latency against the trace's scheduled
+offset. Dispatch lag remains observable and is not silently subtracted.
 
 ## Method
 
-The migrated evidence contains one Proposed and one llama-swap 20-request array plus retained JSONL source rows. The validator binds every row to the current frozen trace's complete dispatch identity (`request_id`, endpoint, model, prompt name, generation fields, stream mode, and scheduled offset), requires 20 unique IDs and the canonical strict-success predicate, validates non-negative finite timing fields, and recomputes both aggregate rows from the arrays. The JSONL copies are retained source evidence but are not duplicate builder inputs.
+Both systems replayed the same 20 immutable request identities (`w1-000` through `w1-019`),
+model sequence, and absolute scheduled offsets from the alternating trace. Requests are
+streaming, deterministic-temperature chat completions with bounded output length. The
+builder recomputes descriptive latency summaries from retained JSON rows and plots each
+request on the scheduled timeline.
 
-## Result
+The validator requires exactly 20 unique requests per system, the supported identity
+sequence, identical `(request_id, model, scheduled_offset)` tuples across systems, strict
+success for every retained row, finite positive completion latency, exactly the two expected
+systems, and exact raw-to-summary recomputation.
 
-For this historical alternating trace, the retained medians are about 0.859 seconds for Proposed and 12.868 seconds for llama-swap, with zero recorded failures in each 20-row array. These values describe the retained local observation only.
+## Retained result
 
-![Request completion timeline](../../../results/request-driven-switch/figures/request-timeline.png)
+All 20 retained requests per system satisfy the current success predicate. Proposed has a
+median completion latency of about 0.859 s (0.278–1.081 s observed range); llama-swap has a
+median of about 12.868 s (0.595–25.138 s observed range). The timeline shows the variation
+under the alternating local trace.
 
-## Threats and limitations
+This is descriptive retained evidence, not a new measurement or a canonical rerun.
 
-- The v0.1 producer rows did **not** runtime-bind controller or engine commits, dirty states, executable/import paths, configuration hash, or model revision.
-- The artifact therefore supports a historical local observation, not exact fresh-clone runtime reproduction or a current cross-system ranking.
-- The rows bind all supplied dispatch fields to the retained frozen trace, but `prompt_name` does not independently authenticate the exact prompt catalog bytes used by the historical service run.
-- One long-lived 20-request trace is descriptive, not an independent-run reliability estimate.
-- No new data was generated, and the canonical GPU rerun is not complete.
+- [Request timeline (PNG)](../../../results/request-driven-switch/figures/request-timeline.png)
+- [Request timeline (PDF)](../../../results/request-driven-switch/figures/request-timeline.pdf)
+- [Machine-readable summary](../../../results/request-driven-switch/summary.json)
+- [Result-family notes](../../../results/request-driven-switch/README.md)
+
+## Threats to validity
+
+- The family contains one 20-request alternating trace in one local single-GPU setting.
+- A request-visible metric includes routing, queueing, process/model switching, first-token
+  delay, and token generation; it does not isolate lifecycle phase cost.
+- Open-loop overlap means an earlier switch can affect later request latency.
+- The systems may differ in process lifetime, cache state, scheduler behavior, and transport
+  implementation despite sharing request identities.
+- Minimum/median/maximum over 20 requests are descriptive and provide no confidence interval
+  or throughput characterization.
+
+## Limitations
+
+The v0.1 E2E producer did not runtime-bind the engine and controller commits, actually
+imported path, or behavior-affecting configuration hash. The retained values are therefore a
+**historical local observation**, not an exact fresh-checkout runtime reproduction. No new
+data was generated in this refactor, and a canonical GPU rerun is not complete.
+
+The family does not cover burst/steady workloads, multiple arrival rates, concurrency
+scaling, failures, ServerlessLLM, SwapServeLLM, or cluster deployments. The deterministic
+rebuild validates retained rows and interpretation; it cannot supply missing runtime
+provenance.
+
+## Reproduce
+
+### Deterministic CPU rebuild and validation
+
+```bash
+uv sync --frozen --group dev
+scripts/build_all.sh
+uv run python -m llm_switch_bench.validation.request_driven_switch.validate
+scripts/validate_all.sh
+git diff --exit-code -- results/request-driven-switch
+```
+
+Repeat the build/validation/diff sequence once more. This regenerates summary/figures from
+tracked evidence and does not contact a serving endpoint or generate measurements.
+
+### Live single-trace measurement (runtime/GPU; not run in this refactor)
+
+Start a compatible endpoint with runtime identity capture, then run:
+
+```bash
+scripts/request-driven-switch.sh \
+  --base-url http://127.0.0.1:9000 \
+  --manifest configs/traces/request-switch-alternating.jsonl \
+  --output results/tmp/request-driven-switch/alternating.jsonl
+```
+
+For the three repository traces repeated against one endpoint:
+
+```bash
+scripts/request-driven-switch-matrix.sh \
+  --base-url http://127.0.0.1:9000 \
+  --repeats 3 \
+  --out-dir results/tmp/request-driven-switch/matrix
+```
+
+A publishable rerun must freeze absolute arrivals and bind benchmark, engine, controller,
+imported-path/configuration, model, executable/image, and hardware identities at runtime.

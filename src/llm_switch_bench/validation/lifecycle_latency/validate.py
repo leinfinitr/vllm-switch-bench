@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
 from pathlib import Path
@@ -95,6 +96,21 @@ def validate_family(path: Path | None = None) -> None:
                     )
 
     require(summary == lifecycle_summary_rows(family), "lifecycle: raw recomputation differs")
+    csv_rows = list(csv.DictReader((family / "summary.csv").open(encoding="utf-8", newline="")))
+    require(len(csv_rows) == 30, "lifecycle: summary.csv must contain 30 rows")
+    normalized_csv = [
+        {
+            "model": row["model"],
+            "system": row["system"],
+            "phase": row["phase"],
+            "n": int(row["n"]),
+            "median_s": float(row["median_s"]),
+            "q1_s": float(row["q1_s"]),
+            "q3_s": float(row["q3_s"]),
+        }
+        for row in csv_rows
+    ]
+    require(normalized_csv == summary, "lifecycle: CSV and JSON summaries differ")
 
 
 def main(argv: list[str] | None = None) -> int:
