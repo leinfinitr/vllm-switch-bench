@@ -4,5 +4,5 @@
   "output_match": true,
   "payload_bytes": 1048576000,
   "payload_sha256": "4aec04d7b5d1a8a9ace300e239bc65381955b058f2dab0326b8a44dc3afbbdbb",
-  "restore_reused_bytes": 0
+  "restore_reused_bytes": 1048576000
 }

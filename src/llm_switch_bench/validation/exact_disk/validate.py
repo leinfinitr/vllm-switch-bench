@@ -1,88 +1,164 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
 from llm_switch_bench.artifacts import exact_disk_summary
-from llm_switch_bench.validation.common import RESULTS, require, validate_metadata
+from llm_switch_bench.validation.common import (
+    default_results_root,
+    require,
+    validate_metadata,
+)
 
-REQUIRED_FILES = {
-    "raw/exact-disk/bundle-COMMIT",
-    "raw/exact-disk/bundle-manifest.json",
-    "raw/exact-disk/disk-footprint.json",
-    "raw/exact-disk/exact_disk_profile.jsonl",
-    "raw/exact-disk/output_observation.json",
-    "raw/exact-disk/payload-hash.json",
-    "raw/exact-disk/run-metadata.json",
+REQUIRED_RAW_FILES = {
+    "bundle-COMMIT",
+    "bundle-manifest.json",
+    "disk-footprint.json",
+    "exact_disk_profile.jsonl",
+    "output_observation.json",
+    "payload-hash.json",
+    "run-metadata.json",
+}
+REQUIRED_PHASES = {
+    "exact_disk_spill",
+    "exact_disk_demotion",
+    "allocator_sleep",
+    "exact_disk_restore",
+    "allocator_wake_up",
 }
 
 
 def validate_family(path: Path | None = None) -> None:
-    family = path or RESULTS / "exact-disk"
-    meta = validate_metadata(family, "exact-disk")
-    require(
-        REQUIRED_FILES <= set(meta["tracked_files"]),
-        "exact-disk: missing seven retained evidence files",
-    )
+    family = path or default_results_root() / "exact-disk"
+    validate_metadata(family, "exact-disk")
     raw = family / "raw" / "exact-disk"
+    require(
+        {item.name for item in raw.iterdir() if item.is_file()} == REQUIRED_RAW_FILES,
+        "exact-disk: retained raw set is not the required seven-file closure",
+    )
     events = [
         json.loads(line)
         for line in (raw / "exact_disk_profile.jsonl").read_text(encoding="utf-8").splitlines()
-        if line
+        if line.strip()
     ]
     phases = {event.get("phase") for event in events}
+    require(REQUIRED_PHASES <= phases, "exact-disk: missing lifecycle phases")
+    require(not any(event.get("fallback") is True for event in events), "exact-disk: fallback used")
     require(
-        {"exact_disk_spill", "exact_disk_demotion", "allocator_sleep"} <= phases,
-        "exact-disk: missing required event phases",
+        sum(int(event.get("disk_spill_bytes", 0)) for event in events) > 0,
+        "exact-disk: physical spill missing",
     )
-    manifest = json.loads((raw / "bundle-manifest.json").read_text(encoding="utf-8"))
-    payload = json.loads((raw / "payload-hash.json").read_text(encoding="utf-8"))
-    footprint = json.loads((raw / "disk-footprint.json").read_text(encoding="utf-8"))
     require(
-        manifest["payload_size_bytes"] == payload["payload_size_bytes"] == 1048576000,
-        "exact-disk: payload byte mismatch",
+        sum(int(event.get("disk_read_bytes", 0)) for event in events) > 0,
+        "exact-disk: physical restore read missing",
     )
-    require(len(payload["payload_sha256"]) == 64, "exact-disk: payload hash missing")
-    segment_bytes = sum(int(segment["size_bytes"]) for segment in manifest["segments"])
+
+    manifest_bytes = (raw / "bundle-manifest.json").read_bytes()
+    manifest = json.loads(manifest_bytes)
+    commit = (raw / "bundle-COMMIT").read_text(encoding="utf-8").strip()
     require(
-        segment_bytes == manifest["payload_size_bytes"],
-        "exact-disk: manifest segment sizes do not match payload",
+        commit == hashlib.sha256(manifest_bytes).hexdigest(),
+        "exact-disk: runtime commit marker does not bind manifest bytes",
     )
-    for segment in manifest["segments"]:
-        require(segment.get("chunk_sha256"), "exact-disk: segment missing chunk checksums")
+    require(manifest.get("magic") == "vllm-exact-runtime-backup", "exact-disk: bad magic")
+    require(int(manifest.get("schema_version", 0)) == 1, "exact-disk: bad manifest schema")
+    payload_bytes = int(manifest.get("payload_size_bytes", 0))
+    segments = manifest.get("segments", [])
+    require(payload_bytes > 0 and segments, "exact-disk: empty payload/segments")
+    require(
+        sum(int(segment.get("size_bytes", 0)) for segment in segments) == payload_bytes,
+        "exact-disk: segment byte accounting differs from payload",
+    )
+    expected_offset = 0
+    for segment in segments:
         require(
-            all(len(value) == 64 for value in segment["chunk_sha256"]),
-            "exact-disk: invalid chunk checksum",
+            int(segment.get("offset_bytes", -1)) == expected_offset,
+            "exact-disk: non-contiguous segment offsets",
         )
-    observed = footprint["filesystem_observation"]
+        size = int(segment["size_bytes"])
+        expected_offset += size
+        chunk_hashes = segment.get("chunk_sha256", [])
+        expected_chunks = (size + int(manifest["chunk_bytes"]) - 1) // int(manifest["chunk_bytes"])
+        require(len(chunk_hashes) == expected_chunks, "exact-disk: chunk count mismatch")
+        require(
+            all(
+                isinstance(digest, str)
+                and len(digest) == 64
+                and all(character in "0123456789abcdef" for character in digest)
+                for digest in chunk_hashes
+            ),
+            "exact-disk: invalid runtime chunk checksum",
+        )
+
+    payload = json.loads((raw / "payload-hash.json").read_text(encoding="utf-8"))
     require(
-        int(observed["logical_size_bytes"]) == 1048576000,
-        "exact-disk: footprint logical size mismatch",
+        int(payload["payload_size_bytes"]) == payload_bytes, "exact-disk: payload size mismatch"
+    )
+    digest = payload.get("payload_sha256")
+    require(
+        isinstance(digest, str)
+        and len(digest) == 64
+        and all(character in "0123456789abcdef" for character in digest),
+        "exact-disk: omitted payload digest invalid",
+    )
+    footprint = json.loads((raw / "disk-footprint.json").read_text(encoding="utf-8"))[
+        "filesystem_observation"
+    ]
+    require(
+        int(footprint["logical_size_bytes"]) == payload_bytes
+        and int(footprint["allocated_bytes"]) >= payload_bytes,
+        "exact-disk: physical footprint does not cover payload",
+    )
+
+    allocator_sleeps = [event for event in events if event.get("phase") == "allocator_sleep"]
+    require(len(allocator_sleeps) == 1, "exact-disk: expected one allocator sleep")
+    sleep = allocator_sleeps[0]
+    require(
+        int(sleep.get("backup_bytes", 0))
+        == int(sleep.get("cpu_backup_release_bytes", -1))
+        == payload_bytes,
+        "exact-disk: host-backup release does not match payload",
     )
     require(
-        int(observed["allocated_bytes"]) >= 1048576000,
-        "exact-disk: footprint lacks material allocation",
+        int(sleep.get("cpu_backup_host_cache_flush_errors", -1)) == 0
+        and int(sleep.get("cpu_backup_host_cache_flush_count", 0)) > 0
+        and int(sleep.get("cpu_backup_release_count", 0)) > 0,
+        "exact-disk: host-cache release did not complete",
+    )
+
+    metadata = json.loads((raw / "run-metadata.json").read_text(encoding="utf-8"))
+    require(
+        metadata.get("engine", {}).get("collection_commit"), "exact-disk: engine commit missing"
+    )
+    require(
+        metadata.get("model") and metadata.get("launch_parameters"),
+        "exact-disk: run config missing",
     )
     output = json.loads((raw / "output_observation.json").read_text(encoding="utf-8"))
-    require(output["before"] == output["after"], "exact-disk: restored output differs")
-    demotions = output["demotion"]["results"]
+    require(output.get("before") == output.get("after"), "exact-disk: output differs after restore")
+    demotions = output.get("demotion", {}).get("results", [])
     require(
-        demotions
-        and all(item["released"] and item["pending_release_bytes"] == 0 for item in demotions),
-        "exact-disk: demotion did not complete",
+        bool(demotions)
+        and all(
+            item.get("released") is True
+            and int(item.get("pending_release_bytes", -1)) == 0
+            and int(item.get("released_bytes_total", 0))
+            == int(item.get("requested_bytes", -1))
+            == payload_bytes
+            for item in demotions
+        ),
+        "exact-disk: demotion release did not complete",
     )
     summary = json.loads((family / "summary.json").read_text(encoding="utf-8"))
-    require(
-        summary == exact_disk_summary(family),
-        "exact-disk: raw recomputation does not equal summary",
-    )
+    require(summary == exact_disk_summary(family), "exact-disk: raw recomputation differs")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate exact-disk result semantics")
     parser.add_argument("path", nargs="?", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     validate_family(args.path)
     return 0
 

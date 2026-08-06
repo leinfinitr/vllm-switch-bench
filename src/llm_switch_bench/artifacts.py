@@ -36,8 +36,7 @@ RAW_MAP = {
 EXTERNAL_CONTRACTS = {
     "SwapServeLLM": {
         "asset_url": (
-            "https://github.com/leinfinitr/llm-switch-bench/releases/download/"
-            "v0.1.8/SwapServeLLM"
+            "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/SwapServeLLM"
         ),
         "size_bytes": 54_774_096,
         "sha256": "7d463c42e3d0c965cba078d77a2abb053ba02f2a27a2303d32e5dccecffae091",
@@ -178,7 +177,9 @@ def backup_summary(family_dir: Path | None = None) -> dict[str, Any]:
             {
                 "model": model,
                 "events": len(events),
-                "min_reuse_count": min(int(event.get("cpu_backup_reuse_count", 0)) for event in events),
+                "min_reuse_count": min(
+                    int(event.get("cpu_backup_reuse_count", 0)) for event in events
+                ),
                 "min_reused_bytes": min(
                     int(event.get("cpu_backup_reused_bytes", 0)) for event in events
                 ),
@@ -238,11 +239,7 @@ def write_lifecycle_figure(summary: list[dict[str, Any]], family_dir: Path) -> N
         model_rows = [row for row in summary if row["model"] == model]
         for phase, offset, marker in (("sleep", -0.12, "o"), ("wake", 0.12, "^")):
             rows = [
-                next(
-                    row
-                    for row in model_rows
-                    if row["system"] == system and row["phase"] == phase
-                )
+                next(row for row in model_rows if row["system"] == system and row["phase"] == phase)
                 for system in SYSTEMS
             ]
             medians = [float(row["median_s"]) for row in rows]
@@ -374,8 +371,7 @@ def write_family_metadata(
 def _remove_generated(family_dir: Path) -> None:
     for relative in ("summary.json", "summary.csv", "metadata.json", "README.md"):
         path = family_dir / relative
-        if path.exists():
-            path.unlink()
+        path.unlink(missing_ok=True)
     figures = family_dir / "figures"
     if figures.exists():
         for path in figures.iterdir():
@@ -397,9 +393,7 @@ def build_lifecycle(results_root: Path | None = None) -> None:
         writer.writeheader()
         handle.flush()
         for row in summary:
-            handle.write(
-                ",".join(str(row[field]) for field in writer.fieldnames) + "\n"
-            )
+            handle.write(",".join(str(row[field]) for field in writer.fieldnames) + "\n")
     write_lifecycle_figure(summary, family)
     write_family_readme(family, "lifecycle-latency")
     write_family_metadata(
@@ -473,27 +467,61 @@ _BUILDERS: dict[str, Callable[[Path | None], None]] = {
 }
 
 
+FAMILY_READMES = {
+    "lifecycle-latency": """# Lifecycle latency
+
+Question: how long are separate sleep and wake lifecycle phases across the retained three-model/five-system matrix?
+
+- Configuration: [`config/campaign.json`](config/campaign.json)
+- Raw evidence: lifecycle JSON under [`raw/`](raw/) plus a structured ServerlessLLM blocker
+- Summary: [`summary.json`](summary.json) and [`summary.csv`](summary.csv)
+- Figure: [`figures/lifecycle-latency.pdf`](figures/lifecycle-latency.pdf) ([PNG](figures/lifecycle-latency.png))
+- Method and limitations: [`../../docs/experiments/lifecycle-latency/README.md`](../../docs/experiments/lifecycle-latency/README.md)
+
+The summary contains exactly 30 cells (3 models × 5 systems × 2 phases), each based on five historical v0.1 samples. Sleep and wake remain distinct. SwapServeLLM and profiled llama-swap binaries are external release assets whose immutable contracts are in metadata. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
+""",
+    "request-driven-switch": """# Request-driven switch
+
+Question: what completion latency was observed for the frozen 20-request alternating-model schedule?
+
+- Configuration: [`config/workload.json`](config/workload.json)
+- Raw evidence: Proposed and llama-swap arrays/JSONL under [`raw/`](raw/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/request-timeline.pdf`](figures/request-timeline.pdf) ([PNG](figures/request-timeline.png))
+- Method and limitations: [`../../docs/experiments/request-driven-switch/README.md`](../../docs/experiments/request-driven-switch/README.md)
+
+The validator requires 20 unique request IDs per system, strict success, a shared frozen identity sequence, and raw-to-summary equality. The historical producer did not runtime-bind controller/engine commits, import path, or config hash, so this is a historical local observation rather than exact fresh-clone runtime reproduction. No new data was generated, and the canonical GPU rerun is incomplete.
+""",
+    "backup-reuse-reclaim": """# Backup reuse and reclaim
+
+Question: do repeated sleeps reuse clean CPU backups without another D2H copy, and does pressure reclaim complete logically and physically?
+
+- Configuration: [`config/claims.json`](config/claims.json)
+- Raw evidence: three five-event model profiles and one pressure-release observation under [`raw/`](raw/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/backup-reuse.pdf`](figures/backup-reuse.pdf) ([PNG](figures/backup-reuse.png))
+- Method and limitations: [`../../docs/experiments/backup-reuse-reclaim/README.md`](../../docs/experiments/backup-reuse-reclaim/README.md)
+
+The validator checks positive reused bytes/count, zero repeated D2H time, matching requested/released bytes, zero pending accounting, and material RSS/`MemAvailable` evidence. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
+""",
+    "exact-disk": """# Exact disk
+
+Question: does exact disk spill, restore, and physically release a 1 GiB exact-runtime payload while retaining integrity and output equality?
+
+- Configuration: [`config/claims.json`](config/claims.json)
+- Raw evidence: seven files under [`raw/exact-disk/`](raw/exact-disk/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/exact-disk.pdf`](figures/exact-disk.pdf) ([PNG](figures/exact-disk.png))
+- Method and limitations: [`../../docs/experiments/exact-disk/README.md`](../../docs/experiments/exact-disk/README.md)
+
+The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, size/hash/manifest consistency, material footprint, completed demotion, restore reads, and equal output. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
+""",
+}
+
+
 def write_family_readme(family_dir: Path, family: str) -> None:
-    titles = {
-        "lifecycle-latency": "Lifecycle Latency Result",
-        "request-driven-switch": "Request-Driven Switch Result",
-        "backup-reuse-reclaim": "Backup Reuse and Reclaim Result",
-        "exact-disk": "Exact-Disk Result",
-    }
     family_dir.mkdir(parents=True, exist_ok=True)
-    (family_dir / "README.md").write_text(
-        f"# {titles[family]}\n\n"
-        "This is the current claim-supporting result directory. It retains the minimum raw "
-        "evidence consumed by the builder, a canonical summary, run metadata, and the PDF/PNG "
-        "paper figure. See the matching experiment document under "
-        f"`../../docs/experiments/{family}/README.md`.\n\n"
-        f"{MIGRATION_NOTE}\n\n"
-        "Rebuild from the repository root with:\n\n"
-        f"```bash\nuv run python -m llm_switch_bench.artifacts {family}\n"
-        f"uv run python -m llm_switch_bench.validation.{family.replace('-', '_')}.validate\n"
-        "```\n",
-        encoding="utf-8",
-    )
+    (family_dir / "README.md").write_text(FAMILY_READMES[family], encoding="utf-8")
 
 
 def build_all(results_root: Path | None = None) -> None:

@@ -6,8 +6,17 @@ from typing import Any
 
 from llm_switch_bench.common.provenance import repository_root
 
-ROOT = repository_root()
-RESULTS = ROOT / "results"
+FAMILY_NAMES = (
+    "lifecycle-latency",
+    "request-driven-switch",
+    "backup-reuse-reclaim",
+    "exact-disk",
+)
+RESULTS = repository_root() / "results"
+
+
+def default_results_root() -> Path:
+    return repository_root() / "results"
 
 
 def read_json(path: Path) -> Any:
@@ -19,30 +28,38 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def validate_metadata(family_dir: Path, family: str) -> dict[str, Any]:
-    meta = read_json(family_dir / "metadata.json")
-    require(meta.get("schema_version") == 1, f"{family}: metadata schema_version must be 1")
-    require(meta.get("family") == family, f"{family}: metadata family mismatch")
-    required = {"README.md", "summary.json"}
-    tracked = set(meta.get("tracked_files", []))
-    missing = required - tracked
-    require(not missing, f"{family}: metadata missing tracked files {sorted(missing)}")
-    actual = sorted(
-        str(p.relative_to(family_dir))
-        for p in family_dir.rglob("*")
-        if p.is_file() and p.name != "metadata.json"
+def family_files(family_dir: Path) -> list[str]:
+    return sorted(
+        str(path.relative_to(family_dir))
+        for path in family_dir.rglob("*")
+        if path.is_file() and path.name != "metadata.json"
     )
-    require(sorted(tracked) == actual, f"{family}: metadata tracked_files does not match files")
-    return meta
 
 
-def validate_top_level_results() -> None:
-    expected = {
-        "README.md",
-        "lifecycle-latency",
-        "request-driven-switch",
-        "backup-reuse-reclaim",
-        "exact-disk",
-    }
-    actual = {p.name for p in RESULTS.iterdir()}
+def validate_metadata(family_dir: Path, experiment: str) -> dict[str, Any]:
+    metadata = read_json(family_dir / "metadata.json")
+    require(metadata.get("schema_version") == 1, f"{experiment}: schema_version must be 1")
+    require(metadata.get("experiment") == experiment, f"{experiment}: metadata identity mismatch")
+    require(
+        metadata.get("status") == "migrated-historical-evidence",
+        f"{experiment}: unsupported result status",
+    )
+    migration = str(metadata.get("migration", "")).lower()
+    require("no new data was generated" in migration, f"{experiment}: migration disclosure missing")
+    require(
+        "canonical gpu rerun is not complete" in migration,
+        f"{experiment}: canonical rerun disclosure missing",
+    )
+    declared = sorted(metadata.get("files", []))
+    actual = family_files(family_dir)
+    require(declared == actual, f"{experiment}: metadata file closure does not match the tree")
+    require("README.md" in declared, f"{experiment}: result README is missing")
+    require("summary.json" in declared, f"{experiment}: canonical summary is missing")
+    return metadata
+
+
+def validate_top_level_results(results_root: Path | None = None) -> None:
+    root = results_root or default_results_root()
+    expected = {"README.md", *FAMILY_NAMES}
+    actual = {path.name for path in root.iterdir()}
     require(actual == expected, f"unexpected top-level results entries: {sorted(actual)}")

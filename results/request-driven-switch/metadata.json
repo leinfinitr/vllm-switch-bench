@@ -1,11 +1,12 @@
 {
-  "family": "request-driven-switch",
-  "generated_by": "llm_switch_bench.artifacts",
-  "historical_runtime_provenance_limitation": "The v0.1 E2E producer data did not runtime-bind controller/engine commits, import path, or config hash; it is a historical local observation, not an exact fresh-clone runtime reproduction.",
-  "schema_version": 1,
-  "source": "Migrated from tracked v0.1 raw evidence; no new run was generated in this refactor.",
-  "tracked_files": [
+  "collected_at": "2026-08-04",
+  "config": [
+    "../../configs/traces/request-switch-alternating.jsonl"
+  ],
+  "experiment": "request-driven-switch",
+  "files": [
     "README.md",
+    "config/workload.json",
     "figures/request-timeline.pdf",
     "figures/request-timeline.png",
     "raw/llama-swap/e2e-alternating.json",
@@ -13,5 +14,24 @@
     "raw/proposed/e2e-alternating.json",
     "raw/proposed/e2e-alternating.jsonl",
     "summary.json"
-  ]
+  ],
+  "historical_provenance_limitation": "The historical E2E producer did not runtime-bind the controller/engine commits, dirty states, executable import paths, configuration hash, or model revision. These rows are a historical local observation, not an exact fresh-checkout reproduction of the executing services.",
+  "migration": "Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.",
+  "schema_version": 1,
+  "source_commits": {
+    "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
+    "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
+    "benchmark_release_tag": "v0.1.8",
+    "controller_collection": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
+    "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
+    "vllm_collection": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
+    "vllm_stock_profiling": "03e5ae257135073ddddbcd1264697f24c1c62e08",
+    "vllm_upstream_baseline": "0decac0d96c42b49572498019f0a0e3600f50398"
+  },
+  "status": "migrated-historical-evidence",
+  "validation": {
+    "requests_per_system": 20,
+    "strict_failures": 0,
+    "systems": 2
+  }
 }

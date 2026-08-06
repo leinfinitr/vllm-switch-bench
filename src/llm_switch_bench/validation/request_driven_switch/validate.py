@@ -5,67 +5,87 @@ import json
 import math
 from pathlib import Path
 
-from llm_switch_bench.artifacts import e2e_summary
-from llm_switch_bench.validation.common import RESULTS, require, validate_metadata
+from llm_switch_bench.artifacts import e2e_summary, strict_request_success
+from llm_switch_bench.common.traces import load_manifest
+from llm_switch_bench.validation.common import (
+    default_results_root,
+    require,
+    validate_metadata,
+)
 
 SYSTEM_DIRS = {"Proposed": "proposed", "llama-swap": "llama-swap"}
-
-
-def row_success(row: dict) -> bool:
-    return (
-        row.get("error") in (None, "")
-        and int(row.get("status", 0)) == 200
-        and row.get("stream_done") is True
-    )
+IDENTITY_FIELDS = (
+    "request_id",
+    "endpoint",
+    "model",
+    "prompt_name",
+    "max_tokens",
+    "temperature",
+    "seed",
+    "stream",
+    "scheduled_offset_s",
+)
+TIMING_FIELDS = ("completion_latency_ms", "semantic_ttft_ms", "dispatch_lag_ms")
 
 
 def validate_family(path: Path | None = None) -> None:
-    family = path or RESULTS / "request-driven-switch"
-    meta = validate_metadata(family, "request-driven-switch")
-    require(
-        "historical local observation" in meta.get("historical_runtime_provenance_limitation", ""),
-        "request: missing provenance limitation",
+    family = path or default_results_root() / "request-driven-switch"
+    metadata = validate_metadata(family, "request-driven-switch")
+    limitation = str(metadata.get("historical_provenance_limitation", "")).lower()
+    require("historical local observation" in limitation, "request: provenance limitation missing")
+    require("did not runtime-bind" in limitation, "request: exact producer limitation missing")
+
+    trace_path = (
+        default_results_root().parent / "configs" / "traces" / "request-switch-alternating.jsonl"
     )
+    trace_rows = load_manifest(trace_path)
+    require(len(trace_rows) == 20, "request: frozen trace must contain 20 requests")
+    trace_by_id = {str(row["request_id"]): row for row in trace_rows}
+    require(len(trace_by_id) == len(trace_rows), "request: frozen trace has duplicate IDs")
+
     sequences: dict[str, list[tuple[str, str, float]]] = {}
     for system, raw_dir in SYSTEM_DIRS.items():
         rows = json.loads(
             (family / "raw" / raw_dir / "e2e-alternating.json").read_text(encoding="utf-8")
         )
-        require(len(rows) == 20, f"request: {system} must have 20 requests")
-        ids = [str(row["request_id"]) for row in rows]
-        require(len(ids) == len(set(ids)), f"request: {system} duplicate request IDs")
-        require(
-            all(row_success(row) for row in rows), f"request: {system} contains failed requests"
-        )
-        require(
-            all(
-                math.isfinite(float(row["completion_latency_ms"]))
-                and float(row["completion_latency_ms"]) > 0
-                for row in rows
-            ),
-            f"request: {system} invalid latency",
-        )
+        require(len(rows) == len(trace_rows), f"request: {system} must have 20 requests")
+        by_id = {str(row.get("request_id")): row for row in rows}
+        require("None" not in by_id and len(by_id) == len(rows), f"request: {system} duplicate IDs")
+        require(set(by_id) == set(trace_by_id), f"request: {system} trace/output IDs differ")
+        for request_id, expected in trace_by_id.items():
+            observed = by_id[request_id]
+            require(
+                all(observed.get(field) == expected.get(field) for field in IDENTITY_FIELDS),
+                f"request: {system} identity mismatch for {request_id}",
+            )
+            require(strict_request_success(observed), f"request: {system} strict failure")
+            for field in TIMING_FIELDS:
+                value = observed.get(field)
+                require(
+                    isinstance(value, (int, float))
+                    and not isinstance(value, bool)
+                    and math.isfinite(float(value))
+                    and float(value) >= 0,
+                    f"request: {system} invalid {field} for {request_id}",
+                )
         sequences[system] = [
             (str(row["request_id"]), str(row["model"]), float(row["scheduled_offset_s"]))
             for row in rows
         ]
-        require(
-            [item[0] for item in sequences[system]] == [f"w1-{i:03d}" for i in range(20)],
-            f"request: {system} unsupported historical identity sequence",
-        )
+
     require(
         sequences["Proposed"] == sequences["llama-swap"],
-        "request: systems do not share frozen request identity sequence",
+        "request: systems do not share the frozen identity sequence",
     )
     summary = json.loads((family / "summary.json").read_text(encoding="utf-8"))["e2e"]
-    require(set(summary) == set(SYSTEM_DIRS), "request: expected exactly two-system summary")
-    require(summary == e2e_summary(family), "request: raw recomputation does not equal summary")
+    require(set(summary) == set(SYSTEM_DIRS), "request: expected exactly two systems")
+    require(summary == e2e_summary(family), "request: raw recomputation differs")
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate request-driven-switch result semantics")
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate request-driven-switch semantics")
     parser.add_argument("path", nargs="?", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     validate_family(args.path)
     return 0
 

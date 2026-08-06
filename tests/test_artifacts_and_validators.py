@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from llm_switch_bench.artifacts import build_all, lifecycle_summary_rows
-from llm_switch_bench.validation.validate_all import main as validate_all
+from llm_switch_bench.validation.validate_all import validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
@@ -30,7 +30,7 @@ def test_build_all_is_deterministic_and_validates() -> None:
     second = digest_tree()
     assert first == second
     assert {path.name for path in RESULTS.iterdir()} == {"README.md", *FAMILIES}
-    assert validate_all() == 0
+    validate_all()
 
 
 def test_lifecycle_summary_preserves_v0_1_cells() -> None:
