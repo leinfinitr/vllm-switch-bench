@@ -22,7 +22,7 @@ SwapServeLLM manages vLLM backends through a router, container runtime, and NVID
 Run the adapter only after starting the external router:
 
 ```bash
-uv run python src/bench_swapservellm.py \
+uv run python -m llm_switch_bench.adapters.swapservellm \
   --repo /path/to/SwapServeLLM \
   --base-url http://127.0.0.1:8000 \
   --model /path/to/model \

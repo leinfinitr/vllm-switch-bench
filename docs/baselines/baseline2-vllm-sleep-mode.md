@@ -10,7 +10,7 @@ The harness keeps lifecycle phases separate:
 - **L2 wake:** map weights, reload the checkpoint, then restore KV-cache mappings. The reported wake includes the complete supported transaction.
 
 ```bash
-uv run python src/bench_vllm_lifecycle.py \
+scripts/lifecycle-latency.sh \
   --model /path/to/Qwen2.5-0.5B-Instruct \
   --python .venv/bin/python \
   --workdir /path/to/vllm \

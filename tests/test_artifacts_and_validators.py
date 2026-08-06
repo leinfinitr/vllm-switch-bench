@@ -59,7 +59,7 @@ def test_migrated_headline_aggregates_are_exactly_preserved() -> None:
     build_all()
     source = json.loads(
         __import__("subprocess").check_output(
-            ["git", "show", "836539b^:results/release-v0.1/summary.json"],
+            ["git", "show", "v0.1.8:results/release-v0.1/summary.json"],
             cwd=ROOT,
             text=True,
         )
