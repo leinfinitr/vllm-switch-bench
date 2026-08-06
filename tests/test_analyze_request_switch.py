@@ -1,13 +1,11 @@
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from tool.analyze_request_switch import (  # noqa: E402
+from llm_switch_bench.experiments.request_driven_switch.analyze import (  # noqa: E402
     summarize,
     summarize_controller_switches,
     summarize_manifest,
@@ -35,13 +33,24 @@ def test_summarize_request_switch_keeps_failures(tmp_path):
     manifest = tmp_path / "request-switch-alternating.jsonl"
     manifest.write_text("{}\n{}\n")
     digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
-    (tmp_path / "metadata.json").write_text(json.dumps({
-        "repeats": 1, "workloads": ["w1"], "runs": [{
-            "workload": "w1", "repeat": 0,
-            "manifest": manifest.name, "manifest_sha256": digest,
-            "output": "w1-r0.jsonl", "returncode": 0,
-        }]
-    }))
+    (tmp_path / "metadata.json").write_text(
+        json.dumps(
+            {
+                "repeats": 1,
+                "workloads": ["w1"],
+                "runs": [
+                    {
+                        "workload": "w1",
+                        "repeat": 0,
+                        "manifest": manifest.name,
+                        "manifest_sha256": digest,
+                        "output": "w1-r0.jsonl",
+                        "returncode": 0,
+                    }
+                ],
+            }
+        )
+    )
     summary = summarize(tmp_path)
     assert summary["w1"]["requests"] == 2
     assert summary["w1"]["success"] == 1
@@ -92,9 +101,7 @@ def test_summarize_manifest_reports_scheduled_rate(tmp_path):
 def test_summarize_rejects_missing_or_failed_matrix_runs(tmp_path):
     manifest = tmp_path / "request-switch-steady.jsonl"
     manifest.write_text("{}\n{}\n")
-    (tmp_path / "w0-r0.jsonl").write_text(
-        json.dumps({"status": 200, "stream_done": True}) + "\n"
-    )
+    (tmp_path / "w0-r0.jsonl").write_text(json.dumps({"status": 200, "stream_done": True}) + "\n")
     digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
     metadata = {
         "repeats": 2,
@@ -129,9 +136,7 @@ def test_summarize_rejects_metadata_missing_an_entire_workload(tmp_path):
     runs = []
     for repeat in range(2):
         output = f"w0-r{repeat}.jsonl"
-        (tmp_path / output).write_text(
-            json.dumps({"status": 200, "stream_done": True}) + "\n"
-        )
+        (tmp_path / output).write_text(json.dumps({"status": 200, "stream_done": True}) + "\n")
         runs.append(
             {
                 "workload": "w0",
@@ -161,10 +166,20 @@ def test_summarize_rejects_undeclared_output_checksum_and_redirect(tmp_path):
     digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
     row = {"status": 302, "error": None, "stream_done": True}
     (tmp_path / "w0-r0.jsonl").write_text(json.dumps(row) + "\n")
-    metadata = {"repeats": 1, "workloads": ["w0"], "runs": [{
-        "workload": "w0", "repeat": 0, "manifest": manifest.name,
-        "manifest_sha256": digest, "output": "w0-r0.jsonl", "returncode": 0,
-    }]}
+    metadata = {
+        "repeats": 1,
+        "workloads": ["w0"],
+        "runs": [
+            {
+                "workload": "w0",
+                "repeat": 0,
+                "manifest": manifest.name,
+                "manifest_sha256": digest,
+                "output": "w0-r0.jsonl",
+                "returncode": 0,
+            }
+        ],
+    }
     (tmp_path / "metadata.json").write_text(json.dumps(metadata))
     summary = summarize(tmp_path)
     assert summary["w0"]["success"] == 0
@@ -172,7 +187,7 @@ def test_summarize_rejects_undeclared_output_checksum_and_redirect(tmp_path):
     with pytest.raises(ValueError, match="undeclared output"):
         summarize(tmp_path)
     (tmp_path / "w0-r99.jsonl").unlink()
-    manifest.write_text("{\"changed\": true}\n")
+    manifest.write_text('{"changed": true}\n')
     with pytest.raises(ValueError, match="checksum mismatch"):
         summarize(tmp_path)
 
@@ -180,10 +195,7 @@ def test_summarize_rejects_undeclared_output_checksum_and_redirect(tmp_path):
 def test_summarize_binds_each_output_row_to_manifest_identity(tmp_path):
     manifest = tmp_path / "trace.jsonl"
     manifest.write_text(
-        json.dumps(
-            {"request_id": "expected", "model": "a", "scheduled_offset_s": 1.0}
-        )
-        + "\n"
+        json.dumps({"request_id": "expected", "model": "a", "scheduled_offset_s": 1.0}) + "\n"
     )
     digest = __import__("hashlib").sha256(manifest.read_bytes()).hexdigest()
     output = tmp_path / "w0-r0.jsonl"

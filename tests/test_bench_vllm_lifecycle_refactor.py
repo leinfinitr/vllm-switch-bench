@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-import importlib.util
 import json
-import sys
-from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
-MODULE_PATH = SRC / "bench_vllm_lifecycle.py"
-spec = importlib.util.spec_from_file_location("bench_vllm_lifecycle", MODULE_PATH)
-assert spec is not None and spec.loader is not None
-bench = importlib.util.module_from_spec(spec)
-sys.modules[spec.name] = bench
-spec.loader.exec_module(bench)
+from llm_switch_bench.experiments.lifecycle_latency import run as bench
 
 
 def test_vllm_harness_uses_benchlib_prompt_catalog():
-    from benchlib.schema import PROMPTS
+    from llm_switch_bench.common.schema import PROMPTS
 
     assert bench.PROMPTS is PROMPTS
 
@@ -37,7 +26,11 @@ def test_vllm_harness_uses_benchlib_summary_writer(tmp_path):
                 "prompt_name": "short_short",
                 "repeat_index": 0,
                 "ok": True,
-                "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.2, "approx_tokens_per_s": 3.0},
+                "infer_before": {
+                    "ttft_s": 0.1,
+                    "client_latency_s": 0.2,
+                    "approx_tokens_per_s": 3.0,
+                },
                 "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.3, "approx_tokens_per_s": 4.0},
             }
         ],
@@ -48,16 +41,22 @@ def test_vllm_harness_uses_benchlib_summary_writer(tmp_path):
 
 
 def test_vllm_main_dry_run_metadata_records_system(tmp_path, monkeypatch):
-    monkeypatch.setattr(bench, "run_cmd", lambda *args, **kwargs: type("CP", (), {"stdout": "0,FakeGPU,10240,999.1\n"})())
-    rc = bench.main([
-        "--model",
-        "dummy",
-        "--out-dir",
-        str(tmp_path),
-        "--sleep-cpu-backup-pin-memory",
-        "false",
-        "--dry-run",
-    ])
+    monkeypatch.setattr(
+        bench,
+        "run_cmd",
+        lambda *args, **kwargs: type("CP", (), {"stdout": "0,FakeGPU,10240,999.1\n"})(),
+    )
+    rc = bench.main(
+        [
+            "--model",
+            "dummy",
+            "--out-dir",
+            str(tmp_path),
+            "--sleep-cpu-backup-pin-memory",
+            "false",
+            "--dry-run",
+        ]
+    )
     assert rc == 0
     created = [p for p in tmp_path.iterdir() if p.is_dir()]
     metadata = (created[0] / "metadata.json").read_text()

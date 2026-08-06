@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from benchlib.http import parse_openai_stream_response
-from benchlib.schema import Event, JsonlLogger, PROMPTS, write_summary_csv
+from llm_switch_bench.common.http import parse_openai_stream_response
+from llm_switch_bench.common.schema import Event, JsonlLogger, PROMPTS, write_summary_csv
 
 
 class FakeResponse:
@@ -36,8 +33,16 @@ def test_summary_csv_includes_system_and_method(tmp_path):
                 "startup_to_health_s": 1.25,
                 "evict": {"latency_s": 0.2},
                 "restore": {"latency_s": 0.4},
-                "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.8, "approx_tokens_per_s": 20.0},
-                "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.9, "approx_tokens_per_s": 18.0},
+                "infer_before": {
+                    "ttft_s": 0.1,
+                    "client_latency_s": 0.8,
+                    "approx_tokens_per_s": 20.0,
+                },
+                "infer_after": {
+                    "ttft_s": 0.2,
+                    "client_latency_s": 0.9,
+                    "approx_tokens_per_s": 18.0,
+                },
             }
         ],
     )
@@ -57,7 +62,7 @@ def test_openai_stream_parser_extracts_ttft_and_text():
         [
             'data: {"choices": [{"text": "Hello"}]}',
             'data: {"choices": [{"delta": {"content": " world"}}], "usage": {"completion_tokens": 2}}',
-            'data: [DONE]',
+            "data: [DONE]",
         ]
     )
     now_values = iter([1.125])

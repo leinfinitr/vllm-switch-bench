@@ -1,36 +1,14 @@
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
-
-
-def load_module(name: str, path: Path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-repeated = load_module(
-    "bench_vllm_repeated_sleep_l1_test",
-    SRC / "bench_vllm_repeated_sleep_l1.py",
-)
-pin_compare = load_module(
-    "bench_vllm_pin_compare_test",
-    SRC / "bench_vllm_pin_compare.py",
-)
+from llm_switch_bench.experiments.backup_reuse_reclaim import pin_compare
+from llm_switch_bench.experiments.backup_reuse_reclaim import run as repeated
 
 
 def test_repeated_sleep_requires_explicit_model_specs():
@@ -245,9 +223,7 @@ def test_fetch_run_coordinator_stats_filters_unrelated_clients(monkeypatch):
         lambda *_args: Opener(),
     )
 
-    stats = repeated.fetch_run_coordinator_stats(
-        "http://127.0.0.1:9000", "run-a", 0.5
-    )
+    stats = repeated.fetch_run_coordinator_stats("http://127.0.0.1:9000", "run-a", 0.5)
 
     assert stats["client_count"] == 1
     assert stats["requested_release_bytes_total"] == 1024
@@ -261,15 +237,11 @@ def test_git_metadata_distinguishes_untracked_artifacts(tmp_path: Path):
         ["git", "-C", str(tmp_path), "config", "user.email", "test@example.com"],
         check=True,
     )
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "config", "user.name", "Test"], check=True
-    )
+    subprocess.run(["git", "-C", str(tmp_path), "config", "user.name", "Test"], check=True)
     tracked = tmp_path / "tracked.txt"
     tracked.write_text("committed\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "commit", "-qm", "test"], check=True
-    )
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-qm", "test"], check=True)
     (tmp_path / "raw.json").write_text("{}\n", encoding="utf-8")
 
     metadata = repeated.git_metadata(tmp_path)

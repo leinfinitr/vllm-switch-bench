@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_serverless_llm import (
+from llm_switch_bench.adapters.serverlessllm import (
     build_register_payload,
     infer,
     parse_args,
@@ -70,35 +68,41 @@ def test_build_register_payload_uses_vllm_backend_and_local_model():
     assert payload["backend"] == "vllm"
     assert payload["num_gpus"] == 1
     assert payload["auto_scaling_config"]["min_instances"] == 0
-    assert (
-        payload["backend_config"]["pretrained_model_name_or_path"]
-        == "/models/example"
-    )
+    assert payload["backend_config"]["pretrained_model_name_or_path"] == "/models/example"
 
 
 def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(monkeypatch):
     fake = FakeClient()
     infer_calls: list[str] = []
-    infer_results = iter([
-        infer_result(8.0, prefix="initial warmup"),
-        infer_result(0.8, prefix="before measured"),
-        infer_result(9.0, prefix="restore warmup"),
-        infer_result(0.9, prefix="after measured"),
-    ])
+    infer_results = iter(
+        [
+            infer_result(8.0, prefix="initial warmup"),
+            infer_result(0.8, prefix="before measured"),
+            infer_result(9.0, prefix="restore warmup"),
+            infer_result(0.9, prefix="after measured"),
+        ]
+    )
 
     def fake_infer(base_url, model_name, prompt_name, **kwargs):
         infer_calls.append(prompt_name)
         return next(infer_results)
 
-    wait_calls = iter([
-        {"ok": True, "latency_s": 0.5, "gpu_used_mib": 240, "idle_gpu_threshold_mib": 538},
-    ])
+    wait_calls = iter(
+        [
+            {"ok": True, "latency_s": 0.5, "gpu_used_mib": 240, "idle_gpu_threshold_mib": 538},
+        ]
+    )
     gpu_values = iter([2600, 240])
-    monkeypatch.setattr("bench_serverless_llm.infer", fake_infer)
-    monkeypatch.setattr("bench_serverless_llm.wait_for_scale_to_zero", lambda *args, **kwargs: next(wait_calls))
-    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: next(gpu_values))
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.infer", fake_infer)
     monkeypatch.setattr(
-        "bench_serverless_llm.time.perf_counter",
+        "llm_switch_bench.adapters.serverlessllm.wait_for_scale_to_zero",
+        lambda *args, **kwargs: next(wait_calls),
+    )
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.query_gpu_used_mib", lambda: next(gpu_values)
+    )
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.time.perf_counter",
         iter([1.0, 1.2, 2.0, 2.3]).__next__,
     )
 
@@ -107,9 +111,7 @@ def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(m
         client=fake,
         payload={
             "model": "qwen2p5-0p5b",
-            "benchmark_metadata": {
-                "source_model_path": "/models/example"
-            },
+            "benchmark_metadata": {"source_model_path": "/models/example"},
         },
         prompt_name="long_short",
         repeat_index=0,
@@ -140,15 +142,15 @@ def test_serverless_delete_register_warms_backend_and_measures_ready_latencies(m
 def test_non_200_register_is_failed_with_body_snippet(monkeypatch):
     fake = FakeClient()
     fake.responses[("POST", "/register")] = [FakeResponse(500, text="boom")]
-    monkeypatch.setattr("bench_serverless_llm.infer", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.infer", lambda *args, **kwargs: {"ok": True}
+    )
     row = run_delete_register(
         base_url="http://127.0.0.1:8343",
         client=fake,
         payload={
             "model": "qwen2p5-0p5b",
-            "benchmark_metadata": {
-                "source_model_path": "/models/example"
-            },
+            "benchmark_metadata": {"source_model_path": "/models/example"},
         },
         prompt_name="short_short",
         repeat_index=0,
@@ -162,20 +164,29 @@ def test_non_200_register_is_failed_with_body_snippet(monkeypatch):
 
 def test_summary_row_has_system_serverless_llm(monkeypatch):
     fake = FakeClient()
-    infer_results = iter([
-        infer_result(1.0),
-        infer_result(0.2),
-        infer_result(1.0),
-        infer_result(0.2),
-    ])
-    monkeypatch.setattr("bench_serverless_llm.infer", lambda *args, **kwargs: next(infer_results))
-    monkeypatch.setattr(
-        "bench_serverless_llm.wait_for_scale_to_zero",
-        lambda *args, **kwargs: {"ok": True, "latency_s": 0.1, "gpu_used_mib": 238, "idle_gpu_threshold_mib": 538},
+    infer_results = iter(
+        [
+            infer_result(1.0),
+            infer_result(0.2),
+            infer_result(1.0),
+            infer_result(0.2),
+        ]
     )
-    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: 238)
     monkeypatch.setattr(
-        "bench_serverless_llm.time.perf_counter",
+        "llm_switch_bench.adapters.serverlessllm.infer", lambda *args, **kwargs: next(infer_results)
+    )
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.wait_for_scale_to_zero",
+        lambda *args, **kwargs: {
+            "ok": True,
+            "latency_s": 0.1,
+            "gpu_used_mib": 238,
+            "idle_gpu_threshold_mib": 538,
+        },
+    )
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.query_gpu_used_mib", lambda: 238)
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.time.perf_counter",
         iter([1.0, 1.1, 2.0, 2.1]).__next__,
     )
     row = run_delete_register(
@@ -183,9 +194,7 @@ def test_summary_row_has_system_serverless_llm(monkeypatch):
         client=fake,
         payload={
             "model": "qwen2p5-0p5b",
-            "benchmark_metadata": {
-                "source_model_path": "/models/example"
-            },
+            "benchmark_metadata": {"source_model_path": "/models/example"},
         },
         prompt_name="short_short",
         repeat_index=0,
@@ -217,20 +226,27 @@ def test_scale_to_zero_restore_warms_backend_and_subtracts_ready_request(monkeyp
     wait_calls = iter(
         [
             {"ok": True, "latency_s": 0.6, "body": "baseline idle", "idle_gpu_threshold_mib": 538},
-            {"ok": True, "latency_s": 2.5, "body": "scaled zero", "gpu_used_mib": 238, "idle_gpu_threshold_mib": 538},
+            {
+                "ok": True,
+                "latency_s": 2.5,
+                "body": "scaled zero",
+                "gpu_used_mib": 238,
+                "idle_gpu_threshold_mib": 538,
+            },
         ]
     )
-    monkeypatch.setattr("bench_serverless_llm.infer", fake_infer)
-    monkeypatch.setattr("bench_serverless_llm.wait_for_scale_to_zero", lambda *args, **kwargs: next(wait_calls))
-    monkeypatch.setattr("bench_serverless_llm.query_gpu_used_mib", lambda: 2600)
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.infer", fake_infer)
+    monkeypatch.setattr(
+        "llm_switch_bench.adapters.serverlessllm.wait_for_scale_to_zero",
+        lambda *args, **kwargs: next(wait_calls),
+    )
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.query_gpu_used_mib", lambda: 2600)
     row = run_scale_to_zero_restore(
         base_url="http://127.0.0.1:8343",
         client=fake,
         payload={
             "model": "qwen2p5-0p5b",
-            "benchmark_metadata": {
-                "source_model_path": "/models/example"
-            },
+            "benchmark_metadata": {"source_model_path": "/models/example"},
         },
         prompt_name="short_long",
         repeat_index=0,
@@ -274,13 +290,13 @@ def test_wait_for_scale_to_zero_requires_model_absent_and_gpu_idle(monkeypatch):
             return self.responses.pop(0)
 
     monkeypatch.setattr(
-        "bench_serverless_llm.query_gpu_used_mib", iter([200, 200, 200]).__next__
+        "llm_switch_bench.adapters.serverlessllm.query_gpu_used_mib", iter([200, 200, 200]).__next__
     )
     monkeypatch.setattr(
-        "bench_serverless_llm.time.perf_counter",
+        "llm_switch_bench.adapters.serverlessllm.time.perf_counter",
         iter([0.0, 0.0, 0.1, 0.1]).__next__,
     )
-    monkeypatch.setattr("bench_serverless_llm.time.sleep", lambda _value: None)
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.time.sleep", lambda _value: None)
 
     result = wait_for_scale_to_zero(
         "http://127.0.0.1:8343",
@@ -296,12 +312,14 @@ def test_wait_for_scale_to_zero_requires_model_absent_and_gpu_idle(monkeypatch):
 
 
 def test_scale_to_zero_poll_interval_defaults_to_one_millisecond():
-    args = parse_args([
-        "--repo",
-        "/repo/ServerlessLLM",
-        "--model",
-        "/host-models/hf/Qwen2.5-0.5B-Instruct",
-    ])
+    args = parse_args(
+        [
+            "--repo",
+            "/repo/ServerlessLLM",
+            "--model",
+            "/host-models/hf/Qwen2.5-0.5B-Instruct",
+        ]
+    )
     assert args.scale_zero_poll_interval == pytest.approx(0.001)
 
 
@@ -309,7 +327,7 @@ def test_infer_returns_structured_timeout_error(monkeypatch):
     def raise_timeout(*args, **kwargs):
         raise __import__("requests").exceptions.ReadTimeout("slow request")
 
-    monkeypatch.setattr("bench_serverless_llm.requests.post", raise_timeout)
+    monkeypatch.setattr("llm_switch_bench.adapters.serverlessllm.requests.post", raise_timeout)
     row = infer("http://127.0.0.1:8343", "qwen", "short_short", timeout_s=0.01)
     assert row["ok"] is False
     assert row["status"] is None

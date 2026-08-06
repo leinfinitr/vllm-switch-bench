@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "scripts" / "run_exact_disk_profile.py"
 DEFAULT_BACKUP_ROOT = (ROOT / "runtime" / "exact-disk-backups").resolve()
 
 
@@ -62,11 +61,9 @@ print("synthetic benchmark complete")
     return path
 
 
-def run_script(
-    *args: str, env: dict[str, str] | None = None
-) -> subprocess.CompletedProcess[str]:
+def run_script(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPT), *args],
+        [sys.executable, "-m", "llm_switch_bench.experiments.exact_disk.run", *args],
         cwd=ROOT,
         env={**os.environ, **(env or {})},
         capture_output=True,
@@ -150,12 +147,8 @@ def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
     assert run["environment"]["benchmark_repo"]["commit"]
     assert "status_porcelain" in run["environment"]["benchmark_repo"]
     assert run["model"] == {"name": "model-a", "path": "/models/a"}
-    summary = json.loads(
-        (output / "curated" / "summary.json").read_text(encoding="utf-8")
-    )
-    assertions = json.loads(
-        (output / "curated" / "assertions.json").read_text(encoding="utf-8")
-    )
+    summary = json.loads((output / "curated" / "summary.json").read_text(encoding="utf-8"))
+    assertions = json.loads((output / "curated" / "assertions.json").read_text(encoding="utf-8"))
     assert summary["profile"]["disk_spill_bytes"] == 4
     assert summary["profile"]["disk_read_bytes"] == 4
     assert summary["resources"]["sample_count"] >= 1
@@ -167,9 +160,7 @@ def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
     assert (output / "raw" / "command.stdout.log").read_text().strip() == (
         "synthetic benchmark complete"
     )
-    manifest = json.loads(
-        (output / "raw" / "evidence_manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((output / "raw" / "evidence_manifest.json").read_text(encoding="utf-8"))
     assert manifest["evidence_tier"] == "local_raw"
     assert "exact_disk_profile.jsonl" in manifest["files"]
     assert "resources.jsonl" in manifest["files"]
@@ -245,12 +236,8 @@ def test_runner_refuses_to_overwrite_existing_output(tmp_path: Path):
 
 
 def test_runner_requires_explicit_model_and_command(tmp_path: Path):
-    missing_model = run_script(
-        "--out-dir", str(tmp_path / "a"), "--", sys.executable, "fake.py"
-    )
+    missing_model = run_script("--out-dir", str(tmp_path / "a"), "--", sys.executable, "fake.py")
     assert missing_model.returncode == 2
 
-    missing_command = run_script(
-        "--model", "model-a=/models/a", "--out-dir", str(tmp_path / "b")
-    )
+    missing_command = run_script("--model", "model-a=/models/a", "--out-dir", str(tmp_path / "b"))
     assert missing_command.returncode == 2

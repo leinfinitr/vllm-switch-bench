@@ -8,15 +8,14 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
-from benchlib.exact_disk import (
+from llm_switch_bench.experiments.exact_disk.evidence import (
     ExactDiskRequirements,
     build_curated_artifacts,
     parse_exact_disk_profile,
     validate_exact_disk_summary,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -187,9 +186,7 @@ def test_profile_parser_collects_exact_disk_metrics_and_ignores_other_events(
         ),
     ],
 )
-def test_profile_parser_rejects_invalid_exact_disk_schema(
-    tmp_path: Path, row: dict, match: str
-):
+def test_profile_parser_rejects_invalid_exact_disk_schema(tmp_path: Path, row: dict, match: str):
     profile = tmp_path / "profile.jsonl"
     write_jsonl(profile, [row])
 
@@ -212,7 +209,8 @@ def test_collect_cli_builds_curated_artifacts_from_existing_raw_run(tmp_path: Pa
     proc = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "src" / "tool" / "collect_exact_disk_profile.py"),
+            "-m",
+            "llm_switch_bench.experiments.exact_disk.collect",
             "--raw-dir",
             str(raw_dir),
             "--curated-dir",

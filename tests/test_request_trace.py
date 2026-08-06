@@ -1,13 +1,10 @@
 import json
 import math
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from benchlib.request_trace import load_manifest, validate_manifest
+from llm_switch_bench.common.traces import load_manifest, validate_manifest
 
 
 def test_validate_manifest_rejects_duplicate_ids_and_non_monotonic_arrivals():

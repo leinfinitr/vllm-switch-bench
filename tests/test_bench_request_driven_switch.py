@@ -1,7 +1,5 @@
 import asyncio
-import sys
 import time
-from pathlib import Path
 
 import httpx
 
@@ -9,9 +7,13 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from httpx import ASGITransport
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bench_request_driven_switch import _dispatch_one, failed_record, parse_sse_events, run_trace
+from llm_switch_bench.experiments.request_driven_switch.run import (
+    _dispatch_one,
+    failed_record,
+    parse_sse_events,
+    run_trace,
+)
 
 
 def test_parse_sse_events_handles_multiple_events_in_one_raw_chunk():

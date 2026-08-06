@@ -1,6 +1,10 @@
+[build-system]
+requires = ["hatchling>=1.28.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "llm-switch-bench"
-version = "0.1.8"
+version = "0.2.0.dev0"
 description = "Reproducible harnesses and artifacts for LLM lifecycle and model-switch benchmarks"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -15,25 +19,30 @@ dependencies = [
   "requests==2.34.2",
 ]
 
+[project.scripts]
+llm-switch-build-all = "llm_switch_bench.build_all:main"
+llm-switch-validate-all = "llm_switch_bench.validation.validate_all:main"
+llm-switch-check-docs = "llm_switch_bench.check_docs:main"
+llm-switch-lifecycle = "llm_switch_bench.experiments.lifecycle_latency.run:main"
+llm-switch-trace-matrix = "llm_switch_bench.experiments.request_driven_switch.matrix:main"
+llm-switch-backup = "llm_switch_bench.experiments.backup_reuse_reclaim.run:main"
+llm-switch-exact-disk = "llm_switch_bench.experiments.exact_disk.run:main"
+
 [dependency-groups]
 dev = [
+  "build==1.3.0",
   "fastapi==0.136.3",
   "pytest==9.0.3",
   "ruff==0.16.1",
 ]
 
-[tool.uv]
-package = false
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_switch_bench"]
 
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-extend-exclude = ["results", "docs/archive"]
+extend-exclude = ["results"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
-
-[tool.ruff.lint.per-file-ignores]
-"scripts/run_exact_disk_profile.py" = ["E402"]
-"src/tool/collect_exact_disk_profile.py" = ["E402"]
-"tests/test_exact_disk_profile.py" = ["E402"]

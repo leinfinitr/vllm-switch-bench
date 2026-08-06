@@ -1,10 +1,8 @@
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from tool.plot_request_switch import plot_summary  # noqa: E402
+from llm_switch_bench.experiments.request_driven_switch.plot import plot_summary  # noqa: E402
 
 
 def test_plot_summary_creates_expected_figures(tmp_path):

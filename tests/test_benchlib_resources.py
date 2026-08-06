@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from benchlib.resources import (
+from llm_switch_bench.common.resources import (
     docker_container_rss_mib,
     parse_gpu_memory_used_mib,
     podman_container_rss_mib,
@@ -35,7 +32,9 @@ def test_process_tree_rss_mib_aggregates_parent_and_children(monkeypatch):
             assert recursive is True
             return [FakeProc(2), FakeProc(3)]
 
-    monkeypatch.setattr("benchlib.resources.psutil.Process", lambda pid: FakeProc(pid))
+    monkeypatch.setattr(
+        "llm_switch_bench.common.resources.psutil.Process", lambda pid: FakeProc(pid)
+    )
     assert process_tree_rss_bytes(1) == 6 * 1024 * 1024
     assert process_tree_rss_mib(1) == pytest.approx(6.0)
 

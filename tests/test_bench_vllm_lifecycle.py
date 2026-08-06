@@ -1,25 +1,12 @@
 #!/usr/bin/env python3
-"""Tests for bench_vllm_lifecycle helpers.
-
-These tests avoid launching vLLM. They guard the data-shaping pieces so later
-changes to the benchmark harness do not silently corrupt result summaries.
-"""
 from __future__ import annotations
 
 import csv
-import importlib.util
-import sys
 from pathlib import Path
 
+from llm_switch_bench.experiments.lifecycle_latency import run as bench
+
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
-MODULE_PATH = SRC / "bench_vllm_lifecycle.py"
-spec = importlib.util.spec_from_file_location("bench_vllm_lifecycle", MODULE_PATH)
-assert spec is not None and spec.loader is not None
-bench = importlib.util.module_from_spec(spec)
-sys.modules[spec.name] = bench
-spec.loader.exec_module(bench)
 
 
 def test_parse_args_rejects_unknown_prompt():
@@ -46,12 +33,14 @@ def test_parse_args_default_out_dir_is_repo_local_results():
 
 
 def test_parse_args_accepts_repeatable_extra_vllm_args():
-    args = bench.parse_args([
-        "--model",
-        "dummy",
-        "--extra-vllm-arg=--skip-mm-profiling",
-        "--extra-vllm-arg=--cpu-offload-gb 2",
-    ])
+    args = bench.parse_args(
+        [
+            "--model",
+            "dummy",
+            "--extra-vllm-arg=--skip-mm-profiling",
+            "--extra-vllm-arg=--cpu-offload-gb 2",
+        ]
+    )
     assert args.extra_vllm_arg == ["--skip-mm-profiling", "--cpu-offload-gb 2"]
 
 
@@ -78,9 +67,7 @@ def test_dry_run_metadata_records_engine_and_benchmark_provenance(tmp_path):
     )
     assert rc == 0
     created = next(path for path in tmp_path.iterdir() if path.is_dir())
-    metadata = __import__("json").loads(
-        (created / "metadata.json").read_text(encoding="utf-8")
-    )
+    metadata = __import__("json").loads((created / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["benchmark_git"]["commit"]
     assert metadata["engine_git"]["commit"]
     assert isinstance(metadata["engine_git"]["tracked_dirty"], bool)
@@ -88,21 +75,32 @@ def test_dry_run_metadata_records_engine_and_benchmark_provenance(tmp_path):
 
 def test_write_summary_csv_flattens_nested_metrics(tmp_path):
     out = tmp_path / "summary.csv"
-    bench.write_summary_csv(out, [
-        {
-            "run_id": "r1",
-            "method": "sleep_l1",
-            "model": "m",
-            "prompt_name": "short_short",
-            "repeat_index": 0,
-            "ok": True,
-            "startup_to_health_s": 1.5,
-            "evict": {"latency_s": 0.25},
-            "restore": {"latency_s": 0.75},
-            "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.8, "approx_tokens_per_s": 20.0},
-            "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.9, "approx_tokens_per_s": 18.0},
-        }
-    ])
+    bench.write_summary_csv(
+        out,
+        [
+            {
+                "run_id": "r1",
+                "method": "sleep_l1",
+                "model": "m",
+                "prompt_name": "short_short",
+                "repeat_index": 0,
+                "ok": True,
+                "startup_to_health_s": 1.5,
+                "evict": {"latency_s": 0.25},
+                "restore": {"latency_s": 0.75},
+                "infer_before": {
+                    "ttft_s": 0.1,
+                    "client_latency_s": 0.8,
+                    "approx_tokens_per_s": 20.0,
+                },
+                "infer_after": {
+                    "ttft_s": 0.2,
+                    "client_latency_s": 0.9,
+                    "approx_tokens_per_s": 18.0,
+                },
+            }
+        ],
+    )
     rows = list(csv.DictReader(out.open()))
     assert rows[0]["method"] == "sleep_l1"
     assert rows[0]["evict_latency_s"] == "0.25"
@@ -120,24 +118,27 @@ def test_dry_run_creates_output_directory(tmp_path):
 
 def test_write_summary_csv_uses_new_vllm_metric_fields(tmp_path):
     out = tmp_path / "summary.csv"
-    bench.write_summary_csv(out, [
-        {
-            "system": "vllm",
-            "run_id": "r1",
-            "method": "sleep_l1",
-            "model": "m",
-            "prompt_name": "short_short",
-            "repeat_index": 0,
-            "ok": True,
-            "startup_latency_s": 1.5,
-            "memory_gpu_used_ready_mib": 1000,
-            "memory_gpu_used_evict_mib": 500,
-            "evict": {"latency_s": 0.25},
-            "restore": {"latency_s": 0.75},
-            "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.8, "completion_tokens": 8},
-            "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.9, "completion_tokens": 9},
-        }
-    ])
+    bench.write_summary_csv(
+        out,
+        [
+            {
+                "system": "vllm",
+                "run_id": "r1",
+                "method": "sleep_l1",
+                "model": "m",
+                "prompt_name": "short_short",
+                "repeat_index": 0,
+                "ok": True,
+                "startup_latency_s": 1.5,
+                "memory_gpu_used_ready_mib": 1000,
+                "memory_gpu_used_evict_mib": 500,
+                "evict": {"latency_s": 0.25},
+                "restore": {"latency_s": 0.75},
+                "infer_before": {"ttft_s": 0.1, "client_latency_s": 0.8, "completion_tokens": 8},
+                "infer_after": {"ttft_s": 0.2, "client_latency_s": 0.9, "completion_tokens": 9},
+            }
+        ],
+    )
     rows = list(csv.DictReader(out.open()))
     assert rows[0]["startup_latency_s"] == "1.5"
     assert rows[0]["memory_gpu_used_ready_mib"] == "1000"

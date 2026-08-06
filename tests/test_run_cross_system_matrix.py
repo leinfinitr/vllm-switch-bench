@@ -2,16 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "src"))
 
-from run_cross_system_matrix import (  # noqa: E402
+from llm_switch_bench.experiments.request_driven_switch.matrix import (  # noqa: E402
     async_main,
     parse_args,
     parse_system,
@@ -40,9 +37,7 @@ def test_parse_system_accepts_external_and_managed():
     external = parse_system("proposed=http://127.0.0.1:9000")
     assert external.name == "proposed"
     assert external.launch is None
-    managed = parse_system(
-        'cold=http://127.0.0.1:18100::["binary","--config","x"]'
-    )
+    managed = parse_system('cold=http://127.0.0.1:18100::["binary","--config","x"]')
     assert managed.launch == ["binary", "--config", "x"]
 
 
@@ -79,7 +74,9 @@ def test_run_one_writes_authenticated_output(monkeypatch, tmp_path: Path):
             }
         ]
 
-    monkeypatch.setattr("run_cross_system_matrix.run_trace", fake_run_trace)
+    monkeypatch.setattr(
+        "llm_switch_bench.experiments.request_driven_switch.matrix.run_trace", fake_run_trace
+    )
     output = tmp_path / "out.jsonl"
     result = asyncio.run(
         run_one(
@@ -111,7 +108,9 @@ def test_run_one_removes_stale_output_when_execution_fails(monkeypatch, tmp_path
     async def fail_run_trace(*args, **kwargs):
         raise RuntimeError("synthetic failure")
 
-    monkeypatch.setattr("run_cross_system_matrix.run_trace", fail_run_trace)
+    monkeypatch.setattr(
+        "llm_switch_bench.experiments.request_driven_switch.matrix.run_trace", fail_run_trace
+    )
     result = asyncio.run(
         run_one(
             parse_system("test=http://127.0.0.1:1"),
@@ -128,16 +127,14 @@ def test_run_one_removes_stale_output_when_execution_fails(monkeypatch, tmp_path
     assert not output.exists()
 
 
-def test_run_one_removes_stale_output_before_manifest_reload_failure(
-    monkeypatch, tmp_path: Path
-):
+def test_run_one_removes_stale_output_before_manifest_reload_failure(monkeypatch, tmp_path: Path):
     manifest = tmp_path / "manifest.jsonl"
     manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
     output = tmp_path / "out.jsonl"
     output.write_text('{"stale":true}\n', encoding="utf-8")
 
     monkeypatch.setattr(
-        "run_cross_system_matrix.load_manifest",
+        "llm_switch_bench.experiments.request_driven_switch.matrix.load_manifest",
         lambda _path: (_ for _ in ()).throw(ValueError("synthetic reload failure")),
     )
     result = asyncio.run(
@@ -169,9 +166,11 @@ def test_matrix_exit_rejects_strict_request_failures(monkeypatch, tmp_path: Path
 
     manifest = tmp_path / "trace.jsonl"
     manifest.write_text(json.dumps(manifest_rows()[0]) + "\n", encoding="utf-8")
-    monkeypatch.setattr("run_cross_system_matrix.run_one", fake_run_one)
     monkeypatch.setattr(
-        "run_cross_system_matrix.git_metadata",
+        "llm_switch_bench.experiments.request_driven_switch.matrix.run_one", fake_run_one
+    )
+    monkeypatch.setattr(
+        "llm_switch_bench.experiments.request_driven_switch.matrix.git_metadata",
         lambda path: {"commit": "x", "tree": "y", "tracked_dirty": False},
     )
     args = parse_args(

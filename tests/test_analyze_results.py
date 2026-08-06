@@ -1,12 +1,6 @@
-from pathlib import Path
-import importlib.util
 import json
 
-SRC = Path(__file__).resolve().parents[1] / "src" / "tool" / "analyze_results.py"
-spec = importlib.util.spec_from_file_location("analyze_results", SRC)
-assert spec is not None and spec.loader is not None
-analyze_results = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(analyze_results)
+from llm_switch_bench.common import analyze_results
 
 
 def test_build_report_uses_simplified_startup_latency_field(tmp_path):

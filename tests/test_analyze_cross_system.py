@@ -1,21 +1,11 @@
-import importlib.util
 import hashlib
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-from benchlib.request_trace import write_manifest  # noqa: E402
-
-MODULE = ROOT / "src/tool/analyze_cross_system.py"
-spec = importlib.util.spec_from_file_location("analyze_cross_system", MODULE)
-assert spec and spec.loader
-analyze = importlib.util.module_from_spec(spec)
-sys.modules[spec.name] = analyze
-spec.loader.exec_module(analyze)
+from llm_switch_bench.common.traces import write_manifest
+from llm_switch_bench.experiments.lifecycle_latency import analyze
 
 
 def test_percentile_interpolates():
@@ -49,7 +39,6 @@ def test_summarize_lifecycle_uses_only_ok_rows(tmp_path: Path):
     assert summary["sleep_l1"]["runs"] == 2
     assert summary["sleep_l1"]["success"] == 1
     assert summary["sleep_l1"]["activation_ms"]["median"] == pytest.approx(300)
-
 
 
 def test_trace_analyzer_keeps_failure_in_denominator(tmp_path: Path):
