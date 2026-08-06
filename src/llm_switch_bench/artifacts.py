@@ -369,14 +369,11 @@ def write_family_metadata(
 
 
 def _remove_generated(family_dir: Path) -> None:
-    for relative in ("summary.json", "summary.csv", "metadata.json", "README.md"):
-        path = family_dir / relative
-        path.unlink(missing_ok=True)
-    figures = family_dir / "figures"
-    if figures.exists():
-        for path in figures.iterdir():
-            if path.is_file():
-                path.unlink()
+    # Raw evidence and family config are immutable builder inputs. Generated files are
+    # overwritten atomically below; leaving the previous complete outputs in place avoids a
+    # partially deleted publication tree if plotting or serialization fails.
+    family_dir.mkdir(parents=True, exist_ok=True)
+    (family_dir / "figures").mkdir(parents=True, exist_ok=True)
 
 
 def build_lifecycle(results_root: Path | None = None) -> None:
