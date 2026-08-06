@@ -1,3 +1,3 @@
-# Raw benchmark transcripts preserve terminal carriage returns and whitespace.
-# They are immutable evidence covered by results/release-v0.1/all-files.sha256.
-results/release-v0.1/raw/** -whitespace
+# Generated publication figures are rebuilt from tracked raw evidence.
+results/**/figures/*.pdf binary
+results/**/figures/*.png binary

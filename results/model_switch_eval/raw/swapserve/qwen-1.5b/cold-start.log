@@ -1,6 +1,0 @@
-2026/07/21 18:37:53 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; totalTime: 147.979693ms; CreateContainer: 17.555449ms; StartContainer: 130.423998ms; GetContainerIP: 21ns
-2026/07/21 18:38:32 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; cold-start-time: 38.780081845s
-2026/07/21 18:39:20 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; totalTime: 121.746247ms; CreateContainer: 17.195769ms; StartContainer: 104.550149ms; GetContainerIP: 45ns
-2026/07/21 18:39:59 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; cold-start-time: 38.552038109s
-2026/07/21 18:40:44 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; totalTime: 113.962358ms; CreateContainer: 17.762506ms; StartContainer: 96.199581ms; GetContainerIP: 20ns
-2026/07/21 18:41:23 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-1.5B-Instruct; cold-start-time: 39.546020061s

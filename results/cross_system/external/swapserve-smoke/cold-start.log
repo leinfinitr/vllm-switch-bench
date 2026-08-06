@@ -1,2 +1,0 @@
-2026/07/21 14:33:46 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct; totalTime: 314.201225ms; CreateContainer: 21.383307ms; StartContainer: 292.817601ms; GetContainerIP: 43ns
-2026/07/21 14:34:28 ContainerImage: docker.io/vllm/vllm-openai:latest; ModelName: /home/ljl/models/hf/Qwen2.5-0.5B-Instruct; cold-start-time: 42.385318814s

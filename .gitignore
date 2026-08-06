@@ -1,15 +1,9 @@
 .venv/
 .pytest_cache/
+.ruff_cache/
 __pycache__/
 *.pyc
 results/tmp/
 runtime/
 .env
 configs/*.local.yaml
-*.log
-*.jsonl
-!configs/traces/*.jsonl
-# Curated v0.1 evidence is intentionally tracked despite generic raw-output
-# ignores. The artifact checksum must verify in a fresh checkout.
-!results/release-v0.1/**/*.jsonl
-!results/release-v0.1/**/*.log

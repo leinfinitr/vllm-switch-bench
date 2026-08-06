@@ -1,8 +1,0 @@
-{
-  "started_at": "2026-07-21T04:48:02.395216+00:00",
-  "ended_at": "2026-07-21T04:48:57.206794+00:00",
-  "duration_s": 54.81158570200205,
-  "launch": null,
-  "launch_shell": null,
-  "log": "llama-swap-request-switch-burst-r2.log"
-}
