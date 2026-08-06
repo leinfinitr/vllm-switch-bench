@@ -89,6 +89,14 @@ def validate_family(path: Path | None = None) -> None:
                     all(item.get("output_match") is True for item in rows),
                     f"lifecycle: output mismatch for {system} {model}",
                 )
+                require(
+                    all(
+                        math.isfinite(float(item[f"{phase}_s"])) and float(item[f"{phase}_s"]) > 0
+                        for item in rows
+                        for phase in PHASES
+                    ),
+                    f"lifecycle: invalid raw phase latency for {system} {model}",
+                )
                 if system == "SwapServeLLM":
                     require(
                         all(float(item.get("sleep_gpu_mib", -1)) == 0 for item in rows),

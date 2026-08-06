@@ -123,6 +123,16 @@ def test_lifecycle_validator_rejects_output_mismatch(tmp_path: Path) -> None:
         validate_lifecycle(target)
 
 
+def test_lifecycle_validator_rejects_non_positive_raw_phase(tmp_path: Path) -> None:
+    target = copy_family(tmp_path, "lifecycle-latency")
+    raw = target / "raw" / "proposed" / "qwen-0.5b.json"
+    data = json.loads(raw.read_text())
+    data["rows"][0]["sleep_s"] = -1.0
+    raw.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="invalid raw phase latency"):
+        validate_lifecycle(target)
+
+
 def test_lifecycle_validator_rejects_failed_gpu_postcondition(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "lifecycle-latency")
     raw = target / "raw" / "swapserve" / "qwen-0.5b.json"
