@@ -1,12 +1,11 @@
-# Request-Driven Switch Result
+# Request-driven switch
 
-This is the current claim-supporting result directory. It retains the minimum raw evidence consumed by the builder, a canonical summary, run metadata, and the PDF/PNG paper figure. See the matching experiment document under `../../docs/experiments/request-driven-switch/README.md`.
+Question: what completion latency was observed for the frozen 20-request alternating-model schedule?
 
-Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.
+- Configuration: [`config/workload.json`](config/workload.json)
+- Raw evidence: Proposed and llama-swap arrays/JSONL under [`raw/`](raw/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/request-timeline.pdf`](figures/request-timeline.pdf) ([PNG](figures/request-timeline.png))
+- Method and limitations: [`../../docs/experiments/request-driven-switch/README.md`](../../docs/experiments/request-driven-switch/README.md)
 
-Rebuild from the repository root with:
-
-```bash
-uv run python -m llm_switch_bench.artifacts request-driven-switch
-uv run python -m llm_switch_bench.validation.request_driven_switch.validate
-```
+The validator requires 20 unique request IDs per system, strict success, a shared frozen identity sequence, and raw-to-summary equality. The historical producer did not runtime-bind controller/engine commits, import path, or config hash, so this is a historical local observation rather than exact fresh-clone runtime reproduction. No new data was generated, and the canonical GPU rerun is incomplete.

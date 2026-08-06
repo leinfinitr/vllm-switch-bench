@@ -1,6 +1,8 @@
 {
   "collected_at": "2026-08-04",
-  "config": [],
+  "config": [
+    "config/campaign.json"
+  ],
   "experiment": "lifecycle-latency",
   "external_artifacts": {
     "SwapServeLLM": {
@@ -23,7 +25,6 @@
     "raw/proposed/qwen-0.5b.json",
     "raw/proposed/qwen-1.5b.json",
     "raw/proposed/qwen-3b.json",
-    "raw/serverless/status.json",
     "raw/swapserve/qwen-0.5b.json",
     "raw/swapserve/qwen-1.5b.json",
     "raw/swapserve/qwen-3b.json",

@@ -1,6 +1,8 @@
 {
   "collected_at": "2026-08-04",
-  "config": [],
+  "config": [
+    "config/claims.json"
+  ],
   "experiment": "backup-reuse-reclaim",
   "files": [
     "README.md",

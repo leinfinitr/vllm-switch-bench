@@ -1,12 +1,11 @@
-# Backup Reuse and Reclaim Result
+# Backup reuse and reclaim
 
-This is the current claim-supporting result directory. It retains the minimum raw evidence consumed by the builder, a canonical summary, run metadata, and the PDF/PNG paper figure. See the matching experiment document under `../../docs/experiments/backup-reuse-reclaim/README.md`.
+Question: do repeated sleeps reuse clean CPU backups without another D2H copy, and does pressure reclaim complete logically and physically?
 
-Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.
+- Configuration: [`config/claims.json`](config/claims.json)
+- Raw evidence: three five-event model profiles and one pressure-release observation under [`raw/`](raw/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/backup-reuse.pdf`](figures/backup-reuse.pdf) ([PNG](figures/backup-reuse.png))
+- Method and limitations: [`../../docs/experiments/backup-reuse-reclaim/README.md`](../../docs/experiments/backup-reuse-reclaim/README.md)
 
-Rebuild from the repository root with:
-
-```bash
-uv run python -m llm_switch_bench.artifacts backup-reuse-reclaim
-uv run python -m llm_switch_bench.validation.backup_reuse_reclaim.validate
-```
+The validator checks positive reused bytes/count, zero repeated D2H time, matching requested/released bytes, zero pending accounting, and material RSS/`MemAvailable` evidence. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.

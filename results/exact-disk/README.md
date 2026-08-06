@@ -1,12 +1,11 @@
-# Exact-Disk Result
+# Exact disk
 
-This is the current claim-supporting result directory. It retains the minimum raw evidence consumed by the builder, a canonical summary, run metadata, and the PDF/PNG paper figure. See the matching experiment document under `../../docs/experiments/exact-disk/README.md`.
+Question: does exact disk spill, restore, and physically release a 1 GiB exact-runtime payload while retaining integrity and output equality?
 
-Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.
+- Configuration: [`config/claims.json`](config/claims.json)
+- Raw evidence: seven files under [`raw/exact-disk/`](raw/exact-disk/)
+- Summary: [`summary.json`](summary.json)
+- Figure: [`figures/exact-disk.pdf`](figures/exact-disk.pdf) ([PNG](figures/exact-disk.png))
+- Method and limitations: [`../../docs/experiments/exact-disk/README.md`](../../docs/experiments/exact-disk/README.md)
 
-Rebuild from the repository root with:
-
-```bash
-uv run python -m llm_switch_bench.artifacts exact-disk
-uv run python -m llm_switch_bench.validation.exact_disk.validate
-```
+The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, size/hash/manifest consistency, material footprint, completed demotion, restore reads, and equal output. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.

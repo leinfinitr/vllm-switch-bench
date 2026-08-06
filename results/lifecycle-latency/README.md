@@ -1,12 +1,11 @@
-# Lifecycle Latency Result
+# Lifecycle latency
 
-This is the current claim-supporting result directory. It retains the minimum raw evidence consumed by the builder, a canonical summary, run metadata, and the PDF/PNG paper figure. See the matching experiment document under `../../docs/experiments/lifecycle-latency/README.md`.
+Question: how long are separate sleep and wake lifecycle phases across the retained three-model/five-system matrix?
 
-Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.
+- Configuration: [`config/campaign.json`](config/campaign.json)
+- Raw evidence: lifecycle JSON under [`raw/`](raw/)
+- Summary: [`summary.json`](summary.json) and [`summary.csv`](summary.csv)
+- Figure: [`figures/lifecycle-latency.pdf`](figures/lifecycle-latency.pdf) ([PNG](figures/lifecycle-latency.png))
+- Method and limitations: [`../../docs/experiments/lifecycle-latency/README.md`](../../docs/experiments/lifecycle-latency/README.md)
 
-Rebuild from the repository root with:
-
-```bash
-uv run python -m llm_switch_bench.artifacts lifecycle-latency
-uv run python -m llm_switch_bench.validation.lifecycle_latency.validate
-```
+The summary contains exactly 30 cells (3 models × 5 systems × 2 phases), each based on five historical v0.1 samples. Sleep and wake remain distinct. SwapServeLLM and profiled llama-swap binaries are external release assets whose immutable contracts are in metadata. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.

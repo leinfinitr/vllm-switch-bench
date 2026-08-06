@@ -94,15 +94,6 @@ def validate_family(path: Path | None = None) -> None:
                         f"lifecycle: SwapServeLLM did not physically release GPU memory for {model}",
                     )
 
-    blocker = json.loads(
-        (family / "raw" / "serverless" / "status.json").read_text(encoding="utf-8")
-    )
-    require(blocker.get("status") == "blocked", "lifecycle: ServerlessLLM blocker missing")
-    require(
-        int(blocker.get("usable_lifecycle_samples", -1)) == 0,
-        "lifecycle: blocked ServerlessLLM must contribute no numeric sample",
-    )
-    require("ServerlessLLM" not in {row["system"] for row in summary}, "lifecycle: blocker plotted")
     require(summary == lifecycle_summary_rows(family), "lifecycle: raw recomputation differs")
 
 

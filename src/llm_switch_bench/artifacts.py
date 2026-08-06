@@ -399,7 +399,7 @@ def build_lifecycle(results_root: Path | None = None) -> None:
     write_family_metadata(
         "lifecycle-latency",
         family,
-        config=[],
+        config=["config/campaign.json"],
         validation={"aggregate_cells": 30, "samples_per_cell": 5},
         extra={"external_artifacts": EXTERNAL_CONTRACTS},
     )
@@ -415,7 +415,10 @@ def build_request(results_root: Path | None = None) -> None:
     write_family_metadata(
         "request-driven-switch",
         family,
-        config=["../../configs/traces/request-switch-alternating.jsonl"],
+        config=[
+            "config/workload.json",
+            "../../configs/traces/request-switch-alternating.jsonl",
+        ],
         validation={"systems": 2, "requests_per_system": 20, "strict_failures": 0},
         extra={"historical_provenance_limitation": E2E_LIMITATION},
     )
@@ -431,7 +434,7 @@ def build_backup(results_root: Path | None = None) -> None:
     write_family_metadata(
         "backup-reuse-reclaim",
         family,
-        config=[],
+        config=["config/claims.json"],
         validation={
             "reuse_models": 3,
             "reuse_samples_per_model": 5,
@@ -450,7 +453,7 @@ def build_exact_disk(results_root: Path | None = None) -> None:
     write_family_metadata(
         "exact-disk",
         family,
-        config=[],
+        config=["config/claims.json"],
         validation={
             "payload_bytes": summary["payload_bytes"],
             "output_match": summary["output_match"],
@@ -473,7 +476,7 @@ FAMILY_READMES = {
 Question: how long are separate sleep and wake lifecycle phases across the retained three-model/five-system matrix?
 
 - Configuration: [`config/campaign.json`](config/campaign.json)
-- Raw evidence: lifecycle JSON under [`raw/`](raw/) plus a structured ServerlessLLM blocker
+- Raw evidence: lifecycle JSON under [`raw/`](raw/)
 - Summary: [`summary.json`](summary.json) and [`summary.csv`](summary.csv)
 - Figure: [`figures/lifecycle-latency.pdf`](figures/lifecycle-latency.pdf) ([PNG](figures/lifecycle-latency.png))
 - Method and limitations: [`../../docs/experiments/lifecycle-latency/README.md`](../../docs/experiments/lifecycle-latency/README.md)

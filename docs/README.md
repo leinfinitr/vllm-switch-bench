@@ -1,23 +1,64 @@
 # Documentation
 
-Current user-facing documentation is English and portable. Historical reports are retained separately and may contain original language, paths, schemas, and claims.
+This index describes the current default-branch workflow. The immutable `v0.1.8` tag is the
+reference for its published snapshot; old branch layouts and commands are not current API.
+No new measurements were generated while reorganizing the retained evidence, and no
+canonical GPU rerun is complete.
 
-## Current runbooks and policy
+## Experiment protocols
 
-| Document | Status | Purpose |
+| Experiment | Question | Result |
 |---|---|---|
-| [`release-artifact.md`](release-artifact.md) | Current | v0.1 artifact layout, builder, manifests, and final-rerun gate |
-| [`baselines/baseline1-vllm-cold-reload.md`](baselines/baseline1-vllm-cold-reload.md) | Current | vLLM cold-reload boundary and command |
-| [`baselines/baseline2-vllm-sleep-mode.md`](baselines/baseline2-vllm-sleep-mode.md) | Current | vLLM L1/L2 lifecycle boundaries |
-| [`baselines/baseline3-engine-checkpoint-hotswap.md`](baselines/baseline3-engine-checkpoint-hotswap.md) | Historical harness | Legacy Baseline3 aggregation; not the v0.1 release protocol |
-| [`systems/llama-swap.md`](systems/llama-swap.md) | Current | llama-swap automatic switching and measurement semantics |
-| [`systems/swapservellm.md`](systems/swapservellm.md) | Current | SwapServeLLM operational lifecycle requirements |
-| [`systems/serverlessllm.md`](systems/serverlessllm.md) | Blocked | ServerlessLLM automatic scale-to-zero gate and known blockers |
+| [`experiments/lifecycle-latency/`](experiments/lifecycle-latency/README.md) | How long are explicit lifecycle sleep and wake boundaries? | [`results/lifecycle-latency/`](../results/lifecycle-latency/README.md) |
+| [`experiments/request-driven-switch/`](experiments/request-driven-switch/README.md) | What completion latency does a frozen alternating request trace observe? | [`results/request-driven-switch/`](../results/request-driven-switch/README.md) |
+| [`experiments/backup-reuse-reclaim/`](experiments/backup-reuse-reclaim/README.md) | Are exact CPU backups reused, and can host pressure reclaim them physically? | [`results/backup-reuse-reclaim/`](../results/backup-reuse-reclaim/README.md) |
+| [`experiments/exact-disk/`](experiments/exact-disk/README.md) | Can exact runtime bytes restore from disk after CPU-backup release? | [`results/exact-disk/`](../results/exact-disk/README.md) |
 
-## Historical reports
+Each protocol includes the question, metric and boundaries, method, retained result, threats
+to validity, limitations, figure links, deterministic rebuild, semantic validation, and a
+separately labeled live-run command.
 
-[`archive/reports/`](archive/reports/) contains dated or schema-bound reports retained for audit. They are **historical**, not current CLI documentation, and are not translated or path-normalized when doing so would obscure their provenance. The current release artifact summary is [`../results/release-v0.1/README.md`](../results/release-v0.1/README.md).
+## Supporting system notes
 
-## Plans
+These notes explain external-system behavior and remain useful background, but the
+experiment documents above define the current result contracts:
 
-Implementation and process plans are not retained on the default release branch. Issue and pull-request history owns that narrative. Durable semantics belong in the current runbooks above; immutable experiment provenance belongs in result bundles.
+- [`systems/llama-swap.md`](systems/llama-swap.md): automatic request routing versus
+  separately instrumented process lifecycle boundaries.
+- [`systems/swapservellm.md`](systems/swapservellm.md): swap-out/swap-in operating
+  assumptions and external executable identity.
+- [`systems/serverlessllm.md`](systems/serverlessllm.md): unresolved scale-to-zero contract;
+  it has no current numeric result family.
+- [`baselines/baseline1-vllm-cold-reload.md`](baselines/baseline1-vllm-cold-reload.md): cold
+  process-reload boundary and storage-cache caveat.
+- [`baselines/baseline2-vllm-sleep-mode.md`](baselines/baseline2-vllm-sleep-mode.md): vLLM
+  L1/L2 semantics.
+
+## Reading the retained values
+
+The historical E2E producer did not runtime-bind controller or engine commits, dirty states, executable/import paths, configuration hash, or model revision. Those numbers are a historical local observation, not an exact fresh-checkout runtime reproduction.
+A fresh checkout can reproduce the summaries, figures, and validator outcomes, but not the
+original GPU execution from the retained metadata alone.
+
+The repository does not maintain digest lists over tracked Git files. Lifecycle metadata
+retains exact digests for external executables, and exact-disk retains payload/per-chunk
+runtime checksums because those bytes are outside ordinary Git-file integrity semantics.
+
+## Common CPU commands
+
+```bash
+uv sync --frozen --group dev
+scripts/docs.sh
+scripts/build_all.sh
+scripts/validate_all.sh
+git diff --exit-code -- results
+scripts/build_all.sh
+scripts/validate_all.sh
+git diff --exit-code -- results
+scripts/tracked-ignore.sh
+```
+
+See [`../README.md`](../README.md) for setup and live entry points,
+[`../results/README.md`](../results/README.md) for result policy,
+[`../scripts/README.md`](../scripts/README.md) for wrappers, and
+[`../CONTRIBUTING.md`](../CONTRIBUTING.md) before changing a protocol or artifact.

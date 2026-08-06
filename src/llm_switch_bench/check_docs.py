@@ -27,7 +27,7 @@ FORBIDDEN = [
 REQUIRED_DISCLOSURES = [
     "no new data was generated",
     "historical local observation",
-    "canonical GPU rerun is not complete",
+    "canonical gpu rerun is not complete",
 ]
 
 
@@ -43,7 +43,7 @@ def main() -> int:
                 raise SystemExit(f"{path} contains obsolete reference {needle!r}")
     root_text = (ROOT / "README.md").read_text(encoding="utf-8").lower()
     for needle in REQUIRED_DISCLOSURES:
-        if needle not in root_text:
+        if needle.lower() not in root_text:
             raise SystemExit(f"README.md missing disclosure: {needle}")
     for family in (
         "lifecycle-latency",

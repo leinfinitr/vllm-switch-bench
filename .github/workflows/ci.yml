@@ -24,13 +24,21 @@ jobs:
         run: uv sync --frozen --group dev
       - name: Unit tests
         run: uv run pytest tests -q
-      - name: Python lint
-        run: uv run ruff check src scripts tests
+      - name: Python lint and formatting
+        run: |
+          uv run ruff check src tests
+          uv run ruff format --check src tests
       - name: Bash syntax
         run: scripts/check_bash.sh
       - name: Documentation and portability
-        run: uv run python scripts/check_docs.py
-      - name: Release artifact integrity
-        run: uv run python scripts/verify_release_artifact.py
+        run: scripts/docs.sh
+      - name: Result bundle semantics
+        run: scripts/validate_all.sh
+      - name: Deterministic artifact rebuild
+        run: |
+          scripts/build_all.sh
+          git diff --exit-code -- results
+      - name: Tracked ignored files
+        run: scripts/tracked-ignore.sh
       - name: Git whitespace
         run: git diff --check HEAD^

@@ -55,6 +55,23 @@ def validate_metadata(family_dir: Path, experiment: str) -> dict[str, Any]:
     require(declared == actual, f"{experiment}: metadata file closure does not match the tree")
     require("README.md" in declared, f"{experiment}: result README is missing")
     require("summary.json" in declared, f"{experiment}: canonical summary is missing")
+    configs = metadata.get("config")
+    require(
+        isinstance(configs, list) and len(configs) > 0,
+        f"{experiment}: config declaration is missing",
+    )
+    assert isinstance(configs, list)
+    for relative in configs:
+        require(
+            isinstance(relative, str) and not Path(relative).is_absolute(),
+            f"{experiment}: config path must be relative",
+        )
+        config_path = family_dir / relative
+        require(config_path.is_file(), f"{experiment}: declared config does not exist: {relative}")
+    require(
+        any(path.startswith("config/") for path in declared),
+        f"{experiment}: family config is missing",
+    )
     return metadata
 
 

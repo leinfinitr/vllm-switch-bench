@@ -1,146 +1,178 @@
 # LLM Switch Bench
 
-LLM Switch Bench is a research harness and evidence repository for measuring large-language-model lifecycle operations and request-driven model switching. It separates reusable runners, machine-local execution, immutable raw evidence, and deterministic publication artifacts.
+LLM Switch Bench is an experiment-oriented Python package for studying LLM lifecycle
+latency, request-driven model switching, reusable CPU weight backups, physical host-memory
+reclaim, and an exact-runtime-byte disk tier. The current checkout installs
+`llm-switch-bench==0.2.0.dev0` from `src/llm_switch_bench`; Python implementations live in
+the package, while `scripts/` contains only thin shell entry points.
 
-> **v0.1 research preview:** the checked-in `results/release-v0.1/` bundle is
-> the final single-node, single-GPU release campaign. It contains five lifecycle
-> cycles per model/system, strict request traces, stock-vLLM instrumentation,
-> and an exact-disk GPU restore run. It is not a production or cluster-scale
-> evaluation.
+> **Evidence status.** The refactor reorganizes retained measurements into four current
+> result families. No new data was generated, and the canonical GPU rerun is not complete.
+> In particular, the v0.1 E2E producer did not runtime-bind the engine/controller commits,
+> imported package path, or configuration hash. Those numbers are a historical local observation,
+> not an exact fresh-checkout runtime reproduction.
 
-## Scope
+The published `v0.1.8` Git tag remains immutable. The default branch no longer carries its
+old monolithic release tree or internal Git-file digest lists. Required external executable
+digests remain in lifecycle metadata, and exact-disk retains its runtime payload and chunk
+checksums because those digests are part of the experiment itself.
 
-The repository provides:
+## Current result families
 
-- vLLM cold reload and L1/L2 sleep/wake lifecycle runners;
-- repeated L1 sleep/wake profiling for pinned CPU backup reuse and physical reclaim;
-- an open-loop, multi-model OpenAI-compatible request-trace runner;
-- adapters and lifecycle drivers for ServerlessLLM, **SwapServeLLM**, and **llama-swap**;
-- exact runtime disk-backup profiling and evidence collection;
-- deterministic analysis, plotting, and checksum tooling.
+| Family | Question | Primary metric | Current figure |
+|---|---|---|---|
+| [Lifecycle latency](docs/experiments/lifecycle-latency/README.md) | How long do sleep and wake boundaries take? | Median and IQR seconds per phase | [PNG](results/lifecycle-latency/figures/lifecycle-latency.png) · [PDF](results/lifecycle-latency/figures/lifecycle-latency.pdf) |
+| [Request-driven switch](docs/experiments/request-driven-switch/README.md) | What latency does an alternating model trace observe? | Per-request completion latency and failures | [PNG](results/request-driven-switch/figures/request-timeline.png) · [PDF](results/request-driven-switch/figures/request-timeline.pdf) |
+| [Backup reuse and reclaim](docs/experiments/backup-reuse-reclaim/README.md) | Are exact CPU backups reused, and can pressure reclaim them physically? | Reused/released bytes, D2H time, RSS and `MemAvailable` | [PNG](results/backup-reuse-reclaim/figures/backup-reuse.png) · [PDF](results/backup-reuse-reclaim/figures/backup-reuse.pdf) |
+| [Exact disk](docs/experiments/exact-disk/README.md) | Can exact runtime bytes survive CPU-backup release and restore from disk? | Spill/read/release bytes, payload integrity, output equality | [PNG](results/exact-disk/figures/exact-disk.png) · [PDF](results/exact-disk/figures/exact-disk.pdf) |
 
-Canonical baseline names are **SwapServeLLM** and **llama-swap**. Historical machine-readable slugs such as `swapserve_llm` are retained inside immutable artifacts and legacy code paths; do not rename old raw data.
-
-llama-swap is an automatic request router: the request's `model` field selects the target, and the proxy stops the current model process and starts the target as needed. It has no explicit sleep/wake phase API. Request-trace results therefore include queueing and automatic process switching, while lifecycle profiling uses separately instrumented process-state intervals. See [`docs/systems/llama-swap.md`](docs/systems/llama-swap.md).
+Each experiment document states its question, metric, method, retained result, threats,
+limitations, and reproduction path. [`results/README.md`](results/README.md) defines the
+artifact policy.
 
 ## Repository layout
 
 ```text
-configs/                    Portable examples and frozen traces
-src/                        Benchmark entry points and shared libraries
-src/tool/                   Pure analysis and artifact tools
-src/microbench/             CUDA/allocator microbenchmarks
-scripts/                    Orchestration, release builders, and checks
- tests/                     CPU-only unit and schema tests
-docs/                       Current English runbooks and artifact policy
-docs/archive/reports/       Historical reports; not current instructions
-results/release-v0.1/       Canonical v0.1 release artifact bundle
-results/tmp/                Ignored local output
-runtime/                    Ignored external-runtime and backup state
+configs/                    Frozen request traces and schedules
+src/llm_switch_bench/       Installed runners, adapters, builders, and validators
+scripts/                    Thin shell wrappers around package modules
+resources/                  Optional local runtime inputs (when present)
+docs/experiments/           Current experiment protocols and interpretations
+results/                    Exactly four current evidence families
+results/tmp/                Ignored output for live local runs
+tests/                      CPU unit, integration, and semantic-validator tests
+runtime/                    Ignored machine-local runtime state
 ```
 
-[`docs/README.md`](docs/README.md) classifies current and archived documentation. [`results/README.md`](results/README.md) classifies current, historical, blocked, and superseded result families.
+See [`src/README.md`](src/README.md), [`scripts/README.md`](scripts/README.md), and
+[`docs/README.md`](docs/README.md) for the detailed indexes.
 
-## Reproducible CPU development environment
+## Locked development and artifact workflow
 
-Install [uv](https://docs.astral.sh/uv/), then use the locked Python 3.12 environment:
+Install [uv](https://docs.astral.sh/uv/) and Python 3.12, then run from the repository root:
 
 ```bash
 uv sync --frozen --group dev
+uv run python -c 'import llm_switch_bench; print(llm_switch_bench.__version__)'
 uv run pytest tests -q
-uv run ruff check src scripts tests
+uv run ruff check src tests
+uv run ruff format --check src tests
 scripts/check_bash.sh
-uv run python scripts/check_docs.py
-uv run python scripts/verify_release_artifact.py
+scripts/docs.sh
+scripts/build_all.sh
+scripts/validate_all.sh
+scripts/tracked-ignore.sh
 ```
 
-This repository is intentionally a **non-package project** (`tool.uv.package = false`). Source entry points are run from the repository root. The lockfile covers CPU development, tests, analysis, and plotting. CUDA, vLLM, model checkpoints, container runtimes, and external baseline repositories are experiment inputs and must be frozen in each run's metadata rather than hidden in the development lock.
+The first command installs the source-layout package into the locked environment. The
+lockfile covers CPU development, validation, analysis, and plotting. CUDA, vLLM, model
+checkpoints, external controllers, and external systems are experiment inputs; a live run
+must capture their identity rather than treating the development lock as runtime provenance.
 
-## Portable configuration
+### Deterministic rebuild from a fresh checkout
 
-Copy examples to ignored `*.local.yaml` files and replace placeholders:
+The retained raw inputs are sufficient to rebuild the current summaries and figures without
+a GPU:
 
 ```bash
-cp configs/baseline3.example.yaml configs/baseline3.local.yaml
-$EDITOR configs/baseline3.local.yaml
+scripts/build_all.sh
+scripts/validate_all.sh
+git diff --exit-code -- results
+
+scripts/build_all.sh
+scripts/validate_all.sh
+git diff --exit-code -- results
 ```
 
-Current code and runbooks do not assume a maintainer home directory. Use paths such as `/path/to/model`, repository-relative output paths, or environment variables. Immutable historical raw evidence may still contain producer-machine paths; those bytes are retained for provenance and protected by checksums.
+Both passes must leave the tracked result bytes unchanged. Validators do more than compare
+files: they recompute aggregates and enforce family-specific sample, success, sequence,
+release, payload, and output-equality semantics. `scripts/tracked-ignore.sh` additionally
+requires `git ls-files -ci --exclude-standard` to be empty.
 
-## Main entry points
+## Experiment entry points
 
-### vLLM lifecycle
+The shell commands below forward arguments to installed package modules. They may launch or
+interact with GPU runtimes; they are not part of the CPU rebuild above.
+
+### Lifecycle latency
 
 ```bash
-uv run python src/bench_vllm_lifecycle.py \
-  --model /path/to/Qwen2.5-0.5B-Instruct \
-  --python .venv/bin/python \
+scripts/lifecycle-latency.sh \
+  --model /path/to/model \
+  --python /path/to/vllm-python \
   --workdir /path/to/vllm \
   --methods sleep_l1 sleep_l2 \
   --prompts short_short \
   --repeats 5 \
-  --out-dir results/tmp/vllm-lifecycle
+  --out-dir results/tmp/lifecycle-latency
 ```
-
-### Repeated L1 sleep/wake
-
-```bash
-uv run python src/bench_vllm_repeated_sleep_l1.py \
-  --models small=/path/to/small-model large=/path/to/large-model \
-  --out-dir results/tmp/repeated-sleep-l1 \
-  --iterations 5
-```
-
-Use `--expect-release` with physical RSS/`MemAvailable` thresholds for pressure runs and `--no-expect-release --expect-reuse` for controls.
 
 ### Request-driven switching
 
+Replay one frozen trace against an already running OpenAI-compatible endpoint:
+
 ```bash
-BASE_URL=http://127.0.0.1:9000 \
-TRACE=configs/traces/request-switch-alternating.jsonl \
-OUTPUT=results/tmp/request-switch/alternating.jsonl \
-scripts/run_request_switch.sh
+scripts/request-driven-switch.sh \
+  --base-url http://127.0.0.1:9000 \
+  --manifest configs/traces/request-switch-alternating.jsonl \
+  --output results/tmp/request-driven-switch/alternating.jsonl
 ```
 
-The trace uses absolute monotonic arrival offsets. A strict success requires HTTP 2xx, no transport/protocol error, a complete SSE stream, semantic first-token timing, and non-empty semantic output. Failed requests remain in raw output.
-
-### Exact disk tier
+For a repeated endpoint-local matrix:
 
 ```bash
-uv run python scripts/run_exact_disk_profile.py \
+scripts/request-driven-switch-matrix.sh \
+  --base-url http://127.0.0.1:9000 \
+  --repeats 3 \
+  --out-dir results/tmp/request-driven-switch/matrix
+```
+
+### Backup reuse and reclaim
+
+```bash
+scripts/backup-reuse-reclaim.sh \
+  --models small=/path/to/small-model large=/path/to/large-model \
+  --iterations 5 \
+  --expect-reuse \
+  --out-dir results/tmp/backup-reuse-reclaim
+```
+
+Use `--expect-release`, coordinator settings, and explicit RSS thresholds for a pressure
+case; use `--no-expect-release --expect-reuse` for its control.
+
+### Exact disk
+
+```bash
+scripts/exact-disk-run.sh \
   --model model=/path/to/model \
   --backup-root runtime/exact-disk-backups \
-  --out-dir results/tmp/exact-disk/model/RUN_ID \
-  -- /path/to/python /path/to/model_agnostic_driver.py
+  --out-dir results/tmp/exact-disk/run-001 \
+  -- /path/to/python -m llm_switch_bench.experiments.exact_disk.lifecycle_driver
 ```
 
-The wrapper records disk I/O, source/fallback, process RSS, host `MemAvailable`, footprint growth, and output equality. It keeps raw and curated output separate and refuses to overwrite an existing destination.
+A compatible instrumented vLLM runtime is required. The runner records the command outcome,
+resource observations, disk footprint, runtime checksums, and before/after output.
 
-## Release artifact
+## Evidence rules
 
-`results/release-v0.1/` is the only canonical release artifact root. Rebuild and verify it from retained inputs with:
+1. Keep measurement output out of the four current roots until its protocol and evidence are
+   reviewed; write live runs below `results/tmp/`.
+2. Do not turn failed, timed-out, incomplete, or semantically invalid samples into numeric
+   results. Preserve structured diagnostics in local or review artifacts.
+3. State phase boundaries and success predicates. Sleep, wake, request completion, logical
+   release, and physical reclaim are different measurements.
+4. Runtime claims must bind the model and workload plus the actual engine/controller commit,
+   imported path, behavior-affecting configuration, executable or image digest, and hardware.
+5. Physical reclaim requires application accounting and OS/GPU-visible evidence.
+6. The default branch does not maintain checksum lists over tracked Git files. Preserve
+   digests only where they identify an external artifact or verify bytes handled at runtime.
+7. Do not describe the retained observations as a canonical rerun; this refactor generated
+   no measurements.
 
-```bash
-uv run python scripts/build_release_artifact.py
-uv run python scripts/build_release_checksums.py
-uv run python scripts/verify_release_artifact.py
-```
-
-The bundle was atomically replaced after the final GPU campaign. Exact-disk
-measurements are included under `raw/exact-disk/`; ServerlessLLM remains a
-structured blocker and is excluded from numeric plots.
-
-## Result rules
-
-1. Preserve successful, failed, timed-out, and blocked attempts with explicit status.
-2. Never publish failed or semantically invalid samples as numeric baselines.
-3. Define sleep and wake endpoints separately; only sum them when the metric is explicitly switch time.
-4. Require application accounting plus OS/GPU-visible evidence for physical release claims.
-5. Freeze model, prompt, dtype, context, GPU budget, source/image identity, and workload semantics.
-6. Build derived files deterministically from tracked inputs and verify both checksum manifests in a fresh checkout.
-
-See [`docs/release-artifact.md`](docs/release-artifact.md), [`results/README.md`](results/README.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) before changing code, protocols, or evidence.
 
 ## License and citation
 
-The code is released under the [Apache License 2.0](LICENSE). Citation metadata is provided in [`CITATION.cff`](CITATION.cff).
+Code is released under the [Apache License 2.0](LICENSE). Citation metadata is in
+[`CITATION.cff`](CITATION.cff); use the immutable `v0.1.8` tag when citing that published
+snapshot and the commit identity when citing current development work.

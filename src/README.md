@@ -1,45 +1,27 @@
-# Source entry points
+# Installed source package
 
-This is a non-package uv project. Run entry points from the repository root with `uv run python ...`; `src/benchlib/` is added by script execution and is not installed as a public library.
+`src/llm_switch_bench/` is the only Python implementation root and is installed by the project build.
 
-## Benchmark runners
+## Modules
 
-- `bench_vllm_lifecycle.py`: cold reload and vLLM L1/L2 lifecycle phases.
-- `bench_vllm_repeated_sleep_l1.py`: same-process repeated sleep/wake, backup reuse, pressure release, RSS, and `MemAvailable`.
-- `bench_vllm_pin_compare.py`: model-explicit pinned/pageable profiling matrix.
-- `bench_request_driven_switch.py`: frozen open-loop OpenAI-compatible request traces with strict SSE success.
-- `bench_baseline3.py`: historical cross-system aggregation compatibility harness.
-- `bench_serverless_llm.py`: legacy ServerlessLLM adapter; not a publishable current scale-to-zero implementation.
-- `bench_swapservellm.py`: SwapServeLLM adapter (canonical project spelling).
+- `adapters/`: lifecycle/request adapters for vLLM, SwapServeLLM, llama-swap, and ServerlessLLM.
+- `experiments/lifecycle_latency/`: vLLM lifecycle runner plus lifecycle analysis/plot entry points.
+- `experiments/request_driven_switch/`: strict open-loop request runner, frozen-matrix orchestration, analysis, and plotting.
+- `experiments/backup_reuse_reclaim/`: repeated-sleep/reclaim runner and mechanism microbench/plot modules.
+- `experiments/exact_disk/`: exact-disk runner, lifecycle/allocator drivers, and evidence parser.
+- `common/`: shared HTTP, schema, trace, sampling, resource, provenance, and analysis utilities.
+- `plotting/style.py`: repository-wide paper figure style and deterministic PDF/PNG writer.
+- `artifacts.py` / `build_all.py`: deterministic current-family summaries and figures.
+- `validation/`: one semantic validator per family and the aggregate `validate_all` entry point.
 
-## Shared library
-
-`benchlib/` provides configuration/provenance collection, HTTP helpers, resource sampling, result schemas, strict request-trace semantics, and exact-disk evidence parsing. It is internal to this repository.
-
-## Analysis
-
-`tool/` scripts read existing evidence and do not launch benchmark services. Artifact-specific v0.1 building is in `scripts/build_release_artifact.py`; it is kept under `scripts/` because its input contract is bound to the release bundle.
-
-## Microbenchmarks
-
-`microbench/` contains CUDA/vLLM allocator experiments for PCIe copy, CuMemAllocator synthetic allocations, and safetensors-like allocation sizes. They require a compatible CUDA/vLLM environment and are not part of CPU CI.
-
-Examples:
+Run modules from the repository root through uv, for example:
 
 ```bash
-uv run python src/bench_vllm_lifecycle.py \
-  --model /path/to/model \
-  --python .venv/bin/python \
-  --workdir /path/to/vllm \
-  --methods sleep_l1 sleep_l2 \
-  --prompts short_short \
-  --repeats 5 \
-  --out-dir results/tmp/vllm-lifecycle
-
-uv run python src/microbench/microbench_cumem_safetensor_sizes.py \
-  --out-dir results/tmp/cumem-sizes/model \
-  --repeats 1 \
-  /path/to/model
+uv run python -m llm_switch_bench.build_all
+uv run python -m llm_switch_bench.validation.validate_all
+uv run python -m llm_switch_bench.experiments.lifecycle_latency.run --help
+uv run python -m llm_switch_bench.experiments.request_driven_switch.run --help
+uv run python -m llm_switch_bench.experiments.exact_disk.run --help
 ```
 
-Before a GPU run, record the actual interpreter, imported vLLM path/version, Git identity/dirty state, model revision/checksum, CUDA/driver/GPU, and all behavior-affecting parameters. Do not infer those identities from the development lockfile.
+Do not recreate top-level Python scripts, legacy import aliases, `sys.path` mutation, or file-based dynamic imports. Tests import installed package modules directly.

@@ -1,6 +1,7 @@
 {
   "collected_at": "2026-08-04",
   "config": [
+    "config/workload.json",
     "../../configs/traces/request-switch-alternating.jsonl"
   ],
   "experiment": "request-driven-switch",
