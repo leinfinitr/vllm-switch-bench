@@ -69,6 +69,7 @@ def validate_family(path: Path | None = None) -> None:
                 require(
                     all(
                         item[phase].get("ok") is True
+                        and math.isfinite(float(item[phase]["state_machine_latency_s"]))
                         and float(item[phase]["state_machine_latency_s"]) > 0
                         for item in rows
                         for phase in PHASES

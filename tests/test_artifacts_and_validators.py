@@ -133,6 +133,16 @@ def test_lifecycle_validator_rejects_non_positive_raw_phase(tmp_path: Path) -> N
         validate_lifecycle(target)
 
 
+def test_lifecycle_validator_rejects_non_finite_llama_phase(tmp_path: Path) -> None:
+    target = copy_family(tmp_path, "lifecycle-latency")
+    raw = target / "raw" / "llama-swap" / "lifecycle.json"
+    data = json.loads(raw.read_text())
+    data["rows"][0]["sleep"]["state_machine_latency_s"] = "inf"
+    raw.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="invalid llama-swap phase"):
+        validate_lifecycle(target)
+
+
 def test_lifecycle_validator_rejects_failed_gpu_postcondition(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "lifecycle-latency")
     raw = target / "raw" / "swapserve" / "qwen-0.5b.json"
