@@ -20,6 +20,7 @@ layout.
 
 Each family contains:
 
+- `config/`: the frozen family claim/workload contract used by validation;
 - `raw/`: minimal retained producer evidence;
 - `summary.json` (and family-specific tabular output): deterministic aggregates;
 - `figures/`: deterministic PDF and PNG views;
@@ -78,8 +79,8 @@ git diff --exit-code -- results
 scripts/tracked-ignore.sh
 ```
 
-`build_all` reconstructs summaries, figures, and metadata from retained raw inputs. It does
-not delete unrelated paths; `validate_all` rejects any stray top-level result family.
+`build_all` reconstructs summaries, figures, and metadata from retained raw inputs.
+`validate_all` rejects any stray top-level result family.
 `validate_all` enforces exact family shape and semantic contracts: matrix cardinality,
 sample counts, finite positive metrics, frozen request identity/order, strict request
 success, raw-to-summary equality, backup reuse/reclaim settlement, exact-disk chunk layout,

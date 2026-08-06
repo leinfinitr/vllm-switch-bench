@@ -488,12 +488,12 @@ The summary contains exactly 30 cells (3 models × 5 systems × 2 phases), each 
 Question: what completion latency was observed for the frozen 20-request alternating-model schedule?
 
 - Configuration: [`config/workload.json`](config/workload.json)
-- Raw evidence: Proposed and llama-swap arrays/JSONL under [`raw/`](raw/)
+- Raw evidence: Proposed and llama-swap JSON arrays consumed by the builder plus retained JSONL source rows under [`raw/`](raw/)
 - Summary: [`summary.json`](summary.json)
 - Figure: [`figures/request-timeline.pdf`](figures/request-timeline.pdf) ([PNG](figures/request-timeline.png))
 - Method and limitations: [`../../docs/experiments/request-driven-switch/README.md`](../../docs/experiments/request-driven-switch/README.md)
 
-The validator requires 20 unique request IDs per system, strict success, a shared frozen identity sequence, and raw-to-summary equality. The historical producer did not runtime-bind controller/engine commits, import path, or config hash, so this is a historical local observation rather than exact fresh-clone runtime reproduction. No new data was generated, and the canonical GPU rerun is incomplete.
+The validator binds every supplied dispatch field to the retained frozen trace and requires 20 unique strict-success rows per system plus raw-to-summary equality. The historical producer did not runtime-bind controller/engine commits, dirty states, executable/import paths, configuration hash, or model revision, so this is a historical local observation rather than exact fresh-checkout runtime reproduction. No new data was generated, and the canonical GPU rerun is incomplete.
 """,
     "backup-reuse-reclaim": """# Backup reuse and reclaim
 
@@ -517,7 +517,7 @@ Question: does exact disk spill, restore, and physically release a 1 GiB exact-r
 - Figure: [`figures/exact-disk.pdf`](figures/exact-disk.pdf) ([PNG](figures/exact-disk.png))
 - Method and limitations: [`../../docs/experiments/exact-disk/README.md`](../../docs/experiments/exact-disk/README.md)
 
-The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, size/hash/manifest consistency, material footprint, completed demotion, restore reads, and equal output. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
+The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, no fallback, size/hash/chunk/manifest-commit consistency, material footprint, completed host-cache release and demotion, actual restore reads, run identity/config metadata, and equal output. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
 """,
 }
 
