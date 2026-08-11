@@ -12,6 +12,12 @@ from typing import Any
 import requests
 
 
+def local_session() -> requests.Session:
+    session = requests.Session()
+    session.trust_env = False
+    return session
+
+
 def gpu_used() -> int:
     text = subprocess.check_output(
         [
@@ -25,7 +31,7 @@ def gpu_used() -> int:
 
 
 def infer(base: str, model: str, api_key: str) -> str:
-    response = requests.post(
+    response = local_session().post(
         f"{base}/v1/chat/completions",
         headers={"Authorization": f"Bearer {api_key}"},
         json={
@@ -42,7 +48,7 @@ def infer(base: str, model: str, api_key: str) -> str:
 
 def post(base: str, path: str, model: str) -> float:
     started = time.perf_counter()
-    response = requests.post(f"{base}{path}", json={"model": model}, timeout=300)
+    response = local_session().post(f"{base}{path}", json={"model": model}, timeout=300)
     elapsed = time.perf_counter() - started
     response.raise_for_status()
     return elapsed

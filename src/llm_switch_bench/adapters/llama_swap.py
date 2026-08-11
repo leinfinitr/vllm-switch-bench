@@ -13,6 +13,12 @@ from typing import Any
 import requests
 
 
+def local_session() -> requests.Session:
+    session = requests.Session()
+    session.trust_env = False
+    return session
+
+
 def gpu_used_mib() -> int:
     output = subprocess.check_output(
         [
@@ -36,7 +42,7 @@ def request(base_url: str, model: str) -> dict[str, Any]:
     started = time.perf_counter()
     text = ""
     done = False
-    with requests.post(
+    with local_session().post(
         f"{base_url}/v1/chat/completions",
         json=body,
         stream=True,
@@ -65,14 +71,23 @@ def request(base_url: str, model: str) -> dict[str, Any]:
 
 
 def running_models(base_url: str) -> list[dict[str, Any]]:
-    response = requests.get(f"{base_url}/running", timeout=10)
-    response.raise_for_status()
-    payload = response.json()
-    return (
-        payload
-        if isinstance(payload, list)
-        else payload.get("running", payload.get("data", payload.get("models", [])))
-    )
+    last_error: requests.RequestException | None = None
+    for attempt in range(3):
+        try:
+            response = local_session().get(f"{base_url}/running", timeout=10)
+            response.raise_for_status()
+            payload = response.json()
+            return (
+                payload
+                if isinstance(payload, list)
+                else payload.get("running", payload.get("data", payload.get("models", [])))
+            )
+        except requests.RequestException as exc:
+            last_error = exc
+            if attempt < 2:
+                time.sleep(0.05)
+    assert last_error is not None
+    raise last_error
 
 
 def wait_unloaded(
@@ -118,7 +133,7 @@ def unload(
     timeout_s: float,
 ) -> dict[str, Any]:
     started = time.perf_counter()
-    response = requests.post(f"{base_url}/api/models/unload/{model}", timeout=timeout_s)
+    response = local_session().post(f"{base_url}/api/models/unload/{model}", timeout=timeout_s)
     api_latency = time.perf_counter() - started
     wait = wait_unloaded(base_url, model, baseline_gpu_mib, timeout_s)
     return {
