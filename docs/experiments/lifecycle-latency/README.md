@@ -93,8 +93,8 @@ This path uses retained raw evidence and does not run a GPU benchmark.
 ```bash
 scripts/lifecycle-latency.sh \
   --model /path/to/model \
-  --python /path/to/vllm-python \
   --workdir /path/to/vllm \
+  --python /path/to/vllm-python \
   --methods sleep_l1 sleep_l2 \
   --prompts short_short \
   --repeats 5 \

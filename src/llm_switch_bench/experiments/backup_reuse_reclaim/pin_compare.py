@@ -113,7 +113,7 @@ def run_one(args: argparse.Namespace, case: ModelCase, pin_mode: str) -> dict:
     out_dir = ROOT / args.out_dir / case.name / f"pin_{pin_mode}"
     cmd = bench_command(args, case, pin_mode, out_dir)
     env = os.environ.copy()
-    python_bin = Path(args.python).resolve().parent
+    python_bin = Path(args.python).absolute().parent
     path_parts = [str(python_bin)]
     if args.cuda_home:
         env["CUDA_HOME"] = args.cuda_home

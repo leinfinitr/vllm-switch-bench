@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -322,3 +323,33 @@ def test_pin_compare_parses_model_agnostic_specs():
 
     with pytest.raises(argparse.ArgumentTypeError):
         pin_compare.parse_model_case("/models/missing-name")
+
+
+def test_pin_compare_preserves_virtualenv_bin_on_path(tmp_path, monkeypatch):
+    base_python = tmp_path / "base" / "python3"
+    base_python.parent.mkdir()
+    base_python.touch()
+    venv_bin = tmp_path / "venv" / "bin"
+    venv_bin.mkdir(parents=True)
+    venv_python = venv_bin / "python"
+    venv_python.symlink_to(base_python)
+    args = pin_compare.parse_args(
+        [
+            "--models",
+            "model-a=/models/a",
+            "--python",
+            str(venv_python),
+        ]
+    )
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured["env"] = kwargs["env"]
+        return type("CP", (), {"returncode": 0, "stdout": "result-dir\n"})()
+
+    monkeypatch.setattr(pin_compare.subprocess, "run", fake_run)
+
+    result = pin_compare.run_one(args, args.models[0], "true")
+
+    assert result["returncode"] == 0
+    assert str(venv_bin) in captured["env"]["PATH"].split(os.pathsep)

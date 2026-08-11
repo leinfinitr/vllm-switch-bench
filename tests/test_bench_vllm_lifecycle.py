@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
 
 from llm_switch_bench.experiments.lifecycle_latency import run as bench
@@ -51,6 +52,104 @@ def test_parse_args_rejects_non_positive_repeats():
         assert exc.code == 2
     else:
         raise AssertionError("parse_args should reject non-positive repeats")
+
+
+def test_start_vllm_preserves_virtualenv_bin_on_path(tmp_path, monkeypatch):
+    base_python = tmp_path / "base" / "python3"
+    base_python.parent.mkdir()
+    base_python.touch()
+    venv_bin = tmp_path / "venv" / "bin"
+    venv_bin.mkdir(parents=True)
+    venv_python = venv_bin / "python"
+    venv_python.symlink_to(base_python)
+    args = bench.parse_args(
+        [
+            "--model",
+            "dummy",
+            "--python",
+            str(venv_python),
+            "--workdir",
+            str(tmp_path),
+        ]
+    )
+    args.enable_sleep_mode = False
+    captured = {}
+
+    def fake_popen(command, **kwargs):
+        captured["command"] = command
+        captured["env"] = kwargs["env"]
+        kwargs["stdout"].close()
+        return object()
+
+    monkeypatch.setattr(bench.subprocess, "Popen", fake_popen)
+
+    bench.start_vllm(args, tmp_path / "server.log")
+
+    assert captured["command"][0] == str(venv_python)
+    assert str(venv_bin) in captured["env"]["PATH"].split(os.pathsep)
+
+
+def test_start_vllm_makes_relative_python_path_absolute(tmp_path, monkeypatch):
+    args = bench.parse_args(
+        [
+            "--model",
+            "dummy",
+            "--python",
+            "venv/bin/python",
+            "--workdir",
+            str(tmp_path),
+        ]
+    )
+    args.enable_sleep_mode = False
+    captured = {}
+
+    def fake_popen(command, **kwargs):
+        captured["command"] = command
+        captured["env"] = kwargs["env"]
+        kwargs["stdout"].close()
+        return object()
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(bench.subprocess, "Popen", fake_popen)
+
+    bench.start_vllm(args, tmp_path / "server.log")
+
+    expected_python = tmp_path / "venv" / "bin" / "python"
+    assert captured["command"][0] == str(expected_python)
+    assert captured["env"]["PATH"].split(os.pathsep)[1] == str(expected_python.parent)
+
+
+def test_dry_run_metadata_preserves_virtualenv_python_path(tmp_path, monkeypatch):
+    base_python = tmp_path / "base" / "python3"
+    base_python.parent.mkdir()
+    base_python.touch()
+    venv_python = tmp_path / "venv" / "bin" / "python"
+    venv_python.parent.mkdir(parents=True)
+    venv_python.symlink_to(base_python)
+    monkeypatch.setattr(
+        bench,
+        "run_cmd",
+        lambda *args, **kwargs: type("CP", (), {"stdout": "0,FakeGPU,10240,999.1\n"})(),
+    )
+
+    rc = bench.main(
+        [
+            "--model",
+            "dummy",
+            "--python",
+            str(venv_python),
+            "--workdir",
+            str(ROOT),
+            "--out-dir",
+            str(tmp_path / "results"),
+            "--dry-run",
+        ]
+    )
+
+    assert rc == 0
+    created = next(path for path in (tmp_path / "results").iterdir() if path.is_dir())
+    metadata = __import__("json").loads((created / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["python"] == str(venv_python)
 
 
 def test_dry_run_metadata_records_engine_and_benchmark_provenance(tmp_path):

@@ -1,6 +1,6 @@
 # vLLM sleep-mode baseline
 
-**Status:** current runnable baseline; final v0.1 GPU rows are published.
+**Status:** current runnable baseline.
 
 The harness keeps lifecycle phases separate:
 
@@ -11,16 +11,15 @@ The harness keeps lifecycle phases separate:
 
 ```bash
 scripts/lifecycle-latency.sh \
-  --model /path/to/Qwen2.5-0.5B-Instruct \
-  --python .venv/bin/python \
+  --model /path/to/model \
   --workdir /path/to/vllm \
+  --python /path/to/vllm/.venv/bin/python \
   --methods sleep_l1 sleep_l2 \
   --prompts short_short \
   --repeats 5 \
   --ready-timeout-s 360 \
   --gpu-memory-utilization 0.45 \
   --max-model-len 1024 \
-  --port 0 \
   --out-dir results/tmp/vllm-sleep
 ```
 

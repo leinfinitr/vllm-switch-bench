@@ -99,8 +99,8 @@ interact with GPU runtimes; they are not part of the CPU rebuild above.
 ```bash
 scripts/lifecycle-latency.sh \
   --model /path/to/model \
-  --python /path/to/vllm-python \
   --workdir /path/to/vllm \
+  --python /path/to/vllm/.venv/bin/python \
   --methods sleep_l1 sleep_l2 \
   --prompts short_short \
   --repeats 5 \

@@ -1,6 +1,6 @@
 # vLLM cold reload baseline
 
-**Status:** current runnable baseline; final v0.1 GPU rows still require rerun.
+**Status:** current runnable baseline.
 
 Cold reload terminates the serving process, starts a new process from the same frozen checkpoint, waits for readiness, and completes a correctness inference. It is a process-restart reference, not a sleep-mode phase.
 
@@ -8,16 +8,15 @@ From the repository root:
 
 ```bash
 scripts/lifecycle-latency.sh \
-  --model /path/to/Qwen2.5-0.5B-Instruct \
-  --python .venv/bin/python \
+  --model /path/to/model \
   --workdir /path/to/vllm \
+  --python /path/to/vllm/.venv/bin/python \
   --methods cold_reload \
   --prompts short_short \
   --repeats 5 \
   --ready-timeout-s 360 \
   --gpu-memory-utilization 0.45 \
   --max-model-len 1024 \
-  --port 0 \
   --out-dir results/tmp/vllm-cold-reload
 ```
 

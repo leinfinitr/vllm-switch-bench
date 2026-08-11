@@ -76,8 +76,9 @@ def wait_process_http_ok(
 
 
 def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str]:
+    python_path = Path(args.python).absolute()
     cmd = [
-        args.python,
+        str(python_path),
         "-m",
         "vllm.entrypoints.openai.api_server",
         "--model",
@@ -110,7 +111,7 @@ def start_vllm(args: argparse.Namespace, log_path: Path) -> subprocess.Popen[str
     env = os.environ.copy()
     workdir = str(Path(args.workdir).resolve())
     env["PYTHONPATH"] = workdir + os.pathsep + env.get("PYTHONPATH", "")
-    python_bin_dir = str(Path(args.python).resolve().parent)
+    python_bin_dir = str(python_path.parent)
     env["PATH"] = python_bin_dir + os.pathsep + env.get("PATH", "")
     env.setdefault("CUDA_VISIBLE_DEVICES", args.cuda_visible_devices)
     env.setdefault("VLLM_USE_V1", args.vllm_use_v1)
@@ -325,7 +326,7 @@ def combine_restore_steps(*steps: dict[str, Any]) -> dict[str, Any]:
     if profiles:
         combined["sleep_profile"] = {
             "operation": "restore",
-            "event_count": sum(int(profile.get("event_count", 0)) for profile in profiles),
+            "event_count": sum(int((profile or {}).get("event_count", 0)) for profile in profiles),
             "steps": profiles,
         }
     return combined
@@ -681,7 +682,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "gpu": read_gpu_metadata(),
         "benchmark_git": git_metadata(Path(__file__).resolve().parents[1]),
         "engine_git": git_metadata(Path(args.workdir)),
-        "python": str(Path(args.python).resolve()),
+        "python": str(Path(args.python).absolute()),
     }
     (out_dir / "metadata.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
