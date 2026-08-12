@@ -72,7 +72,15 @@ def main() -> int:
     )
     parser.add_argument("--prompt", default="The capital of France is")
     parser.add_argument("--ready-timeout-s", type=float, default=300.0)
+    parser.add_argument(
+        "--cycles",
+        type=int,
+        default=1,
+        help="Number of sleep/wake validation cycles to execute in the same server.",
+    )
     args = parser.parse_args()
+    if args.cycles <= 0:
+        parser.error("--cycles must be positive")
 
     output_path_value = os.environ.get("LLM_SWITCH_BENCH_OUTPUT_OBSERVATION")
     if not output_path_value:
@@ -81,11 +89,13 @@ def main() -> int:
 
     wait_ready(args.base_url, args.ready_timeout_s)
     before = infer(args.base_url, args.served_model_name, args.prompt, 120.0)
+    demotion_started = time.perf_counter()
     demotion = post_json(
         f"{args.base_url}/collective_rpc",
         {"method": "demote_weight_cpu_backup_to_disk"},
         300.0,
     )
+    demotion_latency_s = time.perf_counter() - demotion_started
     results = demotion.get("results", []) if isinstance(demotion, dict) else []
     if not results or not all(
         int(result.get("released_bytes_total", 0)) > 0
@@ -95,22 +105,45 @@ def main() -> int:
         if isinstance(result, dict)
     ):
         raise RuntimeError(f"disk demotion did not complete: {demotion!r}")
-    post_json(f"{args.base_url}/sleep?level=1", {}, 300.0)
-    post_json(f"{args.base_url}/wake_up", {}, 300.0)
-    after = infer(args.base_url, args.served_model_name, args.prompt, 120.0)
+
+    cycles: list[dict[str, Any]] = []
+    after = before
+    for cycle_index in range(args.cycles):
+        sleep_started = time.perf_counter()
+        post_json(f"{args.base_url}/sleep?level=1", {}, 300.0)
+        sleep_latency_s = time.perf_counter() - sleep_started
+
+        wake_started = time.perf_counter()
+        post_json(f"{args.base_url}/wake_up", {}, 300.0)
+        wake_latency_s = time.perf_counter() - wake_started
+
+        after = infer(args.base_url, args.served_model_name, args.prompt, 120.0)
+        output_equal = before == after
+        cycles.append(
+            {
+                "cycle_index": cycle_index,
+                "sleep_latency_s": sleep_latency_s,
+                "wake_latency_s": wake_latency_s,
+                "output_equal": output_equal,
+            }
+        )
+        if not output_equal:
+            raise RuntimeError(
+                f"deterministic output changed after exact disk restore cycle {cycle_index}"
+            )
 
     observation = {
         "schema_version": 1,
         "before": before,
         "after": after,
         "demotion": demotion,
+        "demotion_latency_s": demotion_latency_s,
+        "cycles": cycles,
     }
     output_path.write_text(
         json.dumps(observation, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    if before != after:
-        raise RuntimeError("deterministic output changed after exact disk restore")
     print(json.dumps(observation, sort_keys=True))
     return 0
 

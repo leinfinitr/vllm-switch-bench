@@ -41,6 +41,7 @@ profile.write_text(
     encoding="utf-8",
 )
 output = Path(os.environ["LLM_SWITCH_BENCH_OUTPUT_OBSERVATION"])
+assert Path(os.environ["LLM_SWITCH_BENCH_OUT_DIR"]).is_absolute()
 output.write_text(json.dumps({
     "schema_version": 1,
     "before": {"token_ids": [1], "text": "ok"},

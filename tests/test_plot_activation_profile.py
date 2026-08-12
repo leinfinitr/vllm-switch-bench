@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from llm_switch_bench.experiments.exact_disk.plot_activation_profile import (
+    METHOD_ORDER,
+    aggregate_profiles,
+    main,
+)
+
+
+def sample(method: str, index: int, total: float, phase: float | None = None) -> dict:
+    phase_value = total if phase is None else phase
+    phases = {"GPU remap": phase_value}
+    if phase_value != total:
+        phases["Control overhead"] = total - phase_value
+    return {
+        "method": method,
+        "sample_index": index,
+        "total_s": total,
+        "phases_s": phases,
+        "source": f"{method}.json",
+    }
+
+
+def document() -> dict:
+    samples = []
+    for method in METHOD_ORDER:
+        for index, total in enumerate([1.0, 1.1, 1.2, 1.3, 1.4], start=1):
+            samples.append(sample(method, index, total, total * 0.75))
+    return {
+        "schema_version": 1,
+        "metric_boundary": "wake begin to ready",
+        "model": "model-a",
+        "frozen_scope": {"sample_count_per_method": 5},
+        "stability_rule": {},
+        "phase_semantics": {},
+        "sources": [],
+        "samples": samples,
+    }
+
+
+def test_aggregate_profiles_selects_real_median_sample_and_spread():
+    summary = aggregate_profiles(document())
+
+    assert [row["method"] for row in summary["methods"]] == list(METHOD_ORDER)
+    row = summary["methods"][0]
+    assert row["median_s"] == pytest.approx(1.2)
+    assert row["min_s"] == pytest.approx(1.0)
+    assert row["max_s"] == pytest.approx(1.4)
+    assert row["representative_sample_index"] == 3
+    assert sum(row["representative_phases_s"].values()) == pytest.approx(1.2)
+
+
+def test_aggregate_profiles_rejects_non_closing_breakdown():
+    payload = document()
+    payload["samples"][0]["phases_s"] = {"GPU remap": 0.5}
+
+    with pytest.raises(ValueError, match="phases sum"):
+        aggregate_profiles(payload)
+
+
+def test_aggregate_profiles_rejects_missing_samples():
+    payload = document()
+    payload["samples"].pop()
+
+    with pytest.raises(ValueError, match="has 4 samples"):
+        aggregate_profiles(payload)
+
+
+def test_main_writes_summary_png_and_pdf(tmp_path: Path):
+    input_path = tmp_path / "input.json"
+    input_path.write_text(json.dumps(document()), encoding="utf-8")
+    output = tmp_path / "output"
+
+    assert main(["--input", str(input_path), "--out-dir", str(output)]) == 0
+    assert (output / "activation-profile-summary.json").stat().st_size > 0
+    assert (output / "activation-latency-profile.png").stat().st_size > 0
+    assert (output / "activation-latency-profile.pdf").stat().st_size > 0

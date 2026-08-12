@@ -337,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
             "VLLM_CPU_BACKUP_DISK_DIR": str(backup_root),
             "VLLM_SLEEP_PROFILE_PATH": str(producer_profile_path),
             "LLM_SWITCH_BENCH_OUTPUT_OBSERVATION": str(output_observation_path),
+            "LLM_SWITCH_BENCH_OUT_DIR": str(output_dir),
             "LLM_SWITCH_BENCH_MODEL_NAME": args.model["name"],
             "LLM_SWITCH_BENCH_MODEL_PATH": args.model["path"],
         }
