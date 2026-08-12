@@ -105,9 +105,9 @@ so both server and driver use the same Python while the collector remains import
 
 ```bash
 export BENCH_REPO=/path/to/llm-switch-bench
-export VLLM_SWITCH_REPO=/path/to/vllm-switch
+export VLLM_REPO=/path/to/vllm
 export MODEL_PATH=/path/to/Qwen2.5-0.5B-Instruct
-export VLLM_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+export VLLM_PYTHON="$VLLM_REPO/.venv/bin/python"
 export RUN_ID=run-001
 export OUT_DIR="$BENCH_REPO/results/tmp/exact-disk/$RUN_ID"
 export BACKUP_ROOT="$BENCH_REPO/runtime/exact-disk-backups/$RUN_ID"
@@ -121,7 +121,7 @@ if ss -ltn 'sport = :8000' | grep -q LISTEN; then
 fi
 nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits
 
-cd "$VLLM_SWITCH_REPO"
+cd "$VLLM_REPO"
 uv pip install --python "$VLLM_PYTHON" -e "$BENCH_REPO" --no-deps
 "$VLLM_PYTHON" - <<'PY'
 import llm_switch_bench
@@ -136,7 +136,7 @@ print("vllm:", vllm.__file__)
 PY
 
 git -C "$BENCH_REPO" status --short --branch
-git -C "$VLLM_SWITCH_REPO" status --short --branch
+git -C "$VLLM_REPO" status --short --branch
 nvidia-smi --query-gpu=index,name,memory.total,driver_version \
   --format=csv,noheader,nounits
 df -T "$(dirname "$BACKUP_ROOT")"
@@ -156,17 +156,16 @@ The server stays inside the collector-owned process group until the lifecycle dr
 
 ```bash
 cd "$BENCH_REPO"
-export LLM_SWITCH_BENCH_VLLM_REPO="$VLLM_SWITCH_REPO"
+export LLM_SWITCH_BENCH_VLLM_REPO="$VLLM_REPO"
 export LLM_SWITCH_BENCH_VLLM_PYTHON="$VLLM_PYTHON"
 export LLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
   "$VLLM_PYTHON" -c 'import vllm; print(vllm.__file__)'
 )
-export LLM_SWITCH_BENCH_MODEL_REVISION=<exact-model-revision-or-content-id>
+export LLM_SWITCH_BENCH_MODEL_REVISION=1
 export LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$MODEL_PATH/config.json" | cut -d' ' -f1)
 export LLM_SWITCH_BENCH_BACKUP_FILESYSTEM=$(df -T "$(dirname "$BACKUP_ROOT")" | tail -n 1)
 export LLM_SWITCH_BENCH_GPU_IDENTITY=$(
-  nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
-    --format=csv,noheader,nounits
+  nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version --format=csv,noheader,nounits
 )
 export VLLM_SERVER_DEV_MODE=1
 export VLLM_EXACT_DISK_BACKUP_ENABLED=1
@@ -180,7 +179,7 @@ scripts/exact-disk-run.sh \
   --sample-interval-s 0.25 \
   -- bash -c '
     set -euo pipefail
-    export PATH="$VLLM_SWITCH_REPO/.venv/bin:$PATH"
+    export PATH="$VLLM_REPO/.venv/bin:$PATH"
     export VLLM_SERVER_DEV_MODE=1
     export VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES=16777216
     export VLLM_EXACT_DISK_BACKUP_DIRECT_IO=1

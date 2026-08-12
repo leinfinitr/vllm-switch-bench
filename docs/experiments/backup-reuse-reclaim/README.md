@@ -103,18 +103,16 @@ that environment:
 
 ```bash
 export BENCH_REPO=/path/to/llm-switch-bench
-export VLLM_SWITCH_REPO=/path/to/vllm-switch
+export VLLM_REPO=/path/to/vllm
 export CONTROLLER_REPO=/path/to/vllm-switch-controller
 export MODEL_ROOT=/path/to/huggingface-models
 export RUN_ROOT="$BENCH_REPO/results/tmp/backup-reuse-reclaim"
-export VLLM_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+export VLLM_PYTHON="$VLLM_REPO/.venv/bin/python"
+export PATH="$(dirname "$VLLM_PYTHON"):$PATH"
 
-test -f "$MODEL_ROOT/Qwen2.5-0.5B-Instruct/config.json"
-test -f "$MODEL_ROOT/Qwen2.5-1.5B-Instruct/config.json"
-test -f "$MODEL_ROOT/Qwen2.5-3B-Instruct/config.json"
 mkdir -p "$RUN_ROOT"
 
-cd "$VLLM_SWITCH_REPO"
+cd "$VLLM_REPO"
 uv pip install --python "$VLLM_PYTHON" -e "$BENCH_REPO" --no-deps
 "$VLLM_PYTHON" - <<'PY'
 import llm_switch_bench
@@ -126,10 +124,9 @@ assert os.path.realpath(sys.executable) == os.path.realpath(os.environ["VLLM_PYT
 print("benchmark:", llm_switch_bench.__file__)
 print("vllm:", vllm.__file__)
 PY
+command -v ninja
+test -x "$(dirname "$VLLM_PYTHON")/ninja"
 
-git -C "$BENCH_REPO" status --short --branch
-git -C "$VLLM_SWITCH_REPO" status --short --branch
-git -C "$CONTROLLER_REPO" status --short --branch
 nvidia-smi --query-gpu=index,name,memory.total,driver_version \
   --format=csv,noheader,nounits
 ```
@@ -148,7 +145,10 @@ unless a later sleep reports positive reuse with exactly zero D2H:
 ```bash
 cd "$BENCH_REPO"
 set -o pipefail
-CONTROL_LOG="$RUN_ROOT/reuse-control-command.log"
+CONTROL_ROOT="$RUN_ROOT/reuse-control/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+test ! -e "$CONTROL_ROOT"
+mkdir -p "$CONTROL_ROOT"
+CONTROL_LOG="$CONTROL_ROOT/command.log"
 "$VLLM_PYTHON" -m llm_switch_bench.experiments.backup_reuse_reclaim.run \
   --models qwen-0.5b="$MODEL_ROOT/Qwen2.5-0.5B-Instruct" \
   --iterations 5 \
@@ -157,13 +157,15 @@ CONTROL_LOG="$RUN_ROOT/reuse-control-command.log"
   --gpu-memory-utilization 0.55 \
   --max-model-len 1024 \
   --dtype float16 \
-  --out-dir "$RUN_ROOT/reuse-control" | tee "$CONTROL_LOG"
-CONTROL_SUMMARY=$(tail -n 1 "$CONTROL_LOG")
+  --out-dir "$CONTROL_ROOT" | tee "$CONTROL_LOG"
+CONTROL_SUMMARY=$(find "$CONTROL_ROOT" -mindepth 2 -maxdepth 2 -type f \
+  -name repeated_sleep_l1_summary.json -print -quit)
+test -n "$CONTROL_SUMMARY"
 test -f "$CONTROL_SUMMARY"
 ```
 
-The runner prints the exact timestamped summary path. Inspect the captured path rather than
-scanning for a stale previous run:
+The runner creates one timestamped child directory under the unique per-command root. Inspect
+the captured summary path rather than scanning a shared directory for a stale previous run:
 
 ```bash
 export CONTROL_SUMMARY
@@ -279,7 +281,10 @@ PY
 
 cd "$BENCH_REPO"
 set -o pipefail
-PRESSURE_LOG="$RUN_ROOT/pressure-treatment-command.log"
+PRESSURE_ROOT="$RUN_ROOT/pressure-treatment/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+test ! -e "$PRESSURE_ROOT"
+mkdir -p "$PRESSURE_ROOT"
+PRESSURE_LOG="$PRESSURE_ROOT/command.log"
 "$VLLM_PYTHON" -m llm_switch_bench.experiments.backup_reuse_reclaim.run \
   --models qwen-0.5b="$MODEL_ROOT/Qwen2.5-0.5B-Instruct" \
   --iterations 5 \
@@ -291,8 +296,10 @@ PRESSURE_LOG="$RUN_ROOT/pressure-treatment-command.log"
   --gpu-memory-utilization 0.55 \
   --max-model-len 1024 \
   --dtype float16 \
-  --out-dir "$RUN_ROOT/pressure-treatment" | tee "$PRESSURE_LOG"
-PRESSURE_SUMMARY=$(tail -n 1 "$PRESSURE_LOG")
+  --out-dir "$PRESSURE_ROOT" | tee "$PRESSURE_LOG"
+PRESSURE_SUMMARY=$(find "$PRESSURE_ROOT" -mindepth 2 -maxdepth 2 -type f \
+  -name repeated_sleep_l1_summary.json -print -quit)
+test -n "$PRESSURE_SUMMARY"
 test -f "$PRESSURE_SUMMARY"
 
 curl --noproxy '*' -fsS http://127.0.0.1:9000/admin/cpu-backup/stats \

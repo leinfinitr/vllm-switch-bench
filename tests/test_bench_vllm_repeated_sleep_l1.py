@@ -82,6 +82,24 @@ def test_evidence_collection_errors_fail_run_closed():
     assert summary["evidence_collection_errors"] == ["profile: synthetic failure"]
 
 
+def test_repeated_sleep_preserves_virtualenv_bin_on_path(tmp_path: Path, monkeypatch):
+    base_python = tmp_path / "base" / "python3"
+    base_python.parent.mkdir()
+    base_python.touch()
+    venv_bin = tmp_path / "venv" / "bin"
+    venv_bin.mkdir(parents=True)
+    venv_python = venv_bin / "python"
+    venv_python.symlink_to(base_python)
+    monkeypatch.setenv("PATH", os.pathsep.join(["/usr/bin", str(venv_bin), "/bin"]))
+
+    observed = repeated.prepend_python_bin_to_path(venv_python)
+
+    path_entries = os.environ["PATH"].split(os.pathsep)
+    assert observed == venv_bin.absolute()
+    assert path_entries[0] == str(venv_bin.absolute())
+    assert path_entries.count(str(venv_bin.absolute())) == 1
+
+
 def test_release_assertions_distinguish_logical_and_physical_reclaim():
     args = argparse.Namespace(
         expect_release=True,

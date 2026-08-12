@@ -286,6 +286,19 @@ def command_output(command: list[str]) -> str | None:
         return None
 
 
+def prepend_python_bin_to_path(python_executable: str | Path = sys.executable) -> Path:
+    """Expose tools installed beside the active interpreter to worker children."""
+
+    # Do not resolve a virtual-environment Python symlink: its parent is the
+    # environment's bin directory, which contains JIT helpers such as ninja.
+    python_bin = Path(python_executable).expanduser().absolute().parent
+    entries = os.environ.get("PATH", "").split(os.pathsep)
+    os.environ["PATH"] = os.pathsep.join(
+        [str(python_bin), *(entry for entry in entries if entry != str(python_bin))]
+    )
+    return python_bin
+
+
 def fetch_run_coordinator_stats(base_url: str, run_id: str, timeout_s: float) -> dict[str, Any]:
     """Return protocol accounting for this benchmark run's worker clients."""
     request = urllib.request.Request(f"{base_url.rstrip('/')}/admin/cpu-backup/stats", method="GET")
@@ -466,6 +479,7 @@ def model_load_kwargs(args: argparse.Namespace, model: ModelSpec) -> dict[str, A
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    prepend_python_bin_to_path()
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
     os.environ["VLLM_USE_V1"] = "1"
 
@@ -502,6 +516,9 @@ def main(argv: list[str] | None = None) -> int:
         },
         "environment": {
             "python": sys.version,
+            "python_executable": sys.executable,
+            "python_bin": str(Path(sys.executable).expanduser().absolute().parent),
+            "ninja": command_output(["which", "ninja"]),
             "platform": platform.platform(),
             "benchmark_repo": git_metadata(repository_root()),
             "vllm_repo": module_repo_metadata("vllm"),

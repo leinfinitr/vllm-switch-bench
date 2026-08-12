@@ -94,7 +94,7 @@ Set machine-local paths first. These are explicit placeholders, not retained pro
 
 ```bash
 export BENCH_REPO=/path/to/llm-switch-bench
-export VLLM_SWITCH_REPO=/path/to/vllm
+export VLLM_REPO=/path/to/vllm
 export VLLM_UPSTREAM_REPO=/path/to/vllm-upstream
 export CONTROLLER_REPO=/path/to/vllm-switch-controller
 export LLAMA_SWAP_REPO=/path/to/llama-swap
@@ -142,13 +142,13 @@ models:
     served_model_name: qwen-1.5b
     sleep_level: 1
     wake_tags: null
-    cwd: "$VLLM_SWITCH_REPO"
+    cwd: "$VLLM_REPO"
     env:
       VLLM_SERVER_DEV_MODE: "1"
-      PYTHONPATH: "$VLLM_SWITCH_REPO"
-      PATH: "$VLLM_SWITCH_REPO/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+      PYTHONPATH: "$VLLM_REPO"
+      PATH: "$VLLM_REPO/.venv/bin:/usr/local/bin:/usr/bin:/bin"
     launch_command:
-      - "$VLLM_SWITCH_REPO/.venv/bin/python"
+      - "$VLLM_REPO/.venv/bin/python"
       - -m
       - vllm.entrypoints.openai.api_server
       - --model
@@ -173,13 +173,13 @@ models:
     served_model_name: qwen-3b
     sleep_level: 1
     wake_tags: null
-    cwd: "$VLLM_SWITCH_REPO"
+    cwd: "$VLLM_REPO"
     env:
       VLLM_SERVER_DEV_MODE: "1"
-      PYTHONPATH: "$VLLM_SWITCH_REPO"
-      PATH: "$VLLM_SWITCH_REPO/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+      PYTHONPATH: "$VLLM_REPO"
+      PATH: "$VLLM_REPO/.venv/bin:/usr/local/bin:/usr/bin:/bin"
     launch_command:
-      - "$VLLM_SWITCH_REPO/.venv/bin/python"
+      - "$VLLM_REPO/.venv/bin/python"
       - -m
       - vllm.entrypoints.openai.api_server
       - --model
