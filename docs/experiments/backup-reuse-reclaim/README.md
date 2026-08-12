@@ -80,6 +80,8 @@ host workloads.
 
 ### Deterministic CPU rebuild and validation
 
+From the benchmark repository root:
+
 ```bash
 uv sync --frozen --group dev
 scripts/build_all.sh
@@ -91,18 +93,259 @@ git diff --exit-code -- results/backup-reuse-reclaim
 Repeat the build/validation/diff sequence once more. It reads retained JSON only and performs
 no GPU work.
 
-### Live reuse control (GPU; not run in this refactor)
+### Live same-process reuse and reclaim
+
+The live harness imports `vllm` in-process. Therefore it must run with the compatible vLLM
+Switch interpreter, while importing `llm_switch_bench` from this checkout. Stock vLLM lacks
+the reuse/coordinator profile fields required by this experiment. On a fresh machine, create
+or sync the compatible vLLM environment first, then install only the benchmark package into
+that environment:
 
 ```bash
-scripts/backup-reuse-reclaim.sh \
-  --models small=/path/to/small-model large=/path/to/large-model \
+export BENCH_REPO=/path/to/llm-switch-bench
+export VLLM_SWITCH_REPO=/path/to/vllm-switch
+export CONTROLLER_REPO=/path/to/vllm-switch-controller
+export MODEL_ROOT=/path/to/huggingface-models
+export RUN_ROOT="$BENCH_REPO/results/tmp/backup-reuse-reclaim"
+export VLLM_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+
+test -f "$MODEL_ROOT/Qwen2.5-0.5B-Instruct/config.json"
+test -f "$MODEL_ROOT/Qwen2.5-1.5B-Instruct/config.json"
+test -f "$MODEL_ROOT/Qwen2.5-3B-Instruct/config.json"
+mkdir -p "$RUN_ROOT"
+
+cd "$VLLM_SWITCH_REPO"
+uv pip install --python "$VLLM_PYTHON" -e "$BENCH_REPO" --no-deps
+"$VLLM_PYTHON" - <<'PY'
+import llm_switch_bench
+import os
+import sys
+import vllm
+
+assert os.path.realpath(sys.executable) == os.path.realpath(os.environ["VLLM_PYTHON"])
+print("benchmark:", llm_switch_bench.__file__)
+print("vllm:", vllm.__file__)
+PY
+
+git -C "$BENCH_REPO" status --short --branch
+git -C "$VLLM_SWITCH_REPO" status --short --branch
+git -C "$CONTROLLER_REPO" status --short --branch
+nvidia-smi --query-gpu=index,name,memory.total,driver_version \
+  --format=csv,noheader,nounits
+```
+
+The script creates a timestamped run below `--out-dir`. It retains every `LLM` object for the
+entire model sequence: first visit is `load -> infer -> sleep`; later visits are
+`wake -> infer -> sleep`. Do not replace this with process-restart runs because they cannot
+observe per-process clean-backup reuse.
+
+#### No-pressure reuse control
+
+Use one model for a simple mechanism check, or multiple models only when host RAM can retain
+all sleeping engine objects. The command below performs five same-process cycles and fails
+unless a later sleep reports positive reuse with exactly zero D2H:
+
+```bash
+cd "$BENCH_REPO"
+set -o pipefail
+CONTROL_LOG="$RUN_ROOT/reuse-control-command.log"
+"$VLLM_PYTHON" -m llm_switch_bench.experiments.backup_reuse_reclaim.run \
+  --models qwen-0.5b="$MODEL_ROOT/Qwen2.5-0.5B-Instruct" \
   --iterations 5 \
   --no-expect-release \
   --expect-reuse \
-  --out-dir results/tmp/backup-reuse-reclaim/control
+  --gpu-memory-utilization 0.55 \
+  --max-model-len 1024 \
+  --dtype float16 \
+  --out-dir "$RUN_ROOT/reuse-control" | tee "$CONTROL_LOG"
+CONTROL_SUMMARY=$(tail -n 1 "$CONTROL_LOG")
+test -f "$CONTROL_SUMMARY"
 ```
 
-A pressure run additionally needs a configured coordinator, `--expect-release`, a positive
-post-wake observation interval, and an explicit `--min-worker-rss-reclaim-bytes` threshold.
-Capture runtime source/import/config identities and inspect both application and OS-visible
-post-conditions before promoting evidence.
+The runner prints the exact timestamped summary path. Inspect the captured path rather than
+scanning for a stale previous run:
+
+```bash
+export CONTROL_SUMMARY
+
+"$VLLM_PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+
+data = json.loads(Path(os.environ["CONTROL_SUMMARY"]).read_text())
+assert data["ok"] is True, data.get("assertion_failures") or data.get("error")
+assert not data["assertion_failures"]
+reuse = [
+    step for step in data["steps"]
+    if int(step.get("sleep_allocator_cpu_backup_reused_bytes", 0)) > 0
+    and float(step.get("sleep_allocator_copy_d2h_s", -1)) == 0.0
+]
+assert reuse, "no later sleep reused a clean CPU backup with zero D2H"
+assert all(step.get("output_matches_reference") is not False for step in data["steps"])
+print({"steps": len(data["steps"]), "reuse_steps": len(reuse), "ok": data["ok"]})
+PY
+```
+
+`repeated_sleep_l1_steps.csv`, the complete JSON summary, and the raw sleep-profile events
+are local evidence. The first load/sleep establishes the backup; only later sleep rows can
+support the retained-clean-backup claim.
+
+#### Pressure-driven reclaim treatment
+
+Run this as a separate fresh controller process so stale process-incarnation records cannot
+absorb a new run's release budget. Configure no models in the controller is invalid, so use
+one placeholder backend entry; this offline harness uses only the coordinator endpoints and
+does not ask the controller to route requests to that backend.
+
+On a shared host, never allocate RAM toward OOM. Read current `MemTotal`/`MemAvailable` and
+choose a temporary low/high pair **above current MemAvailable** by a safe margin so policy
+pressure is synthetic and reversible. High must also exceed low and should exceed current
+MemAvailable by at least the candidate backup size plus margin if full reclaim is required.
+Record the chosen values. Example shell arithmetic for a 0.5B run:
+
+```bash
+read -r MEM_TOTAL MEM_AVAILABLE <<EOF
+$(awk '
+  /^MemTotal:/ {total=$2*1024}
+  /^MemAvailable:/ {available=$2*1024}
+  END {print total, available}
+' /proc/meminfo)
+EOF
+BACKUP_BYTES=1048576000
+MARGIN_BYTES=268435456
+LOW_BYTES=$((MEM_AVAILABLE + MARGIN_BYTES))
+HIGH_BYTES=$((MEM_AVAILABLE + BACKUP_BYTES + MARGIN_BYTES))
+test "$HIGH_BYTES" -lt "$MEM_TOTAL"
+
+mkdir -p "$RUN_ROOT/pressure"
+cat > "$RUN_ROOT/pressure/controller.yaml" <<EOF
+models:
+  offline-benchmark:
+    backend_url: http://127.0.0.1:19999
+    served_model_name: offline-benchmark
+    sleep_level: 1
+    wake_tags: null
+controller:
+  host: 127.0.0.1
+  port: 9000
+  policy: always_sleep_previous
+  startup_awake_model: null
+  request_timeout_s: 600
+  switch_timeout_s: 600
+  metrics_path: "$RUN_ROOT/pressure/controller-events.jsonl"
+  cpu_memory_reclaim_available_bytes: $LOW_BYTES
+  cpu_memory_recovery_available_bytes: $HIGH_BYTES
+  cpu_memory_poll_interval_s: 0.5
+  cpu_memory_pressure_consecutive_samples: 3
+  cpu_memory_reclaim_cooldown_s: 2.0
+  cpu_backup_global_cap_bytes: null
+EOF
+```
+
+Terminal 1 starts only this run's coordinator:
+
+```bash
+cd "$CONTROLLER_REPO"
+uv sync --frozen --dev
+uv run vllm-switch-controller --config "$RUN_ROOT/pressure/controller.yaml" \
+  2>&1 | tee "$RUN_ROOT/pressure/controller.log"
+```
+
+Terminal 2 verifies that the monitor is active, then runs five cycles. The observation dwell
+must cover pressure debounce (`3 × 0.5 s` here), the worker poll interval, and RSS
+stabilization; `5 s` is the concrete minimum used below. The 256 MiB RSS threshold is an
+explicit run acceptance threshold, not a universal constant.
+
+```bash
+curl --noproxy '*' -fsS http://127.0.0.1:9000/health
+curl --noproxy '*' -fsS http://127.0.0.1:9000/admin/cpu-backup/stats \
+  > "$RUN_ROOT/pressure/pre-run-stats.json"
+export EXPECTED_LOW_BYTES="$LOW_BYTES" EXPECTED_HIGH_BYTES="$HIGH_BYTES"
+"$VLLM_PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+
+path = Path(os.environ["RUN_ROOT"]) / "pressure/pre-run-stats.json"
+data = json.loads(path.read_text())
+pressure = data["memory_pressure"]
+assert pressure["enabled"] is True
+assert pressure["reclaim_available_bytes"] == int(os.environ["EXPECTED_LOW_BYTES"])
+assert pressure["recovery_available_bytes"] == int(os.environ["EXPECTED_HIGH_BYTES"])
+assert pressure["probe_errors"] == 0
+assert data["stats"]["global_cap_bytes"] is None
+PY
+
+cd "$BENCH_REPO"
+set -o pipefail
+PRESSURE_LOG="$RUN_ROOT/pressure-treatment-command.log"
+"$VLLM_PYTHON" -m llm_switch_bench.experiments.backup_reuse_reclaim.run \
+  --models qwen-0.5b="$MODEL_ROOT/Qwen2.5-0.5B-Instruct" \
+  --iterations 5 \
+  --coordinator-url http://127.0.0.1:9000 \
+  --coordinator-timeout-s 1.0 \
+  --post-wake-observation-s 5 \
+  --expect-release \
+  --min-worker-rss-reclaim-bytes 268435456 \
+  --gpu-memory-utilization 0.55 \
+  --max-model-len 1024 \
+  --dtype float16 \
+  --out-dir "$RUN_ROOT/pressure-treatment" | tee "$PRESSURE_LOG"
+PRESSURE_SUMMARY=$(tail -n 1 "$PRESSURE_LOG")
+test -f "$PRESSURE_SUMMARY"
+
+curl --noproxy '*' -fsS http://127.0.0.1:9000/admin/cpu-backup/stats \
+  > "$RUN_ROOT/pressure/post-run-stats.json"
+```
+
+The benchmark exits `2` if it sees no run-local release, any output mismatch, missing/nonzero
+host-cache-flush error telemetry, unsettled requested/released bytes, or insufficient RSS
+drop. Inspect the summary itself as well:
+
+```bash
+export PRESSURE_SUMMARY
+
+"$VLLM_PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+
+data = json.loads(Path(os.environ["PRESSURE_SUMMARY"]).read_text())
+assert data["ok"] is True, data.get("assertion_failures") or data.get("error")
+stats = data["coordinator_stats"]
+assert stats["client_count"] >= 1
+assert stats["requested_release_bytes_total"] > 0
+assert stats["released_bytes_total"] >= stats["requested_release_bytes_total"]
+assert stats["pending_release_bytes"] == 0
+released = [s for s in data["steps"] if s.get("cpu_backup_release_delta_bytes", 0) > 0]
+assert released
+sleep_events = [
+    event for event in data["sleep_profile_events"]
+    if event.get("phase") == "allocator_sleep"
+]
+assert sleep_events and all(event.get("cpu_backup_pin_memory") is True for event in sleep_events)
+assert any(
+    int(value or 0) > 0
+    for step in released
+    for key, value in step.items()
+    if key.endswith("cpu_backup_host_cache_flush_count")
+)
+before = data["environment"]["initial_meminfo_bytes"]["MemAvailable"]
+after = data["environment"]["final_meminfo_bytes"]["MemAvailable"]
+assert after > before, (before, after)
+print({"release_steps": len(released), "coordinator": stats, "ok": data["ok"]})
+PY
+```
+
+#### Cleanup
+
+Stop terminal 1 with `Ctrl-C`. Verify port `9000`, benchmark-owned vLLM/EngineCore children,
+and GPU compute processes are gone. The offline harness clears its engine references in a
+`finally` block, but always inspect failed runs and clean only identified owned PIDs/PGIDs.
+
+The pressure treatment proves application release only when cumulative coordinator
+requested/released counters settle. A physical claim additionally needs zero host-cache
+flush errors, a run-local worker RSS decrease, and corroborating `MemAvailable`; host-global
+`MemAvailable` alone is noisy on a shared server. Capture source/import/config identities and
+retain failed or partial evidence instead of aggregating it into successful numeric results.

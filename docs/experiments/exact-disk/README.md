@@ -79,6 +79,8 @@ superiority over another storage tier.
 
 ### Deterministic CPU rebuild and validation
 
+From the benchmark repository root:
+
 ```bash
 uv sync --frozen --group dev
 scripts/exact-disk-build.sh
@@ -90,19 +92,197 @@ git diff --exit-code -- results/exact-disk
 Repeat the build/validation/diff sequence once more. It validates the retained manifest and
 observations but does not recreate the omitted payload or run a GPU.
 
-### Live runtime capture (GPU; not run in this refactor)
+### Live exact-disk lifecycle capture
 
-With a compatible instrumented vLLM environment:
+This is not a stock-vLLM command. Use a compatible vLLM Switch checkout that implements
+`VLLM_EXACT_DISK_BACKUP_*`, `demote_weight_cpu_backup_to_disk`, exact-disk profile events,
+and the developer lifecycle endpoints. Start the server as one captured process group, then
+run the lifecycle driver inside that group. The collector samples the complete wrapper/server/
+driver process tree before and after demotion.
+
+Set explicit machine-local paths and install the benchmark package into the vLLM environment
+so both server and driver use the same Python while the collector remains importable:
 
 ```bash
-scripts/exact-disk-run.sh \
-  --model model=/path/to/model \
-  --backup-root runtime/exact-disk-backups \
-  --out-dir results/tmp/exact-disk/run-001 \
-  -- /path/to/python -m llm_switch_bench.experiments.exact_disk.lifecycle_driver
+export BENCH_REPO=/path/to/llm-switch-bench
+export VLLM_SWITCH_REPO=/path/to/vllm-switch
+export MODEL_PATH=/path/to/Qwen2.5-0.5B-Instruct
+export VLLM_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+export RUN_ID=run-001
+export OUT_DIR="$BENCH_REPO/results/tmp/exact-disk/$RUN_ID"
+export BACKUP_ROOT="$BENCH_REPO/runtime/exact-disk-backups/$RUN_ID"
+
+test -f "$MODEL_PATH/config.json"
+test ! -e "$OUT_DIR"
+test ! -e "$BACKUP_ROOT"
+if ss -ltn 'sport = :8000' | grep -q LISTEN; then
+  echo "port already in use: 8000" >&2
+  exit 1
+fi
+nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits
+
+cd "$VLLM_SWITCH_REPO"
+uv pip install --python "$VLLM_PYTHON" -e "$BENCH_REPO" --no-deps
+"$VLLM_PYTHON" - <<'PY'
+import llm_switch_bench
+import vllm
+from vllm import envs
+from vllm.v1.worker.gpu_worker import Worker
+
+assert hasattr(envs, "VLLM_EXACT_DISK_BACKUP_ENABLED")
+assert hasattr(Worker, "demote_weight_cpu_backup_to_disk")
+print("benchmark:", llm_switch_bench.__file__)
+print("vllm:", vllm.__file__)
+PY
+
+git -C "$BENCH_REPO" status --short --branch
+git -C "$VLLM_SWITCH_REPO" status --short --branch
+nvidia-smi --query-gpu=index,name,memory.total,driver_version \
+  --format=csv,noheader,nounits
+df -T "$(dirname "$BACKUP_ROOT")"
 ```
 
-The default rejects an existing destination and nonempty backup root. Bind the actual engine
-repository through run metadata/environment, record the imported path and configuration,
-and retain command success, profile events, resource samples, footprint growth, runtime
-checksum manifest, and output equality before considering promotion.
+The default requires an empty backup root so footprint growth belongs to this run. Do not use
+`--allow-nonempty-backup-root` for claim-supporting evidence. Direct I/O is requested, but
+the current vLLM profile does not expose the actual direct-I/O state: a pinned-staging failure
+can fall back to buffered disk I/O while still reporting `fallback=false`. Until the engine
+records actual `direct_io` and a fallback reason, retain and inspect the server warning and do
+not claim that the current curator fails closed on direct-I/O fallback.
+
+Run from the benchmark repository root. `LLM_SWITCH_BENCH_VLLM_REPO` binds engine provenance;
+the collector exports the backup, profile, model, and output-observation paths. The
+virtual-environment directory is prepended to `PATH` so runtime JIT helpers are available.
+The server stays inside the collector-owned process group until the lifecycle driver exits:
+
+```bash
+cd "$BENCH_REPO"
+export LLM_SWITCH_BENCH_VLLM_REPO="$VLLM_SWITCH_REPO"
+export LLM_SWITCH_BENCH_VLLM_PYTHON="$VLLM_PYTHON"
+export LLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
+  "$VLLM_PYTHON" -c 'import vllm; print(vllm.__file__)'
+)
+export LLM_SWITCH_BENCH_MODEL_REVISION=<exact-model-revision-or-content-id>
+export LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$MODEL_PATH/config.json" | cut -d' ' -f1)
+export LLM_SWITCH_BENCH_BACKUP_FILESYSTEM=$(df -T "$(dirname "$BACKUP_ROOT")" | tail -n 1)
+export LLM_SWITCH_BENCH_GPU_IDENTITY=$(
+  nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
+    --format=csv,noheader,nounits
+)
+export VLLM_SERVER_DEV_MODE=1
+export VLLM_EXACT_DISK_BACKUP_ENABLED=1
+export VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES=16777216
+export VLLM_EXACT_DISK_BACKUP_DIRECT_IO=1
+
+scripts/exact-disk-run.sh \
+  --model qwen-0.5b="$MODEL_PATH" \
+  --backup-root "$BACKUP_ROOT" \
+  --out-dir "$OUT_DIR" \
+  --sample-interval-s 0.25 \
+  -- bash -c '
+    set -euo pipefail
+    export PATH="$VLLM_SWITCH_REPO/.venv/bin:$PATH"
+    export VLLM_SERVER_DEV_MODE=1
+    export VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES=16777216
+    export VLLM_EXACT_DISK_BACKUP_DIRECT_IO=1
+    export no_proxy=127.0.0.1,localhost
+    export NO_PROXY=127.0.0.1,localhost
+
+    "$VLLM_PYTHON" -m vllm.entrypoints.openai.api_server \
+      --model "$LLM_SWITCH_BENCH_MODEL_PATH" \
+      --served-model-name "$LLM_SWITCH_BENCH_MODEL_NAME" \
+      --host 127.0.0.1 \
+      --port 8000 \
+      --enable-sleep-mode \
+      --gpu-memory-utilization 0.80 \
+      --max-model-len 1024 \
+      --dtype half \
+      --enforce-eager &
+    server_pid=$!
+    trap '\''kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" || true'\'' EXIT
+
+    "$VLLM_PYTHON" -m llm_switch_bench.experiments.exact_disk.lifecycle_driver \
+      --base-url http://127.0.0.1:8000 \
+      --served-model-name "$LLM_SWITCH_BENCH_MODEL_NAME" \
+      --ready-timeout-s 300
+
+    # Preserve the complete committed bundle before orderly vLLM teardown deletes it.
+    mkdir -p "$OUT_DIR/runtime-bundle"
+    cp -a "$VLLM_EXACT_DISK_BACKUP_DIR"/. "$OUT_DIR/runtime-bundle"/
+  '
+```
+
+The lifecycle boundary is explicit:
+
+```text
+server ready -> deterministic inference
+-> prepare exact disk bundle and release all CPU weight backup
+-> verify positive released bytes and zero remaining/pending CPU bytes
+-> sleep(level=1) -> wake_up -> disk restore
+-> deterministic inference and exact output equality
+```
+
+The collector rejects the run unless the command exits zero and creates both
+`raw/exact_disk_profile.jsonl` and `raw/output_observation.json`. Server and driver output are
+captured together in `raw/command.stdout.log` and `raw/command.stderr.log`. The copied
+`runtime-bundle/` is outside the collector's raw checksum manifest, so hash/copy it separately
+before any promotion. The collector checksums its raw files, then creates
+`curated/summary.json` and `curated/assertions.json`. Inspect the gates explicitly:
+
+```bash
+export OUT_DIR
+"$VLLM_PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+
+root = Path(os.environ["OUT_DIR"])
+run = json.loads((root / "raw/run.json").read_text())
+summary = json.loads((root / "curated/summary.json").read_text())
+checks = json.loads((root / "curated/assertions.json").read_text())
+
+assert run["command_return_code"] == 0
+assert checks["ok"] is True, checks["failures"]
+assert summary["profile"]["disk_spill_bytes"] > 0
+assert summary["profile"]["disk_read_bytes"] > 0
+assert summary["profile"]["source_media"] == ["disk"]
+assert summary["profile"]["fallback_count"] == 0
+assert summary["resources"]["disk_footprint_peak_delta_bytes"] > 0
+assert summary["resources"]["worker_rss_last_bytes"] \
+    < summary["resources"]["worker_rss_peak_bytes"]
+assert summary["output_equality"]["output_equal"] is True
+print({"assertions": checks["ok"], "profile": summary["profile"]})
+PY
+
+find "$OUT_DIR/runtime-bundle" -type f -name manifest.json -print -exec sha256sum {} \;
+find "$OUT_DIR/runtime-bundle" -type f -name COMMIT -print -exec sed -n '1p' {} \;
+find "$OUT_DIR/runtime-bundle" -type f -name data.bin -exec stat \
+  --printf='%n logical=%s blocks_512=%b\n' {} \;
+"$VLLM_PYTHON" - "$OUT_DIR/runtime-bundle" <<'PY'
+import sys
+from pathlib import Path
+
+payloads = list(Path(sys.argv[1]).rglob("data.bin"))
+assert payloads, "runtime bundle contains no data.bin"
+for path in payloads:
+    stat = path.stat()
+    print(path, {"logical_bytes": stat.st_size, "allocated_bytes": stat.st_blocks * 512})
+PY
+```
+
+The runtime bundle's canonical `manifest.json`, `COMMIT` digest, chunk hashes, logical size,
+and allocated blocks are primary exact-byte evidence. The local collector's
+`evidence_manifest.json` separately authenticates its copied profile, resource samples,
+output observation, logs, and run metadata.
+
+#### Cleanup
+
+The shell trap stops the captured server, and the collector then terminates any descendant
+remaining in its process group. Afterward confirm port `8000`, vLLM/EngineCore descendants,
+and GPU compute processes are gone. Preserve `$OUT_DIR/raw` for failed runs; failures are
+intentionally raw-only and must not be promoted as a numeric result. Remove `$BACKUP_ROOT`
+only after copying the claim-supporting runtime bundle/checksums you intend to retain.
+
+Bind the actual engine commit/dirty state, imported path, model revision, filesystem/device,
+CUDA/PyTorch/driver/GPU, complete argv/environment, page-cache policy, and direct-I/O result.
+This command is a current functional capture; it does not recreate the retained payload
+digest unless every runtime input and produced byte happens to match.

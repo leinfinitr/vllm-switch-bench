@@ -31,6 +31,22 @@ REQUIRED_DISCLOSURES = [
     "historical local observation",
     "canonical gpu rerun is not complete",
 ]
+REQUIRED_EXPERIMENT_SECTIONS = (
+    "## Question",
+    "## Metric",
+    "## Method",
+    "## Retained result",
+    "## Threats to validity",
+    "## Limitations",
+    "## Reproduce",
+    "### Deterministic CPU rebuild and validation",
+)
+REQUIRED_LIVE_RUN_MARKERS = {
+    "lifecycle-latency": ("### Live measurement", "results/tmp/", "Stop terminal 1"),
+    "request-driven-switch": ("### Live single-trace measurement", "results/tmp/", "Cleanup"),
+    "backup-reuse-reclaim": ("### Live same-process reuse and reclaim", "results/tmp/", "Cleanup"),
+    "exact-disk": ("### Live exact-disk lifecycle capture", "results/tmp/", "Afterward confirm"),
+}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -58,6 +74,12 @@ def main(argv: list[str] | None = None) -> int:
         text = (ROOT / "docs" / "experiments" / family / "README.md").read_text(encoding="utf-8")
         if f"../../../results/{family}/figures/" not in text:
             raise SystemExit(f"{family} doc does not link to result figure")
+        for section in REQUIRED_EXPERIMENT_SECTIONS:
+            if section not in text:
+                raise SystemExit(f"{family} doc is missing required section {section!r}")
+        for marker in REQUIRED_LIVE_RUN_MARKERS[family]:
+            if marker not in text:
+                raise SystemExit(f"{family} doc is missing live-run marker {marker!r}")
     return 0
 
 

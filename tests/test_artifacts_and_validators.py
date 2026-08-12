@@ -25,6 +25,7 @@ from llm_switch_bench.validation.request_driven_switch.validate import (
     validate_family as validate_request,
 )
 from llm_switch_bench.validation import validate_all as validate_all_module
+from llm_switch_bench.validation.common import validate_top_level_results
 from llm_switch_bench.validation.validate_all import validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,11 +43,27 @@ def test_policy_entrypoints_reject_unknown_arguments(entrypoint) -> None:
     assert error.value.code == 2
 
 
+def test_docs_checker_requires_live_runbooks(monkeypatch: pytest.MonkeyPatch) -> None:
+    family = "request-driven-switch"
+    path = ROOT / "docs" / "experiments" / family / "README.md"
+    original = Path.read_text
+
+    def without_live_section(candidate: Path, *args, **kwargs) -> str:
+        text = original(candidate, *args, **kwargs)
+        if candidate == path:
+            return text.replace("### Live single-trace measurement", "### Measurement")
+        return text
+
+    monkeypatch.setattr(Path, "read_text", without_live_section)
+    with pytest.raises(SystemExit, match="missing live-run marker"):
+        check_docs.main([])
+
+
 def digest_tree(root: Path = RESULTS) -> dict[str, str]:
     return {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(root.rglob("*"))
-        if path.is_file()
+        if path.is_file() and "tmp" not in path.relative_to(root).parts
     }
 
 
@@ -63,8 +80,30 @@ def test_build_all_is_deterministic_and_validates() -> None:
     build_all()
     second = digest_tree()
     assert first == second
-    assert {path.name for path in RESULTS.iterdir()} == {"README.md", *FAMILIES}
+    assert {path.name for path in RESULTS.iterdir() if path.name != "tmp"} == {
+        "README.md",
+        *FAMILIES,
+    }
     validate_all()
+
+
+def test_top_level_validator_allows_reserved_local_tmp(tmp_path: Path) -> None:
+    (tmp_path / "README.md").touch()
+    for family in FAMILIES:
+        (tmp_path / family).mkdir()
+    (tmp_path / "tmp").mkdir()
+
+    validate_top_level_results(tmp_path)
+
+
+def test_top_level_validator_rejects_unreserved_entry(tmp_path: Path) -> None:
+    (tmp_path / "README.md").touch()
+    for family in FAMILIES:
+        (tmp_path / family).mkdir()
+    (tmp_path / "ad-hoc-results").mkdir()
+
+    with pytest.raises(ValueError, match="unexpected top-level results entries"):
+        validate_top_level_results(tmp_path)
 
 
 def test_migrated_headline_aggregates_are_exactly_preserved() -> None:
@@ -92,7 +131,11 @@ def test_external_assets_are_contracts_not_tracked_binaries() -> None:
     assert all(
         len(item["sha256"]) == 64 and item["size_bytes"] > 0 for item in EXTERNAL_CONTRACTS.values()
     )
-    largest = max(path.stat().st_size for path in RESULTS.rglob("*") if path.is_file())
+    largest = max(
+        path.stat().st_size
+        for path in RESULTS.rglob("*")
+        if path.is_file() and "tmp" not in path.relative_to(RESULTS).parts
+    )
     assert largest < 1_000_000
 
 

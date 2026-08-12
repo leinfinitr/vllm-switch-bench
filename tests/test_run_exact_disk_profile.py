@@ -116,6 +116,40 @@ def test_dry_run_uses_repo_local_default_backup_root(tmp_path: Path):
     assert not (output / "curated" / "summary.json").exists()
 
 
+def test_dry_run_records_selected_runtime_provenance(tmp_path: Path):
+    output = tmp_path / "run"
+    proc = run_script(
+        "--model",
+        "model-a=/models/a",
+        "--out-dir",
+        str(output),
+        "--dry-run",
+        "--",
+        sys.executable,
+        "fake.py",
+        env={
+            "VLLM_EXACT_DISK_BACKUP_DIRECT_IO": "1",
+            "LLM_SWITCH_BENCH_VLLM_PYTHON": "/venv/bin/python",
+            "LLM_SWITCH_BENCH_VLLM_IMPORT_PATH": "/repo/vllm/__init__.py",
+            "LLM_SWITCH_BENCH_MODEL_REVISION": "revision-a",
+            "LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256": "a" * 64,
+            "LLM_SWITCH_BENCH_BACKUP_FILESYSTEM": "ext4 /dev/nvme0n1",
+            "LLM_SWITCH_BENCH_GPU_IDENTITY": "gpu-a",
+        },
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    plan = json.loads((output / "raw" / "run.json").read_text(encoding="utf-8"))
+    runtime = plan["environment"]["runtime"]
+    assert runtime["selected_environment"]["VLLM_EXACT_DISK_BACKUP_DIRECT_IO"] == "1"
+    assert runtime["vllm_python"] == "/venv/bin/python"
+    assert runtime["vllm_import_path"] == "/repo/vllm/__init__.py"
+    assert runtime["model_revision"] == "revision-a"
+    assert runtime["model_config_sha256"] == "a" * 64
+    assert runtime["filesystem"] == "ext4 /dev/nvme0n1"
+    assert runtime["gpu"] == "gpu-a"
+
+
 def test_runner_executes_model_agnostic_command_and_builds_curated_summary(
     tmp_path: Path,
 ):

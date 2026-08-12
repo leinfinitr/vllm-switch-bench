@@ -125,6 +125,28 @@ def _optional_repo_metadata(env_name: str) -> dict[str, Any] | None:
     return _git_metadata(path) if path.is_dir() else {"path": str(path), "missing": True}
 
 
+def _runtime_provenance(args: argparse.Namespace) -> dict[str, Any]:
+    """Capture operator-supplied runtime identity without dumping the environment."""
+
+    names = (
+        "VLLM_SERVER_DEV_MODE",
+        "VLLM_EXACT_DISK_BACKUP_ENABLED",
+        "VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES",
+        "VLLM_EXACT_DISK_BACKUP_DIRECT_IO",
+    )
+    runtime = {
+        "selected_environment": {name: os.environ.get(name) for name in names},
+        "vllm_python": os.environ.get("LLM_SWITCH_BENCH_VLLM_PYTHON"),
+        "vllm_import_path": os.environ.get("LLM_SWITCH_BENCH_VLLM_IMPORT_PATH"),
+        "model_revision": os.environ.get("LLM_SWITCH_BENCH_MODEL_REVISION"),
+        "model_config_sha256": os.environ.get("LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256"),
+        "filesystem": os.environ.get("LLM_SWITCH_BENCH_BACKUP_FILESYSTEM"),
+        "gpu": os.environ.get("LLM_SWITCH_BENCH_GPU_IDENTITY"),
+        "producer_executable": str(Path(args.command[0]).expanduser()),
+    }
+    return runtime
+
+
 def _directory_size_bytes(path: Path) -> int:
     if not path.exists():
         return 0
@@ -260,8 +282,8 @@ def _base_run_metadata(args: argparse.Namespace) -> dict[str, Any]:
             "benchmark_repo": _git_metadata(ROOT),
             "vllm_repo": _optional_repo_metadata("LLM_SWITCH_BENCH_VLLM_REPO"),
             "controller_repo": _optional_repo_metadata("LLM_SWITCH_BENCH_CONTROLLER_REPO"),
-            "producer_executable": str(Path(args.command[0]).expanduser()),
             "producer_cwd": str(ROOT),
+            "runtime": _runtime_provenance(args),
         },
     }
 

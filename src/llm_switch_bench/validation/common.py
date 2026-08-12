@@ -83,5 +83,8 @@ def validate_metadata(family_dir: Path, experiment: str) -> dict[str, Any]:
 def validate_top_level_results(results_root: Path | None = None) -> None:
     root = results_root or default_results_root()
     expected = {"README.md", *FAMILY_NAMES}
-    actual = {path.name for path in root.iterdir()}
+    # results/tmp is the reserved ignored destination for live local runs. It is not a
+    # publication family, so validate the curated namespace while leaving local evidence in
+    # place. Any other ad hoc top-level entry still fails closed.
+    actual = {path.name for path in root.iterdir() if path.name != "tmp"}
     require(actual == expected, f"unexpected top-level results entries: {sorted(actual)}")
