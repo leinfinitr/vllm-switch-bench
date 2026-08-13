@@ -251,7 +251,6 @@ uv run python -m llm_switch_bench.adapters.swapservellm_lifecycle \
 Stop terminal 1, then remove only SwapServeLLM-labelled containers and stop the user socket:
 
 ```bash
-SETUP=/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle
 podman ps -aq --filter label=SwapServeLLM=1 | xargs -r podman rm -f
 systemctl --user stop podman.socket
 rm -f "$SETUP"/gpu_pids-*.txt
@@ -265,17 +264,51 @@ asymmetry rather than treating the rows as a same-budget mechanism comparison. S
 `sleep_s` includes vLLM L1 unload, CUDA checkpoint, and container pause; `wake_s` includes
 resume, CUDA restore, readiness, and vLLM wake.
 
-#### Native vLLM lifecycle reference
-
-The method is the same as the vLLM [L2 baseline](../../../docs/baselines/baseline2-vllm-sleep-mode.md).
+#### vLLM
 
 ```bash
-scripts/lifecycle-latency.sh \
-  --model /path/to/model \
-  --workdir /path/to/vllm \
-  --python /path/to/vllm-python \
-  --methods sleep_l1 sleep_l2 \
-  --prompts short_short \
-  --repeats 5 \
-  --out-dir results/tmp/lifecycle-latency
+cd /home/ljl/research-systems/llm-switch-bench
+
+STAGE="$PWD/results/tmp/vllm-lifecycle"
+MODEL=/home/ljl/models/hf/Qwen2.5-0.5B-Instruct
+PROP=/home/ljl/research-systems/vllm
+BASE=/home/ljl/research-systems/vllm-upstream
+
+mkdir -p "$STAGE"/{proposed,vllm-l1,vllm-l2}
+
+source "$PROP/.venv/bin/activate"
+"$PROP/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+  --sleep-level 1 \
+  --model "$MODEL" \
+  --model-name qwen-0.5b \
+  --system-name Proposed \
+  --cycles 5 \
+  --gpu-memory-utilization 0.45 \
+  --max-model-len 1024 \
+  --vllm-repo "$PROP" \
+  --output "$STAGE/proposed/qwen-0.5b.json"
+
+deactivate
+source "$BASE/.venv/bin/activate"
+"$BASE/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+  --sleep-level 1 \
+  --model "$MODEL" \
+  --model-name qwen-0.5b \
+  --system-name "vLLM L1" \
+  --cycles 5 \
+  --gpu-memory-utilization 0.45 \
+  --max-model-len 1024 \
+  --vllm-repo "$BASE" \
+  --output "$STAGE/vllm-l1/qwen-0.5b.json"
+
+"$BASE/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+  --sleep-level 2 \
+  --model "$MODEL" \
+  --model-name qwen-0.5b \
+  --system-name "vLLM L2" \
+  --cycles 5 \
+  --gpu-memory-utilization 0.45 \
+  --max-model-len 1024 \
+  --vllm-repo "$BASE" \
+  --output "$STAGE/vllm-l2/qwen-0.5b.json"
 ```
