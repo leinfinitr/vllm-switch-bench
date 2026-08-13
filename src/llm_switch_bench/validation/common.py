@@ -8,6 +8,7 @@ from llm_switch_bench.common.provenance import repository_root
 
 FAMILY_NAMES = (
     "lifecycle-latency",
+    "vllm-profiling",
     "request-driven-switch",
     "backup-reuse-reclaim",
     "exact-disk",
@@ -36,14 +37,16 @@ def family_files(family_dir: Path) -> list[str]:
     )
 
 
-def validate_metadata(family_dir: Path, experiment: str) -> dict[str, Any]:
+def validate_metadata(
+    family_dir: Path,
+    experiment: str,
+    *,
+    expected_status: str = "migrated-historical-evidence",
+) -> dict[str, Any]:
     metadata = read_json(family_dir / "metadata.json")
     require(metadata.get("schema_version") == 1, f"{experiment}: schema_version must be 1")
     require(metadata.get("experiment") == experiment, f"{experiment}: metadata identity mismatch")
-    require(
-        metadata.get("status") == "migrated-historical-evidence",
-        f"{experiment}: unsupported result status",
-    )
+    require(metadata.get("status") == expected_status, f"{experiment}: result status mismatch")
     migration = str(metadata.get("migration", "")).lower()
     require("no new data was generated" in migration, f"{experiment}: migration disclosure missing")
     require(

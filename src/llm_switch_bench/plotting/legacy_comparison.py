@@ -1,3 +1,5 @@
+"""Plot the legacy two-model cold/L1/L2 comparison summary."""
+
 from __future__ import annotations
 
 import argparse

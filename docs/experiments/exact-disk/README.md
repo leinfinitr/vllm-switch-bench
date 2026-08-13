@@ -49,36 +49,6 @@ retained payload SHA-256 is
 - [Runtime segment/checksum manifest](../../../results/exact-disk/raw/exact-disk/bundle-manifest.json)
 - [Result-family notes](../../../results/exact-disk/README.md)
 
-### Local activation-profiling figure
-
-The repository also provides a standalone local plotting command for a same-model activation
-comparison across cold load, stock vLLM L1/L2, clean CPU-backup reuse, and exact-disk restore.
-
-The input schema contains five successful post-warm-up activation samples per method. It
-requires a complete disjoint phase accounting for every sample. Aggregation discards sample
-or cycle zero, takes the median of the five remaining total latencies, preserves their
-minimum/maximum as the total-latency spread, and selects the real sample whose total is
-closest to the median for the stacked profile. `Control overhead` closes any measured
-total-minus-accounted-phase residual. For exact disk, read, hash, and H2D overlap in a
-pipeline, so the plot stacks the pipeline wall time rather than adding overlapping timers.
-
-Generate the [activation-latency-profile.pdf](../../../results/exact-disk/figures/activation-latency-profile.pdf), [activation-latency-profile.png](../../../results/exact-disk/figures/activation-latency-profile.png), and [activation-profile-summary.json](../../../results/exact-disk/figures/activation-profile-summary.json) from repository root:
-
-```bash
-scripts/plot-activation-profile.sh \
-  --input results/exact-disk/raw/activation-profile-input.json \
-  --out-dir results/exact-disk/figures
-```
-
-The current local input freezes Qwen2.5-0.5B-Instruct, float16, max model length 1024,
-`--gpu-memory-utilization 0.80`, eager execution, and a single RTX 3080.
-
-The current local observations use different engine revisions by mechanism: cold load uses
-upstream vLLM `0decac0d96`, stock L1/L2 uses the profiling-only checkout `03e5ae2571`, and CPU
-backup/exact disk use vLLM Switch `e45036767f`. This is necessary to observe each mechanism,
-but it means the figure is a descriptive mechanism-level local comparison rather than a
-release-matched engine benchmark or a defensible system ranking.
-
 ## Threats to validity
 
 - This is one local single-GPU observation for one model and approximately 0.98 GiB of

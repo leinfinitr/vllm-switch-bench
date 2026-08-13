@@ -48,6 +48,8 @@ For example, in [Request timeline (PNG)](../../../results/request-driven-switch/
 w1-000, w1-002, w1-004, w1-006 and w1-008 are processed at the same time, while w1-001, w1-003, w1-005, w1-007, w1-009, w1-011, w1-013, w1-015 and w1-017 are processed at the same time. Thus, the completion latency of w1-008 and w1-017 is 
 near the proposed, while the completion latency of other requests is much larger than the proposed and change in an arithmetic sequence, where the difference is request scheduled offset in [request-switch-alternating.jsonl](../../../configs/traces/request-switch-alternating.jsonl)
 
+## Threats to validity
+
 - The family contains one 20-request alternating trace in one local single-GPU setting.
 - A request-visible metric includes routing, queueing, process/model switching, first-token
   delay, and token generation; it does not isolate lifecycle phase cost.
@@ -418,6 +420,8 @@ scripts/request-driven-switch-matrix.sh \
   --repeats 3 \
   --out-dir "$RUN_ROOT/${SYSTEM}-three-trace-r3"
 ```
+
+#### Cleanup verification
 
 Verify router/backend ports, owned PID/PGID records, and GPU compute processes are gone.
 Do not use an unscoped `pkill` or stop unrelated processes on a shared host.

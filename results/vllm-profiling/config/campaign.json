@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "model": "Qwen2.5-0.5B-Instruct",
+  "methods": [
+    "Cold load",
+    "vLLM L1",
+    "vLLM L2",
+    "CPU backup",
+    "Exact disk"
+  ],
+  "display_labels": {
+    "CPU backup": "Proposed CPU backup",
+    "Exact disk": "Proposed exact disk"
+  },
+  "samples_per_method": 5,
+  "dtype": "float16",
+  "max_model_len": 1024,
+  "gpu_memory_utilization": 0.8,
+  "engine_mode": "eager",
+  "aggregation": {
+    "center": "median",
+    "spread": "minimum and maximum",
+    "representative_profile": "retained sample nearest the median; ties use sample_index"
+  },
+  "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded."
+}

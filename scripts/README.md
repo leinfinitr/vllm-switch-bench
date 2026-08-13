@@ -13,7 +13,9 @@ through unchanged. Run the wrappers from any working directory after
 
 | Wrapper | Package module | Purpose |
 |---|---|---|
-| `lifecycle-latency.sh` | `llm_switch_bench.experiments.lifecycle_latency.run` | Launch and measure cold reload or vLLM L1/L2 lifecycle phases |
+| `lifecycle-latency.sh` | `llm_switch_bench.experiments.lifecycle_latency.run` | Dispatch retained lifecycle measurement to a vLLM, llama-swap, SwapServeLLM, or ServerlessLLM adapter |
+| `vllm-profiling.sh` | `llm_switch_bench.experiments.vllm_profiling.run` | Launch and profile cold reload or vLLM L1/L2 phases |
+| `vllm-profiling-plot.sh` | `llm_switch_bench.experiments.vllm_profiling.plot` | Build a candidate vLLM profiling summary and figure from compact samples |
 | `request-driven-switch.sh` | `llm_switch_bench.experiments.request_driven_switch.run` | Replay one frozen OpenAI-compatible request trace |
 | `request-driven-switch-matrix.sh` | `llm_switch_bench.experiments.request_driven_switch.run_matrix` | Replay the three repository traces repeatedly against one endpoint |
 | `backup-reuse-reclaim.sh` | `llm_switch_bench.experiments.backup_reuse_reclaim.run` | Run same-process repeated model sleep/wake with reuse/reclaim assertions |
@@ -32,7 +34,9 @@ ignored `results/tmp/` output and follow the relevant protocol under
 
 | Wrapper | Package module | Contract |
 |---|---|---|
-| `build_all.sh` | `llm_switch_bench.build_all` | Rebuild all four current summaries, figures, and metadata from retained raw inputs |
+| `build_all.sh` | `llm_switch_bench.build_all` | Rebuild all five current summaries, figures, and metadata from retained raw inputs |
+| `vllm-profiling-build.sh` | `llm_switch_bench.artifacts vllm-profiling` | Rebuild only the retained vLLM profiling family |
+| `vllm-profiling-validate.sh` | `llm_switch_bench.validation.vllm_profiling.validate` | Validate one vLLM profiling family (optional path argument) |
 | `validate_all.sh` | `llm_switch_bench.validation.validate_all` | Enforce all family shape and semantic validators |
 | `exact-disk-build.sh` | `llm_switch_bench.artifacts exact-disk` | Rebuild only the retained exact-disk family |
 | `exact-disk-validate.sh` | `llm_switch_bench.validation.exact_disk.validate` | Validate one exact-disk family (optional path argument) |

@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from llm_switch_bench.experiments.lifecycle_latency import run as bench
+from llm_switch_bench.experiments.vllm_profiling import run as bench
 
 
 def test_vllm_harness_uses_benchlib_prompt_catalog():

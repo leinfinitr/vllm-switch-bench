@@ -5,7 +5,7 @@ import csv
 import os
 from pathlib import Path
 
-from llm_switch_bench.experiments.lifecycle_latency import run as bench
+from llm_switch_bench.experiments.vllm_profiling import run as bench
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,9 +28,9 @@ def test_parse_args_rejects_removed_compat_sitecustomize_flag():
         raise AssertionError("legacy compat-sitecustomize flag should be removed")
 
 
-def test_parse_args_default_out_dir_is_repo_local_results():
+def test_parse_args_default_out_dir_is_ignored_profiling_staging():
     args = bench.parse_args(["--model", "dummy"])
-    assert args.out_dir == "results"
+    assert args.out_dir == "results/tmp/vllm-profiling"
 
 
 def test_parse_args_accepts_repeatable_extra_vllm_args():
@@ -169,7 +169,12 @@ def test_dry_run_metadata_records_engine_and_benchmark_provenance(tmp_path):
     metadata = __import__("json").loads((created / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["benchmark_git"]["commit"]
     assert metadata["engine_git"]["commit"]
+    assert isinstance(metadata["benchmark_git"]["dirty"], bool)
     assert isinstance(metadata["engine_git"]["tracked_dirty"], bool)
+    assert metadata["experiment"] == "vllm-profiling"
+    assert metadata["behavior_config_sha256"]
+    assert metadata["model_identity"]["identity"] == "dummy"
+    assert metadata["engine_runtime"]["python_path"]
 
 
 def test_write_summary_csv_flattens_nested_metrics(tmp_path):

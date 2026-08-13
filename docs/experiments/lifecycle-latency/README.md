@@ -76,7 +76,7 @@ Repeat the build/validation/diff sequence once more to verify clean deterministi
 ### Live measurement
 
 Run one external baseline at a time on an otherwise idle GPU. The commands below use the
-local `0.5B` checkout paths as concrete examples; change model-specific names, paths, ports,
+explicit `0.5B` path placeholders; change model-specific names, paths, ports,
 and memory budgets together for another cell. Store all generated configs, logs, profiles,
 and results under `results/tmp/`.
 
@@ -90,7 +90,7 @@ Build the maintained local checkout and verify its tests. Lifecycle profiling is
 has no effect unless `LLAMA_SWAP_LIFECYCLE_PROFILE_PATH` is set:
 
 ```bash
-cd ~/research-systems
+cd /path/to/workspace
 git clone https://github.com/leinfinitr/llama-swap.git
 cd llama-swap
 git checkout research/profiling
@@ -110,9 +110,9 @@ unloadTimeout: 30
 models:
   qwen-0.5b:
     cmd: >-
-      /home/ljl/research-systems/vllm-upstream/.venv/bin/python
+      /path/to/vllm-upstream/.venv/bin/python
       -m vllm.entrypoints.openai.api_server
-      --model /home/ljl/models/hf/Qwen2.5-0.5B-Instruct
+      --model /path/to/Qwen2.5-0.5B-Instruct
       --served-model-name qwen-0.5b
       --host 127.0.0.1 --port ${PORT}
       --max-model-len 1024 --gpu-memory-utilization 0.45
@@ -120,19 +120,19 @@ models:
     proxy: http://127.0.0.1:${PORT}
     checkEndpoint: /health
     env:
-      - CUDA_HOME=/home/ljl/cuda-13.0
-      - PATH=/home/ljl/cuda-13.0/bin:/home/ljl/research-systems/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - CUDA_HOME=/path/to/cuda
+      - PATH=/path/to/cuda/bin:/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
 ```
 
 Terminal 1 starts the instrumented proxy and retains its state-machine events:
 
 ```bash
-cd ~/research-systems/llm-switch-bench
+cd /path/to/llm-switch-bench
 mkdir -p results/tmp/llama-swap-lifecycle
 rm -f results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl
 
 LLAMA_SWAP_LIFECYCLE_PROFILE_PATH="$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl" \
-  /home/ljl/research-systems/llama-swap/build/llama-swap \
+  /path/to/llama-swap/build/llama-swap \
   --config "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.yaml" \
   --listen 127.0.0.1:18100 \
   2>&1 | tee results/tmp/llama-swap-lifecycle/qwen-0.5b.router.log
@@ -141,16 +141,16 @@ LLAMA_SWAP_LIFECYCLE_PROFILE_PATH="$PWD/results/tmp/llama-swap-lifecycle/qwen-0.
 Terminal 2 checks the control plane and runs five complete cycles:
 
 ```bash
-cd ~/research-systems/llm-switch-bench
+cd /path/to/llm-switch-bench
 curl --noproxy '*' -fsS http://127.0.0.1:18100/health
 curl --noproxy '*' -fsS http://127.0.0.1:18100/running
 
-uv run python -m llm_switch_bench.adapters.llama_swap \
+scripts/lifecycle-latency.sh llama-swap \
   --base-url http://127.0.0.1:18100 \
   --models qwen-0.5b \
   --cycles 5 \
   --unload-timeout-s 30 \
-  --repo /home/ljl/research-systems/llama-swap \
+  --repo /path/to/llama-swap \
   --lifecycle-profile "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl" \
   --output "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.json"
 ```
@@ -170,10 +170,10 @@ SwapServeLLM requires rootless Podman, NVIDIA CDI, and a local vLLM image. The l
 control responses, `--max-model-len 1024`, and an optional read-only `/models` bind mount.
 
 ```bash
-cd ~/research-systems
+cd /path/to/workspace
 git clone https://github.com/leinfinitr/SwapServeLLM.git
-SWAPSERVE_REPO=/home/ljl/research-systems/SwapServeLLM
-BENCH_REPO=/home/ljl/research-systems/llm-switch-bench
+SWAPSERVE_REPO=/path/to/SwapServeLLM
+BENCH_REPO=/path/to/llm-switch-bench
 SETUP="$BENCH_REPO/results/tmp/swapservellm-lifecycle"
 mkdir -p "$SETUP/logs"
 
@@ -194,11 +194,11 @@ Create `$SETUP/config.json`; the router is fixed at port `8000` and the backend 
 
 ```json
 {
-  "swap_in_logfile": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-in.log",
-  "swap_out_logfile": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-out.log",
-  "cold_start_logfile": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/cold-start.log",
-  "model_latency_logfile": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/model-latency.log",
-  "router_logfile": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/router.log",
+  "swap_in_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-in.log",
+  "swap_out_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-out.log",
+  "cold_start_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/cold-start.log",
+  "model_latency_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/model-latency.log",
+  "router_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/router.log",
   "openai_api_key": "dummy",
   "backend_response_timeout": 300,
   "service_ready_timeout": 180,
@@ -219,15 +219,15 @@ Terminal 1 starts the rootless runtime and router without pulling a mutable repl
 image. Both lowercase and uppercase no-proxy variables are intentional:
 
 ```bash
-cd /home/ljl/research-systems/llm-switch-bench
+cd /path/to/llm-switch-bench
 SETUP="$PWD/results/tmp/swapservellm-lifecycle"
 systemctl --user start podman.socket
 cd "$SETUP"
 
 PATH=/tmp/swapserve-extra:$PATH \
 SWAPSERVE_CONFIG_PATH="$SETUP/config.json" \
-SWAPSERVE_HF_CACHE=/home/ljl/models/hf \
-SWAPSERVE_HOST_MODEL_ROOT=/home/ljl/models \
+SWAPSERVE_HF_CACHE=/path/to/models/hf \
+SWAPSERVE_HOST_MODEL_ROOT=/path/to/models \
 SWAPSERVE_SKIP_PULL=1 \
 OPENAI_API_KEY=dummy \
 no_proxy=127.0.0.1,localhost NO_PROXY=127.0.0.1,localhost \
@@ -237,10 +237,10 @@ no_proxy=127.0.0.1,localhost NO_PROXY=127.0.0.1,localhost \
 After `Listening and serving HTTP on 0.0.0.0:8000`, terminal 2 runs the lifecycle adapter:
 
 ```bash
-cd /home/ljl/research-systems/llm-switch-bench
+cd /path/to/llm-switch-bench
 curl --noproxy '*' -fsS http://127.0.0.1:8000/v1/models
 
-uv run python -m llm_switch_bench.adapters.swapservellm_lifecycle \
+scripts/lifecycle-latency.sh swapservellm \
   --base-url http://127.0.0.1:8000 \
   --model /models/hf/Qwen2.5-0.5B-Instruct \
   --cycles 5 \
@@ -267,17 +267,17 @@ resume, CUDA restore, readiness, and vLLM wake.
 #### vLLM
 
 ```bash
-cd /home/ljl/research-systems/llm-switch-bench
+cd /path/to/llm-switch-bench
 
 STAGE="$PWD/results/tmp/vllm-lifecycle"
-MODEL=/home/ljl/models/hf/Qwen2.5-0.5B-Instruct
-PROP=/home/ljl/research-systems/vllm
-BASE=/home/ljl/research-systems/vllm-upstream
+MODEL=/path/to/Qwen2.5-0.5B-Instruct
+PROP=/path/to/vllm-switch
+BASE=/path/to/vllm-upstream
 
 mkdir -p "$STAGE"/{proposed,vllm-l1,vllm-l2}
 
 source "$PROP/.venv/bin/activate"
-"$PROP/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+"$PROP/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
   --sleep-level 1 \
   --model "$MODEL" \
   --model-name qwen-0.5b \
@@ -290,7 +290,7 @@ source "$PROP/.venv/bin/activate"
 
 deactivate
 source "$BASE/.venv/bin/activate"
-"$BASE/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+"$BASE/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
   --sleep-level 1 \
   --model "$MODEL" \
   --model-name qwen-0.5b \
@@ -301,7 +301,7 @@ source "$BASE/.venv/bin/activate"
   --vllm-repo "$BASE" \
   --output "$STAGE/vllm-l1/qwen-0.5b.json"
 
-"$BASE/.venv/bin/python" -m llm_switch_bench.adapters.vllm_sleep \
+"$BASE/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
   --sleep-level 2 \
   --model "$MODEL" \
   --model-name qwen-0.5b \

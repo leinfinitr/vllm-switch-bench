@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import json
 import subprocess
 import time
@@ -48,7 +49,7 @@ def delete(base_url: str, name: str) -> requests.Response:
     return requests.post(f"{base_url}/delete", json={"model": name}, timeout=300)
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:8343")
     parser.add_argument("--model", type=Path, required=True)
@@ -58,7 +59,7 @@ def main() -> int:
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--idle-threshold-mib", type=int, default=538)
     parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     payload = build_register_payload(
         args.model,
         args.name,

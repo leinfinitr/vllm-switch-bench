@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from llm_switch_bench.common.traces import write_manifest
-from llm_switch_bench.experiments.lifecycle_latency import analyze
+from llm_switch_bench import analysis as analyze
 
 
 def test_percentile_interpolates():

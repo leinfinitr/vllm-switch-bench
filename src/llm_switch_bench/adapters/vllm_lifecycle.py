@@ -10,6 +10,7 @@ weight mappings, reload checkpoint weights, and then recreate the KV cache.
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import gc
 import json
 import os
@@ -45,7 +46,7 @@ def gpu() -> str:
     ).strip()
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Measure in-process vLLM sleep and wake phases.")
     parser.add_argument("--sleep-level", type=int, choices=[1, 2], default=1)
     parser.add_argument("--model", required=True)
@@ -57,7 +58,7 @@ def main() -> int:
     parser.add_argument("--dtype", default="float16")
     parser.add_argument("--vllm-repo", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     os.environ["VLLM_USE_V1"] = "1"

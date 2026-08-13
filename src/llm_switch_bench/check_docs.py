@@ -16,7 +16,13 @@ REQUIRED_DOCS = [
 ]
 EXPERIMENT_DOCS = [
     ROOT / "docs" / "experiments" / name / "README.md"
-    for name in ("lifecycle-latency", "request-driven-switch", "backup-reuse-reclaim", "exact-disk")
+    for name in (
+        "lifecycle-latency",
+        "vllm-profiling",
+        "request-driven-switch",
+        "backup-reuse-reclaim",
+        "exact-disk",
+    )
 ]
 FORBIDDEN = [
     "src/bench_",
@@ -43,6 +49,11 @@ REQUIRED_EXPERIMENT_SECTIONS = (
 )
 REQUIRED_LIVE_RUN_MARKERS = {
     "lifecycle-latency": ("### Live measurement", "results/tmp/", "Stop terminal 1"),
+    "vllm-profiling": (
+        "### Live vLLM profiling measurement",
+        "results/tmp/",
+        "After every run",
+    ),
     "request-driven-switch": ("### Live single-trace measurement", "results/tmp/", "Cleanup"),
     "backup-reuse-reclaim": ("### Live same-process reuse and reclaim", "results/tmp/", "Cleanup"),
     "exact-disk": ("### Live exact-disk lifecycle capture", "results/tmp/", "Afterward confirm"),
@@ -58,6 +69,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"missing docs: {missing}")
     for path in paths:
         text = path.read_text(encoding="utf-8")
+        if "/home/" in text or "~/" in text:
+            raise SystemExit(f"{path} contains a maintainer-specific home path")
         for needle in FORBIDDEN:
             if needle in text:
                 raise SystemExit(f"{path} contains obsolete reference {needle!r}")
@@ -67,6 +80,7 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"README.md missing disclosure: {needle}")
     for family in (
         "lifecycle-latency",
+        "vllm-profiling",
         "request-driven-switch",
         "backup-reuse-reclaim",
         "exact-disk",

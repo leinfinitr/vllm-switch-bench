@@ -74,7 +74,7 @@
     {
       "max_s": 0.3086936315521598,
       "median_s": 0.2960092630237341,
-      "method": "CPU backup",
+      "method": "Proposed CPU backup",
       "min_s": 0.2908336687833071,
       "n": 5,
       "representative_phases_s": {
@@ -89,7 +89,7 @@
     {
       "max_s": 0.7561155715957284,
       "median_s": 0.746992027387023,
-      "method": "Exact disk",
+      "method": "Proposed exact disk",
       "min_s": 0.7315412927418947,
       "n": 5,
       "representative_phases_s": {

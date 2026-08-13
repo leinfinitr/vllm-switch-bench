@@ -14,12 +14,16 @@ from llm_switch_bench.validation.lifecycle_latency.validate import (
 from llm_switch_bench.validation.request_driven_switch.validate import (
     validate_family as validate_request,
 )
+from llm_switch_bench.validation.vllm_profiling.validate import (
+    validate_family as validate_vllm_profiling,
+)
 
 
 def validate_all(results_root: Path | None = None) -> None:
     root = results_root or default_results_root()
     validate_top_level_results(root)
     validate_lifecycle(root / "lifecycle-latency")
+    validate_vllm_profiling(root / "vllm-profiling")
     validate_request(root / "request-driven-switch")
     validate_backup(root / "backup-reuse-reclaim")
     validate_exact_disk(root / "exact-disk")

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+"""Measure instrumented llama-swap process sleep and wake boundaries."""
+
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import json
 import statistics
 import subprocess
@@ -158,7 +161,7 @@ def git_metadata(repo: Path) -> dict[str, Any]:
     }
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Measure llama-swap process unload and cold wake phases separately."
     )
@@ -169,7 +172,7 @@ def main() -> int:
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--lifecycle-profile", type=Path)
     parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     baseline_gpu_mib = gpu_used_mib()
     profile_offset = 0
     rows: list[dict[str, Any]] = []

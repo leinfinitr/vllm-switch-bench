@@ -1,7 +1,7 @@
 # Project Context
 
 LLM Switch Bench is an installed `src`-layout Python package. The default branch presents
-four experiment families and the deterministic CPU workflow that rebuilds and validates
+five experiment families and the deterministic CPU workflow that rebuilds and validates
 their retained artifacts. The immutable `v0.1.8` tag remains the reference for the published
 v0.1 snapshot; do not recreate its former monolithic layout on the default branch.
 
@@ -21,9 +21,10 @@ v0.1 snapshot; do not recreate its former monolithic layout on the default branc
 The only current result families are:
 
 1. `lifecycle-latency`
-2. `request-driven-switch`
-3. `backup-reuse-reclaim`
-4. `exact-disk`
+2. `vllm-profiling`
+3. `request-driven-switch`
+4. `backup-reuse-reclaim`
+5. `exact-disk`
 
 Do not add another top-level result directory without changing the scientific scope,
 documentation, builder, validator, tests, and result index together.

@@ -7,7 +7,7 @@ Cold reload terminates the serving process, starts a new process from the same f
 From the repository root:
 
 ```bash
-scripts/lifecycle-latency.sh \
+scripts/vllm-profiling.sh \
   --model /path/to/model \
   --workdir /path/to/vllm \
   --python /path/to/vllm/.venv/bin/python \

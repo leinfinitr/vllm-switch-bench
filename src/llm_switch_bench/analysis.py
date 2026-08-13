@@ -1,3 +1,5 @@
+"""Analyze local vLLM profiling runs and related request traces."""
+
 from __future__ import annotations
 
 import argparse

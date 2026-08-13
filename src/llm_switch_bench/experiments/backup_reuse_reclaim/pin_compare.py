@@ -79,7 +79,7 @@ def bench_command(
     return [
         sys.executable,
         "-m",
-        "llm_switch_bench.experiments.lifecycle_latency.run",
+        "llm_switch_bench.experiments.vllm_profiling.run",
         "--model",
         case.path,
         "--python",

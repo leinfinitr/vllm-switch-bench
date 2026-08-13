@@ -26,7 +26,7 @@ are experiment inputs and must be identified by run metadata.
 - Put the current protocol for a family in `docs/experiments/<family>/README.md`.
 - Write unreviewed live output below ignored `results/tmp/`; do not add ad hoc top-level
   result directories.
-- The four current publication families are documented in [`results/README.md`](results/README.md).
+- The five current publication families are documented in [`results/README.md`](results/README.md).
 
 ## Metric and experiment changes
 

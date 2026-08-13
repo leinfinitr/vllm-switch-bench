@@ -13,6 +13,7 @@ from llm_switch_bench.artifacts import (
     build_all,
     e2e_summary,
     lifecycle_summary_rows,
+    build_vllm_profiling,
 )
 from llm_switch_bench.validation.backup_reuse_reclaim.validate import (
     validate_family as validate_backup,
@@ -24,13 +25,22 @@ from llm_switch_bench.validation.lifecycle_latency.validate import (
 from llm_switch_bench.validation.request_driven_switch.validate import (
     validate_family as validate_request,
 )
+from llm_switch_bench.validation.vllm_profiling.validate import (
+    validate_family as validate_vllm_profiling,
+)
 from llm_switch_bench.validation import validate_all as validate_all_module
 from llm_switch_bench.validation.common import validate_top_level_results
 from llm_switch_bench.validation.validate_all import validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
-FAMILIES = {"lifecycle-latency", "request-driven-switch", "backup-reuse-reclaim", "exact-disk"}
+FAMILIES = {
+    "lifecycle-latency",
+    "vllm-profiling",
+    "request-driven-switch",
+    "backup-reuse-reclaim",
+    "exact-disk",
+}
 
 
 @pytest.mark.parametrize(
@@ -154,6 +164,33 @@ def test_builder_failure_does_not_delete_family_raw_evidence(
     with pytest.raises(RuntimeError, match="synthetic plot failure"):
         build_lifecycle()
     assert raw.read_bytes() == before
+
+
+def test_vllm_profiling_builder_failure_does_not_delete_raw_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw = RESULTS / "vllm-profiling" / "raw" / "profile-samples.json"
+    before = raw.read_bytes()
+
+    def fail(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("synthetic profile plot failure")
+
+    monkeypatch.setattr("llm_switch_bench.artifacts.write_artifacts", fail)
+    with pytest.raises(RuntimeError, match="synthetic profile plot failure"):
+        build_vllm_profiling()
+    assert raw.read_bytes() == before
+
+
+def test_vllm_profiling_validator_rejects_non_closing_phase_accounting(
+    tmp_path: Path,
+) -> None:
+    target = copy_family(tmp_path, "vllm-profiling")
+    raw = target / "raw" / "profile-samples.json"
+    data = json.loads(raw.read_text())
+    data["samples"][0]["phases_s"]["Process + engine startup"] -= 1
+    raw.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="phase accounting"):
+        validate_vllm_profiling(target)
 
 
 def test_lifecycle_validator_rejects_output_mismatch(tmp_path: Path) -> None:

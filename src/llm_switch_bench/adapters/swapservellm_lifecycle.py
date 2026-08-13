@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import json
 import statistics
 import subprocess
@@ -54,14 +55,14 @@ def post(base: str, path: str, model: str) -> float:
     return elapsed
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--model", required=True)
     parser.add_argument("--cycles", type=int, default=5)
     parser.add_argument("--api-key", default="dummy")
     parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     reference = infer(args.base_url, args.model, args.api_key)
     rows: list[dict[str, Any]] = []
     for cycle in range(args.cycles):

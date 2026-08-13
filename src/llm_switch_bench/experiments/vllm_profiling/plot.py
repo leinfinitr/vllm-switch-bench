@@ -1,4 +1,4 @@
-"""Aggregate and plot stable activation-latency profiles."""
+"""Aggregate and plot the retained vLLM activation-latency profiles."""
 
 from __future__ import annotations
 
@@ -15,7 +15,21 @@ import numpy as np
 
 from llm_switch_bench.plotting.style import apply_paper_style, save_figure
 
-METHOD_ORDER = ("Cold load", "vLLM L1", "vLLM L2", "CPU backup", "Exact disk")
+RAW_METHOD_ORDER = (
+    "Cold load",
+    "vLLM L1",
+    "vLLM L2",
+    "CPU backup",
+    "Exact disk",
+)
+METHOD_LABELS = {
+    "Cold load": "Cold load",
+    "vLLM L1": "vLLM L1",
+    "vLLM L2": "vLLM L2",
+    "CPU backup": "Proposed CPU backup",
+    "Exact disk": "Proposed exact disk",
+}
+METHOD_ORDER = tuple(METHOD_LABELS[method] for method in RAW_METHOD_ORDER)
 PHASE_ORDER = (
     "Process + engine startup",
     "CPU→GPU copy",
@@ -51,7 +65,7 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
     samples = document.get("samples")
     if not isinstance(samples, list):
         raise ValueError("samples must be a list")
-    grouped: dict[str, list[dict[str, Any]]] = {method: [] for method in METHOD_ORDER}
+    grouped: dict[str, list[dict[str, Any]]] = {method: [] for method in RAW_METHOD_ORDER}
     for index, raw in enumerate(samples):
         if not isinstance(raw, dict):
             raise ValueError(f"samples[{index}] must be an object")
@@ -87,7 +101,7 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
 
     rows: list[dict[str, Any]] = []
     expected_count = int(document.get("frozen_scope", {}).get("sample_count_per_method", 5))
-    for method in METHOD_ORDER:
+    for method in RAW_METHOD_ORDER:
         method_samples = grouped[method]
         if len(method_samples) != expected_count:
             raise ValueError(
@@ -101,7 +115,7 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
         )
         rows.append(
             {
-                "method": method,
+                "method": METHOD_LABELS[method],
                 "n": len(method_samples),
                 "median_s": median,
                 "min_s": min(totals),
@@ -251,10 +265,10 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
     grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.9], width_ratios=[1.0, 3.3])
     cold_ax = fig.add_subplot(grid[0, 0])
     warm_ax = fig.add_subplot(grid[0, 1])
-    # share_ax = fig.add_subplot(grid[1, :])
+    share_ax = fig.add_subplot(grid[1, :])
     _draw_panel(cold_ax, cold, seconds=True, title="(a) Cold process")
     _draw_panel(warm_ax, warm, seconds=False, title="(b) In-process activation")
-    # _draw_share_panel(share_ax, rows)
+    _draw_share_panel(share_ax, rows)
 
     handles, labels = warm_ax.get_legend_handles_labels()
     cold_handles, cold_labels = cold_ax.get_legend_handles_labels()
@@ -280,18 +294,24 @@ def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def write_artifacts(input_path: Path, output_dir: Path) -> list[Path]:
+    """Build the deterministic summary and figures from one retained input."""
+
+    document = json.loads(input_path.read_text(encoding="utf-8"))
+    summary = aggregate_profiles(document)
+    summary_path = output_dir / "summary.json"
+    _write_json(summary_path, summary)
+    outputs = plot_profiles(summary, output_dir / "figures" / "vllm-profiling")
+    return [summary_path, *outputs]
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    document = json.loads(args.input.read_text(encoding="utf-8"))
-    summary = aggregate_profiles(document)
-    summary_path = args.out_dir / "activation-profile-summary.json"
-    _write_json(summary_path, summary)
-    outputs = plot_profiles(summary, args.out_dir / "activation-latency-profile")
-    for path in [summary_path, *outputs]:
+    for path in write_artifacts(args.input, args.output_dir):
         print(path)
     return 0
 

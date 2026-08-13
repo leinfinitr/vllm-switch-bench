@@ -17,13 +17,15 @@ console commands, `python -m llm_switch_bench...`, or the thin wrappers in `scri
 |---|---|
 | `adapters/` | External-system lifecycle and request adapters for vLLM, llama-swap, SwapServeLLM, and ServerlessLLM |
 | `common/` | HTTP, frozen traces, schemas, sampling, process/host resources, merge/analysis helpers, and provenance |
-| `experiments/lifecycle_latency/` | vLLM lifecycle runner plus lifecycle analysis and plotting |
+| `experiments/lifecycle_latency/` | Cross-system lifecycle adapter dispatch |
+| `experiments/vllm_profiling/` | vLLM server runner plus retained-profile aggregation and plotting |
 | `experiments/request_driven_switch/` | Strict open-loop trace replay, repeated/randomized matrices, analysis, and plotting |
 | `experiments/backup_reuse_reclaim/` | Same-process backup reuse/reclaim runner and focused CUDA/pinning microbenchmarks |
 | `experiments/exact_disk/` | Runtime wrapper, allocator/lifecycle drivers, evidence collection, and runtime digest handling |
 | `plotting/` | Deterministic shared figure style and save behavior |
+| `analysis.py` | Legacy cross-family local-run aggregation kept outside any single experiment family |
 | `validation/` | Family-specific semantic validators and exact top-level result policy |
-| `artifacts.py` | Deterministic builders for all four retained result families |
+| `artifacts.py` | Deterministic builders for all five retained result families |
 | `build_all.py` | No-argument all-family build command |
 | `check_docs.py` | Current documentation disclosure/reference policy |
 | `tracked_ignore.py` | Tracked-versus-ignore consistency gate |
@@ -40,6 +42,7 @@ llm-switch-build-all
 llm-switch-validate-all
 llm-switch-check-docs
 llm-switch-lifecycle
+llm-switch-vllm-profiling
 llm-switch-trace-matrix
 llm-switch-backup
 llm-switch-exact-disk
@@ -56,6 +59,7 @@ The builder reads tracked raw evidence from:
 
 ```text
 results/lifecycle-latency/raw/
+results/vllm-profiling/raw/
 results/request-driven-switch/raw/
 results/backup-reuse-reclaim/raw/
 results/exact-disk/raw/

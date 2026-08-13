@@ -1,6 +1,6 @@
 # Result artifact policy
 
-`results/` contains exactly four current evidence families. It is not a chronological run
+`results/` contains exactly five current evidence families. It is not a chronological run
 dump: live and failed experiments belong under ignored `results/tmp/` until their protocol,
 raw evidence, interpretation, and semantic validator are reviewed together.
 
@@ -9,6 +9,7 @@ raw evidence, interpretation, and semantic validator are reviewed together.
 | Path | Scope | Summary and figure |
 |---|---|---|
 | [`lifecycle-latency/`](lifecycle-latency/README.md) | Five retained sleep/wake observations for each supported model/system cell | [`summary.json`](lifecycle-latency/summary.json) · [PNG](lifecycle-latency/figures/lifecycle-latency.png) · [PDF](lifecycle-latency/figures/lifecycle-latency.pdf) |
+| [`vllm-profiling/`](vllm-profiling/README.md) | Five post-warm-up activation profiles for cold load, stock vLLM L1/L2, and Proposed CPU/exact-disk backup | [`summary.json`](vllm-profiling/summary.json) · [PNG](vllm-profiling/figures/vllm-profiling.png) · [PDF](vllm-profiling/figures/vllm-profiling.pdf) |
 | [`request-driven-switch/`](request-driven-switch/README.md) | Retained 20-request alternating traces for Proposed and llama-swap; JSON arrays are canonical builder inputs and JSONL rows are retained source evidence | [`summary.json`](request-driven-switch/summary.json) · [PNG](request-driven-switch/figures/request-timeline.png) · [PDF](request-driven-switch/figures/request-timeline.pdf) |
 | [`backup-reuse-reclaim/`](backup-reuse-reclaim/README.md) | Repeated exact CPU-backup reuse plus one host-pressure reclaim observation | [`summary.json`](backup-reuse-reclaim/summary.json) · [PNG](backup-reuse-reclaim/figures/backup-reuse.png) · [PDF](backup-reuse-reclaim/figures/backup-reuse.pdf) |
 | [`exact-disk/`](exact-disk/README.md) | One retained exact-runtime-byte spill, CPU release, and disk restore observation | [`summary.json`](exact-disk/summary.json) · [PNG](exact-disk/figures/exact-disk.png) · [PDF](exact-disk/figures/exact-disk.pdf) |
@@ -41,7 +42,8 @@ scripts/tracked-ignore.sh
 `validate_all` rejects any stray top-level result family.
 `validate_all` enforces exact family shape and semantic contracts: matrix cardinality,
 sample counts, finite positive metrics, frozen request identity/order, strict request
-success, raw-to-summary equality, backup reuse/reclaim settlement, exact-disk chunk layout,
+success, raw-to-summary equality, profiling phase accounting, backup reuse/reclaim
+settlement, exact-disk chunk layout,
 physical footprint, and output equality.
 
 ## Local output and corrections

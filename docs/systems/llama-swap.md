@@ -18,4 +18,4 @@ llama-swap has no public phase API matching vLLM L1/L2. For lifecycle figures, a
 - wake: `stopped -> starting -> ready`, ending at successful health readiness;
 - correctness: a separate complete streamed inference.
 
-Use `uv run python -m llm_switch_bench.adapters.llama_swap` for the instrumented lifecycle and [`../../scripts/request-driven-switch.sh`](../../scripts/request-driven-switch.sh) for automatic routing. Freeze the upstream commit, patch checksum, binary checksum, configuration, model revisions, and child-process environment at run start.
+Use `scripts/lifecycle-latency.sh llama-swap` for the instrumented lifecycle and [`../../scripts/request-driven-switch.sh`](../../scripts/request-driven-switch.sh) for automatic routing. Freeze the upstream commit, patch checksum, binary checksum, configuration, model revisions, and child-process environment at run start.

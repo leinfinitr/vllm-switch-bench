@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from llm_switch_bench.experiments.exact_disk.plot_activation_profile import (
+from llm_switch_bench.experiments.vllm_profiling.plot import (
     METHOD_ORDER,
+    RAW_METHOD_ORDER,
     aggregate_profiles,
     main,
 )
@@ -28,7 +29,7 @@ def sample(method: str, index: int, total: float, phase: float | None = None) ->
 
 def document() -> dict:
     samples = []
-    for method in METHOD_ORDER:
+    for method in RAW_METHOD_ORDER:
         for index, total in enumerate([1.0, 1.1, 1.2, 1.3, 1.4], start=1):
             samples.append(sample(method, index, total, total * 0.75))
     return {
@@ -76,7 +77,7 @@ def test_main_writes_summary_png_and_pdf(tmp_path: Path):
     input_path.write_text(json.dumps(document()), encoding="utf-8")
     output = tmp_path / "output"
 
-    assert main(["--input", str(input_path), "--out-dir", str(output)]) == 0
-    assert (output / "activation-profile-summary.json").stat().st_size > 0
-    assert (output / "activation-latency-profile.png").stat().st_size > 0
-    assert (output / "activation-latency-profile.pdf").stat().st_size > 0
+    assert main(["--input", str(input_path), "--output-dir", str(output)]) == 0
+    assert (output / "summary.json").stat().st_size > 0
+    assert (output / "figures" / "vllm-profiling.png").stat().st_size > 0
+    assert (output / "figures" / "vllm-profiling.pdf").stat().st_size > 0
