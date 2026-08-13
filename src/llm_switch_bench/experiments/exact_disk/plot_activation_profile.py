@@ -15,23 +15,23 @@ import numpy as np
 
 from llm_switch_bench.plotting.style import apply_paper_style, save_figure
 
-METHOD_ORDER = ("Cold load", "vLLM L2", "Exact disk", "vLLM L1", "CPU backup")
+METHOD_ORDER = ("Cold load", "vLLM L1", "vLLM L2", "CPU backup", "Exact disk")
 PHASE_ORDER = (
     "Process + engine startup",
-    "Checkpoint load",
-    "Disk read + hash + H2D pipeline",
     "CPU→GPU copy",
     "GPU remap",
+    "Checkpoint load",
     "KV-cache remap",
+    "Disk read + hash + H2D pipeline",
     "Control overhead",
 )
 PHASE_COLORS = {
     "Process + engine startup": "#6B7280",
-    "Checkpoint load": "#CC79A7",
-    "Disk read + hash + H2D pipeline": "#56B4E9",
     "CPU→GPU copy": "#E69F00",
     "GPU remap": "#009E73",
+    "Checkpoint load": "#CC79A7",
     "KV-cache remap": "#0072B2",
+    "Disk read + hash + H2D pipeline": "#56B4E9",
     "Control overhead": "#D9D9D9",
 }
 
@@ -185,7 +185,7 @@ def _draw_panel(
             va="bottom",
             fontsize=6.5,
         )
-    ax.set_title(title)
+    ax.set_title(title, y=1.07)
     ax.set_xticks(x, [str(row["method"]) for row in rows], rotation=15, ha="right")
     ax.set_ylabel("Activation latency (s)" if seconds else "Activation latency (ms)")
     ax.set_axisbelow(True)
@@ -251,10 +251,10 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
     grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.9], width_ratios=[1.0, 3.3])
     cold_ax = fig.add_subplot(grid[0, 0])
     warm_ax = fig.add_subplot(grid[0, 1])
-    share_ax = fig.add_subplot(grid[1, :])
+    # share_ax = fig.add_subplot(grid[1, :])
     _draw_panel(cold_ax, cold, seconds=True, title="(a) Cold process")
     _draw_panel(warm_ax, warm, seconds=False, title="(b) In-process activation")
-    _draw_share_panel(share_ax, rows)
+    # _draw_share_panel(share_ax, rows)
 
     handles, labels = warm_ax.get_legend_handles_labels()
     cold_handles, cold_labels = cold_ax.get_legend_handles_labels()
@@ -266,18 +266,11 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
         [by_label[label] for label in ordered],
         ordered,
         loc="upper center",
-        bbox_to_anchor=(0.5, 0.94),
+        bbox_to_anchor=(0.5, 0.85),
         ncol=4,
         frameon=False,
     )
-    fig.suptitle(f"Descriptive local activation profiles — {summary['model']}", y=0.995)
-    fig.text(
-        0.5,
-        0.005,
-        "Bars: median-nearest real profile; diamond/error bar: median and [min, max] of five post-warmup samples.",
-        ha="center",
-        fontsize=7,
-    )
+    fig.suptitle(f"Local activation profiles — {summary['model']}", y=0.9)
     fig.tight_layout(rect=(0, 0.045, 1, 0.82))
     return save_figure(fig, output_base)
 

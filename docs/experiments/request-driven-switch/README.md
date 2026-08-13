@@ -36,14 +36,17 @@ median completion latency of about `0.859 s` (`0.278–1.081 s` observed range);
 median of about `12.868 s` (`0.595–25.138 s` observed range). The timeline shows the variation
 under the alternating local trace.
 
-This is descriptive retained evidence, not a new measurement or a canonical rerun.
-
 - [Request timeline (PNG)](../../../results/request-driven-switch/figures/request-timeline.png)
 - [Request timeline (PDF)](../../../results/request-driven-switch/figures/request-timeline.pdf)
 - [Machine-readable summary](../../../results/request-driven-switch/summary.json)
 - [Result-family notes](../../../results/request-driven-switch/README.md)
 
-## Threats to validity
+llama-swap reserves unprocessed requests in a queue while the backend isn't ready. 
+When the backend is ready, it processes the queued requests in parallel. The queueing behavior can lead to a large variation in completion latency.
+
+For example, in [Request timeline (PNG)](../../../results/request-driven-switch/figures/request-timeline.png),
+w1-000, w1-002, w1-004, w1-006 and w1-008 are processed at the same time, while w1-001, w1-003, w1-005, w1-007, w1-009, w1-011, w1-013, w1-015 and w1-017 are processed at the same time. Thus, the completion latency of w1-008 and w1-017 is 
+near the proposed, while the completion latency of other requests is much larger than the proposed and change in an arithmetic sequence, where the difference is request scheduled offset in [request-switch-alternating.jsonl](../../../configs/traces/request-switch-alternating.jsonl)
 
 - The family contains one 20-request alternating trace in one local single-GPU setting.
 - A request-visible metric includes routing, queueing, process/model switching, first-token
@@ -56,12 +59,7 @@ This is descriptive retained evidence, not a new measurement or a canonical reru
 
 ## Limitations
 
-The v0.1 E2E producer did not runtime-bind the engine and controller commits, actually
-imported path, or behavior-affecting configuration hash. The retained values are therefore a
-**historical local observation**, not an exact fresh-checkout runtime reproduction. No new
-data was generated in this refactor, and a canonical GPU rerun is not complete.
-
-The family does not cover burst/steady workloads, multiple arrival rates, concurrency
+The family does not cover [burst](../../../configs/traces/request-switch-burst.jsonl)/[steady](../../../configs/traces/request-switch-steady.jsonl) workloads, multiple arrival rates, concurrency
 scaling, failures, ServerlessLLM, SwapServeLLM, or cluster deployments. The deterministic
 rebuild validates retained rows and interpretation; it cannot supply missing runtime
 provenance.
@@ -423,9 +421,3 @@ scripts/request-driven-switch-matrix.sh \
 
 Verify router/backend ports, owned PID/PGID records, and GPU compute processes are gone.
 Do not use an unscoped `pkill` or stop unrelated processes on a shared host.
-
-A publishable rerun must freeze absolute arrivals and bind benchmark, engine, controller,
-imported-path/configuration, model, executable/image, and hardware identities at runtime.
-The retained v0.1 result used only the alternating trace once per system; repeated three-trace
-runs are a current exploratory extension and must not be presented as a recreation of those
-retained bytes.

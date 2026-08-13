@@ -2,7 +2,7 @@
 
 ## Question
 
-For same-process repeated vLLM L1 sleep/wake, can immutable exact CPU weight backups be
+For same-process repeated proposed vLLM L1 sleep/wake, can immutable exact CPU weight backups be
 reused without another device-to-host copy, and can coordinator-driven pressure release
 those retained host bytes with an OS-visible effect?
 
@@ -22,10 +22,8 @@ establish physical reclaim.
 
 ## Method
 
-Retained reuse evidence covers `qwen-0.5b`, `qwen-1.5b`, and `qwen-3b` in repeated
-same-process sleep/wake cycles. This lifecycle is essential: process restarts cannot test a
-pool hit. The separate pressure observation records coordinator state before/after a
-1,048,576,000-byte request, run-local client accounting, process RSS, and host memory.
+Retained reuse evidence covers `qwen2.5-0.5b`, `qwen2.5-1.5b`, and `qwen2.5-3b` in repeated
+same-process sleep/wake cycles.
 
 The builder reports the minimum reused count/bytes across five events per model and the
 maximum observed D2H time, then renders minimum reused GiB. The validator independently
@@ -37,14 +35,16 @@ exact raw-to-summary recomputation.
 
 Across each model's five retained sleep events, the minimum exact backup reuse is:
 
-- 0.5B: 1,048,576,000 bytes across at least 41 allocations;
-- 1.5B: 3,250,585,600 bytes across at least 76 allocations;
-- 3B: 6,314,524,672 bytes across at least 112 allocations.
+- `0.5B`: `1,048,576,000 bytes` across at least 41 allocations;
+- `1.5B`: `3,250,585,600 bytes` across at least 76 allocations;
+- `3B`: `6,314,524,672 bytes` across at least 112 allocations.
 
-The maximum `copy_d2h_s` is zero in all three retained groups. In the pressure observation,
-1,048,576,000 requested bytes were released with zero pending bytes/requests;
-`MemAvailable` increased by 1,678,163,968 bytes and one recorded client RSS fell by
-1,847,554,048 bytes.
+The maximum `copy_d2h_s` is zero in all three retained groups. 
+
+In the pressure observation using the same `0.5B` model,
+`1,048,576,000` requested bytes were released with zero pending bytes/requests;
+`MemAvailable` increased by `1,678,163,968` bytes and one recorded client RSS fell by
+`1,847,554,048` bytes.
 
 - [Backup reuse figure (PNG)](../../../results/backup-reuse-reclaim/figures/backup-reuse.png)
 - [Backup reuse figure (PDF)](../../../results/backup-reuse-reclaim/figures/backup-reuse.pdf)
@@ -65,12 +65,6 @@ The maximum `copy_d2h_s` is zero in all three retained groups. In the pressure o
   implementation.
 
 ## Limitations
-
-No new data was generated, and the canonical GPU rerun is not complete. The refactor only
-rebuilds the retained summary and figure. Broader v0.1 runtime provenance—including the E2E
-producer's engine/controller commits, imported path, and configuration hash—was not bound at
-execution, so related values remain a historical local observation rather than an exact
-fresh-checkout runtime reproduction.
 
 This family does not establish long-duration stability, multi-GPU/NUMA behavior, pressure
 threshold selection, coordinator fairness, crash recovery, or reclaim latency under diverse

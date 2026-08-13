@@ -4,11 +4,6 @@
 dump: live and failed experiments belong under ignored `results/tmp/` until their protocol,
 raw evidence, interpretation, and semantic validator are reviewed together.
 
-No new measurements were generated during the default-branch refactor, and a canonical GPU
-rerun is not complete. The immutable `v0.1.8` tag remains available as the published v0.1
-snapshot; the default branch intentionally does not reproduce its old monolithic directory
-layout.
-
 ## Current families
 
 | Path | Scope | Summary and figure |
@@ -26,43 +21,6 @@ Each family contains:
 - `figures/`: deterministic PDF and PNG views;
 - `metadata.json`: family schema, provenance disclosure, and exact expected file set;
 - `README.md`: a short pointer back to the full experiment protocol.
-
-## Integrity model
-
-Git object identity protects files tracked in the repository. The default branch therefore
-does not add a second set of repository-internal digest manifests. `metadata.json` declares
-the exact family file set, and semantic validators require that declaration to equal the
-files present.
-
-Cryptographic digests remain mandatory where Git does not identify the measured object:
-
-- lifecycle metadata binds downloadable external executables by URL, byte size, and
-  SHA-256;
-- exact-disk retains the omitted runtime payload's SHA-256 and the runtime manifest's
-  per-chunk checksums, offsets, and sizes.
-
-Those runtime/external digests are evidence and must not be removed merely because the
-repository no longer keeps whole-tree digest lists.
-
-## Promotion requirements
-
-Before replacing or adding retained measurement evidence, a contribution must provide:
-
-1. a documented question, metric boundary, success predicate, method, and controls;
-2. frozen workload/model identity and raw request- or phase-level evidence;
-3. benchmark commit/dirty state and runtime-bound engine/controller commits, imported path,
-   behavior-affecting configuration or digest, executable/image digest, and environment;
-4. deterministic functional output or another explicit correctness post-condition;
-5. application accounting plus OS/GPU-visible evidence for physical resource claims;
-6. structured failed/blocked attempts excluded from successful aggregate denominators;
-7. a deterministic builder and a semantic validator with focused tests;
-8. two clean rebuilds from a fresh checkout.
-
-The retained v0.1 E2E evidence does **not** satisfy the modern runtime-binding requirement:
-its producer did not bind engine/controller commits, dirty states, executable/import paths,
-configuration hash, or model revision. It is explicitly a historical local observation.
-Deterministic rebuilding verifies the retained interpretation; it does not repair that
-provenance gap or create new data.
 
 ## Rebuild and validate
 

@@ -1,0 +1,130 @@
+{
+  "comparability": {
+    "heterogeneous_conditions": [
+      "Cold load uses upstream vLLM 0decac0d96",
+      "vLLM L1/L2 use profiling checkout 03e5ae2571",
+      "CPU backup and exact disk use vLLM Switch e45036767f",
+      "Cold/L1/L2 launch a fresh process per retained sample; CPU backup and exact disk use repeated same-process cycles"
+    ],
+    "prohibited_claim": "Do not infer a strictly fair release-matched ranking or generalize beyond this local mechanism observation.",
+    "shared_conditions": [
+      "Qwen2.5-0.5B-Instruct",
+      "NVIDIA RTX 3080",
+      "float16",
+      "max_model_len=1024",
+      "gpu_memory_utilization=0.80",
+      "eager execution",
+      "five post-warm-up samples per method"
+    ]
+  },
+  "evidence_label": "descriptive local mechanism comparison; not a release-matched system ranking",
+  "frozen_scope": {
+    "dtype": "float16",
+    "engine_mode": "eager",
+    "gpu": "NVIDIA GeForce RTX 3080 10 GiB",
+    "gpu_memory_utilization": 0.8,
+    "max_model_len": 1024,
+    "sample_count_per_method": 5
+  },
+  "methods": [
+    {
+      "max_s": 11.532777084968984,
+      "median_s": 11.53203934431076,
+      "method": "Cold load",
+      "min_s": 11.530842403881252,
+      "n": 5,
+      "representative_phases_s": {
+        "Process + engine startup": 11.53203934431076
+      },
+      "representative_sample_index": 5,
+      "representative_total_s": 11.53203934431076,
+      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
+    },
+    {
+      "max_s": 0.19363647978752851,
+      "median_s": 0.18733311537653208,
+      "method": "vLLM L1",
+      "min_s": 0.18699498288333416,
+      "n": 5,
+      "representative_phases_s": {
+        "CPU\u2192GPU copy": 0.058236091397702694,
+        "Control overhead": 0.0028457650914788246,
+        "GPU remap": 0.12625125888735056
+      },
+      "representative_sample_index": 1,
+      "representative_total_s": 0.18733311537653208,
+      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
+    },
+    {
+      "max_s": 0.32915365044027567,
+      "median_s": 0.3285399032756686,
+      "method": "vLLM L2",
+      "min_s": 0.32498585153371096,
+      "n": 5,
+      "representative_phases_s": {
+        "Checkpoint load": 0.18863197695463896,
+        "Control overhead": 0.0,
+        "GPU remap": 0.0277024544775486,
+        "KV-cache remap": 0.11220547184348106
+      },
+      "representative_sample_index": 3,
+      "representative_total_s": 0.3285399032756686,
+      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
+    },
+    {
+      "max_s": 0.3086936315521598,
+      "median_s": 0.2960092630237341,
+      "method": "CPU backup",
+      "min_s": 0.2908336687833071,
+      "n": 5,
+      "representative_phases_s": {
+        "CPU\u2192GPU copy": 0.11454070918262005,
+        "Control overhead": 0.0013429215177893639,
+        "GPU remap": 0.18012563232332468
+      },
+      "representative_sample_index": 3,
+      "representative_total_s": 0.2960092630237341,
+      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
+    },
+    {
+      "max_s": 0.7561155715957284,
+      "median_s": 0.746992027387023,
+      "method": "Exact disk",
+      "min_s": 0.7315412927418947,
+      "n": 5,
+      "representative_phases_s": {
+        "Control overhead": 0.011856085620820522,
+        "Disk read + hash + H2D pipeline": 0.4885191135108471,
+        "GPU remap": 0.24661682825535536
+      },
+      "representative_sample_index": 2,
+      "representative_total_s": 0.746992027387023,
+      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
+    }
+  ],
+  "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded.",
+  "model": "Qwen2.5-0.5B-Instruct",
+  "phase_semantics": {
+    "CPU\u2192GPU copy": "Synchronous pinned CPU backup to GPU copy.",
+    "Checkpoint load": "vLLM L2 reload_weights HTTP step; includes layerwise checkpoint iteration/load.",
+    "Control overhead": "Residual required to reconcile disjoint phase times to the measured total.",
+    "Disk read + hash + H2D pipeline": "Exact-disk overlapped pipeline wall time; read, hash, and H2D overlap and therefore are not stacked separately.",
+    "GPU remap": "Allocator map/create time.",
+    "KV-cache remap": "vLLM L2 wake of the KV-cache tag.",
+    "Process + engine startup": "Cold process creation through API health readiness; internal startup is not fully instrumented."
+  },
+  "schema_version": 1,
+  "sources": [
+    "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json",
+    "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json",
+    "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json",
+    "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json",
+    "results/tmp/exact-disk/profiling-20260812-r3/raw/exact_disk_profile.jsonl"
+  ],
+  "stability_rule": {
+    "center": "median of the five retained total-latency samples",
+    "profile": "Use the phases from the retained real sample whose total is closest to the median; ties break by sample_index. Add Control overhead = measured total - disjoint accounted phases.",
+    "spread": "minimum and maximum of the five retained total-latency samples",
+    "warmup": "Discard sample/cycle index 0 for every method. Cold load and stock vLLM launch fresh processes per sample; CPU backup and exact disk use repeated same-process cycles."
+  }
+}

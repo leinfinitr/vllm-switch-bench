@@ -49,6 +49,36 @@ retained payload SHA-256 is
 - [Runtime segment/checksum manifest](../../../results/exact-disk/raw/exact-disk/bundle-manifest.json)
 - [Result-family notes](../../../results/exact-disk/README.md)
 
+### Local activation-profiling figure
+
+The repository also provides a standalone local plotting command for a same-model activation
+comparison across cold load, stock vLLM L1/L2, clean CPU-backup reuse, and exact-disk restore.
+
+The input schema contains five successful post-warm-up activation samples per method. It
+requires a complete disjoint phase accounting for every sample. Aggregation discards sample
+or cycle zero, takes the median of the five remaining total latencies, preserves their
+minimum/maximum as the total-latency spread, and selects the real sample whose total is
+closest to the median for the stacked profile. `Control overhead` closes any measured
+total-minus-accounted-phase residual. For exact disk, read, hash, and H2D overlap in a
+pipeline, so the plot stacks the pipeline wall time rather than adding overlapping timers.
+
+Generate the [activation-latency-profile.pdf](../../../results/exact-disk/figures/activation-latency-profile.pdf), [activation-latency-profile.png](../../../results/exact-disk/figures/activation-latency-profile.png), and [activation-profile-summary.json](../../../results/exact-disk/figures/activation-profile-summary.json) from repository root:
+
+```bash
+scripts/plot-activation-profile.sh \
+  --input results/exact-disk/raw/activation-profile-input.json \
+  --out-dir results/exact-disk/figures
+```
+
+The current local input freezes Qwen2.5-0.5B-Instruct, float16, max model length 1024,
+`--gpu-memory-utilization 0.80`, eager execution, and a single RTX 3080.
+
+The current local observations use different engine revisions by mechanism: cold load uses
+upstream vLLM `0decac0d96`, stock L1/L2 uses the profiling-only checkout `03e5ae2571`, and CPU
+backup/exact disk use vLLM Switch `e45036767f`. This is necessary to observe each mechanism,
+but it means the figure is a descriptive mechanism-level local comparison rather than a
+release-matched engine benchmark or a defensible system ranking.
+
 ## Threats to validity
 
 - This is one local single-GPU observation for one model and approximately 0.98 GiB of
@@ -63,53 +93,9 @@ retained payload SHA-256 is
 
 ## Limitations
 
-No new data was generated in this refactor, and a canonical GPU rerun is not complete. The
-retained metadata identifies the collection/upstream engine commits and environment for this
-observation, but it is not a broad performance study and the payload bytes are intentionally
-not published. The wider v0.1 E2E producer did not runtime-bind engine/controller commits,
-imported path, or configuration hash, so those E2E numbers remain a historical local
-observation; the stronger exact-disk runtime checksum record does not retroactively repair
-that separate provenance gap.
-
 The current summary supports functional exact-byte spill/release/restore. It does not claim
 steady-state latency, throughput, SSD endurance, crash consistency, multi-model capacity, or
 superiority over another storage tier.
-
-### Local activation-profiling figure
-
-The repository also provides a standalone local plotting command for a same-model activation
-comparison across cold load, stock vLLM L1/L2, clean CPU-backup reuse, and exact-disk restore.
-This output belongs under `results/tmp/`; it is not part of the retained exact-disk result and
-must not overwrite `results/exact-disk/figures/`.
-
-The input schema contains five successful post-warm-up activation samples per method. These
-define a deterministic descriptive center and observed range; they are not a statistical
-stationarity test or a claim that the heterogeneous mechanisms are strictly comparable. It
-requires a complete disjoint phase accounting for every sample. Aggregation discards sample
-or cycle zero, takes the median of the five remaining total latencies, preserves their
-minimum/maximum as the total-latency spread, and selects the real sample whose total is
-closest to the median for the stacked profile. `Control overhead` closes any measured
-total-minus-accounted-phase residual. For exact disk, read, hash, and H2D overlap in a
-pipeline, so the plot stacks the pipeline wall time rather than adding overlapping timers.
-
-Generate the PNG, PDF, and machine-readable aggregation from repository root:
-
-```bash
-scripts/plot-activation-profile.sh \
-  --input results/tmp/activation-profiling-20260812/activation-profile-input.json \
-  --out-dir results/tmp/activation-profiling-20260812/figures
-```
-
-The current local input freezes Qwen2.5-0.5B-Instruct, float16, max model length 1024,
-`--gpu-memory-utilization 0.80`, eager execution, and a single RTX 3080. Do not substitute
-incompatible retained lifecycle values or compare request E2E latency against this activation
-boundary. Re-run all five methods when any frozen condition changes.
-
-The current local observations use different engine revisions by mechanism: cold load uses
-upstream vLLM `0decac0d96`, stock L1/L2 uses the profiling-only checkout `03e5ae2571`, and CPU
-backup/exact disk use vLLM Switch `e45036767f`. This is necessary to observe each mechanism,
-but it means the figure is a descriptive mechanism-level local comparison rather than a
-release-matched engine benchmark or a defensible system ranking.
 
 ## Reproduce
 
@@ -171,8 +157,6 @@ print("benchmark:", llm_switch_bench.__file__)
 print("vllm:", vllm.__file__)
 PY
 
-git -C "$BENCH_REPO" status --short --branch
-git -C "$VLLM_REPO" status --short --branch
 nvidia-smi --query-gpu=index,name,memory.total,driver_version \
   --format=csv,noheader,nounits
 df -T "$(dirname "$BACKUP_ROOT")"

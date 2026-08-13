@@ -1,6 +1,6 @@
 # llama-swap
 
-**Status:** current external baseline; final v0.1 GPU rows are published.
+**Status:** current external baseline.
 
 The canonical project name is **llama-swap**. It exposes an OpenAI-compatible proxy and automatically switches model processes based on the request body's `model` field. Operators do not manually call sleep and wake for the normal request-trace benchmark.
 
