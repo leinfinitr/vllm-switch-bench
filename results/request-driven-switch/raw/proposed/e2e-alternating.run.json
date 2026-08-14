@@ -1,0 +1,49 @@
+{
+  "base_url": "http://127.0.0.1:19300",
+  "benchmark_repo": {
+    "branch": "refactor/open-source-quality",
+    "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+    "dirty": true,
+    "path": "/home/ljl/research-systems/llm-switch-bench",
+    "status_porcelain": "M .github/workflows/ci.yml\n M AGENTS.md\n M README.md\n D configs/traces/request-switch-burst.jsonl\n D configs/traces/request-switch-steady.jsonl\n M docs/README.md\n D docs/baselines/baseline1-vllm-cold-reload.md\n D docs/baselines/baseline2-vllm-sleep-mode.md\n M docs/experiments/backup-reuse-reclaim/README.md\n M docs/experiments/exact-disk/README.md\n M docs/experiments/lifecycle-latency/README.md\n M docs/experiments/request-driven-switch/README.md\n M docs/experiments/vllm-profiling/README.md\n D docs/systems/llama-swap.md\n D docs/systems/serverlessllm.md\n D docs/systems/swapservellm.md\n M pyproject.toml\n M results/backup-reuse-reclaim/metadata.json\n M results/exact-disk/metadata.json\n M results/lifecycle-latency/metadata.json\n M results/request-driven-switch/metadata.json\n M results/vllm-profiling/metadata.json\n M scripts/README.md\n M scripts/build_all.sh\n D scripts/exact-disk-build.sh\n D scripts/exact-disk-run.sh\n D scripts/exact-disk-validate.sh\n D scripts/request-driven-switch-matrix.sh\n D scripts/run_profiling.sh\n D scripts/vllm-profiling-build.sh\n D scripts/vllm-profiling-plot.sh\n D scripts/vllm-profiling-validate.sh\n M src/README.md\n M src/llm_switch_bench/adapters/llama_swap_lifecycle.py\n D src/llm_switch_bench/adapters/serverlessllm.py\n D src/llm_switch_bench/adapters/serverlessllm_lifecycle.py\n D src/llm_switch_bench/adapters/swapservellm.py\n M src/llm_switch_bench/adapters/swapservellm_lifecycle.py\n M src/llm_switch_bench/adapters/vllm_lifecycle.py\n D src/llm_switch_bench/analysis.py\n M src/llm_switch_bench/artifacts.py\n D src/llm_switch_bench/build_all.py\n M src/llm_switch_bench/check_docs.py\n D src/llm_switch_bench/common/analyze_results.py\n D src/llm_switch_bench/common/merge_results.py\n M src/llm_switch_bench/common/provenance.py\n D src/llm_switch_bench/common/summarize_memory.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/cumem_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pcie_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pin_compare.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/plot.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pool_plot.py\n M src/llm_switch_bench/experiments/backup_reuse_reclaim/run.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/safetensor_microbench.py\n D src/llm_switch_bench/experiments/exact_disk/allocator_driver.py\n M src/llm_switch_bench/experiments/lifecycle_latency/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/analyze.py\n D src/llm_switch_bench/experiments/request_driven_switch/matrix.py\n D src/llm_switch_bench/experiments/request_driven_switch/plot.py\n M src/llm_switch_bench/experiments/request_driven_switch/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/run_matrix.py\n D src/llm_switch_bench/plotting/legacy_comparison.py\n M src/llm_switch_bench/validation/backup_reuse_reclaim/validate.py\n M src/llm_switch_bench/validation/common.py\n M src/llm_switch_bench/validation/exact_disk/validate.py\n M src/llm_switch_bench/validation/lifecycle_latency/validate.py\n M src/llm_switch_bench/validation/request_driven_switch/validate.py\n M src/llm_switch_bench/validation/validate_all.py\n M src/llm_switch_bench/validation/vllm_profiling/validate.py\n D tests/test_analysis.py\n D tests/test_analyze_request_switch.py\n D tests/test_analyze_results.py\n M tests/test_artifacts_and_validators.py\n D tests/test_bench_request_driven_switch.py\n D tests/test_bench_serverless_llm.py\n D tests/test_bench_swapservellm.py\n D tests/test_bench_vllm_repeated_sleep_l1.py\n D tests/test_benchlib_resources.py\n D tests/test_benchlib_sampling.py\n D tests/test_benchlib_schema.py\n D tests/test_plot_request_switch.py\n D tests/test_run_cross_system_matrix.py\n M tests/test_vllm_profiling_profiles.py\n M uv.lock\n?? gpu_pids-1d2297f72cbc2bda84b231a6461c1d08783a767dc711869be7e8227c92956a07.txt\n?? gpu_pids-56a9940600a474afdcb3541cb0fed318940c5da2737c0b847dbc129f5fd5c240.txt\n?? gpu_pids-70ec28abd1ebbc899d00c8ebd80214f4fef420d8269db06661a5a524eec724f9.txt\n?? gpu_pids-846201a85c3a458a3d736623870032caede10dfb3921ecba36c066dc21040b98.txt\n?? scripts/exact-disk.sh\n?? scripts/promote.sh\n?? src/llm_switch_bench/common/environment.py\n?? src/llm_switch_bench/experiments/backup_reuse_reclaim/artifacts.py\n?? src/llm_switch_bench/experiments/exact_disk/artifacts.py\n?? src/llm_switch_bench/experiments/lifecycle_latency/artifacts.py\n?? src/llm_switch_bench/experiments/request_driven_switch/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/compile.py\n?? src/llm_switch_bench/families.py\n?? src/llm_switch_bench/promotion.py\n?? src/llm_switch_bench/publication.py\n?? tests/test_backup_reuse_reclaim.py\n?? tests/test_environment.py\n?? tests/test_promotion.py\n?? tests/test_request_driven_switch.py\n?? tests/test_resources.py\n?? tests/test_sampling.py\n?? tests/test_schema.py",
+    "working_tree_sha256": "885aaf67a03cec519092db8bddd1a3b1dab69fb021178cdd3b42f4c5c3067af0"
+  },
+  "failed": 0,
+  "manifest": {
+    "path": "/home/ljl/research-systems/llm-switch-bench/configs/traces/request-switch-alternating.jsonl",
+    "sha256": "a68911bca58f3316a5a61919a16a51d1d06e17585955bde90a95e657c130d7bb",
+    "size_bytes": 3713
+  },
+  "requests": 20,
+  "runtime_files": [
+    {
+      "path": "/home/ljl/research-systems/vllm-model-switch-controller/.venv/bin/vllm-switch-controller",
+      "sha256": "28fa682f9b14f8e9f5cde9b5cb53257cf9ab8da809d6a300e67d87b741a68d8c",
+      "size_bytes": 354
+    },
+    {
+      "path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/reproduction-20260813/request/proposed/config.yaml",
+      "sha256": "a63650c16b61b746bc80399ee73b1e657bf26aa24471e886f12f2ce190c5a251",
+      "size_bytes": 2127
+    }
+  ],
+  "runtime_repositories": [
+    {
+      "branch": "master",
+      "commit": "0ba1f25a74eb727da32e76afab289c26c00983c2",
+      "dirty": false,
+      "path": "/home/ljl/research-systems/vllm-model-switch-controller",
+      "status_porcelain": "",
+      "working_tree_sha256": "c544f46ea09d7154883fbdb0077dda628be7da4ebd983449008ae08ccc353e17"
+    },
+    {
+      "branch": "",
+      "commit": "e45036767fd017f8d03ba15003d38d75aa597f54",
+      "dirty": false,
+      "path": "/home/ljl/research-systems/vllm-reproduction-e450367",
+      "status_porcelain": "",
+      "working_tree_sha256": "e5c6eea0e6fcc74c24c1a9a4fc1ce7c3430e21e444251ec2905cd32879945da8"
+    }
+  ],
+  "schema_version": 1
+}

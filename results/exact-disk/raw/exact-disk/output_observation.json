@@ -7,6 +7,44 @@
     "finish_reason": "length",
     "text": " Paris. It was founded in 789 AD by Charlemagne,"
   },
+  "cycles": [
+    {
+      "cycle_index": 0,
+      "output_equal": true,
+      "sleep_latency_s": 0.07971102837473154,
+      "wake_latency_s": 0.7658778615295887
+    },
+    {
+      "cycle_index": 1,
+      "output_equal": true,
+      "sleep_latency_s": 0.07005784008651972,
+      "wake_latency_s": 0.7404618989676237
+    },
+    {
+      "cycle_index": 2,
+      "output_equal": true,
+      "sleep_latency_s": 0.06940089724957943,
+      "wake_latency_s": 0.7504893159493804
+    },
+    {
+      "cycle_index": 3,
+      "output_equal": true,
+      "sleep_latency_s": 0.06920936144888401,
+      "wake_latency_s": 0.738429787568748
+    },
+    {
+      "cycle_index": 4,
+      "output_equal": true,
+      "sleep_latency_s": 0.06941205635666847,
+      "wake_latency_s": 0.7521089799702168
+    },
+    {
+      "cycle_index": 5,
+      "output_equal": true,
+      "sleep_latency_s": 0.06916680186986923,
+      "wake_latency_s": 0.7415911313146353
+    }
+  ],
   "demotion": {
     "results": [
       {
@@ -18,5 +56,6 @@
       }
     ]
   },
+  "demotion_latency_s": 0.10478103999048471,
   "schema_version": 1
 }

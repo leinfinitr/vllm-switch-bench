@@ -1,11 +1,32 @@
 {
-  "created_at": "2026-08-04T11:44:03.672344+00:00",
-  "base_url": "http://127.0.0.1:18100",
+  "created_at": "2026-08-13T10:44:17.004064+00:00",
+  "base_url": "http://127.0.0.1:18300",
   "baseline_gpu_mib": 1,
   "llama_swap_repo": {
-    "path": "/home/ljl/research-systems/llama-swap-profile-worktree",
-    "commit": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
-    "tracked_dirty": true
+    "path": "/home/ljl/research-systems/llama-swap",
+    "commit": "d714ddb6739e5cbf02bbe789555aa930615ec0eb",
+    "branch": "research/profiling",
+    "dirty": false,
+    "status_porcelain": "",
+    "working_tree_sha256": "f640fb7d23f11443318b25f5977605b5fd20d844508fba608dc2ba0f8fe25cc7"
+  },
+  "benchmark_repo": {
+    "path": "/home/ljl/research-systems/llm-switch-bench",
+    "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+    "branch": "refactor/open-source-quality",
+    "dirty": true,
+    "status_porcelain": "M .github/workflows/ci.yml\n M AGENTS.md\n M README.md\n D configs/traces/request-switch-burst.jsonl\n D configs/traces/request-switch-steady.jsonl\n M docs/README.md\n D docs/baselines/baseline1-vllm-cold-reload.md\n D docs/baselines/baseline2-vllm-sleep-mode.md\n M docs/experiments/backup-reuse-reclaim/README.md\n M docs/experiments/exact-disk/README.md\n M docs/experiments/lifecycle-latency/README.md\n M docs/experiments/request-driven-switch/README.md\n M docs/experiments/vllm-profiling/README.md\n D docs/systems/llama-swap.md\n D docs/systems/serverlessllm.md\n D docs/systems/swapservellm.md\n M pyproject.toml\n M results/backup-reuse-reclaim/metadata.json\n M results/exact-disk/metadata.json\n M results/lifecycle-latency/metadata.json\n M results/request-driven-switch/metadata.json\n M results/vllm-profiling/metadata.json\n M scripts/README.md\n M scripts/build_all.sh\n D scripts/exact-disk-build.sh\n D scripts/exact-disk-run.sh\n D scripts/exact-disk-validate.sh\n D scripts/request-driven-switch-matrix.sh\n D scripts/run_profiling.sh\n D scripts/vllm-profiling-build.sh\n D scripts/vllm-profiling-plot.sh\n D scripts/vllm-profiling-validate.sh\n M src/README.md\n M src/llm_switch_bench/adapters/llama_swap_lifecycle.py\n D src/llm_switch_bench/adapters/serverlessllm.py\n D src/llm_switch_bench/adapters/serverlessllm_lifecycle.py\n D src/llm_switch_bench/adapters/swapservellm.py\n M src/llm_switch_bench/adapters/swapservellm_lifecycle.py\n M src/llm_switch_bench/adapters/vllm_lifecycle.py\n D src/llm_switch_bench/analysis.py\n M src/llm_switch_bench/artifacts.py\n D src/llm_switch_bench/build_all.py\n M src/llm_switch_bench/check_docs.py\n D src/llm_switch_bench/common/analyze_results.py\n D src/llm_switch_bench/common/merge_results.py\n M src/llm_switch_bench/common/provenance.py\n D src/llm_switch_bench/common/summarize_memory.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/cumem_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pcie_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pin_compare.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/plot.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pool_plot.py\n M src/llm_switch_bench/experiments/backup_reuse_reclaim/run.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/safetensor_microbench.py\n D src/llm_switch_bench/experiments/exact_disk/allocator_driver.py\n M src/llm_switch_bench/experiments/lifecycle_latency/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/analyze.py\n D src/llm_switch_bench/experiments/request_driven_switch/matrix.py\n D src/llm_switch_bench/experiments/request_driven_switch/plot.py\n M src/llm_switch_bench/experiments/request_driven_switch/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/run_matrix.py\n D src/llm_switch_bench/plotting/legacy_comparison.py\n M src/llm_switch_bench/validation/backup_reuse_reclaim/validate.py\n M src/llm_switch_bench/validation/common.py\n M src/llm_switch_bench/validation/exact_disk/validate.py\n M src/llm_switch_bench/validation/lifecycle_latency/validate.py\n M src/llm_switch_bench/validation/request_driven_switch/validate.py\n M src/llm_switch_bench/validation/validate_all.py\n M src/llm_switch_bench/validation/vllm_profiling/validate.py\n D tests/test_analysis.py\n D tests/test_analyze_request_switch.py\n D tests/test_analyze_results.py\n M tests/test_artifacts_and_validators.py\n D tests/test_bench_request_driven_switch.py\n D tests/test_bench_serverless_llm.py\n D tests/test_bench_swapservellm.py\n D tests/test_bench_vllm_repeated_sleep_l1.py\n D tests/test_benchlib_resources.py\n D tests/test_benchlib_sampling.py\n D tests/test_benchlib_schema.py\n D tests/test_plot_request_switch.py\n D tests/test_run_cross_system_matrix.py\n M tests/test_vllm_profiling_profiles.py\n M uv.lock\n?? scripts/exact-disk.sh\n?? scripts/promote.sh\n?? src/llm_switch_bench/common/environment.py\n?? src/llm_switch_bench/experiments/backup_reuse_reclaim/artifacts.py\n?? src/llm_switch_bench/experiments/exact_disk/artifacts.py\n?? src/llm_switch_bench/experiments/lifecycle_latency/artifacts.py\n?? src/llm_switch_bench/experiments/request_driven_switch/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/compile.py\n?? src/llm_switch_bench/families.py\n?? src/llm_switch_bench/promotion.py\n?? src/llm_switch_bench/publication.py\n?? tests/test_backup_reuse_reclaim.py\n?? tests/test_environment.py\n?? tests/test_promotion.py\n?? tests/test_request_driven_switch.py\n?? tests/test_resources.py\n?? tests/test_sampling.py\n?? tests/test_schema.py",
+    "working_tree_sha256": "49267367e6e676142448c51481e38e3203ef31250107c7dd359d635e077cc082"
+  },
+  "config": {
+    "path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/reproduction-20260813/lifecycle/llama-swap/config.yaml",
+    "size_bytes": 1678,
+    "sha256": "f6f0fdac1d304f58bb66d0573e49a3f371c528df10c7f0c589e49cc0915809da"
+  },
+  "binary": {
+    "path": "/home/ljl/research-systems/llama-swap/build/llama-swap",
+    "size_bytes": 20986463,
+    "sha256": "0f02045f43cd70dbee26fc08954ddb8b8193074b02d5946708b783d126dd33a6"
   },
   "cycles": 5,
   "rows": [
@@ -16,27 +37,27 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 11.386894282884896,
+        "latency_s": 11.402627021074295,
         "ok": true,
-        "state_machine_latency_s": 11.273204252
+        "state_machine_latency_s": 11.292124227
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.33624906465411186,
-        "postcondition_latency_s": 0.03166774567216635,
-        "latency_s": 0.36792391538619995,
+        "api_latency_s": 0.29681476950645447,
+        "postcondition_latency_s": 0.031201355159282684,
+        "latency_s": 0.3280228665098548,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03166774567216635,
+          "latency_s": 0.031201355159282684,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.334965668
+        "state_machine_latency_s": 0.29575749
       },
-      "gpu_used_ready_mib": 7251,
+      "gpu_used_ready_mib": 8259,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -47,17 +68,17 @@
         {
           "model": "qwen-0.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:40:52.611735121Z",
-          "ended_at": "2026-08-04T11:41:03.884939373Z",
-          "duration_s": 11.273204252,
+          "started_at": "2026-08-13T10:41:05.814011969Z",
+          "ended_at": "2026-08-13T10:41:17.106136197Z",
+          "duration_s": 11.292124227,
           "success": true
         },
         {
           "model": "qwen-0.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:41:04.013569819Z",
-          "ended_at": "2026-08-04T11:41:04.348535487Z",
-          "duration_s": 0.334965668,
+          "started_at": "2026-08-13T10:41:17.232502735Z",
+          "ended_at": "2026-08-13T10:41:17.528260226Z",
+          "duration_s": 0.29575749,
           "success": true
         }
       ]
@@ -69,27 +90,27 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 11.377480929717422,
+        "latency_s": 11.397610433399677,
         "ok": true,
-        "state_machine_latency_s": 11.272164048
+        "state_machine_latency_s": 11.290429851
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.3287882739678025,
-        "postcondition_latency_s": 0.03088638186454773,
-        "latency_s": 0.35967853758484125,
+        "api_latency_s": 0.2965012416243553,
+        "postcondition_latency_s": 0.03092848788946867,
+        "latency_s": 0.3274367190897465,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03088638186454773,
+          "latency_s": 0.03092848788946867,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.327733921
+        "state_machine_latency_s": 0.295515076
       },
-      "gpu_used_ready_mib": 7251,
+      "gpu_used_ready_mib": 8259,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -100,17 +121,17 @@
         {
           "model": "qwen-0.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:41:04.381412161Z",
-          "ended_at": "2026-08-04T11:41:15.653576244Z",
-          "duration_s": 11.272164048,
+          "started_at": "2026-08-13T10:41:17.560507743Z",
+          "ended_at": "2026-08-13T10:41:28.850937592Z",
+          "duration_s": 11.290429851,
           "success": true
         },
         {
           "model": "qwen-0.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:41:15.77417072Z",
-          "ended_at": "2026-08-04T11:41:16.101904647Z",
-          "duration_s": 0.327733921,
+          "started_at": "2026-08-13T10:41:28.973656962Z",
+          "ended_at": "2026-08-13T10:41:29.269172033Z",
+          "duration_s": 0.295515076,
           "success": true
         }
       ]
@@ -122,27 +143,27 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 11.389543666504323,
+        "latency_s": 11.408422756008804,
         "ok": true,
-        "state_machine_latency_s": 11.273113973
+        "state_machine_latency_s": 11.291616099
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.29647595901042223,
-        "postcondition_latency_s": 0.031022419221699238,
-        "latency_s": 0.3275023689493537,
+        "api_latency_s": 0.2886877413839102,
+        "postcondition_latency_s": 0.03139530122280121,
+        "latency_s": 0.32008831575512886,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.031022419221699238,
+          "latency_s": 0.03139530122280121,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.295493644
+        "state_machine_latency_s": 0.2877823
       },
-      "gpu_used_ready_mib": 7251,
+      "gpu_used_ready_mib": 8259,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -153,17 +174,17 @@
         {
           "model": "qwen-0.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:41:16.133968234Z",
-          "ended_at": "2026-08-04T11:41:27.407082225Z",
-          "duration_s": 11.273113973,
+          "started_at": "2026-08-13T10:41:29.301159041Z",
+          "ended_at": "2026-08-13T10:41:40.592775141Z",
+          "duration_s": 11.291616099,
           "success": true
         },
         {
           "model": "qwen-0.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:41:27.538844461Z",
-          "ended_at": "2026-08-04T11:41:27.834338103Z",
-          "duration_s": 0.295493644,
+          "started_at": "2026-08-13T10:41:40.725453455Z",
+          "ended_at": "2026-08-13T10:41:41.013235749Z",
+          "duration_s": 0.2877823,
           "success": true
         }
       ]
@@ -175,27 +196,27 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 11.394085409119725,
+        "latency_s": 11.414852714166045,
         "ok": true,
-        "state_machine_latency_s": 11.272652902
+        "state_machine_latency_s": 11.293201666
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2888140492141247,
-        "postcondition_latency_s": 0.03011313173919916,
-        "latency_s": 0.31893085688352585,
+        "api_latency_s": 0.2957706032320857,
+        "postcondition_latency_s": 0.03223339654505253,
+        "latency_s": 0.32801102194935083,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03011313173919916,
+          "latency_s": 0.03223339654505253,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.287835721
+        "state_machine_latency_s": 0.294761762
       },
-      "gpu_used_ready_mib": 7251,
+      "gpu_used_ready_mib": 8259,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -206,17 +227,17 @@
         {
           "model": "qwen-0.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:41:27.866460669Z",
-          "ended_at": "2026-08-04T11:41:39.139113574Z",
-          "duration_s": 11.272652902,
+          "started_at": "2026-08-13T10:41:41.04569629Z",
+          "ended_at": "2026-08-13T10:41:52.338897961Z",
+          "duration_s": 11.293201666,
           "success": true
         },
         {
           "model": "qwen-0.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:41:39.276509558Z",
-          "ended_at": "2026-08-04T11:41:39.564345272Z",
-          "duration_s": 0.287835721,
+          "started_at": "2026-08-13T10:41:52.477050033Z",
+          "ended_at": "2026-08-13T10:41:52.771811791Z",
+          "duration_s": 0.294761762,
           "success": true
         }
       ]
@@ -228,27 +249,27 @@
         "status": 200,
         "done": true,
         "output": "OK.",
-        "latency_s": 11.385442504659295,
+        "latency_s": 11.400565181858838,
         "ok": true,
-        "state_machine_latency_s": 11.273681548
+        "state_machine_latency_s": 11.296458382
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.31283214315772057,
-        "postcondition_latency_s": 0.03146618977189064,
-        "latency_s": 0.3443044573068619,
+        "api_latency_s": 0.282353519462049,
+        "postcondition_latency_s": 0.02910875342786312,
+        "latency_s": 0.3114660819992423,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03146618977189064,
+          "latency_s": 0.02910875342786312,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.311849107
+        "state_machine_latency_s": 0.281369015
       },
-      "gpu_used_ready_mib": 7251,
+      "gpu_used_ready_mib": 8259,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -259,17 +280,17 @@
         {
           "model": "qwen-0.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:41:39.595562317Z",
-          "ended_at": "2026-08-04T11:41:50.869243864Z",
-          "duration_s": 11.273681548,
+          "started_at": "2026-08-13T10:41:52.805375334Z",
+          "ended_at": "2026-08-13T10:42:04.101833721Z",
+          "duration_s": 11.296458382,
           "success": true
         },
         {
           "model": "qwen-0.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:41:50.996150245Z",
-          "ended_at": "2026-08-04T11:41:51.307999359Z",
-          "duration_s": 0.311849107,
+          "started_at": "2026-08-13T10:42:04.219617916Z",
+          "ended_at": "2026-08-13T10:42:04.500986924Z",
+          "duration_s": 0.281369015,
           "success": true
         }
       ]
@@ -281,27 +302,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.412881411612034,
+        "latency_s": 12.427470361813903,
         "ok": true,
-        "state_machine_latency_s": 12.275421848
+        "state_machine_latency_s": 12.293808626
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2990567060187459,
-        "postcondition_latency_s": 0.02942787017673254,
-        "latency_s": 0.3284895932301879,
+        "api_latency_s": 0.2944853939116001,
+        "postcondition_latency_s": 0.03067001234740019,
+        "latency_s": 0.32516107987612486,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.02942787017673254,
+          "latency_s": 0.03067001234740019,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.29787409
+        "state_machine_latency_s": 0.293624051
       },
-      "gpu_used_ready_mib": 7267,
+      "gpu_used_ready_mib": 8275,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -312,17 +333,17 @@
         {
           "model": "qwen-1.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:41:51.340611578Z",
-          "ended_at": "2026-08-04T11:42:03.61603343Z",
-          "duration_s": 12.275421848,
+          "started_at": "2026-08-13T10:42:04.531296869Z",
+          "ended_at": "2026-08-13T10:42:16.825105495Z",
+          "duration_s": 12.293808626,
           "success": true
         },
         {
           "model": "qwen-1.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:42:03.770258432Z",
-          "ended_at": "2026-08-04T11:42:04.068132536Z",
-          "duration_s": 0.29787409,
+          "started_at": "2026-08-13T10:42:16.972869321Z",
+          "ended_at": "2026-08-13T10:42:17.266493375Z",
+          "duration_s": 0.293624051,
           "success": true
         }
       ]
@@ -334,27 +355,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.3775715790689,
+        "latency_s": 12.406565289013088,
         "ok": true,
-        "state_machine_latency_s": 12.272566358
+        "state_machine_latency_s": 12.297708137
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2936353422701359,
-        "postcondition_latency_s": 0.03069249726831913,
-        "latency_s": 0.32433091569691896,
+        "api_latency_s": 0.30326783284544945,
+        "postcondition_latency_s": 0.030951116234064102,
+        "latency_s": 0.33422201313078403,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03069249726831913,
+          "latency_s": 0.030951116234064102,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.292505052
+        "state_machine_latency_s": 0.302202556
       },
-      "gpu_used_ready_mib": 7267,
+      "gpu_used_ready_mib": 8275,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -365,17 +386,17 @@
         {
           "model": "qwen-1.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:42:04.098865299Z",
-          "ended_at": "2026-08-04T11:42:16.371431663Z",
-          "duration_s": 12.272566358,
+          "started_at": "2026-08-13T10:42:17.298316132Z",
+          "ended_at": "2026-08-13T10:42:29.596024271Z",
+          "duration_s": 12.297708137,
           "success": true
         },
         {
           "model": "qwen-1.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:42:16.490967887Z",
-          "ended_at": "2026-08-04T11:42:16.783472937Z",
-          "duration_s": 0.292505052,
+          "started_at": "2026-08-13T10:42:29.719205436Z",
+          "ended_at": "2026-08-13T10:42:30.021407995Z",
+          "duration_s": 0.302202556,
           "success": true
         }
       ]
@@ -387,27 +408,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.378735702484846,
+        "latency_s": 12.40252089779824,
         "ok": true,
-        "state_machine_latency_s": 12.275101267
+        "state_machine_latency_s": 12.296180804
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2935150396078825,
-        "postcondition_latency_s": 0.032846320420503616,
-        "latency_s": 0.3263661228120327,
+        "api_latency_s": 0.2876306800171733,
+        "postcondition_latency_s": 0.03386108111590147,
+        "latency_s": 0.32149740494787693,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.032846320420503616,
+          "latency_s": 0.03386108111590147,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.292531394
+        "state_machine_latency_s": 0.286840969
       },
-      "gpu_used_ready_mib": 7267,
+      "gpu_used_ready_mib": 8275,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -418,17 +439,17 @@
         {
           "model": "qwen-1.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:42:16.815332181Z",
-          "ended_at": "2026-08-04T11:42:29.090433449Z",
-          "duration_s": 12.275101267,
+          "started_at": "2026-08-13T10:42:30.053434115Z",
+          "ended_at": "2026-08-13T10:42:42.349614924Z",
+          "duration_s": 12.296180804,
           "success": true
         },
         {
           "model": "qwen-1.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:42:29.208656204Z",
-          "ended_at": "2026-08-04T11:42:29.5011876Z",
-          "duration_s": 0.292531394,
+          "started_at": "2026-08-13T10:42:42.469994324Z",
+          "ended_at": "2026-08-13T10:42:42.756835293Z",
+          "duration_s": 0.286840969,
           "success": true
         }
       ]
@@ -440,27 +461,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.397556931711733,
+        "latency_s": 12.42496086936444,
         "ok": true,
-        "state_machine_latency_s": 12.272402621
+        "state_machine_latency_s": 12.301396163
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.33460874389857054,
-        "postcondition_latency_s": 0.029361136257648468,
-        "latency_s": 0.36397227831184864,
+        "api_latency_s": 0.28875031881034374,
+        "postcondition_latency_s": 0.03159452881664038,
+        "latency_s": 0.32034873124212027,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.029361136257648468,
+          "latency_s": 0.03159452881664038,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.333584246
+        "state_machine_latency_s": 0.287672032
       },
-      "gpu_used_ready_mib": 7267,
+      "gpu_used_ready_mib": 8275,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -471,17 +492,17 @@
         {
           "model": "qwen-1.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:42:29.535230408Z",
-          "ended_at": "2026-08-04T11:42:41.807633033Z",
-          "duration_s": 12.272402621,
+          "started_at": "2026-08-13T10:42:42.791875194Z",
+          "ended_at": "2026-08-13T10:42:55.093271363Z",
+          "duration_s": 12.301396163,
           "success": true
         },
         {
           "model": "qwen-1.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:42:41.946699134Z",
-          "ended_at": "2026-08-04T11:42:42.280283379Z",
-          "duration_s": 0.333584246,
+          "started_at": "2026-08-13T10:42:55.23317679Z",
+          "ended_at": "2026-08-13T10:42:55.520848824Z",
+          "duration_s": 0.287672032,
           "success": true
         }
       ]
@@ -493,27 +514,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 12.377251616679132,
+        "latency_s": 12.400320339947939,
         "ok": true,
-        "state_machine_latency_s": 12.273512146
+        "state_machine_latency_s": 12.293374185
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2896036431193352,
-        "postcondition_latency_s": 0.03194041270762682,
-        "latency_s": 0.3215479115024209,
+        "api_latency_s": 0.2896931581199169,
+        "postcondition_latency_s": 0.03131330385804176,
+        "latency_s": 0.3210128163918853,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.03194041270762682,
+          "latency_s": 0.03131330385804176,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.288367491
+        "state_machine_latency_s": 0.28885661
       },
-      "gpu_used_ready_mib": 7267,
+      "gpu_used_ready_mib": 8275,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -524,17 +545,17 @@
         {
           "model": "qwen-1.5b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:42:42.310680732Z",
-          "ended_at": "2026-08-04T11:42:54.584192881Z",
-          "duration_s": 12.273512146,
+          "started_at": "2026-08-13T10:42:55.553412808Z",
+          "ended_at": "2026-08-13T10:43:07.846786992Z",
+          "duration_s": 12.293374185,
           "success": true
         },
         {
           "model": "qwen-1.5b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:42:54.705363477Z",
-          "ended_at": "2026-08-04T11:42:54.99373097Z",
-          "duration_s": 0.288367491,
+          "started_at": "2026-08-13T10:43:07.968106897Z",
+          "ended_at": "2026-08-13T10:43:08.256963503Z",
+          "duration_s": 0.28885661,
           "success": true
         }
       ]
@@ -546,27 +567,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.378220554441214,
+        "latency_s": 13.397403452545404,
         "ok": true,
-        "state_machine_latency_s": 13.276225743
+        "state_machine_latency_s": 13.294952167
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2933828327804804,
-        "postcondition_latency_s": 0.02838843036442995,
-        "latency_s": 0.32177707739174366,
+        "api_latency_s": 0.2866341723129153,
+        "postcondition_latency_s": 0.0316262012347579,
+        "latency_s": 0.3182638203725219,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.02838843036442995,
+          "latency_s": 0.0316262012347579,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.29239115
+        "state_machine_latency_s": 0.28560547
       },
-      "gpu_used_ready_mib": 7277,
+      "gpu_used_ready_mib": 8293,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -577,17 +598,17 @@
         {
           "model": "qwen-3b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:42:55.026708989Z",
-          "ended_at": "2026-08-04T11:43:08.302934735Z",
-          "duration_s": 13.276225743,
+          "started_at": "2026-08-13T10:43:08.28948533Z",
+          "ended_at": "2026-08-13T10:43:21.584437504Z",
+          "duration_s": 13.294952167,
           "success": true
         },
         {
           "model": "qwen-3b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:43:08.419722035Z",
-          "ended_at": "2026-08-04T11:43:08.712113181Z",
-          "duration_s": 0.29239115,
+          "started_at": "2026-08-13T10:43:21.701097759Z",
+          "ended_at": "2026-08-13T10:43:21.986703227Z",
+          "duration_s": 0.28560547,
           "success": true
         }
       ]
@@ -599,27 +620,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.386644894257188,
+        "latency_s": 13.40478300396353,
         "ok": true,
-        "state_machine_latency_s": 13.275597484
+        "state_machine_latency_s": 13.302408904
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.3360173013061285,
-        "postcondition_latency_s": 0.030484208837151527,
-        "latency_s": 0.3665061006322503,
+        "api_latency_s": 0.2974315071478486,
+        "postcondition_latency_s": 0.0317027373239398,
+        "latency_s": 0.3291381048038602,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.030484208837151527,
+          "latency_s": 0.0317027373239398,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.334845943
+        "state_machine_latency_s": 0.296460737
       },
-      "gpu_used_ready_mib": 7277,
+      "gpu_used_ready_mib": 8293,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -630,17 +651,17 @@
         {
           "model": "qwen-3b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:43:08.741614994Z",
-          "ended_at": "2026-08-04T11:43:22.017212474Z",
-          "duration_s": 13.275597484,
+          "started_at": "2026-08-13T10:43:22.019361865Z",
+          "ended_at": "2026-08-13T10:43:35.321770773Z",
+          "duration_s": 13.302408904,
           "success": true
         },
         {
           "model": "qwen-3b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:43:22.144497854Z",
-          "ended_at": "2026-08-04T11:43:22.479343792Z",
-          "duration_s": 0.334845943,
+          "started_at": "2026-08-13T10:43:35.439195242Z",
+          "ended_at": "2026-08-13T10:43:35.735655971Z",
+          "duration_s": 0.296460737,
           "success": true
         }
       ]
@@ -652,27 +673,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.383236089721322,
+        "latency_s": 13.404373957775533,
         "ok": true,
-        "state_machine_latency_s": 13.274936932
+        "state_machine_latency_s": 13.299107216
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.30009910091757774,
-        "postcondition_latency_s": 0.028452159836888313,
-        "latency_s": 0.3285549310967326,
+        "api_latency_s": 0.2969109509140253,
+        "postcondition_latency_s": 0.030572133138775826,
+        "latency_s": 0.3274868754670024,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.028452159836888313,
+          "latency_s": 0.030572133138775826,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.299045366
+        "state_machine_latency_s": 0.295919932
       },
-      "gpu_used_ready_mib": 7277,
+      "gpu_used_ready_mib": 8293,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -683,17 +704,17 @@
         {
           "model": "qwen-3b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:43:22.511209736Z",
-          "ended_at": "2026-08-04T11:43:35.786146674Z",
-          "duration_s": 13.274936932,
+          "started_at": "2026-08-13T10:43:35.768334937Z",
+          "ended_at": "2026-08-13T10:43:49.067442155Z",
+          "duration_s": 13.299107216,
           "success": true
         },
         {
           "model": "qwen-3b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:43:35.90913947Z",
-          "ended_at": "2026-08-04T11:43:36.208184832Z",
-          "duration_s": 0.299045366,
+          "started_at": "2026-08-13T10:43:49.187050667Z",
+          "ended_at": "2026-08-13T10:43:49.482970594Z",
+          "duration_s": 0.295919932,
           "success": true
         }
       ]
@@ -705,27 +726,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.38413561321795,
+        "latency_s": 13.396211627870798,
         "ok": true,
-        "state_machine_latency_s": 13.275931994
+        "state_machine_latency_s": 13.290429069
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2892191419377923,
-        "postcondition_latency_s": 0.028693445026874542,
-        "latency_s": 0.31791668292135,
+        "api_latency_s": 0.299454758875072,
+        "postcondition_latency_s": 0.0301999319344759,
+        "latency_s": 0.3296603001654148,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.028693445026874542,
+          "latency_s": 0.0301999319344759,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.287881607
+        "state_machine_latency_s": 0.298551107
       },
-      "gpu_used_ready_mib": 7277,
+      "gpu_used_ready_mib": 8293,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -736,17 +757,17 @@
         {
           "model": "qwen-3b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:43:36.237823217Z",
-          "ended_at": "2026-08-04T11:43:49.513755217Z",
-          "duration_s": 13.275931994,
+          "started_at": "2026-08-13T10:43:49.514564285Z",
+          "ended_at": "2026-08-13T10:44:02.804993354Z",
+          "duration_s": 13.290429069,
           "success": true
         },
         {
           "model": "qwen-3b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:43:49.63823259Z",
-          "ended_at": "2026-08-04T11:43:49.9261142Z",
-          "duration_s": 0.287881607,
+          "started_at": "2026-08-13T10:44:02.927719847Z",
+          "ended_at": "2026-08-13T10:44:03.226270949Z",
+          "duration_s": 0.298551107,
           "success": true
         }
       ]
@@ -758,27 +779,27 @@
         "status": 200,
         "done": true,
         "output": "OK",
-        "latency_s": 13.382877031341195,
+        "latency_s": 13.401173607446253,
         "ok": true,
-        "state_machine_latency_s": 13.277452662
+        "state_machine_latency_s": 13.296027167
       },
       "sleep": {
         "ok": true,
         "status": 200,
         "body": "OK",
-        "api_latency_s": 0.2883167490363121,
-        "postcondition_latency_s": 0.031355392187833786,
-        "latency_s": 0.31967580132186413,
+        "api_latency_s": 0.2972556110471487,
+        "postcondition_latency_s": 0.03270823694765568,
+        "latency_s": 0.3299700990319252,
         "postcondition": {
           "ok": true,
-          "latency_s": 0.031355392187833786,
+          "latency_s": 0.03270823694765568,
           "gpu_used_mib": 1,
           "idle_threshold_mib": 129,
           "running": []
         },
-        "state_machine_latency_s": 0.287287084
+        "state_machine_latency_s": 0.2962928
       },
-      "gpu_used_ready_mib": 7277,
+      "gpu_used_ready_mib": 8293,
       "gpu_used_sleep_mib": 1,
       "ok": true,
       "definitions": {
@@ -789,17 +810,17 @@
         {
           "model": "qwen-3b",
           "phase": "wake",
-          "started_at": "2026-08-04T11:43:49.955985148Z",
-          "ended_at": "2026-08-04T11:44:03.233437809Z",
-          "duration_s": 13.277452662,
+          "started_at": "2026-08-13T10:44:03.257710741Z",
+          "ended_at": "2026-08-13T10:44:16.553737911Z",
+          "duration_s": 13.296027167,
           "success": true
         },
         {
           "model": "qwen-3b",
           "phase": "sleep_process",
-          "started_at": "2026-08-04T11:44:03.353185994Z",
-          "ended_at": "2026-08-04T11:44:03.640473082Z",
-          "duration_s": 0.287287084,
+          "started_at": "2026-08-13T10:44:16.674403696Z",
+          "ended_at": "2026-08-13T10:44:16.970696498Z",
+          "duration_s": 0.2962928,
           "success": true
         }
       ]
@@ -807,16 +828,16 @@
   ],
   "medians": {
     "qwen-0.5b": {
-      "sleep_s": 0.3443044573068619,
-      "wake_s": 11.273113973
+      "sleep_s": 0.3274367190897465,
+      "wake_s": 11.292124227
     },
     "qwen-1.5b": {
-      "sleep_s": 0.3263661228120327,
-      "wake_s": 12.273512146
+      "sleep_s": 0.32149740494787693,
+      "wake_s": 12.296180804
     },
     "qwen-3b": {
-      "sleep_s": 0.32177707739174366,
-      "wake_s": 13.275931994
+      "sleep_s": 0.3291381048038602,
+      "wake_s": 13.296027167
     }
   }
 }

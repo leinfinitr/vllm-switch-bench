@@ -4,20 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from llm_switch_bench.common.provenance import repository_root
-
-FAMILY_NAMES = (
-    "lifecycle-latency",
-    "vllm-profiling",
-    "request-driven-switch",
-    "backup-reuse-reclaim",
-    "exact-disk",
-)
-RESULTS = repository_root() / "results"
-
-
-def default_results_root() -> Path:
-    return repository_root() / "results"
+from llm_switch_bench.families import FAMILY_NAMES
+from llm_switch_bench.publication import default_results_root, family_files
 
 
 def read_json(path: Path) -> Any:
@@ -29,29 +17,28 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def family_files(family_dir: Path) -> list[str]:
-    return sorted(
-        str(path.relative_to(family_dir))
-        for path in family_dir.rglob("*")
-        if path.is_file() and path.name != "metadata.json"
-    )
-
-
 def validate_metadata(
     family_dir: Path,
     experiment: str,
     *,
-    expected_status: str = "migrated-historical-evidence",
+    expected_status: str | None = None,
 ) -> dict[str, Any]:
     metadata = read_json(family_dir / "metadata.json")
     require(metadata.get("schema_version") == 1, f"{experiment}: schema_version must be 1")
     require(metadata.get("experiment") == experiment, f"{experiment}: metadata identity mismatch")
-    require(metadata.get("status") == expected_status, f"{experiment}: result status mismatch")
-    migration = str(metadata.get("migration", "")).lower()
-    require("no new data was generated" in migration, f"{experiment}: migration disclosure missing")
+    allowed_status = {
+        "migrated-historical-evidence",
+        "retained-local-observation",
+        "local-rerun",
+    }
+    status = metadata.get("status")
+    require(status in allowed_status, f"{experiment}: result status mismatch")
+    if expected_status is not None:
+        require(status == expected_status, f"{experiment}: result status mismatch")
+    migration = metadata.get("provenance_note", metadata.get("migration"))
     require(
-        "canonical gpu rerun is not complete" in migration,
-        f"{experiment}: canonical rerun disclosure missing",
+        isinstance(migration, str) and bool(migration.strip()),
+        f"{experiment}: provenance note is missing",
     )
     declared = sorted(metadata.get("files", []))
     actual = family_files(family_dir)

@@ -1,13 +1,11 @@
 {
-  "schema_version": 1,
-  "observed_at": "2026-08-04",
   "filesystem_observation": {
-    "path": "data.bin",
-    "logical_size_bytes": 1048576000,
     "allocated_blocks": 2048008,
-    "block_size_bytes": 512,
     "allocated_bytes": 1048580096,
-    "du_bytes": 1048580096
+    "block_size_bytes": 512,
+    "logical_size_bytes": 1048576000,
+    "path": "data.bin"
   },
-  "interpretation": "The exact-disk payload occupied physical filesystem blocks at observation time; the payload itself is omitted from Git."
+  "interpretation": "Payload occupied physical filesystem blocks before omission.",
+  "schema_version": 1
 }

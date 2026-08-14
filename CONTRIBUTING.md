@@ -6,8 +6,7 @@ separate.
 
 ## Development setup
 
-LLM Switch Bench requires Python 3.12 and is installed from `src/llm_switch_bench` as
-version `0.2.0.dev0`:
+LLM Switch Bench requires Python 3.12 and is installed from `src/llm_switch_bench`.
 
 ```bash
 uv sync --frozen --group dev
@@ -58,12 +57,8 @@ exact-disk payload and per-chunk checksums.
 
 Builders must deterministically regenerate summaries, metadata, and figures from the
 tracked raw inputs. A documentation or layout refactor must not claim regenerated output as
-a new measurement. The current retained v0.1 E2E values have an explicit provenance gap:
-the producer did not runtime-bind engine/controller commits, imported path, or configuration
-hash, so they remain a historical local observation.
-
-The published `v0.1.8` tag is immutable. Make corrections on a new commit or future tag;
-never rewrite that tag to match the default-branch organization.
+a new measurement. The five current result families contain the 2026-08-13 local reruns and
+bind their runtime inputs in retained raw evidence.
 
 ## Required verification
 

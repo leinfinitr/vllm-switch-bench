@@ -1,0 +1,46 @@
+healthCheckTimeout: 360
+logLevel: info
+logToStdout: both
+startPort: 18400
+sendLoadingState: false
+unloadTimeout: 30
+models:
+  qwen-0.5b:
+    cmd: >-
+      /absolute/path/to/vllm-upstream/.venv/bin/python
+      -m vllm.entrypoints.openai.api_server
+      --model /absolute/path/to/models/Qwen2.5-0.5B-Instruct
+      --served-model-name qwen-0.5b
+      --host 127.0.0.1 --port ${PORT}
+      --max-model-len 1024 --gpu-memory-utilization 0.80
+      --dtype half --enforce-eager
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    env:
+      - PATH=/absolute/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
+  qwen-1.5b:
+    cmd: >-
+      /absolute/path/to/vllm-upstream/.venv/bin/python
+      -m vllm.entrypoints.openai.api_server
+      --model /absolute/path/to/models/Qwen2.5-1.5B-Instruct
+      --served-model-name qwen-1.5b
+      --host 127.0.0.1 --port ${PORT}
+      --max-model-len 1024 --gpu-memory-utilization 0.80
+      --dtype half --enforce-eager
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    env:
+      - PATH=/absolute/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
+  qwen-3b:
+    cmd: >-
+      /absolute/path/to/vllm-upstream/.venv/bin/python
+      -m vllm.entrypoints.openai.api_server
+      --model /absolute/path/to/models/Qwen2.5-3B-Instruct
+      --served-model-name qwen-3b
+      --host 127.0.0.1 --port ${PORT}
+      --max-model-len 1024 --gpu-memory-utilization 0.80
+      --dtype half --enforce-eager
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    env:
+      - PATH=/absolute/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin

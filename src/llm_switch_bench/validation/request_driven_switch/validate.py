@@ -5,7 +5,11 @@ import json
 import math
 from pathlib import Path
 
-from llm_switch_bench.artifacts import e2e_summary, strict_request_success
+from llm_switch_bench.experiments.request_driven_switch.artifacts import (
+    request_rows,
+    strict_request_success,
+    summary as e2e_summary,
+)
 from llm_switch_bench.common.traces import load_manifest
 from llm_switch_bench.validation.common import (
     default_results_root,
@@ -31,9 +35,12 @@ TIMING_FIELDS = ("completion_latency_ms", "semantic_ttft_ms", "dispatch_lag_ms")
 def validate_family(path: Path | None = None) -> None:
     family = path or default_results_root() / "request-driven-switch"
     metadata = validate_metadata(family, "request-driven-switch")
-    limitation = str(metadata.get("historical_provenance_limitation", "")).lower()
-    require("historical local observation" in limitation, "request: provenance limitation missing")
-    require("did not runtime-bind" in limitation, "request: exact producer limitation missing")
+    if metadata["status"] == "migrated-historical-evidence":
+        limitation = metadata.get("historical_provenance_limitation")
+        require(
+            isinstance(limitation, str) and bool(limitation.strip()),
+            "request: provenance limitation is missing",
+        )
 
     trace_path = (
         default_results_root().parent / "configs" / "traces" / "request-switch-alternating.jsonl"
@@ -45,9 +52,21 @@ def validate_family(path: Path | None = None) -> None:
 
     sequences: dict[str, list[tuple[str, str, float]]] = {}
     for system, raw_dir in SYSTEM_DIRS.items():
-        rows = json.loads(
-            (family / "raw" / raw_dir / "e2e-alternating.json").read_text(encoding="utf-8")
-        )
+        rows = request_rows(family, raw_dir)
+        if metadata["status"] == "local-rerun":
+            run = json.loads(
+                (family / "raw" / raw_dir / "e2e-alternating.run.json").read_text(encoding="utf-8")
+            )
+            require(run.get("failed") == 0, f"request: {system} run metadata reports failures")
+            benchmark = run.get("benchmark_repo", {})
+            require(
+                benchmark.get("commit") and benchmark.get("working_tree_sha256"),
+                f"request: {system} benchmark identity is incomplete",
+            )
+            require(
+                run.get("runtime_repositories") and run.get("runtime_files"),
+                f"request: {system} runtime identity is incomplete",
+            )
         require(len(rows) == len(trace_rows), f"request: {system} must have 20 requests")
         by_id = {str(row.get("request_id")): row for row in rows}
         require("None" not in by_id and len(by_id) == len(rows), f"request: {system} duplicate IDs")

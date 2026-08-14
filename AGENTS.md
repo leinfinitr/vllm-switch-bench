@@ -2,13 +2,12 @@
 
 LLM Switch Bench is an installed `src`-layout Python package. The default branch presents
 five experiment families and the deterministic CPU workflow that rebuilds and validates
-their retained artifacts. The immutable `v0.1.8` tag remains the reference for the published
-v0.1 snapshot; do not recreate its former monolithic layout on the default branch.
+their retained artifacts.
 
 ## Ownership by directory
 
 - `src/llm_switch_bench/`: all reusable Python runners, adapters, analysis, plotting,
-  artifact builders, validators, provenance helpers, and CLI implementations.
+  family-owned artifact builders, validators, provenance helpers, and CLI implementations.
 - `scripts/`: thin executable `.sh` wrappers only. A wrapper may locate the repository,
   select the locked `uv` environment, and `exec` a package module; it must not contain
   benchmark or analysis logic.
@@ -26,12 +25,13 @@ The only current result families are:
 4. `backup-reuse-reclaim`
 5. `exact-disk`
 
-Do not add another top-level result directory without changing the scientific scope,
-documentation, builder, validator, tests, and result index together.
+`src/llm_switch_bench/families.py` is the authoritative registry. Do not add another
+top-level result directory without changing the scientific scope, documentation, builder,
+validator, tests, and result index together.
 
 ## Documentation contract
 
-Every experiment document must include:
+Every experiment document should explain:
 
 - the research question;
 - metric names, units, boundaries, and success predicate;
@@ -43,10 +43,10 @@ Every experiment document must include:
   exists.
 
 Current documentation must use repository-relative paths or explicit placeholders, never a
-maintainer home directory. It must disclose that this refactor generated no new
-measurements, that no canonical GPU rerun is complete, and that v0.1 E2E values are a
-historical local observation because the producer did not runtime-bind engine/controller
-commits, imported package path, or configuration hash.
+maintainer home directory. Documentation tests verify topology and links; they must not
+prescribe prose, old numeric values, or literal sentences/headings. Scientific disclosures
+remain a review requirement: distinguish a live measurement from a rebuild, report dirty
+source state, and state family-specific provenance/comparability gaps.
 
 ## Result and provenance policy
 

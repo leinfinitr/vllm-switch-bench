@@ -2,13 +2,16 @@
   "schema_version": 1,
   "workload": "alternating model requests",
   "request_count": 20,
+  "scheduled_interval_s": 1.5,
+  "models": ["qwen-1.5b", "qwen-3b"],
+  "max_tokens": 32,
   "systems": ["Proposed", "llama-swap"],
   "request_ids": {
     "prefix": "w1-",
     "range": [0, 19],
     "format": "w1-%03d"
   },
-  "success_predicate": "HTTP 200, no error, and complete stream marker",
+  "success_predicate": "HTTP 200, no recorded error, nonempty generated text, valid terminal timing, and complete request identity",
   "metric": "request completion latency from the frozen open-loop schedule",
-  "provenance_scope": "Historical v0.1 local observation; producer rows do not runtime-bind controller or engine commits, import path, or config hash."
+  "provenance_scope": "The 2026-08-13 local rerun binds each producer to its engine/controller repository, imported module path, configuration file, executable identity, model, workload, and host environment."
 }

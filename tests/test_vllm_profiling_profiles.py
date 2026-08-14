@@ -7,13 +7,13 @@ import pytest
 from llm_switch_bench.experiments.vllm_profiling import run as bench
 
 
-def test_vllm_harness_uses_benchlib_prompt_catalog():
+def test_vllm_harness_uses_shared_prompt_catalog():
     from llm_switch_bench.common.schema import PROMPTS
 
     assert bench.PROMPTS is PROMPTS
 
 
-def test_vllm_harness_uses_benchlib_summary_writer(tmp_path):
+def test_vllm_harness_writes_summary_csv(tmp_path):
     out = tmp_path / "summary.csv"
     bench.write_summary_csv(
         out,

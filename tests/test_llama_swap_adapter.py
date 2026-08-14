@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from unittest import mock
 
 import requests
@@ -50,3 +51,40 @@ def test_running_models_raises_persistent_router_error() -> None:
 def test_local_session_bypasses_proxy_environment() -> None:
     assert llama_swap_lifecycle.local_session().trust_env is False
     assert swapservellm_lifecycle.local_session().trust_env is False
+
+
+def test_swapserve_container_image_metadata_is_stable(monkeypatch) -> None:
+    monkeypatch.setattr(
+        swapservellm_lifecycle.subprocess,
+        "check_output",
+        lambda *args, **kwargs: json.dumps(
+            [
+                {
+                    "Id": "image-id",
+                    "Digest": "sha256:digest",
+                    "RepoDigests": ["repo@sha256:b", "repo@sha256:a"],
+                    "Created": "2026-01-01T00:00:00Z",
+                    "Architecture": "amd64",
+                    "Os": "linux",
+                    "Size": 123,
+                    "Labels": {
+                        "ai.vllm.build.commit": "commit",
+                        "ai.vllm.image.tag": "vllm:v1",
+                    },
+                }
+            ]
+        ),
+    )
+
+    assert swapservellm_lifecycle.container_image_metadata("image:tag") == {
+        "reference": "image:tag",
+        "id": "image-id",
+        "digest": "sha256:digest",
+        "repo_digests": ["repo@sha256:a", "repo@sha256:b"],
+        "created": "2026-01-01T00:00:00Z",
+        "architecture": "amd64",
+        "os": "linux",
+        "size_bytes": 123,
+        "vllm_build_commit": "commit",
+        "vllm_image_tag": "vllm:v1",
+    }

@@ -1,26 +1,49 @@
 {
-  "collected_at": "2026-08-04",
+  "collected_at": "2026-08-13",
   "config": [
-    "config/campaign.json"
+    "config/campaign.json",
+    "config/swapserve-local-compat.patch"
   ],
   "experiment": "lifecycle-latency",
   "external_artifacts": {
     "SwapServeLLM": {
-      "asset_url": "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/SwapServeLLM",
-      "sha256": "7d463c42e3d0c965cba078d77a2abb053ba02f2a27a2303d32e5dccecffae091",
-      "size_bytes": 54774096
+      "path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/swapservellm-lifecycle/SwapServeLLM",
+      "sha256": "f25c63be91dc502afb9d9d2668cd07cfd76f2446d889a1b9f22ee45c3c2faa87",
+      "size_bytes": 54264152
+    },
+    "SwapServeLLM-container-image": {
+      "architecture": "amd64",
+      "created": "2026-05-29T06:57:18.414235433Z",
+      "digest": "sha256:0fec7ec5f3e6bc168e54899935fb0557da908a4832a1dbc88e2debcf2f889416",
+      "id": "6b1c0c57fe1ab30f080e2c190352889c998ce1c0c62b7a26901d3c9912b5092f",
+      "os": "linux",
+      "reference": "docker.io/vllm/vllm-openai:latest",
+      "repo_digests": [
+        "docker.io/vllm/vllm-openai@sha256:0fec7ec5f3e6bc168e54899935fb0557da908a4832a1dbc88e2debcf2f889416",
+        "docker.io/vllm/vllm-openai@sha256:69cf768308bad3a6fde6ffeffc8ba1f28433752c01e9cb53f57bfaf547cec2e1"
+      ],
+      "size_bytes": 25556995795,
+      "vllm_build_commit": "799c3afa5d5b17b676d04e0b58a5628943bb4003",
+      "vllm_image_tag": "vllm/vllm-openai:v0.22.0"
+    },
+    "SwapServeLLM-cuda-checkpoint": {
+      "path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/reproduction-20260813/tools/cuda-checkpoint",
+      "sha256": "707fa7f54136824d6c1d6dd724b9b1717610f831033c00d06da474de363a06db",
+      "size_bytes": 5976
     },
     "llama-swap-profiled": {
-      "asset_url": "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/llama-swap-profiled",
-      "sha256": "196148236fad99b32cb86c04d9297cfe0eaca68d204c920e3aeff290d04a024b",
-      "size_bytes": 20973543
+      "path": "/home/ljl/research-systems/llama-swap/build/llama-swap",
+      "sha256": "0f02045f43cd70dbee26fc08954ddb8b8193074b02d5946708b783d126dd33a6",
+      "size_bytes": 20986463
     }
   },
   "files": [
     "README.md",
     "config/campaign.json",
+    "config/swapserve-local-compat.patch",
     "figures/lifecycle-latency.pdf",
     "figures/lifecycle-latency.png",
+    "provenance.json",
     "raw/llama-swap/lifecycle.json",
     "raw/proposed/qwen-0.5b.json",
     "raw/proposed/qwen-1.5b.json",
@@ -37,19 +60,12 @@
     "summary.csv",
     "summary.json"
   ],
-  "migration": "Migrated from tracked v0.1.8 evidence; no new data was generated during this refactor. The canonical GPU rerun is not complete.",
+  "provenance_note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",
   "schema_version": 1,
   "source_commits": {
-    "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
-    "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
-    "benchmark_release_tag": "v0.1.8",
-    "controller_collection": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
-    "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
-    "vllm_collection": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
-    "vllm_stock_profiling": "03e5ae257135073ddddbcd1264697f24c1c62e08",
-    "vllm_upstream_baseline": "0decac0d96c42b49572498019f0a0e3600f50398"
+    "benchmark": "229a79ec2b0a4b37516fab8d38278ba9849054ee"
   },
-  "status": "migrated-historical-evidence",
+  "status": "local-rerun",
   "validation": {
     "aggregate_cells": 30,
     "samples_per_cell": 5

@@ -1,327 +1,560 @@
 {
-  "schema_version": 1,
-  "title": "Qwen2.5-0.5B activation latency profiling",
-  "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded.",
-  "model": "Qwen2.5-0.5B-Instruct",
-  "frozen_scope": {
-    "gpu": "NVIDIA GeForce RTX 3080 10 GiB",
-    "dtype": "float16",
-    "max_model_len": 1024,
-    "gpu_memory_utilization": 0.8,
-    "engine_mode": "eager",
-    "sample_count_per_method": 5
-  },
-  "stability_rule": {
-    "warmup": "Discard sample/cycle index 0 for every method. Cold load and stock vLLM launch fresh processes per sample; CPU backup and exact disk use repeated same-process cycles.",
-    "center": "median of the five retained total-latency samples",
-    "spread": "minimum and maximum of the five retained total-latency samples",
-    "profile": "Use the phases from the retained real sample whose total is closest to the median; ties break by sample_index. Add Control overhead = measured total - disjoint accounted phases."
-  },
-  "phase_semantics": {
-    "Process + engine startup": "Cold process creation through API health readiness; internal startup is not fully instrumented.",
-    "GPU remap": "Allocator map/create time.",
-    "CPU\u2192GPU copy": "Synchronous pinned CPU backup to GPU copy.",
-    "Checkpoint load": "vLLM L2 reload_weights HTTP step; includes layerwise checkpoint iteration/load.",
-    "KV-cache remap": "vLLM L2 wake of the KV-cache tag.",
-    "Disk read + hash + H2D pipeline": "Exact-disk overlapped pipeline wall time; read, hash, and H2D overlap and therefore are not stacked separately.",
-    "Control overhead": "Residual required to reconcile disjoint phase times to the measured total."
-  },
-  "sources": [
-    "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json",
-    "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json",
-    "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json",
-    "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json",
-    "results/tmp/exact-disk/profiling-20260812-r3/raw/exact_disk_profile.jsonl"
-  ],
-  "samples": [
-    {
-      "method": "Cold load",
-      "sample_index": 1,
-      "total_s": 11.530842403881252,
-      "phases_s": {
-        "Process + engine startup": 11.530842403881252
-      },
-      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
-    },
-    {
-      "method": "Cold load",
-      "sample_index": 2,
-      "total_s": 11.532261464744806,
-      "phases_s": {
-        "Process + engine startup": 11.532261464744806
-      },
-      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
-    },
-    {
-      "method": "Cold load",
-      "sample_index": 3,
-      "total_s": 11.532777084968984,
-      "phases_s": {
-        "Process + engine startup": 11.532777084968984
-      },
-      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
-    },
-    {
-      "method": "Cold load",
-      "sample_index": 4,
-      "total_s": 11.531383282504976,
-      "phases_s": {
-        "Process + engine startup": 11.531383282504976
-      },
-      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
-    },
-    {
-      "method": "Cold load",
-      "sample_index": 5,
-      "total_s": 11.53203934431076,
-      "phases_s": {
-        "Process + engine startup": 11.53203934431076
-      },
-      "source": "results/tmp/profiling-cold-load-20260812/20260812_162034/summary.json"
-    },
-    {
-      "method": "vLLM L1",
-      "sample_index": 1,
-      "total_s": 0.18733311537653208,
-      "phases_s": {
-        "GPU remap": 0.12625125888735056,
-        "CPU\u2192GPU copy": 0.058236091397702694,
-        "Control overhead": 0.0028457650914788246
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L1",
-      "sample_index": 2,
-      "total_s": 0.18699498288333416,
-      "phases_s": {
-        "GPU remap": 0.12611878849565983,
-        "CPU\u2192GPU copy": 0.058086021803319454,
-        "Control overhead": 0.0027901725843548775
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L1",
-      "sample_index": 3,
-      "total_s": 0.19363647978752851,
-      "phases_s": {
-        "GPU remap": 0.12719745095819235,
-        "CPU\u2192GPU copy": 0.06340752355754375,
-        "Control overhead": 0.003031505271792412
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L1",
-      "sample_index": 4,
-      "total_s": 0.18734881281852722,
-      "phases_s": {
-        "GPU remap": 0.12611446343362331,
-        "CPU\u2192GPU copy": 0.05826810095459223,
-        "Control overhead": 0.00296624843031168
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L1",
-      "sample_index": 5,
-      "total_s": 0.1872688475996256,
-      "phases_s": {
-        "GPU remap": 0.12626059725880623,
-        "CPU\u2192GPU copy": 0.05812198668718338,
-        "Control overhead": 0.0028862636536359787
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L2",
-      "sample_index": 1,
-      "total_s": 0.32498585153371096,
-      "phases_s": {
-        "GPU remap": 0.027237840928137302,
-        "Checkpoint load": 0.187942230142653,
-        "KV-cache remap": 0.10980578046292067,
-        "Control overhead": 0.0
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L2",
-      "sample_index": 2,
-      "total_s": 0.32593113649636507,
-      "phases_s": {
-        "GPU remap": 0.02763477712869644,
-        "Checkpoint load": 0.18743023462593555,
-        "KV-cache remap": 0.11086612474173307,
-        "Control overhead": 0.0
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L2",
-      "sample_index": 3,
-      "total_s": 0.3285399032756686,
-      "phases_s": {
-        "GPU remap": 0.0277024544775486,
-        "Checkpoint load": 0.18863197695463896,
-        "KV-cache remap": 0.11220547184348106,
-        "Control overhead": 0.0
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L2",
-      "sample_index": 4,
-      "total_s": 0.32915365044027567,
-      "phases_s": {
-        "GPU remap": 0.029265256598591805,
-        "Checkpoint load": 0.1889881668612361,
-        "KV-cache remap": 0.11090022698044777,
-        "Control overhead": 0.0
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "vLLM L2",
-      "sample_index": 5,
-      "total_s": 0.328838549554348,
-      "phases_s": {
-        "GPU remap": 0.02722538635134697,
-        "Checkpoint load": 0.19085499737411737,
-        "KV-cache remap": 0.11075816582888365,
-        "Control overhead": 0.0
-      },
-      "source": "results/tmp/profiling-vllm-l1-l2-20260812/20260812_161639/summary.json"
-    },
-    {
-      "method": "CPU backup",
-      "sample_index": 1,
-      "total_s": 0.3086936315521598,
-      "phases_s": {
-        "GPU remap": 0.1949998503550887,
-        "CPU\u2192GPU copy": 0.11232446786016226,
-        "Control overhead": 0.0013693133369088173
-      },
-      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
-    },
-    {
-      "method": "CPU backup",
-      "sample_index": 2,
-      "total_s": 0.291002263315022,
-      "phases_s": {
-        "GPU remap": 0.17509615793824196,
-        "CPU\u2192GPU copy": 0.114572967402637,
-        "Control overhead": 0.0013331379741430283
-      },
-      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
-    },
-    {
-      "method": "CPU backup",
-      "sample_index": 3,
-      "total_s": 0.2960092630237341,
-      "phases_s": {
-        "GPU remap": 0.18012563232332468,
-        "CPU\u2192GPU copy": 0.11454070918262005,
-        "Control overhead": 0.0013429215177893639
-      },
-      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
-    },
-    {
-      "method": "CPU backup",
-      "sample_index": 4,
-      "total_s": 0.2908336687833071,
-      "phases_s": {
-        "GPU remap": 0.17419441230595112,
-        "CPU\u2192GPU copy": 0.11545182019472122,
-        "Control overhead": 0.001187436282634735
-      },
-      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
-    },
-    {
-      "method": "CPU backup",
-      "sample_index": 5,
-      "total_s": 0.2975431075319648,
-      "phases_s": {
-        "GPU remap": 0.17836486361920834,
-        "CPU\u2192GPU copy": 0.11774761322885752,
-        "Control overhead": 0.0014306306838989258
-      },
-      "source": "results/tmp/profiling-cpu-backup-20260812/20260812_162446/repeated_sleep_l1_summary.json"
-    },
-    {
-      "method": "Exact disk",
-      "sample_index": 1,
-      "total_s": 0.7378980675712228,
-      "phases_s": {
-        "Disk read + hash + H2D pipeline": 0.49081155098974705,
-        "GPU remap": 0.23577519040554762,
-        "Control overhead": 0.011311326175928116
-      },
-      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
-    },
-    {
-      "method": "Exact disk",
-      "sample_index": 2,
-      "total_s": 0.746992027387023,
-      "phases_s": {
-        "Disk read + hash + H2D pipeline": 0.4885191135108471,
-        "GPU remap": 0.24661682825535536,
-        "Control overhead": 0.011856085620820522
-      },
-      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
-    },
-    {
-      "method": "Exact disk",
-      "sample_index": 3,
-      "total_s": 0.7315412927418947,
-      "phases_s": {
-        "Disk read + hash + H2D pipeline": 0.4908223655074835,
-        "GPU remap": 0.22890839725732803,
-        "Control overhead": 0.011810529977083206
-      },
-      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
-    },
-    {
-      "method": "Exact disk",
-      "sample_index": 4,
-      "total_s": 0.7541360650211573,
-      "phases_s": {
-        "Disk read + hash + H2D pipeline": 0.49102522898465395,
-        "GPU remap": 0.2516171419993043,
-        "Control overhead": 0.01149369403719902
-      },
-      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
-    },
-    {
-      "method": "Exact disk",
-      "sample_index": 5,
-      "total_s": 0.7561155715957284,
-      "phases_s": {
-        "Disk read + hash + H2D pipeline": 0.49312463123351336,
-        "GPU remap": 0.25148395728319883,
-        "Control overhead": 0.011506983079016209
-      },
-      "source": "results/tmp/exact-disk/profiling-20260812-r3/raw/output_observation.json"
-    }
-  ],
-  "evidence_label": "descriptive local mechanism comparison; not a release-matched system ranking",
   "comparability": {
+    "heterogeneous_conditions": [
+      "Cold/L1/L2 launch fresh service processes; CPU and disk use same-process cycles."
+    ],
+    "prohibited_claim": "Do not infer a release-matched system ranking.",
     "shared_conditions": [
       "Qwen2.5-0.5B-Instruct",
       "NVIDIA RTX 3080",
       "float16",
       "max_model_len=1024",
       "gpu_memory_utilization=0.80",
-      "eager execution",
-      "five post-warm-up samples per method"
-    ],
-    "heterogeneous_conditions": [
-      "Cold load uses upstream vLLM 0decac0d96",
-      "vLLM L1/L2 use profiling checkout 03e5ae2571",
-      "CPU backup and exact disk use vLLM Switch e45036767f",
-      "Cold/L1/L2 launch a fresh process per retained sample; CPU backup and exact disk use repeated same-process cycles"
-    ],
-    "prohibited_claim": "Do not infer a strictly fair release-matched ranking or generalize beyond this local mechanism observation."
-  }
+      "eager execution"
+    ]
+  },
+  "evidence_label": "descriptive local mechanism comparison",
+  "frozen_scope": {
+    "dtype": "float16",
+    "engine_mode": "eager",
+    "gpu": "NVIDIA GeForce RTX 3080 10 GiB",
+    "gpu_memory_utilization": 0.8,
+    "max_model_len": 1024,
+    "sample_count_per_method": 5
+  },
+  "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded.",
+  "model": "Qwen2.5-0.5B-Instruct",
+  "phase_semantics": {
+    "CPU\u2192GPU copy": "Synchronous pinned CPU backup to GPU copy.",
+    "Checkpoint load": "vLLM L2 reload_weights HTTP step.",
+    "Control overhead": "Measured total minus the disjoint instrumented phases.",
+    "Disk read + hash + H2D pipeline": "Overlapped exact-disk restore pipeline wall time.",
+    "GPU remap": "Allocator mapping/create time.",
+    "KV-cache remap": "vLLM L2 wake of the KV-cache tag.",
+    "Process + engine startup": "Fresh process creation through API health readiness."
+  },
+  "samples": [
+    {
+      "method": "Cold load",
+      "phases_s": {
+        "Process + engine startup": 11.5327333426103
+      },
+      "sample_index": 1,
+      "source": "cold-run",
+      "total_s": 11.5327333426103
+    },
+    {
+      "method": "Cold load",
+      "phases_s": {
+        "Process + engine startup": 11.535165587440133
+      },
+      "sample_index": 2,
+      "source": "cold-run",
+      "total_s": 11.535165587440133
+    },
+    {
+      "method": "Cold load",
+      "phases_s": {
+        "Process + engine startup": 11.53449880424887
+      },
+      "sample_index": 3,
+      "source": "cold-run",
+      "total_s": 11.53449880424887
+    },
+    {
+      "method": "Cold load",
+      "phases_s": {
+        "Process + engine startup": 11.534142730757594
+      },
+      "sample_index": 4,
+      "source": "cold-run",
+      "total_s": 11.534142730757594
+    },
+    {
+      "method": "Cold load",
+      "phases_s": {
+        "Process + engine startup": 11.532953223213553
+      },
+      "sample_index": 5,
+      "source": "cold-run",
+      "total_s": 11.532953223213553
+    },
+    {
+      "method": "vLLM L1",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.06001913361251354,
+        "Control overhead": 0.003004075028002262,
+        "GPU remap": 0.14303704164922237
+      },
+      "sample_index": 1,
+      "source": "stock-profile-run",
+      "total_s": 0.20606025028973818
+    },
+    {
+      "method": "vLLM L1",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.06028176099061966,
+        "Control overhead": 0.003273013047873974,
+        "GPU remap": 0.15326240938156843
+      },
+      "sample_index": 2,
+      "source": "stock-profile-run",
+      "total_s": 0.21681718342006207
+    },
+    {
+      "method": "vLLM L1",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.05970998480916023,
+        "Control overhead": 0.0033911289647221565,
+        "GPU remap": 0.1404977533966303
+      },
+      "sample_index": 3,
+      "source": "stock-profile-run",
+      "total_s": 0.20359886717051268
+    },
+    {
+      "method": "vLLM L1",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.06031166948378086,
+        "Control overhead": 0.003258754499256611,
+        "GPU remap": 0.14785046130418777
+      },
+      "sample_index": 4,
+      "source": "stock-profile-run",
+      "total_s": 0.21142088528722525
+    },
+    {
+      "method": "vLLM L1",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.05951485875993967,
+        "Control overhead": 0.002966761589050293,
+        "GPU remap": 0.15317057818174362
+      },
+      "sample_index": 5,
+      "source": "stock-profile-run",
+      "total_s": 0.21565219853073359
+    },
+    {
+      "method": "vLLM L2",
+      "phases_s": {
+        "Checkpoint load": 0.19094510190188885,
+        "Control overhead": 0.0,
+        "GPU remap": 0.03127571102231741,
+        "KV-cache remap": 0.1364150457084179
+      },
+      "sample_index": 1,
+      "source": "stock-profile-run",
+      "total_s": 0.35863585863262415
+    },
+    {
+      "method": "vLLM L2",
+      "phases_s": {
+        "Checkpoint load": 0.19151557981967926,
+        "Control overhead": 0.0,
+        "GPU remap": 0.03121224232017994,
+        "KV-cache remap": 0.1333609353750944
+      },
+      "sample_index": 2,
+      "source": "stock-profile-run",
+      "total_s": 0.3560887575149536
+    },
+    {
+      "method": "vLLM L2",
+      "phases_s": {
+        "Checkpoint load": 0.18869893811643124,
+        "Control overhead": 0.0,
+        "GPU remap": 0.030885448679327965,
+        "KV-cache remap": 0.13527622818946838
+      },
+      "sample_index": 3,
+      "source": "stock-profile-run",
+      "total_s": 0.3548606149852276
+    },
+    {
+      "method": "vLLM L2",
+      "phases_s": {
+        "Checkpoint load": 0.18578178994357586,
+        "Control overhead": 0.0,
+        "GPU remap": 0.031108040362596512,
+        "KV-cache remap": 0.1341772237792611
+      },
+      "sample_index": 4,
+      "source": "stock-profile-run",
+      "total_s": 0.3510670540854335
+    },
+    {
+      "method": "vLLM L2",
+      "phases_s": {
+        "Checkpoint load": 0.1904143299907446,
+        "Control overhead": 0.0,
+        "GPU remap": 0.031211799941956997,
+        "KV-cache remap": 0.1311754398047924
+      },
+      "sample_index": 5,
+      "source": "stock-profile-run",
+      "total_s": 0.352801569737494
+    },
+    {
+      "method": "CPU backup",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.11466838512569666,
+        "Control overhead": 0.0011839047074317932,
+        "GPU remap": 0.18503049574792385
+      },
+      "sample_index": 1,
+      "source": "proposed-cpu-run",
+      "total_s": 0.3008827855810523
+    },
+    {
+      "method": "CPU backup",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.11684370692819357,
+        "Control overhead": 0.0011262474581599236,
+        "GPU remap": 0.17415185365825891
+      },
+      "sample_index": 2,
+      "source": "proposed-cpu-run",
+      "total_s": 0.2921218080446124
+    },
+    {
+      "method": "CPU backup",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.11364636849611998,
+        "Control overhead": 0.0013613132759928703,
+        "GPU remap": 0.18269554805010557
+      },
+      "sample_index": 3,
+      "source": "proposed-cpu-run",
+      "total_s": 0.2977032298222184
+    },
+    {
+      "method": "CPU backup",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.11361574567854404,
+        "Control overhead": 0.0014833873137831688,
+        "GPU remap": 0.18380328360944986
+      },
+      "sample_index": 4,
+      "source": "proposed-cpu-run",
+      "total_s": 0.2989024166017771
+    },
+    {
+      "method": "CPU backup",
+      "phases_s": {
+        "CPU\u2192GPU copy": 0.11253361590206623,
+        "Control overhead": 0.0011963313445448875,
+        "GPU remap": 0.18486700486391783
+      },
+      "sample_index": 5,
+      "source": "proposed-cpu-run",
+      "total_s": 0.29859695211052895
+    },
+    {
+      "method": "Exact disk",
+      "phases_s": {
+        "Control overhead": 0.011964423581957817,
+        "Disk read + hash + H2D pipeline": 0.49364042188972235,
+        "GPU remap": 0.23485705349594355
+      },
+      "sample_index": 1,
+      "source": "proposed-exact-disk-run",
+      "total_s": 0.7404618989676237
+    },
+    {
+      "method": "Exact disk",
+      "phases_s": {
+        "Control overhead": 0.011587699875235558,
+        "Disk read + hash + H2D pipeline": 0.4908320140093565,
+        "GPU remap": 0.24806960206478834
+      },
+      "sample_index": 2,
+      "source": "proposed-exact-disk-run",
+      "total_s": 0.7504893159493804
+    },
+    {
+      "method": "Exact disk",
+      "phases_s": {
+        "Control overhead": 0.011089899577200413,
+        "Disk read + hash + H2D pipeline": 0.49147342424839735,
+        "GPU remap": 0.23586646374315023
+      },
+      "sample_index": 3,
+      "source": "proposed-exact-disk-run",
+      "total_s": 0.738429787568748
+    },
+    {
+      "method": "Exact disk",
+      "phases_s": {
+        "Control overhead": 0.010981274768710136,
+        "Disk read + hash + H2D pipeline": 0.49051413498818874,
+        "GPU remap": 0.25061357021331787
+      },
+      "sample_index": 4,
+      "source": "proposed-exact-disk-run",
+      "total_s": 0.7521089799702168
+    },
+    {
+      "method": "Exact disk",
+      "phases_s": {
+        "Control overhead": 0.011276217177510262,
+        "Disk read + hash + H2D pipeline": 0.49120920430868864,
+        "GPU remap": 0.23910570982843637
+      },
+      "sample_index": 5,
+      "source": "proposed-exact-disk-run",
+      "total_s": 0.7415911313146353
+    }
+  ],
+  "schema_version": 1,
+  "source_provenance": {
+    "cold-run": {
+      "behavior_config": {
+        "cuda_home": "/home/ljl/cuda-13.0",
+        "cuda_visible_devices": "0",
+        "dtype": "float16",
+        "enable_server_dev_mode": true,
+        "endpoint": "completion",
+        "enforce_eager": true,
+        "extra_vllm_arg": [],
+        "gpu_memory_utilization": 0.8,
+        "host": "127.0.0.1",
+        "idle_s": 2,
+        "load_format": "",
+        "max_model_len": 1024,
+        "methods": [
+          "cold_reload"
+        ],
+        "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "model_config_sha256": null,
+        "model_revision": null,
+        "port": 18000,
+        "prompts": [
+          "short_short"
+        ],
+        "quantization": "",
+        "ready_timeout_s": 360.0,
+        "repeats": 6,
+        "sample_interval_s": 0.5,
+        "served_model_name": "qwen-0.5b",
+        "sleep_cpu_backup_pin_memory": "auto",
+        "vllm_use_v1": "1"
+      },
+      "behavior_config_sha256": "aacbca45f0a74526541d264d7d6f91e1489236acb3d99ffdc90fe23ca9f12ffe",
+      "benchmark_repo": {
+        "branch": "refactor/open-source-quality",
+        "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+        "dirty": true,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/llm-switch-bench",
+        "tracked_dirty": true,
+        "tree": "2a1c149fa45b3ba3a2cbcc63a7bbef566714237c"
+      },
+      "engine_repo": {
+        "branch": "releases/v0.22.1",
+        "commit": "0decac0d96c42b49572498019f0a0e3600f50398",
+        "dirty": false,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/vllm-upstream",
+        "tracked_dirty": false,
+        "tree": "d5810ec63335d4c30c6ecc790261e95fba41e553"
+      },
+      "engine_runtime": {
+        "python_path": "/home/ljl/research-systems/vllm-upstream/.venv/bin/python",
+        "python_resolved_path": "/home/ljl/.local/share/uv/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "python_sha256": "34f3f446f5e1dac82d603c7b4519823eb098d3361ed517ebe9fcad1e68d06bbb",
+        "python_version": "3.14.2",
+        "torch_cuda_version": "13.0",
+        "torch_version": "2.11.0+cu130",
+        "vllm_import_path": "/home/ljl/research-systems/vllm-upstream/vllm/__init__.py",
+        "vllm_version": "0.22.1"
+      },
+      "gpu": "0, NVIDIA GeForce RTX 3080, 10240 MiB, 580.95.05",
+      "kind": "fresh-process-vllm-service",
+      "model_identity": {
+        "config_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct/config.json",
+        "config_sha256": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "config_sha256_observed": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "identity": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "resolved_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "revision": null
+      }
+    },
+    "proposed-cpu-run": {
+      "behavior_config": {
+        "coordinator_timeout_s": 0.05,
+        "coordinator_url": null,
+        "cuda_visible_devices": "0",
+        "dtype": "float16",
+        "enforce_eager": true,
+        "expect_release": false,
+        "expect_reuse": true,
+        "gpu_memory_utilization": 0.8,
+        "iterations": 6,
+        "max_model_len": 1024,
+        "min_worker_rss_reclaim_bytes": 0,
+        "post_release_observation_s": 0.0,
+        "prompt": "short_short"
+      },
+      "benchmark_repo": {
+        "branch": "refactor/open-source-quality",
+        "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+        "dirty": true,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/llm-switch-bench",
+        "tracked_dirty": true,
+        "tree": null
+      },
+      "engine_repo": {
+        "branch": "",
+        "commit": "e45036767fd017f8d03ba15003d38d75aa597f54",
+        "dirty": false,
+        "module_path": "/home/ljl/research-systems/vllm-reproduction-e450367/vllm/__init__.py",
+        "path": "/home/ljl/research-systems/vllm-reproduction-e450367",
+        "tracked_dirty": false,
+        "tree": null
+      },
+      "gpu": "0, NVIDIA GeForce RTX 3080, 10240, 580.95.05",
+      "kind": "same-process-proposed-cpu-backup",
+      "model_identity": [
+        {
+          "name": "qwen-0.5b",
+          "path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+        }
+      ],
+      "runtime": {
+        "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+        "python_executable": "/home/ljl/research-systems/vllm/.venv/bin/python"
+      }
+    },
+    "proposed-exact-disk-run": {
+      "benchmark_repo": {
+        "branch": "refactor/open-source-quality",
+        "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+        "dirty": true,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/llm-switch-bench",
+        "tracked_dirty": null,
+        "tree": null
+      },
+      "command_return_code": 0,
+      "engine_repo": {
+        "branch": "",
+        "commit": "e45036767fd017f8d03ba15003d38d75aa597f54",
+        "dirty": false,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/vllm-reproduction-e450367",
+        "tracked_dirty": null,
+        "tree": null
+      },
+      "kind": "same-process-proposed-exact-disk",
+      "model_identity": {
+        "name": "qwen-0.5b",
+        "path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct"
+      },
+      "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+      "runtime": {
+        "declared_vllm_import_path": "/home/ljl/research-systems/vllm-reproduction-e450367/vllm/__init__.py",
+        "filesystem": "/dev/nvme0n1p2 ext4 959218776 857644336  52775108  95% /",
+        "gpu": "0, NVIDIA GeForce RTX 3080, GPU-eecfa005-0ce7-4f23-5183-1340fefb0290, 10240, 580.95.05",
+        "model_config_sha256": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "model_revision": "local-files",
+        "producer_executable": "bash",
+        "selected_environment": {
+          "VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES": "16777216",
+          "VLLM_EXACT_DISK_BACKUP_DIRECT_IO": "1",
+          "VLLM_EXACT_DISK_BACKUP_ENABLED": null,
+          "VLLM_SERVER_DEV_MODE": null
+        },
+        "vllm_import_path": "/home/ljl/research-systems/vllm-reproduction-e450367/vllm/__init__.py",
+        "vllm_python": "/home/ljl/research-systems/vllm/.venv/bin/python"
+      }
+    },
+    "stock-profile-run": {
+      "behavior_config": {
+        "cuda_home": "/home/ljl/cuda-13.0",
+        "cuda_visible_devices": "0",
+        "dtype": "float16",
+        "enable_server_dev_mode": true,
+        "endpoint": "completion",
+        "enforce_eager": true,
+        "extra_vllm_arg": [],
+        "gpu_memory_utilization": 0.8,
+        "host": "127.0.0.1",
+        "idle_s": 2,
+        "load_format": "",
+        "max_model_len": 1024,
+        "methods": [
+          "sleep_l1",
+          "sleep_l2"
+        ],
+        "model": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "model_config_sha256": null,
+        "model_revision": null,
+        "port": 18000,
+        "prompts": [
+          "short_short"
+        ],
+        "quantization": "",
+        "ready_timeout_s": 360.0,
+        "repeats": 6,
+        "sample_interval_s": 0.5,
+        "served_model_name": "qwen-0.5b",
+        "sleep_cpu_backup_pin_memory": "auto",
+        "vllm_use_v1": "1"
+      },
+      "behavior_config_sha256": "4d668ecda195f5ad9026d925dab8a33a474c33d962c87a5321458cbdd275a8cb",
+      "benchmark_repo": {
+        "branch": "refactor/open-source-quality",
+        "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+        "dirty": true,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/llm-switch-bench",
+        "tracked_dirty": true,
+        "tree": "2a1c149fa45b3ba3a2cbcc63a7bbef566714237c"
+      },
+      "engine_repo": {
+        "branch": "research/sleep-mode-profiling",
+        "commit": "03e5ae257135073ddddbcd1264697f24c1c62e08",
+        "dirty": false,
+        "module_path": null,
+        "path": "/home/ljl/research-systems/vllm-stock-profile",
+        "tracked_dirty": false,
+        "tree": "ca386bda6b896a287fef91e39216e190ff8c6396"
+      },
+      "engine_runtime": {
+        "python_path": "/home/ljl/research-systems/vllm-upstream/.venv/bin/python",
+        "python_resolved_path": "/home/ljl/.local/share/uv/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "python_sha256": "34f3f446f5e1dac82d603c7b4519823eb098d3361ed517ebe9fcad1e68d06bbb",
+        "python_version": "3.14.2",
+        "torch_cuda_version": "13.0",
+        "torch_version": "2.11.0+cu130",
+        "vllm_import_path": "/home/ljl/research-systems/vllm-stock-profile/vllm/__init__.py",
+        "vllm_version": "0.22.2.dev3+g03e5ae257"
+      },
+      "gpu": "0, NVIDIA GeForce RTX 3080, 10240 MiB, 580.95.05",
+      "kind": "fresh-process-vllm-service",
+      "model_identity": {
+        "config_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct/config.json",
+        "config_sha256": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "config_sha256_observed": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "identity": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "resolved_path": "/home/ljl/models/hf/Qwen2.5-0.5B-Instruct",
+        "revision": null
+      }
+    }
+  },
+  "sources": [
+    "cold-run",
+    "stock-profile-run",
+    "proposed-cpu-run",
+    "proposed-exact-disk-run"
+  ],
+  "stability_rule": {
+    "center": "median of five retained samples",
+    "profile": "real sample nearest the median; ties use sample_index",
+    "spread": "minimum and maximum of five retained samples",
+    "warmup": "Discard sample/cycle index 0 for every method."
+  },
+  "title": "Qwen2.5-0.5B activation latency profiling"
 }

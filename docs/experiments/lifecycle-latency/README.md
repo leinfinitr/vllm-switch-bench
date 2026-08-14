@@ -1,314 +1,291 @@
-# Lifecycle latency experiment
+# Lifecycle latency
 
-## Question
+## Research question and metric
 
-Across the retained single-node, single-GPU model matrix, how long do distinct model
-**sleep** and **wake** lifecycle boundaries take for Proposed, vLLM L1, vLLM L2,
-SwapServeLLM, and llama-swap?
+How long do explicit model sleep and wake operations take across the frozen model/runtime
+matrix? `sleep_s` starts immediately before the native sleep or unload operation and ends
+when that operation returns. `wake_s` starts immediately before native wake or load and ends
+when the runtime reports ready. Both are seconds. Request queueing and inference are excluded,
+and sleep and wake are never added into a synthetic switch metric.
 
-## Metric
+Each of the 30 model/system/phase cells contains five successful cycles. The summary reports
+the median and the second/fourth order statistics as Q1/Q3. A cycle is successful only when
+both lifecycle operations return, the runtime-specific sleep postcondition holds, and
+post-wake output equals the reference output. Failed attempts stay under `results/tmp/` and
+must not be promoted.
 
-The primary metrics are `sleep_s` and `wake_s`, reported independently as the median and
-interquartile range (Q1–Q3) across five valid cycles for each of three model sizes.
-
-- For vLLM and SwapServeLLM, the values are explicit lifecycle operation durations.
-- For llama-swap, sleep and wake are source-instrumented process-state intervals, not its complete
-request latency.
-
-## Method
-
-The retained matrix covers `qwen2.5-0.5b`, `qwen2.5-1.5b`, and `qwen2.5-3b`, five cycles per
-model/system/phase. The builder reads family raw JSON, filters llama-swap rows by model,
-recomputes Q1/median/Q3, and writes 30 aggregate cells to JSON/CSV plus the figure. The
-validator requires the exact 3 × 5 × 2 matrix, five samples per cell, finite positive values,
-output equality where recorded, exact external executable contracts, and byte-for-byte
-raw-to-summary recomputation.
-
-External SwapServeLLM and profiled llama-swap executables are referenced by modified repository [SwapServeLLM](https://github.com/leinfinitr/SwapServeLLM) and [llama-swap](https://github.com/leinfinitr/llama-swap/tree/research/profiling)
+The frozen matrix is three Qwen2.5 Instruct models (0.5B, 1.5B, and 3B) and five mechanisms:
+Proposed, stock vLLM L1, stock vLLM L2, SwapServeLLM, and instrumented llama-swap. See the
+[campaign contract](../../../results/lifecycle-latency/config/campaign.json). Native
+boundaries are not identical: llama-swap observes process unload/cold start, while
+SwapServeLLM includes its checkpoint/container control path.
 
 ## Retained result
 
-The retained medians show Proposed sleep/wake at approximately 
-- `0.051/0.292 s` for `0.5B`
-- `0.106/0.337 s` for `1.5B`
-- `0.157/0.477 s` for `3B`
+The 2026-08-13 local rerun used an RTX 3080. Proposed median sleep/wake was approximately
+`0.052/0.132 s`, `0.077/0.242 s`, and `0.155/0.481 s` for 0.5B, 1.5B, and 3B. Stock vLLM L2
+median wake increased from `0.267 s` to `1.584 s`. Instrumented llama-swap wake was about
+`11.3-13.3 s`. Every retained post-wake output matched its reference.
 
-1. vLLM L1 wake medians are similar in this observation
-2. vLLM L2 wake increases from about `0.431` to `1.478 s` across the model sizes.
-3. SwapServeLLM medians range from `0.441–0.931 s` for sleep and `0.432–1.017 s` for wake.
-4. The instrumented llama-swap wake interval is much larger (about `11.273–13.276 s`).
+- [PNG figure](../../../results/lifecycle-latency/figures/lifecycle-latency.png)
+- [PDF figure](../../../results/lifecycle-latency/figures/lifecycle-latency.pdf)
+- [JSON summary](../../../results/lifecycle-latency/summary.json)
+- [CSV summary](../../../results/lifecycle-latency/summary.csv)
 
-- [Lifecycle latency figure (PNG)](../../../results/lifecycle-latency/figures/lifecycle-latency.png)
-- [Lifecycle latency figure (PDF)](../../../results/lifecycle-latency/figures/lifecycle-latency.pdf)
-- [Machine-readable summary](../../../results/lifecycle-latency/summary.json)
-- [Result-family notes](../../../results/lifecycle-latency/README.md)
+## Reproduce the measurement
 
-## Threats to validity
-
-- Only one local single-GPU environment and three Qwen model sizes are represented.
-- Five cycles per cell support descriptive medians/IQRs, not broad inferential claims.
-- Page-cache, allocator state, warmup, CUDA graph behavior, and external process startup can
-  materially affect boundaries.
-- Systems expose different native mechanisms; source-instrumented process transitions are
-  not semantically identical to in-process allocator sleep/wake.
-
-## Limitations
-
-ServerlessLLM is not in this current numeric family because its automatic scale-to-zero
-contract was not established.
-
-## Reproduce
-
-### Deterministic CPU rebuild and validation
-
-From the repository root:
+Run from the benchmark repository root on an idle GPU. Install this package in both vLLM
+environments, and use clean, pinned runtime checkouts. The runner rejects a vLLM import that
+does not come from the declared `--vllm-repo`.
 
 ```bash
 uv sync --frozen --group dev
-scripts/build_all.sh
-uv run python -m llm_switch_bench.validation.lifecycle_latency.validate
-scripts/validate_all.sh
-git diff --exit-code -- results/lifecycle-latency
+
+BENCH_ROOT=$PWD
+RUN_ROOT="$BENCH_ROOT/results/tmp/lifecycle-latency/run-001"
+PROPOSED_REPO=/path/to/vllm-switch
+PROPOSED_PYTHON="$PROPOSED_REPO/.venv/bin/python"
+STOCK_REPO=/path/to/vllm-upstream
+STOCK_PYTHON="$STOCK_REPO/.venv/bin/python"
+MODEL_ROOT=/path/to/models
+
+"$PROPOSED_PYTHON" -m pip install -e . --no-deps
+"$STOCK_PYTHON" -m pip install -e . --no-deps
 ```
 
-Repeat the build/validation/diff sequence once more to verify clean deterministic output.
-
-### Live measurement
-
-Run one external baseline at a time on an otherwise idle GPU. The commands below use the
-explicit `0.5B` path placeholders; change model-specific names, paths, ports,
-and memory budgets together for another cell. Store all generated configs, logs, profiles,
-and results under `results/tmp/`.
-
-#### Profiled llama-swap
-
-The lifecycle adapter does not launch llama-swap. It requires a llama-swap checkout with the
-opt-in lifecycle profiler and a local config whose child-process Python and `PATH` identify
-the intended vLLM environment.
-
-Build the maintained local checkout and verify its tests. Lifecycle profiling is opt-in and
-has no effect unless `LLAMA_SWAP_LIFECYCLE_PROFILE_PATH` is set:
+Collect Proposed and stock vLLM L1/L2. The 3B model uses `0.80` GPU utilization; the smaller
+models use `0.45`.
 
 ```bash
-cd /path/to/workspace
-git clone https://github.com/leinfinitr/llama-swap.git
-cd llama-swap
-git checkout research/profiling
-go test ./internal/process ./internal/router ./internal/server
-go build -o build/llama-swap .
+for spec in \
+  qwen-0.5b:Qwen2.5-0.5B-Instruct:0.45 \
+  qwen-1.5b:Qwen2.5-1.5B-Instruct:0.45 \
+  qwen-3b:Qwen2.5-3B-Instruct:0.80
+do
+  name=${spec%%:*}
+  remainder=${spec#*:}
+  directory=${remainder%%:*}
+  utilization=${spec##*:}
+
+  scripts/lifecycle-latency.sh vllm \
+    --python "$PROPOSED_PYTHON" \
+    --vllm-repo "$PROPOSED_REPO" \
+    --sleep-level 1 \
+    --model "$MODEL_ROOT/$directory" \
+    --model-name "$name" \
+    --system-name Proposed \
+    --cycles 5 \
+    --gpu-memory-utilization "$utilization" \
+    --max-model-len 1024 \
+    --dtype float16 \
+    --output "$RUN_ROOT/proposed/$name.json"
+
+  for level in 1 2
+  do
+    scripts/lifecycle-latency.sh vllm \
+      --python "$STOCK_PYTHON" \
+      --vllm-repo "$STOCK_REPO" \
+      --sleep-level "$level" \
+      --model "$MODEL_ROOT/$directory" \
+      --model-name "$name" \
+      --system-name "vLLM L$level" \
+      --cycles 5 \
+      --gpu-memory-utilization "$utilization" \
+      --max-model-len 1024 \
+      --dtype float16 \
+      --output "$RUN_ROOT/vllm-l$level/$name.json"
+  done
+done
 ```
 
-Create `results/tmp/llama-swap-lifecycle/qwen-0.5b.yaml` with this single-model config:
-
-```yaml
-healthCheckTimeout: 360
-logLevel: info
-logToStdout: both
-startPort: 18200
-sendLoadingState: false
-unloadTimeout: 30
-models:
-  qwen-0.5b:
-    cmd: >-
-      /path/to/vllm-upstream/.venv/bin/python
-      -m vllm.entrypoints.openai.api_server
-      --model /path/to/Qwen2.5-0.5B-Instruct
-      --served-model-name qwen-0.5b
-      --host 127.0.0.1 --port ${PORT}
-      --max-model-len 1024 --gpu-memory-utilization 0.45
-      --dtype half --enforce-eager --trust-remote-code
-    proxy: http://127.0.0.1:${PORT}
-    checkEndpoint: /health
-    env:
-      - CUDA_HOME=/path/to/cuda
-      - PATH=/path/to/cuda/bin:/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
-```
-
-Terminal 1 starts the instrumented proxy and retains its state-machine events:
+The external adapters consume already running services; they do not own those processes.
+Use a profiling-enabled llama-swap checkout, copy the complete template, and replace every
+`/absolute/path/...` placeholder. Keep the model names, ports, timeouts, eager mode, dtype,
+maximum length, and `0.80` utilization unchanged. Build the binary from the pinned checkout:
 
 ```bash
-cd /path/to/llm-switch-bench
-mkdir -p results/tmp/llama-swap-lifecycle
-rm -f results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl
+LLAMA_REPO=/path/to/llama-swap
+STOCK_REPO=/path/to/vllm-upstream
+LLAMA_CONFIG="$RUN_ROOT/llama-swap/config.yaml"
+LLAMA_BINARY="$LLAMA_REPO/build/llama-swap"
+LLAMA_PROFILE="$RUN_ROOT/llama-swap/profile.jsonl"
 
-LLAMA_SWAP_LIFECYCLE_PROFILE_PATH="$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl" \
-  /path/to/llama-swap/build/llama-swap \
-  --config "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.yaml" \
-  --listen 127.0.0.1:18100 \
-  2>&1 | tee results/tmp/llama-swap-lifecycle/qwen-0.5b.router.log
+mkdir -p "$RUN_ROOT/llama-swap"
+cp docs/experiments/lifecycle-latency/llama-swap.example.yaml "$LLAMA_CONFIG"
+$EDITOR "$LLAMA_CONFIG"
+
+git -C "$LLAMA_REPO" status --short --branch
+git -C "$STOCK_REPO" status --short --branch
+(
+  cd "$LLAMA_REPO"
+  go build -o "$LLAMA_BINARY" .
+)
+sha256sum "$LLAMA_CONFIG" "$LLAMA_BINARY"
 ```
 
-Terminal 2 checks the control plane and runs five complete cycles:
+Start llama-swap in this shell, retain its PID, and wait for the router. The selected
+llama-swap revision must implement `LLAMA_SWAP_LIFECYCLE_PROFILE_PATH`; an ordinary upstream
+build cannot produce the unload/load boundary consumed by this adapter.
 
 ```bash
-cd /path/to/llm-switch-bench
-curl --noproxy '*' -fsS http://127.0.0.1:18100/health
-curl --noproxy '*' -fsS http://127.0.0.1:18100/running
+LLAMA_SWAP_LIFECYCLE_PROFILE_PATH="$LLAMA_PROFILE" \
+  "$LLAMA_BINARY" \
+    --config "$LLAMA_CONFIG" \
+    --listen 127.0.0.1:18100 \
+    >"$RUN_ROOT/llama-swap/server.log" 2>&1 &
+LLAMA_PID=$!
+
+curl --retry 120 --retry-delay 1 --retry-all-errors -fsS \
+  http://127.0.0.1:18100/v1/models
 
 scripts/lifecycle-latency.sh llama-swap \
   --base-url http://127.0.0.1:18100 \
-  --models qwen-0.5b \
+  --models qwen-0.5b qwen-1.5b qwen-3b \
   --cycles 5 \
-  --unload-timeout-s 30 \
-  --repo /path/to/llama-swap \
-  --lifecycle-profile "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.profile.jsonl" \
-  --output "$PWD/results/tmp/llama-swap-lifecycle/qwen-0.5b.json"
+  --repo "$LLAMA_REPO" \
+  --config "$LLAMA_CONFIG" \
+  --binary "$LLAMA_BINARY" \
+  --lifecycle-profile "$LLAMA_PROFILE" \
+  --output "$RUN_ROOT/llama-swap/lifecycle.json"
+
+kill -TERM "$LLAMA_PID"
+wait "$LLAMA_PID" || true
 ```
 
-Stop terminal 1 with `Ctrl-C`. Confirm ports `18100` and `18200`, vLLM/EngineCore children,
-and GPU compute processes are gone before starting another model.
+SwapServeLLM requires Podman, NVIDIA CDI, `cuda-checkpoint`, and a compatible vLLM image.
+Its source dispatches on the literal image key `docker.io/vllm/vllm-openai:latest`; therefore
+resolve that tag to a deliberately selected immutable image before the run and retain the
+inspection output. Do not treat the tag itself as image identity.
 
-For the `1.5B` and `3B` cells, change the model ID, checkpoint path, profile/output filenames, and child port; run
-each model in a fresh llama-swap process. The adapter reports source-state wake
-`stopped -> starting -> ready` separately from full request latency, and requires unload,
-idle-GPU, and output-validity postconditions.
-
-#### SwapServeLLM
-
-SwapServeLLM requires rootless Podman, NVIDIA CDI, and a local vLLM image. The local
-`SwapServeLLM` checkout includes the lifecycle support needed here: explicit successful
-control responses, `--max-model-len 1024`, and an optional read-only `/models` bind mount.
+Apply the retained compatibility patch to a clean pinned checkout. It fixes lifecycle HTTP
+status handling, fixes maximum model length at 1024, and mounts the host model root read-only.
+Build one binary and record its digest:
 
 ```bash
-cd /path/to/workspace
-git clone https://github.com/leinfinitr/SwapServeLLM.git
 SWAPSERVE_REPO=/path/to/SwapServeLLM
-BENCH_REPO=/path/to/llm-switch-bench
-SETUP="$BENCH_REPO/results/tmp/swapservellm-lifecycle"
-mkdir -p "$SETUP/logs"
+SWAPSERVE_BINARY="$RUN_ROOT/swapserve/SwapServeLLM"
+CUDA_CHECKPOINT=/absolute/path/to/cuda-checkpoint
+SWAPSERVE_HOST_MODEL_ROOT=/absolute/path/to/models
 
-cd "$SWAPSERVE_REPO"
-go build \
-  -tags 'containers_image_openpgp exclude_graphdriver_btrfs' \
-  -o "$SETUP/SwapServeLLM" .
+mkdir -p "$RUN_ROOT/swapserve"
+git -C "$SWAPSERVE_REPO" status --short --branch
+git -C "$SWAPSERVE_REPO" apply --check \
+  "$BENCH_ROOT/results/lifecycle-latency/config/swapserve-local-compat.patch"
+git -C "$SWAPSERVE_REPO" apply \
+  "$BENCH_ROOT/results/lifecycle-latency/config/swapserve-local-compat.patch"
+(
+  cd "$SWAPSERVE_REPO"
+  go build -mod=vendor -o "$SWAPSERVE_BINARY" .
+)
+sha256sum "$SWAPSERVE_BINARY" "$CUDA_CHECKPOINT"
 podman image inspect docker.io/vllm/vllm-openai:latest \
-  --format '{{.Id}} {{json .RepoDigests}}'
+  >"$RUN_ROOT/swapserve/image-inspect.json"
 ```
 
-Before using a newly cloned checkout, confirm that
-`pkg/containers/vllm_launcher.go` contains `SWAPSERVE_HOST_MODEL_ROOT`; otherwise that clone
-does not yet include the required model-mount support.
-
-Create `$SETUP/config.json`; the router is fixed at port `8000` and the backend example uses
-`18081`:
-
-```json
-{
-  "swap_in_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-in.log",
-  "swap_out_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/swap-out.log",
-  "cold_start_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/cold-start.log",
-  "model_latency_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/model-latency.log",
-  "router_logfile": "/path/to/llm-switch-bench/results/tmp/swapservellm-lifecycle/logs/router.log",
-  "openai_api_key": "dummy",
-  "backend_response_timeout": 300,
-  "service_ready_timeout": 180,
-  "max_waiting_requests": 1000,
-  "hugging_face_token": "",
-  "model_list": [{
-    "backend_name": "vllm-01",
-    "model_name": "/models/hf/Qwen2.5-0.5B-Instruct",
-    "container_image": "docker.io/vllm/vllm-openai:latest",
-    "initialization_timeout": "10m",
-    "gpu_memory_utilization": "0.70",
-    "container_port": "18081"
-  }]
-}
-```
-
-Terminal 1 starts the rootless runtime and router without pulling a mutable replacement
-image. Both lowercase and uppercase no-proxy variables are intentional:
+Run one SwapServe process and one container set at a time because the router listens on fixed
+port 8000. For each model, copy
+[`swapserve.example.json`](swapserve.example.json), replace its run/log paths, backend/model
+name, container port, and model directory, then execute the following block. For example,
+the 0.5B adapter's `MODEL_IN_CONTAINER` is
+`/models/hf/Qwen2.5-0.5B-Instruct`; the other directories are analogous.
 
 ```bash
-cd /path/to/llm-switch-bench
-SETUP="$PWD/results/tmp/swapservellm-lifecycle"
-systemctl --user start podman.socket
-cd "$SETUP"
+name=qwen-0.5b
+MODEL_IN_CONTAINER=/models/hf/Qwen2.5-0.5B-Instruct
+SWAPSERVE_RUN="$RUN_ROOT/swapserve/$name"
+SWAPSERVE_CONFIG="$SWAPSERVE_RUN/config.json"
 
-PATH=/tmp/swapserve-extra:$PATH \
-SWAPSERVE_CONFIG_PATH="$SETUP/config.json" \
-SWAPSERVE_HF_CACHE=/path/to/models/hf \
-SWAPSERVE_HOST_MODEL_ROOT=/path/to/models \
-SWAPSERVE_SKIP_PULL=1 \
-OPENAI_API_KEY=dummy \
-no_proxy=127.0.0.1,localhost NO_PROXY=127.0.0.1,localhost \
-  "$SETUP/SwapServeLLM" 2>&1 | tee "$SETUP/router-process.log"
-```
+mkdir -p "$SWAPSERVE_RUN/logs" "$SWAPSERVE_RUN/runtime" "$SWAPSERVE_RUN/hf-cache"
+cp docs/experiments/lifecycle-latency/swapserve.example.json "$SWAPSERVE_CONFIG"
+$EDITOR "$SWAPSERVE_CONFIG"
+sha256sum "$SWAPSERVE_CONFIG"
 
-After `Listening and serving HTTP on 0.0.0.0:8000`, terminal 2 runs the lifecycle adapter:
+(
+  cd "$SWAPSERVE_RUN/runtime"
+  exec env \
+    SWAPSERVE_CONFIG_PATH="$SWAPSERVE_CONFIG" \
+    SWAPSERVE_HOST_MODEL_ROOT="$SWAPSERVE_HOST_MODEL_ROOT" \
+    SWAPSERVE_HF_CACHE="$SWAPSERVE_RUN/hf-cache" \
+    SWAPSERVE_SKIP_PULL=1 \
+    PATH="$(dirname "$CUDA_CHECKPOINT"):$PATH" \
+    OPENAI_API_KEY=dummy \
+    "$SWAPSERVE_BINARY"
+) >"$SWAPSERVE_RUN/server.log" 2>&1 &
+SWAPSERVE_PID=$!
 
-```bash
-cd /path/to/llm-switch-bench
-curl --noproxy '*' -fsS http://127.0.0.1:8000/v1/models
+curl --retry 360 --retry-delay 1 --retry-all-errors -fsS \
+  -H 'Authorization: Bearer dummy' http://127.0.0.1:8000/v1/models
 
 scripts/lifecycle-latency.sh swapservellm \
   --base-url http://127.0.0.1:8000 \
-  --model /models/hf/Qwen2.5-0.5B-Instruct \
+  --model "$MODEL_IN_CONTAINER" \
   --cycles 5 \
   --api-key dummy \
-  --output "$PWD/results/tmp/swapservellm-lifecycle/qwen-0.5b.json"
+  --repo "$SWAPSERVE_REPO" \
+  --config "$SWAPSERVE_CONFIG" \
+  --binary "$SWAPSERVE_BINARY" \
+  --cuda-checkpoint "$CUDA_CHECKPOINT" \
+  --container-image docker.io/vllm/vllm-openai:latest \
+  --output "$RUN_ROOT/swapserve/$name.json"
+
+kill -TERM "$SWAPSERVE_PID"
+wait "$SWAPSERVE_PID" || true
 ```
 
-Stop terminal 1, then remove only SwapServeLLM-labelled containers and stop the user socket:
+Repeat that block for 1.5B and 3B only after port 8000, run-owned containers, and GPU
+allocations from the previous model are gone. SwapServe writes `gpu_pids-*.txt` in its
+working directory, which is why every process receives a run-owned `runtime/` directory.
+
+Stop only run-owned services. Check their ports, child processes, and GPU allocations before
+continuing. Inspect every JSON file for five rows, matching output, the expected runtime
+commit/import path, and the intended configuration. Keep any failed JSON separately.
+
+## Update `results/`
+
+First stage and validate without changing tracked results. `--candidate-root` must not
+already exist.
 
 ```bash
-podman ps -aq --filter label=SwapServeLLM=1 | xargs -r podman rm -f
-systemctl --user stop podman.socket
-rm -f "$SETUP"/gpu_pids-*.txt
+scripts/promote.sh lifecycle-latency \
+  --candidate-root "$RUN_ROOT/candidate-dry" \
+  --collected-at YYYY-MM-DD \
+  --proposed "$RUN_ROOT/proposed" \
+  --vllm-l1 "$RUN_ROOT/vllm-l1" \
+  --vllm-l2 "$RUN_ROOT/vllm-l2" \
+  --swapserve "$RUN_ROOT/swapserve" \
+  --llama-swap "$RUN_ROOT/llama-swap/lifecycle.json"
 ```
 
-Confirm ports `8000` and `18081`, Podman containers, and GPU compute processes are gone.
-
-Run `1.5B` and `3B` as separate fresh router/container cells. The retained local settings
-used backend ports `18082`/`18083` and GPU utilization `0.70`/`0.80`; record this resource
-asymmetry rather than treating the rows as a same-budget mechanism comparison. SwapServeLLM
-`sleep_s` includes vLLM L1 unload, CUDA checkpoint, and container pause; `wake_s` includes
-resume, CUDA restore, readiness, and vLLM wake.
-
-#### vLLM
+Review the candidate summary, raw provenance, and figure. Apply with a new candidate root:
 
 ```bash
-cd /path/to/llm-switch-bench
+scripts/promote.sh lifecycle-latency \
+  --apply \
+  --candidate-root "$RUN_ROOT/candidate-apply" \
+  --collected-at YYYY-MM-DD \
+  --proposed "$RUN_ROOT/proposed" \
+  --vllm-l1 "$RUN_ROOT/vllm-l1" \
+  --vllm-l2 "$RUN_ROOT/vllm-l2" \
+  --swapserve "$RUN_ROOT/swapserve" \
+  --llama-swap "$RUN_ROOT/llama-swap/lifecycle.json"
 
-STAGE="$PWD/results/tmp/vllm-lifecycle"
-MODEL=/path/to/Qwen2.5-0.5B-Instruct
-PROP=/path/to/vllm-switch
-BASE=/path/to/vllm-upstream
-
-mkdir -p "$STAGE"/{proposed,vllm-l1,vllm-l2}
-
-source "$PROP/.venv/bin/activate"
-"$PROP/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
-  --sleep-level 1 \
-  --model "$MODEL" \
-  --model-name qwen-0.5b \
-  --system-name Proposed \
-  --cycles 5 \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 1024 \
-  --vllm-repo "$PROP" \
-  --output "$STAGE/proposed/qwen-0.5b.json"
-
-deactivate
-source "$BASE/.venv/bin/activate"
-"$BASE/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
-  --sleep-level 1 \
-  --model "$MODEL" \
-  --model-name qwen-0.5b \
-  --system-name "vLLM L1" \
-  --cycles 5 \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 1024 \
-  --vllm-repo "$BASE" \
-  --output "$STAGE/vllm-l1/qwen-0.5b.json"
-
-"$BASE/.venv/bin/python" -m llm_switch_bench.experiments.lifecycle_latency.run vllm \
-  --sleep-level 2 \
-  --model "$MODEL" \
-  --model-name qwen-0.5b \
-  --system-name "vLLM L2" \
-  --cycles 5 \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 1024 \
-  --vllm-repo "$BASE" \
-  --output "$STAGE/vllm-l2/qwen-0.5b.json"
+scripts/build_all.sh lifecycle-latency
+uv run python -m llm_switch_bench.validation.lifecycle_latency.validate
+git diff -- results/lifecycle-latency
 ```
+
+The replaced family is retained under `$RUN_ROOT/candidate-apply/previous/`. Run the build
+and validator again and require no second-pass diff before committing.
+
+## Threats and limitations
+
+This is one host/GPU and five observations per cell. Page cache, allocator history, CUDA
+graph state, storage, and external startup affect the boundaries. The benchmark checkout was
+dirty during collection, although its commit, status, and working-tree fingerprint are
+retained. Cross-runtime values describe native operations and do not prove semantically
+identical work, throughput, capacity, or tail behavior. SwapServe still requires a literal
+`latest` configuration key, but the adapter resolves it to and retains the local image ID,
+manifest digest, repository digests, and embedded vLLM build identity used for the run. The
+retained local vLLM rows identify model directories by path but predate model-config digest
+capture; a future rerun should close that portability gap rather than treating the path as a
+registry revision.

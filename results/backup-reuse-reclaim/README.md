@@ -8,4 +8,4 @@ Question: do repeated sleeps reuse clean CPU backups without another D2H copy, a
 - Figure: [`figures/backup-reuse.pdf`](figures/backup-reuse.pdf) ([PNG](figures/backup-reuse.png))
 - Method and limitations: [`../../docs/experiments/backup-reuse-reclaim/README.md`](../../docs/experiments/backup-reuse-reclaim/README.md)
 
-The validator checks positive reused bytes/count, zero repeated D2H time, matching requested/released bytes, zero pending accounting, and material RSS/`MemAvailable` evidence. No new measurement was run during this refactor, and the canonical GPU rerun is incomplete.
+The validator checks positive reused bytes/count, zero repeated D2H time, matching requested/released bytes, zero pending accounting, and material process-tree RSS plus `MemAvailable` recovery in a run-local coordinator settlement window. These local measurements were collected on 2026-08-13.

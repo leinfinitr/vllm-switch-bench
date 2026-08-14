@@ -11,6 +11,9 @@
     "requested_must_equal_released": true,
     "pending_release_bytes": 0,
     "pending_release_request_count": 0,
+    "physical_settlement_boundary": "A wake observation window with a positive run-local coordinator released_bytes_total delta",
+    "minimum_process_tree_rss_reclaim_bytes": 536870912,
+    "minimum_memavailable_recovery_bytes": 536870912,
     "require_memavailable_increase": true,
     "require_client_rss_decrease": true
   }

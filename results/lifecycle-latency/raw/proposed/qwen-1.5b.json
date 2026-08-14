@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-08-04T11:37:13.516255+00:00",
+  "created_at": "2026-08-13T11:33:12.098701+00:00",
   "system": "Proposed",
   "model": "qwen-1.5b",
   "model_path": "/home/ljl/models/hf/Qwen2.5-1.5B-Instruct",
@@ -8,49 +8,49 @@
   "rows": [
     {
       "cycle": 0,
-      "sleep_s": 0.11071232985705137,
-      "wake_s": 0.34164948388934135,
+      "sleep_s": 0.08207840099930763,
+      "wake_s": 0.24729630537331104,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 1,
-      "sleep_s": 0.10558245331048965,
-      "wake_s": 0.3362028365954757,
+      "sleep_s": 0.07741895131766796,
+      "wake_s": 0.24234991800040007,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 2,
-      "sleep_s": 0.10559959430247545,
-      "wake_s": 0.33664548862725496,
+      "sleep_s": 0.07702914252877235,
+      "wake_s": 0.24269506987184286,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 3,
-      "sleep_s": 0.1053255321457982,
-      "wake_s": 0.33662478160113096,
+      "sleep_s": 0.07707883603870869,
+      "wake_s": 0.24240529164671898,
       "output_match": true,
       "output": " 2023-01"
     },
     {
       "cycle": 4,
-      "sleep_s": 0.10552578512579203,
-      "wake_s": 0.33280964475125074,
+      "sleep_s": 0.0769256828352809,
+      "wake_s": 0.24224618636071682,
       "output_match": true,
       "output": " 2023-01"
     }
   ],
   "sleep_events": [
     {
-      "allocation_count": 104,
+      "allocation_count": 90,
       "backup_bytes": 3250585600,
       "backup_bytes_by_tag": {
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 3875536896,
+        "kv_cache": 293601280,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
@@ -67,31 +67,31 @@
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
       "diagnostic_only": true,
-      "discard_bytes": 3875536896,
+      "discard_bytes": 293601280,
       "discard_bytes_by_tag": {
-        "kv_cache": 3875536896
+        "kv_cache": 293601280
       },
-      "latency_s": 0.10871150903403759,
-      "monotonic_s": 7258622.314993026,
+      "latency_s": 0.08020617626607418,
+      "monotonic_s": 8035981.468142498,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 501823,
-      "schema": "aipc2.vllm.sleep-backup-profile",
+      "pid": 1894947,
+      "schema": "switch.vllm.sleep-backup-profile",
       "schema_version": 1,
-      "total_bytes": 7126122496,
-      "ts": 1785843430.328793,
-      "unmap_release_s": 0.10335395112633705
+      "total_bytes": 3544186880,
+      "ts": 1786620789.4819424,
+      "unmap_release_s": 0.07534253597259521
     },
     {
-      "allocation_count": 104,
+      "allocation_count": 90,
       "backup_bytes": 3250585600,
       "backup_bytes_by_tag": {
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 3875536896,
+        "kv_cache": 293601280,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
@@ -108,31 +108,31 @@
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
       "diagnostic_only": true,
-      "discard_bytes": 3875536896,
+      "discard_bytes": 293601280,
       "discard_bytes_by_tag": {
-        "kv_cache": 3875536896
+        "kv_cache": 293601280
       },
-      "latency_s": 0.1038325373083353,
-      "monotonic_s": 7258622.812681871,
+      "latency_s": 0.07561527751386166,
+      "monotonic_s": 8035981.839767895,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 501823,
-      "schema": "aipc2.vllm.sleep-backup-profile",
+      "pid": 1894947,
+      "schema": "switch.vllm.sleep-backup-profile",
       "schema_version": 1,
-      "total_bytes": 7126122496,
-      "ts": 1785843430.8264818,
-      "unmap_release_s": 0.10348901152610779
+      "total_bytes": 3544186880,
+      "ts": 1786620789.853568,
+      "unmap_release_s": 0.07527677714824677
     },
     {
-      "allocation_count": 104,
+      "allocation_count": 90,
       "backup_bytes": 3250585600,
       "backup_bytes_by_tag": {
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 3875536896,
+        "kv_cache": 293601280,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
@@ -149,31 +149,31 @@
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
       "diagnostic_only": true,
-      "discard_bytes": 3875536896,
+      "discard_bytes": 293601280,
       "discard_bytes_by_tag": {
-        "kv_cache": 3875536896
+        "kv_cache": 293601280
       },
-      "latency_s": 0.1036655930802226,
-      "monotonic_s": 7258623.305074567,
+      "latency_s": 0.07550715189427137,
+      "monotonic_s": 8035982.205980436,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 501823,
-      "schema": "aipc2.vllm.sleep-backup-profile",
+      "pid": 1894947,
+      "schema": "switch.vllm.sleep-backup-profile",
       "schema_version": 1,
-      "total_bytes": 7126122496,
-      "ts": 1785843431.3188746,
-      "unmap_release_s": 0.10339157842099667
+      "total_bytes": 3544186880,
+      "ts": 1786620790.2197807,
+      "unmap_release_s": 0.07524777669459581
     },
     {
-      "allocation_count": 104,
+      "allocation_count": 90,
       "backup_bytes": 3250585600,
       "backup_bytes_by_tag": {
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 3875536896,
+        "kv_cache": 293601280,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
@@ -190,31 +190,31 @@
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
       "diagnostic_only": true,
-      "discard_bytes": 3875536896,
+      "discard_bytes": 293601280,
       "discard_bytes_by_tag": {
-        "kv_cache": 3875536896
+        "kv_cache": 293601280
       },
-      "latency_s": 0.10371295735239983,
-      "monotonic_s": 7258623.797596671,
+      "latency_s": 0.0754927508533001,
+      "monotonic_s": 8035982.572515352,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 501823,
-      "schema": "aipc2.vllm.sleep-backup-profile",
+      "pid": 1894947,
+      "schema": "switch.vllm.sleep-backup-profile",
       "schema_version": 1,
-      "total_bytes": 7126122496,
-      "ts": 1785843431.8113968,
-      "unmap_release_s": 0.10342443827539682
+      "total_bytes": 3544186880,
+      "ts": 1786620790.5863156,
+      "unmap_release_s": 0.07523180637508631
     },
     {
-      "allocation_count": 104,
+      "allocation_count": 90,
       "backup_bytes": 3250585600,
       "backup_bytes_by_tag": {
         "weights": 3250585600
       },
       "bytes_by_tag": {
-        "kv_cache": 3875536896,
+        "kv_cache": 293601280,
         "weights": 3250585600
       },
       "copy_d2h_s": 0.0,
@@ -231,27 +231,27 @@
       "cpu_backup_reuse_count": 76,
       "cpu_backup_reused_bytes": 3250585600,
       "diagnostic_only": true,
-      "discard_bytes": 3875536896,
+      "discard_bytes": 293601280,
       "discard_bytes_by_tag": {
-        "kv_cache": 3875536896
+        "kv_cache": 293601280
       },
-      "latency_s": 0.10367342829704285,
-      "monotonic_s": 7258624.290216981,
+      "latency_s": 0.07550560403615236,
+      "monotonic_s": 8035982.938778377,
       "offload_tags": [
         "weights"
       ],
       "phase": "allocator_sleep",
-      "pid": 501823,
-      "schema": "aipc2.vllm.sleep-backup-profile",
+      "pid": 1894947,
+      "schema": "switch.vllm.sleep-backup-profile",
       "schema_version": 1,
-      "total_bytes": 7126122496,
-      "ts": 1785843432.3040168,
-      "unmap_release_s": 0.10338328033685684
+      "total_bytes": 3544186880,
+      "ts": 1786620790.9525785,
+      "unmap_release_s": 0.0752550233155489
     }
   ],
   "medians": {
-    "sleep_s": 0.10558245331048965,
-    "wake_s": 0.33662478160113096
+    "sleep_s": 0.07707883603870869,
+    "wake_s": 0.24240529164671898
   },
   "mechanism_check": {
     "all_outputs_match": true,
@@ -261,12 +261,25 @@
   "environment": {
     "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
     "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/usr/bin/python3.12",
     "gpu": "NVIDIA GeForce RTX 3080, 10240, 580.95.05",
+    "benchmark": {
+      "path": "/home/ljl/research-systems/llm-switch-bench",
+      "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
+      "branch": "refactor/open-source-quality",
+      "dirty": true,
+      "status_porcelain": "M .github/workflows/ci.yml\n M AGENTS.md\n M README.md\n D configs/traces/request-switch-burst.jsonl\n D configs/traces/request-switch-steady.jsonl\n M docs/README.md\n D docs/baselines/baseline1-vllm-cold-reload.md\n D docs/baselines/baseline2-vllm-sleep-mode.md\n M docs/experiments/backup-reuse-reclaim/README.md\n M docs/experiments/exact-disk/README.md\n M docs/experiments/lifecycle-latency/README.md\n M docs/experiments/request-driven-switch/README.md\n M docs/experiments/vllm-profiling/README.md\n D docs/systems/llama-swap.md\n D docs/systems/serverlessllm.md\n D docs/systems/swapservellm.md\n M pyproject.toml\n M results/backup-reuse-reclaim/config/claims.json\n M results/backup-reuse-reclaim/metadata.json\n D results/backup-reuse-reclaim/raw/proposed/controller-pressure-release.json\n D results/backup-reuse-reclaim/raw/proposed/qwen-0.5b.json\n D results/backup-reuse-reclaim/raw/proposed/qwen-1.5b.json\n D results/backup-reuse-reclaim/raw/proposed/qwen-3b.json\n M results/backup-reuse-reclaim/summary.json\n M results/exact-disk/config/claims.json\n M results/exact-disk/figures/exact-disk.pdf\n M results/exact-disk/figures/exact-disk.png\n M results/exact-disk/metadata.json\n M results/exact-disk/raw/exact-disk/bundle-COMMIT\n M results/exact-disk/raw/exact-disk/bundle-manifest.json\n M results/exact-disk/raw/exact-disk/disk-footprint.json\n M results/exact-disk/raw/exact-disk/exact_disk_profile.jsonl\n M results/exact-disk/raw/exact-disk/output_observation.json\n M results/exact-disk/raw/exact-disk/payload-hash.json\n M results/exact-disk/raw/exact-disk/run-metadata.json\n M results/exact-disk/summary.json\n M results/lifecycle-latency/figures/lifecycle-latency.pdf\n M results/lifecycle-latency/figures/lifecycle-latency.png\n M results/lifecycle-latency/metadata.json\n M results/lifecycle-latency/raw/llama-swap/lifecycle.json\n M results/lifecycle-latency/raw/proposed/qwen-0.5b.json\n M results/lifecycle-latency/raw/proposed/qwen-1.5b.json\n M results/lifecycle-latency/raw/proposed/qwen-3b.json\n M results/lifecycle-latency/raw/swapserve/qwen-0.5b.json\n M results/lifecycle-latency/raw/swapserve/qwen-1.5b.json\n M results/lifecycle-latency/raw/swapserve/qwen-3b.json\n M results/lifecycle-latency/raw/vllm-l2/qwen-0.5b.json\n M results/lifecycle-latency/raw/vllm-l2/qwen-1.5b.json\n M results/lifecycle-latency/raw/vllm-l2/qwen-3b.json\n M results/lifecycle-latency/raw/vllm-stock/qwen-0.5b.json\n M results/lifecycle-latency/raw/vllm-stock/qwen-1.5b.json\n M results/lifecycle-latency/raw/vllm-stock/qwen-3b.json\n M results/lifecycle-latency/summary.csv\n M results/lifecycle-latency/summary.json\n M results/request-driven-switch/config/workload.json\n M results/request-driven-switch/figures/request-timeline.pdf\n M results/request-driven-switch/figures/request-timeline.png\n M results/request-driven-switch/metadata.json\n D results/request-driven-switch/raw/llama-swap/e2e-alternating.json\n M results/request-driven-switch/raw/llama-swap/e2e-alternating.jsonl\n D results/request-driven-switch/raw/proposed/e2e-alternating.json\n M results/request-driven-switch/raw/proposed/e2e-alternating.jsonl\n M results/request-driven-switch/summary.json\n M results/vllm-profiling/figures/vllm-profiling.pdf\n M results/vllm-profiling/figures/vllm-profiling.png\n M results/vllm-profiling/metadata.json\n M results/vllm-profiling/raw/profile-samples.json\n M results/vllm-profiling/summary.json\n M scripts/README.md\n M scripts/build_all.sh\n D scripts/exact-disk-build.sh\n D scripts/exact-disk-run.sh\n D scripts/exact-disk-validate.sh\n D scripts/request-driven-switch-matrix.sh\n D scripts/run_profiling.sh\n D scripts/vllm-profiling-build.sh\n D scripts/vllm-profiling-plot.sh\n D scripts/vllm-profiling-validate.sh\n M src/README.md\n M src/llm_switch_bench/adapters/llama_swap_lifecycle.py\n D src/llm_switch_bench/adapters/serverlessllm.py\n D src/llm_switch_bench/adapters/serverlessllm_lifecycle.py\n D src/llm_switch_bench/adapters/swapservellm.py\n M src/llm_switch_bench/adapters/swapservellm_lifecycle.py\n M src/llm_switch_bench/adapters/vllm_lifecycle.py\n D src/llm_switch_bench/analysis.py\n M src/llm_switch_bench/artifacts.py\n D src/llm_switch_bench/build_all.py\n M src/llm_switch_bench/check_docs.py\n D src/llm_switch_bench/common/analyze_results.py\n D src/llm_switch_bench/common/merge_results.py\n M src/llm_switch_bench/common/provenance.py\n D src/llm_switch_bench/common/summarize_memory.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/cumem_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pcie_microbench.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pin_compare.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/plot.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/pool_plot.py\n M src/llm_switch_bench/experiments/backup_reuse_reclaim/run.py\n D src/llm_switch_bench/experiments/backup_reuse_reclaim/safetensor_microbench.py\n D src/llm_switch_bench/experiments/exact_disk/allocator_driver.py\n M src/llm_switch_bench/experiments/lifecycle_latency/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/analyze.py\n D src/llm_switch_bench/experiments/request_driven_switch/matrix.py\n D src/llm_switch_bench/experiments/request_driven_switch/plot.py\n M src/llm_switch_bench/experiments/request_driven_switch/run.py\n D src/llm_switch_bench/experiments/request_driven_switch/run_matrix.py\n D src/llm_switch_bench/plotting/legacy_comparison.py\n M src/llm_switch_bench/validation/backup_reuse_reclaim/validate.py\n M src/llm_switch_bench/validation/common.py\n M src/llm_switch_bench/validation/exact_disk/validate.py\n M src/llm_switch_bench/validation/lifecycle_latency/validate.py\n M src/llm_switch_bench/validation/request_driven_switch/validate.py\n M src/llm_switch_bench/validation/validate_all.py\n M src/llm_switch_bench/validation/vllm_profiling/validate.py\n D tests/test_analysis.py\n D tests/test_analyze_request_switch.py\n D tests/test_analyze_results.py\n M tests/test_artifacts_and_validators.py\n D tests/test_bench_request_driven_switch.py\n D tests/test_bench_serverless_llm.py\n D tests/test_bench_swapservellm.py\n D tests/test_bench_vllm_repeated_sleep_l1.py\n D tests/test_benchlib_resources.py\n D tests/test_benchlib_sampling.py\n D tests/test_benchlib_schema.py\n D tests/test_plot_request_switch.py\n D tests/test_run_cross_system_matrix.py\n M tests/test_vllm_profiling_profiles.py\n M uv.lock\n?? gpu_pids-1d2297f72cbc2bda84b231a6461c1d08783a767dc711869be7e8227c92956a07.txt\n?? gpu_pids-56a9940600a474afdcb3541cb0fed318940c5da2737c0b847dbc129f5fd5c240.txt\n?? gpu_pids-70ec28abd1ebbc899d00c8ebd80214f4fef420d8269db06661a5a524eec724f9.txt\n?? gpu_pids-846201a85c3a458a3d736623870032caede10dfb3921ecba36c066dc21040b98.txt\n?? results/backup-reuse-reclaim/provenance.json\n?? results/backup-reuse-reclaim/raw/proposed/reclaim.json\n?? results/backup-reuse-reclaim/raw/proposed/reuse/qwen-0.5b.json\n?? results/backup-reuse-reclaim/raw/proposed/reuse/qwen-1.5b.json\n?? results/backup-reuse-reclaim/raw/proposed/reuse/qwen-3b.json\n?? results/exact-disk/provenance.json\n?? results/lifecycle-latency/provenance.json\n?? results/request-driven-switch/provenance.json\n?? results/request-driven-switch/raw/llama-swap/e2e-alternating.run.json\n?? results/request-driven-switch/raw/proposed/e2e-alternating.run.json\n?? results/vllm-profiling/provenance.json\n?? scripts/exact-disk.sh\n?? scripts/promote.sh\n?? src/llm_switch_bench/common/environment.py\n?? src/llm_switch_bench/experiments/backup_reuse_reclaim/artifacts.py\n?? src/llm_switch_bench/experiments/exact_disk/artifacts.py\n?? src/llm_switch_bench/experiments/lifecycle_latency/artifacts.py\n?? src/llm_switch_bench/experiments/request_driven_switch/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/artifacts.py\n?? src/llm_switch_bench/experiments/vllm_profiling/compile.py\n?? src/llm_switch_bench/families.py\n?? src/llm_switch_bench/promotion.py\n?? src/llm_switch_bench/publication.py\n?? tests/test_backup_reuse_reclaim.py\n?? tests/test_environment.py\n?? tests/test_promotion.py\n?? tests/test_request_driven_switch.py\n?? tests/test_resources.py\n?? tests/test_sampling.py\n?? tests/test_schema.py",
+      "working_tree_sha256": "2eb91b8bf1a70995c0f694cf2aa565bb163ae353ea69d4b8a9802fe4f7039180"
+    },
     "vllm": {
-      "path": "/home/ljl/research-systems/vllm",
-      "commit": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
-      "tracked_dirty": false
+      "path": "/home/ljl/research-systems/vllm-reproduction-e450367",
+      "commit": "e45036767fd017f8d03ba15003d38d75aa597f54",
+      "branch": "",
+      "dirty": false,
+      "status_porcelain": "",
+      "working_tree_sha256": "e5c6eea0e6fcc74c24c1a9a4fc1ce7c3430e21e444251ec2905cd32879945da8",
+      "module_path": "/home/ljl/research-systems/vllm-reproduction-e450367/vllm/__init__.py"
     }
   },
-  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/final-v0.1-campaign/vllm/raw/proposed/qwen-1.5b.sleep_profile.jsonl"
+  "profile_path": "/home/ljl/research-systems/llm-switch-bench/results/tmp/reproduction-20260813/lifecycle-bound/proposed/qwen-1.5b.sleep_profile.jsonl"
 }

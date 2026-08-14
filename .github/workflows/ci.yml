@@ -59,8 +59,9 @@ jobs:
             llm-switch-validate-all \
             llm-switch-check-docs \
             llm-switch-lifecycle \
-            llm-switch-trace-matrix \
-            llm-switch-backup \
+            llm-switch-vllm-profiling \
+            llm-switch-request-driven-switch \
+            llm-switch-backup-reuse-reclaim \
             llm-switch-exact-disk; do
             ".venv-wheel/bin/$command" --help >/dev/null
           done

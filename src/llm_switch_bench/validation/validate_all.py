@@ -1,32 +1,26 @@
 from __future__ import annotations
 
 import argparse
+from importlib import import_module
 from pathlib import Path
+from typing import Callable
 
-from llm_switch_bench.validation.backup_reuse_reclaim.validate import (
-    validate_family as validate_backup,
-)
+from llm_switch_bench.families import FAMILIES
 from llm_switch_bench.validation.common import default_results_root, validate_top_level_results
-from llm_switch_bench.validation.exact_disk.validate import validate_family as validate_exact_disk
-from llm_switch_bench.validation.lifecycle_latency.validate import (
-    validate_family as validate_lifecycle,
-)
-from llm_switch_bench.validation.request_driven_switch.validate import (
-    validate_family as validate_request,
-)
-from llm_switch_bench.validation.vllm_profiling.validate import (
-    validate_family as validate_vllm_profiling,
-)
+
+Validator = Callable[[Path | None], None]
+
+
+def _load_validator(target: str) -> Validator:
+    module_name, attribute = target.split(":", maxsplit=1)
+    return getattr(import_module(module_name), attribute)
 
 
 def validate_all(results_root: Path | None = None) -> None:
     root = results_root or default_results_root()
     validate_top_level_results(root)
-    validate_lifecycle(root / "lifecycle-latency")
-    validate_vllm_profiling(root / "vllm-profiling")
-    validate_request(root / "request-driven-switch")
-    validate_backup(root / "backup-reuse-reclaim")
-    validate_exact_disk(root / "exact-disk")
+    for family in FAMILIES:
+        _load_validator(family.validator)(root / family.slug)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -38,6 +32,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    import sys
-
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(main())

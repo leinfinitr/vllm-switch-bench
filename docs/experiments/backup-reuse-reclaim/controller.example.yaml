@@ -1,0 +1,25 @@
+models:
+  qwen-0.5b:
+    backend_url: http://127.0.0.1:19401
+    served_model_name: qwen-0.5b
+    sleep_level: 1
+    wake_tags: null
+controller:
+  host: 127.0.0.1
+  port: 19400
+  policy: always_sleep_previous
+  startup_awake_model: null
+  request_timeout_s: 600
+  switch_timeout_s: 600
+  metrics_path: /absolute/run/root/reclaim/controller-events.jsonl
+  cpu_memory_reclaim_available_ratio: null
+  cpu_memory_recovery_available_ratio: null
+  cpu_memory_reclaim_available_bytes: 64000000000
+  cpu_memory_recovery_available_bytes: 65000000000
+  cpu_memory_poll_interval_s: 0.1
+  cpu_memory_pressure_consecutive_samples: 1
+  cpu_memory_reclaim_cooldown_s: 0.0
+  cpu_backup_global_cap_bytes: null
+  cpu_backup_default_model_priority: 0
+  cpu_backup_model_priorities:
+    qwen-0.5b: 0

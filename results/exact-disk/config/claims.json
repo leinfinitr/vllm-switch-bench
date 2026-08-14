@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "payload_size_bytes": 1048576000,
+  "lifecycle_cycles": 6,
+  "post_warmup_samples": 5,
   "required_phases": ["exact_disk_spill", "exact_disk_demotion", "allocator_sleep"],
   "require_payload_hash": true,
   "require_segment_and_chunk_checksums": true,

@@ -23,13 +23,7 @@ and evaluating the following runtime capabilities with [vLLM-Switch](https://git
 | [Exact disk](docs/experiments/exact-disk/README.md) | Can exact runtime bytes survive CPU-backup release and restore from disk? | Spill/read/release bytes, payload integrity, output equality | [PNG](results/exact-disk/figures/exact-disk.png) · [PDF](results/exact-disk/figures/exact-disk.pdf) |
 
 Each experiment document states its question, metric, method, retained result, threats,
-limitations, and reproduction path.
-
-The default-branch refactor and this family reorganization generated no new measurements:
-no new data was generated. The canonical GPU rerun is not complete. The v0.1 end-to-end
-values remain a historical local observation because their producer did not runtime-bind
-engine/controller commits, imported package paths, or a behavior-affecting configuration
-hash.
+limitations, and an ordered measurement-to-promotion runbook.
 
 ## Repository layout
 
@@ -54,7 +48,7 @@ uv run ruff check src tests
 uv run ruff format --check src tests
 # Check the Bash syntax of every top-level shell wrapper.
 scripts/check_bash.sh
-# Enforce the required documentation structure, disclosures, and live-run markers.
+# Check the five-family documentation topology and local links.
 scripts/docs.sh
 ```
 
@@ -80,5 +74,4 @@ requires `git ls-files -ci --exclude-standard` to be empty.
 ## License and citation
 
 Code is released under the [Apache License 2.0](LICENSE). Citation metadata is in
-[`CITATION.cff`](CITATION.cff); use the immutable `v0.1.8` tag when citing that published
-snapshot and the commit identity when citing current development work.
+[`CITATION.cff`](CITATION.cff).

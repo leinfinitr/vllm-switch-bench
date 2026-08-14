@@ -8,7 +8,6 @@ from collections.abc import Sequence
 
 from llm_switch_bench.adapters import (
     llama_swap_lifecycle,
-    serverlessllm_lifecycle,
     swapservellm_lifecycle,
     vllm_lifecycle,
 )
@@ -17,7 +16,6 @@ SYSTEMS = {
     "vllm": vllm_lifecycle.main,
     "llama-swap": llama_swap_lifecycle.main,
     "swapservellm": swapservellm_lifecycle.main,
-    "serverlessllm": serverlessllm_lifecycle.main,
 }
 
 

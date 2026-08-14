@@ -1,0 +1,22 @@
+{
+  "swap_in_logfile": "/absolute/run/root/logs/swap-in.log",
+  "swap_out_logfile": "/absolute/run/root/logs/swap-out.log",
+  "cold_start_logfile": "/absolute/run/root/logs/cold-start.log",
+  "model_latency_logfile": "/absolute/run/root/logs/model-latency.log",
+  "router_logfile": "/absolute/run/root/logs/router.log",
+  "openai_api_key": "dummy",
+  "backend_response_timeout": 300,
+  "service_ready_timeout": 360,
+  "max_waiting_requests": 1000,
+  "hugging_face_token": "",
+  "model_list": [
+    {
+      "backend_name": "vllm-qwen-0.5b",
+      "model_name": "/models/hf/Qwen2.5-0.5B-Instruct",
+      "container_image": "docker.io/vllm/vllm-openai:latest",
+      "initialization_timeout": "10m",
+      "gpu_memory_utilization": "0.80",
+      "container_port": "18601"
+    }
+  ]
+}

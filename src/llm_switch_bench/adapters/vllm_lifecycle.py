@@ -23,16 +23,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
-def git_metadata(path: Path) -> dict[str, Any]:
-    def run(*args: str) -> str:
-        return subprocess.check_output(["git", "-C", str(path), *args], text=True).strip()
-
-    return {
-        "path": str(path.resolve()),
-        "commit": run("rev-parse", "HEAD"),
-        "tracked_dirty": bool(run("status", "--short", "--untracked-files=no")),
-    }
+from llm_switch_bench.common.environment import reexec_with_python
+from llm_switch_bench.common.provenance import file_metadata, git_metadata, repository_root
 
 
 def gpu() -> str:
@@ -47,7 +39,13 @@ def gpu() -> str:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    values = list(argv) if argv is not None else sys.argv[1:]
     parser = argparse.ArgumentParser(description="Measure in-process vLLM sleep and wake phases.")
+    parser.add_argument(
+        "--python",
+        default=sys.executable,
+        help="Python executable from the vLLM environment used for this measurement.",
+    )
     parser.add_argument("--sleep-level", type=int, choices=[1, 2], default=1)
     parser.add_argument("--model", required=True)
     parser.add_argument("--model-name", required=True)
@@ -58,7 +56,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--dtype", default="float16")
     parser.add_argument("--vllm-repo", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args(argv)
+    args = parser.parse_args(values)
+    reexec_with_python(
+        args.python,
+        "llm_switch_bench.experiments.lifecycle_latency.run",
+        ["vllm", *values],
+        workdir=args.vllm_repo,
+        import_root=args.vllm_repo,
+    )
 
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     os.environ["VLLM_USE_V1"] = "1"
@@ -68,7 +73,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     profile.unlink(missing_ok=True)
     os.environ["VLLM_SLEEP_PROFILE_PATH"] = str(profile)
 
+    import vllm
     from vllm import LLM, SamplingParams
+
+    imported_vllm = Path(vllm.__file__).resolve()
+    expected_vllm = args.vllm_repo.resolve(strict=True)
+    if not imported_vllm.is_relative_to(expected_vllm):
+        raise RuntimeError(
+            f"imported vLLM from {imported_vllm}, outside --vllm-repo {expected_vllm}"
+        )
+    model_path = Path(args.model).expanduser().resolve(strict=True)
+    model_config = model_path / "config.json"
 
     params = SamplingParams(temperature=0, seed=1, max_tokens=8)
     prompt = "Reply with exactly OK."
@@ -127,7 +142,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "system": args.system_name,
         "model": args.model_name,
-        "model_path": str(Path(args.model).resolve()),
+        "model_path": str(model_path),
+        "model_identity": {
+            "path": str(model_path),
+            "config": file_metadata(model_config) if model_config.is_file() else None,
+        },
         "cycles": args.cycles,
         "sleep_level": args.sleep_level,
         "rows": rows,
@@ -152,8 +171,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "environment": {
             "platform": platform.platform(),
             "python": sys.version,
+            "python_executable": str(Path(sys.executable).resolve()),
             "gpu": gpu(),
-            "vllm": git_metadata(args.vllm_repo),
+            "benchmark": git_metadata(repository_root()),
+            "vllm": {
+                **git_metadata(args.vllm_repo),
+                "module_path": str(imported_vllm),
+            },
         },
         "profile_path": str(profile),
     }

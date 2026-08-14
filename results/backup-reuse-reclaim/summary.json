@@ -1,15 +1,15 @@
 {
   "reclaim": {
     "client_rss_delta_bytes": {
-      "release-v0.1-qwen-0.5b-455152-1785839128055053072": -1847554048,
-      "release-v0.1-qwen-1.5b-455321-1785839141047152084": 0
+      "benchmark_process_tree": -1847525376
     },
     "flush_success": true,
-    "memavailable_delta_bytes": 1678163968,
+    "memavailable_delta_bytes": 1916854272,
     "pending_release_bytes": 0,
     "pending_release_request_count": 0,
-    "released_delta_bytes": 1048576000,
-    "requested_bytes": 1048576000
+    "physical_settlement_windows": 1,
+    "released_delta_bytes": 2097152000,
+    "requested_bytes": 2097152000
   },
   "reuse": [
     {

@@ -2,15 +2,17 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Sequence
 import json
 import statistics
 import subprocess
 import time
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import requests
+
+from llm_switch_bench.common.provenance import file_metadata, git_metadata, repository_root
 
 
 def local_session() -> requests.Session:
@@ -29,6 +31,34 @@ def gpu_used() -> int:
         text=True,
     ).strip()
     return sum(int(line) for line in text.splitlines() if line.strip())
+
+
+def container_image_metadata(reference: str) -> dict[str, Any]:
+    """Resolve a mutable service image name to the exact local image used."""
+
+    payload = json.loads(
+        subprocess.check_output(
+            ["podman", "image", "inspect", reference],
+            text=True,
+            timeout=30,
+        )
+    )
+    if not isinstance(payload, list) or len(payload) != 1:
+        raise RuntimeError(f"podman returned ambiguous image metadata for {reference}")
+    image = payload[0]
+    labels = image.get("Labels") or image.get("Config", {}).get("Labels") or {}
+    return {
+        "reference": reference,
+        "id": image.get("Id"),
+        "digest": image.get("Digest"),
+        "repo_digests": sorted(image.get("RepoDigests") or []),
+        "created": image.get("Created"),
+        "architecture": image.get("Architecture"),
+        "os": image.get("Os"),
+        "size_bytes": image.get("Size"),
+        "vllm_build_commit": labels.get("ai.vllm.build.commit"),
+        "vllm_image_tag": labels.get("ai.vllm.image.tag"),
+    }
 
 
 def infer(base: str, model: str, api_key: str) -> str:
@@ -61,6 +91,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--cycles", type=int, default=5)
     parser.add_argument("--api-key", default="dummy")
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument(
+        "--cuda-checkpoint",
+        type=Path,
+        required=True,
+        help="cuda-checkpoint executable invoked by SwapServeLLM.",
+    )
+    parser.add_argument(
+        "--container-image",
+        required=True,
+        help="Image reference configured in SwapServeLLM, resolved with Podman.",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     reference = infer(args.base_url, args.model, args.api_key)
@@ -88,6 +132,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             "wake_s": statistics.median(row["wake_s"] for row in rows),
         },
         "all_outputs_match": all(row["output_match"] for row in rows),
+        "environment": {
+            "benchmark_repo": git_metadata(repository_root()),
+            "swapserve_repo": git_metadata(args.repo),
+            "config": file_metadata(args.config),
+            "binary": file_metadata(args.binary),
+            "cuda_checkpoint": file_metadata(args.cuda_checkpoint),
+            "container_image": container_image_metadata(args.container_image),
+        },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")

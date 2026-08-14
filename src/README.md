@@ -1,41 +1,27 @@
 # Installed source package
 
-`src/llm_switch_bench/` is the single home for reusable Python code. The project uses a
-standard installed `src` layout and currently reports version `0.2.0.dev0`:
-
-```bash
-uv sync --frozen --group dev
-uv run python -c 'import llm_switch_bench; print(llm_switch_bench.__version__)'
-```
-
-Do not run source files by path or depend on implicit `sys.path` behavior. Use installed
-console commands, `python -m llm_switch_bench...`, or the thin wrappers in `scripts/`.
+`src/llm_switch_bench/` is the single home for reusable Python code. Install the package;
+do not run source files by path or rely on an implicit `PYTHONPATH`.
 
 ## Package map
 
-| Package | Responsibility |
+| Path | Responsibility |
 |---|---|
-| `adapters/` | External-system lifecycle and request adapters for vLLM, llama-swap, SwapServeLLM, and ServerlessLLM |
-| `common/` | HTTP, frozen traces, schemas, sampling, process/host resources, merge/analysis helpers, and provenance |
-| `experiments/lifecycle_latency/` | Cross-system lifecycle adapter dispatch |
-| `experiments/vllm_profiling/` | vLLM server runner plus retained-profile aggregation and plotting |
-| `experiments/request_driven_switch/` | Strict open-loop trace replay, repeated/randomized matrices, analysis, and plotting |
-| `experiments/backup_reuse_reclaim/` | Same-process backup reuse/reclaim runner and focused CUDA/pinning microbenchmarks |
-| `experiments/exact_disk/` | Runtime wrapper, allocator/lifecycle drivers, evidence collection, and runtime digest handling |
-| `plotting/` | Deterministic shared figure style and save behavior |
-| `analysis.py` | Legacy cross-family local-run aggregation kept outside any single experiment family |
-| `validation/` | Family-specific semantic validators and exact top-level result policy |
-| `artifacts.py` | Deterministic builders for all five retained result families |
-| `build_all.py` | No-argument all-family build command |
-| `check_docs.py` | Current documentation disclosure/reference policy |
-| `tracked_ignore.py` | Tracked-versus-ignore consistency gate |
+| `adapters/` | Lifecycle contracts for vLLM, llama-swap, and SwapServeLLM |
+| `common/` | HTTP, traces, schemas, sampling, process resources, and provenance |
+| `experiments/<family>/run.py` | Live producer or adapter dispatcher for one experiment |
+| `experiments/<family>/artifacts.py` | Family-owned summary, figure, and publication builder |
+| `families.py` | Authoritative five-family registry |
+| `publication.py` | Shared JSON, metadata, and result-publication mechanics |
+| `artifacts.py` | Registry-driven build command |
+| `validation/` | Family-specific semantic validators and registry-driven validation |
+| `plotting/` | Shared deterministic figure style |
+| `check_docs.py` | Documentation topology and link checker |
 
-CUDA and vLLM imports are kept inside GPU-specific modules so the core package, builders,
-validators, and CLI help paths remain usable in CPU development and packaging environments.
+GPU-specific dependencies are imported inside live runner functions so builders, validators,
+CLI help, and package imports remain usable in CPU environments.
 
-## Installed console commands
-
-`pyproject.toml` exposes:
+## Console commands
 
 ```text
 llm-switch-build-all
@@ -43,62 +29,22 @@ llm-switch-validate-all
 llm-switch-check-docs
 llm-switch-lifecycle
 llm-switch-vllm-profiling
-llm-switch-trace-matrix
-llm-switch-backup
+llm-switch-request-driven-switch
+llm-switch-backup-reuse-reclaim
 llm-switch-exact-disk
 ```
 
-The first three are CPU policy/publication commands. The experiment commands can launch or
-interact with runtime services and may require a compatible CUDA/vLLM or external-system
-environment. Use `--help` for their exact arguments; [`../scripts/README.md`](../scripts/README.md)
-maps the shell wrappers to modules.
+The first three operate on retained repository artifacts. The five experiment commands can
+launch or contact runtime services; use their `--help` output and the corresponding
+[`docs/experiments/`](../docs/experiments/) protocol.
 
-## Current publication path
+## Design rules
 
-The builder reads tracked raw evidence from:
-
-```text
-results/lifecycle-latency/raw/
-results/vllm-profiling/raw/
-results/request-driven-switch/raw/
-results/backup-reuse-reclaim/raw/
-results/exact-disk/raw/
-```
-
-It deterministically regenerates summaries, figures, result-family READMEs, and metadata.
-Validators then recompute summary values and enforce experiment semantics. This path creates
-no new measurements and does not require a GPU:
-
-```bash
-uv run python -m llm_switch_bench.build_all
-uv run python -m llm_switch_bench.validation.validate_all
-git diff --exit-code -- results
-```
-
-Git identifies tracked repository files, so package code does not generate whole-tree digest
-lists. It deliberately retains cryptographic identity for external lifecycle executables and
-for exact-disk runtime payload/chunk bytes.
-
-## Development rules
-
-- Add reusable behavior here, not in shell wrappers.
-- Prefer module-relative imports within `llm_switch_bench`; never insert source directories
-  into `sys.path`.
-- Keep repository-bound operations explicit. `common.provenance.repository_root()` locates a
-  checkout from the working directory/package ancestry and fails rather than guessing.
-- Put unit/integration tests in `tests/` and keep CPU imports independent of GPU availability.
-- Record runtime identity at execution: benchmark and engine/controller Git state, actually
-  imported module path/version, configuration or digest, model, external executable/image,
-  and environment.
-- Treat physical reclaim as a resource post-condition, not an allocator counter alone.
-- Never describe deterministic regeneration as a fresh benchmark run.
-
-Run before contributing:
-
-```bash
-uv run pytest tests -q
-uv run ruff check src tests
-uv run ruff format --check src tests
-scripts/build_all.sh
-scripts/validate_all.sh
-```
+- Keep measurement, aggregation, and validation owned by the relevant experiment family.
+- Put only genuinely cross-family mechanics in `common/`, `publication.py`, or `plotting/`.
+- Keep raw evidence immutable during deterministic builds.
+- Test observable behavior and scientific invariants, not documentation wording or private
+  implementation layout.
+- Keep CPU import paths independent of CUDA/vLLM availability.
+- Capture runtime identity at measurement time and distinguish logical accounting from
+  physical resource observations.

@@ -15,6 +15,8 @@ from typing import Any
 
 import requests
 
+from llm_switch_bench.common.provenance import file_metadata, git_metadata, repository_root
+
 
 def local_session() -> requests.Session:
     session = requests.Session()
@@ -150,17 +152,6 @@ def unload(
     }
 
 
-def git_metadata(repo: Path) -> dict[str, Any]:
-    def run(*args: str) -> str:
-        return subprocess.check_output(["git", "-C", str(repo), *args], text=True).strip()
-
-    return {
-        "path": str(repo.resolve()),
-        "commit": run("rev-parse", "HEAD"),
-        "tracked_dirty": bool(run("status", "--short", "--untracked-files=no")),
-    }
-
-
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Measure llama-swap process unload and cold wake phases separately."
@@ -170,6 +161,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--cycles", type=int, default=5)
     parser.add_argument("--unload-timeout-s", type=float, default=60)
     parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--lifecycle-profile", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -241,6 +234,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "base_url": args.base_url,
         "baseline_gpu_mib": baseline_gpu_mib,
         "llama_swap_repo": git_metadata(args.repo),
+        "benchmark_repo": git_metadata(repository_root()),
+        "config": file_metadata(args.config),
+        "binary": file_metadata(args.binary),
         "cycles": args.cycles,
         "rows": rows,
         "medians": {

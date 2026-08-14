@@ -144,7 +144,8 @@ def test_dry_run_records_selected_runtime_provenance(tmp_path: Path):
     runtime = plan["environment"]["runtime"]
     assert runtime["selected_environment"]["VLLM_EXACT_DISK_BACKUP_DIRECT_IO"] == "1"
     assert runtime["vllm_python"] == "/venv/bin/python"
-    assert runtime["vllm_import_path"] == "/repo/vllm/__init__.py"
+    assert runtime["declared_vllm_import_path"] == "/repo/vllm/__init__.py"
+    assert runtime["vllm_import_path"] is None
     assert runtime["model_revision"] == "revision-a"
     assert runtime["model_config_sha256"] == "a" * 64
     assert runtime["filesystem"] == "ext4 /dev/nvme0n1"

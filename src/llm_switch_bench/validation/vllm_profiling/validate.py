@@ -16,11 +16,7 @@ from llm_switch_bench.validation.common import default_results_root, require, va
 
 def validate_family(path: Path | None = None) -> None:
     family = path or default_results_root() / "vllm-profiling"
-    validate_metadata(
-        family,
-        "vllm-profiling",
-        expected_status="retained-local-observation",
-    )
+    validate_metadata(family, "vllm-profiling")
     raw_dir = family / "raw"
     require(
         {item.name for item in raw_dir.iterdir()} == {"profile-samples.json"},
@@ -57,6 +53,24 @@ def validate_family(path: Path | None = None) -> None:
     )
     sources = document.get("sources")
     require(isinstance(sources, list) and sources, "vllm-profiling: sources missing")
+    source_provenance = document.get("source_provenance")
+    require(
+        isinstance(source_provenance, dict) and set(source_provenance) == set(sources),
+        "vllm-profiling: source provenance does not close",
+    )
+    for source, provenance in source_provenance.items():
+        require(isinstance(provenance, dict), f"vllm-profiling: {source} provenance invalid")
+        for repository in ("benchmark_repo", "engine_repo"):
+            identity = provenance.get(repository, {})
+            require(
+                identity.get("commit") and isinstance(identity.get("dirty"), bool),
+                f"vllm-profiling: {source} {repository} identity is incomplete",
+            )
+        require(provenance.get("model_identity"), f"vllm-profiling: {source} model missing")
+        engine = provenance["engine_repo"]
+        runtime = provenance.get("engine_runtime", provenance.get("runtime", {}))
+        import_path = engine.get("module_path") or runtime.get("vllm_import_path")
+        require(import_path, f"vllm-profiling: {source} imported vLLM path is missing")
     for method in methods:
         rows = [item for item in samples if item.get("method") == method]
         require(len(rows) == sample_count, f"vllm-profiling: {method} sample count mismatch")

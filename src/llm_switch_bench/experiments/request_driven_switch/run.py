@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 
 from llm_switch_bench.common.traces import REQUIRED_FIELDS, load_manifest
+from llm_switch_bench.common.provenance import file_metadata, git_metadata, repository_root
 from llm_switch_bench.common.schema import PROMPTS
 
 
@@ -182,22 +183,67 @@ def write_jsonl(path: str | Path, rows: list[dict[str, Any]]) -> None:
     )
 
 
-async def main_async() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Replay a frozen OpenAI request-switch trace")
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--runtime-repo",
+        action="append",
+        default=[],
+        type=Path,
+        help="Runtime repository used by the service. Repeat for controller/router and engine.",
+    )
+    parser.add_argument(
+        "--runtime-file",
+        action="append",
+        default=[],
+        type=Path,
+        help="Runtime config or executable used by the service. Repeat as needed.",
+    )
     parser.add_argument("--timeout-s", type=float, default=600)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.timeout_s <= 0:
+        parser.error("--timeout-s must be positive")
+    return args
+
+
+async def main_async(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     rows = load_manifest(args.manifest)
     async with httpx.AsyncClient(timeout=args.timeout_s, trust_env=False) as client:
         records = await run_trace(client, args.base_url, rows, args.timeout_s)
     write_jsonl(args.output, records)
+    metadata_path = Path(args.output).with_suffix(".run.json")
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "base_url": args.base_url,
+                "manifest": file_metadata(Path(args.manifest)),
+                "benchmark_repo": git_metadata(repository_root()),
+                "runtime_repositories": [git_metadata(path) for path in args.runtime_repo],
+                "runtime_files": [file_metadata(path) for path in args.runtime_file],
+                "requests": len(records),
+                "failed": sum(failed_record(record) for record in records),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     failed = sum(failed_record(record) for record in records)
     print(json.dumps({"requests": len(records), "failed": failed, "output": args.output}))
     if failed:
-        raise SystemExit(1)
+        return 1
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    return asyncio.run(main_async(argv))
 
 
 if __name__ == "__main__":
-    asyncio.run(main_async())
+    raise SystemExit(main())

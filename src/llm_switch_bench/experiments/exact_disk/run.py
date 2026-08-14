@@ -125,6 +125,32 @@ def _optional_repo_metadata(env_name: str) -> dict[str, Any] | None:
     return _git_metadata(path) if path.is_dir() else {"path": str(path), "missing": True}
 
 
+def _observed_vllm_import() -> str | None:
+    python = os.environ.get("LLM_SWITCH_BENCH_VLLM_PYTHON")
+    repo_value = os.environ.get("LLM_SWITCH_BENCH_VLLM_REPO")
+    if not python or not repo_value:
+        return None
+    repo = Path(repo_value).expanduser().resolve(strict=True)
+    environment = os.environ.copy()
+    pythonpath = [str(repo)]
+    pythonpath.extend(
+        entry for entry in environment.get("PYTHONPATH", "").split(os.pathsep) if entry != str(repo)
+    )
+    environment["PYTHONPATH"] = os.pathsep.join(pythonpath)
+    completed = subprocess.run(
+        [python, "-c", "import pathlib, vllm; print(pathlib.Path(vllm.__file__).resolve())"],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=environment,
+        timeout=60,
+    )
+    observed = Path(completed.stdout.strip()).resolve(strict=True)
+    if not observed.is_relative_to(repo):
+        raise ValueError(f"imported vLLM is outside declared repository: {observed}")
+    return str(observed)
+
+
 def _runtime_provenance(args: argparse.Namespace) -> dict[str, Any]:
     """Capture operator-supplied runtime identity without dumping the environment."""
 
@@ -137,7 +163,8 @@ def _runtime_provenance(args: argparse.Namespace) -> dict[str, Any]:
     runtime = {
         "selected_environment": {name: os.environ.get(name) for name in names},
         "vllm_python": os.environ.get("LLM_SWITCH_BENCH_VLLM_PYTHON"),
-        "vllm_import_path": os.environ.get("LLM_SWITCH_BENCH_VLLM_IMPORT_PATH"),
+        "declared_vllm_import_path": os.environ.get("LLM_SWITCH_BENCH_VLLM_IMPORT_PATH"),
+        "vllm_import_path": _observed_vllm_import(),
         "model_revision": os.environ.get("LLM_SWITCH_BENCH_MODEL_REVISION"),
         "model_config_sha256": os.environ.get("LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256"),
         "filesystem": os.environ.get("LLM_SWITCH_BENCH_BACKUP_FILESYSTEM"),

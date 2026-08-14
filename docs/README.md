@@ -1,9 +1,6 @@
 # Documentation
 
-This index describes the current default-branch workflow. The immutable `v0.1.8` tag is the
-reference for its published snapshot; old branch layouts and commands are not current API.
-No new measurements were generated while reorganizing the retained evidence, and no
-canonical GPU rerun is complete.
+This index describes the current default-branch workflow.
 
 ## Experiment protocols
 
@@ -19,35 +16,22 @@ Each protocol includes the question, metric and boundaries, method, retained res
 to validity, limitations, figure links, deterministic rebuild, semantic validation, and a
 separately labeled live-run command.
 
-## Supporting system notes
+## Reading and reproducing the retained values
 
-These notes explain external-system behavior and remain useful background, but the
-experiment documents above define the current result contracts:
+Each experiment protocol is an ordered runbook: prerequisites, live collection, failed-run
+handling, dry-run promotion, atomic result replacement, rebuild, validation, and diff review.
+The current raw evidence records actual runtime repositories/import paths and configurations
+or external executable hashes. The benchmark checkout itself was dirty during collection;
+its commit, porcelain status, and working-tree fingerprint are retained rather than hidden.
 
-- [`systems/llama-swap.md`](systems/llama-swap.md): automatic request routing versus
-  separately instrumented process lifecycle boundaries.
-- [`systems/swapservellm.md`](systems/swapservellm.md): swap-out/swap-in operating
-  assumptions and external executable identity.
-- [`systems/serverlessllm.md`](systems/serverlessllm.md): unresolved scale-to-zero contract;
-  it has no current numeric result family.
-- [`baselines/baseline1-vllm-cold-reload.md`](baselines/baseline1-vllm-cold-reload.md): cold
-  process-reload boundary and storage-cache caveat.
-- [`baselines/baseline2-vllm-sleep-mode.md`](baselines/baseline2-vllm-sleep-mode.md): vLLM
-  L1/L2 semantics. Both baseline commands feed the vLLM profiling workflow, not the
-  cross-system lifecycle retained schema.
-
-## Reading the retained values
-
-The current summaries and figures are deterministic transformations of tracked raw evidence,
-not new measurements. The historical E2E producer did not runtime-bind controller or engine
-commits, dirty states, executable/import paths, configuration hash, or model revision. Those
-numbers are a historical local observation, not an exact fresh-checkout runtime reproduction.
-A fresh checkout can reproduce the summaries, figures, and validator outcomes, but not the
-original GPU execution from the retained metadata alone.
+A fresh checkout reproduces summaries, figures, and validator outcomes deterministically.
+Reproducing the GPU measurements additionally requires the model files, pinned external
+runtimes, compatible hardware/software, and the conditions documented by each family.
 
 The repository does not maintain digest lists over tracked Git files. Lifecycle metadata
-retains exact digests for external executables, and exact-disk retains payload/per-chunk
-runtime checksums because those bytes are outside ordinary Git-file integrity semantics.
+retains exact digests for external executables, request manifests retain service config and
+binary hashes, and exact-disk retains payload/per-chunk runtime checksums because those bytes
+are outside ordinary Git-file integrity semantics.
 
 ## Common CPU commands
 

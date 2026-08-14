@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import csv
 import gc
+import importlib.util
 import json
 import os
 import platform
@@ -16,8 +17,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from llm_switch_bench.common.provenance import repository_root
-from llm_switch_bench.common.resources import read_meminfo_bytes, read_process_memory_bytes
+from llm_switch_bench.common.environment import reexec_with_python
+from llm_switch_bench.common.provenance import file_metadata, repository_root
+from llm_switch_bench.common.resources import (
+    process_tree_rss_bytes,
+    read_meminfo_bytes,
+    read_process_memory_bytes,
+)
 from llm_switch_bench.common.schema import PROMPTS
 
 
@@ -25,6 +31,33 @@ from llm_switch_bench.common.schema import PROMPTS
 class ModelSpec:
     name: str
     path: str
+
+
+INVOCATION_DIR_ENV = "LLM_SWITCH_BENCH_INVOCATION_DIR"
+
+
+def invocation_path(value: str | Path, invocation_dir: Path) -> Path:
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else invocation_dir / path
+
+
+def normalize_invocation_paths(args: argparse.Namespace) -> None:
+    """Keep CLI paths anchored when execution moves into the vLLM checkout."""
+
+    invocation_dir = Path(os.environ.setdefault(INVOCATION_DIR_ENV, str(Path.cwd().resolve())))
+    args.python = str(invocation_path(args.python, invocation_dir).absolute())
+    args.vllm_repo = invocation_path(args.vllm_repo, invocation_dir).absolute()
+    args.out_dir = str(invocation_path(args.out_dir, invocation_dir).absolute())
+    args.models = [
+        ModelSpec(model.name, str(invocation_path(model.path, invocation_dir).absolute()))
+        for model in args.models
+    ]
+    if args.coordinator_repo:
+        args.coordinator_repo = invocation_path(args.coordinator_repo, invocation_dir).absolute()
+    if args.coordinator_config:
+        args.coordinator_config = invocation_path(
+            args.coordinator_config, invocation_dir
+        ).absolute()
 
 
 def parse_model_spec(value: str) -> ModelSpec:
@@ -52,11 +85,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         required=True,
         help="Models in NAME=PATH form. The sequence is repeated in this order.",
     )
-    parser.add_argument("--out-dir", default="results/profiling/repeated_sleep_l1")
+    parser.add_argument(
+        "--python",
+        default=sys.executable,
+        help="Python executable from the vLLM environment used for this measurement.",
+    )
+    parser.add_argument(
+        "--vllm-repo",
+        type=Path,
+        required=True,
+        help="Checkout that must provide the imported vLLM package.",
+    )
+    parser.add_argument("--out-dir", default="results/tmp/backup-reuse-reclaim")
     parser.add_argument("--cuda-visible-devices", default="0")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.55)
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--dtype", default="float16")
+    parser.add_argument(
+        "--enforce-eager",
+        action="store_true",
+        help="Disable compilation and CUDA graphs for a comparable eager-mode run.",
+    )
     parser.add_argument("--prompt", choices=sorted(PROMPTS), default="short_short")
     parser.add_argument(
         "--iterations",
@@ -73,19 +122,30 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--coordinator-repo",
+        type=Path,
+        help="Checkout that provides the CPU backup coordinator service.",
+    )
+    parser.add_argument(
+        "--coordinator-config",
+        type=Path,
+        help="Exact coordinator configuration used for this measurement.",
+    )
+    parser.add_argument(
         "--coordinator-timeout-s",
         type=float,
         default=0.05,
         help="Per-flush coordinator HTTP timeout inside vLLM workers.",
     )
     parser.add_argument(
+        "--post-release-observation-s",
         "--post-wake-observation-s",
+        dest="post_release_observation_s",
         type=float,
         default=0.0,
         help=(
-            "Seconds to observe host/process memory after wake-up. This makes "
-            "physical pinned-memory reclaim visible without changing the "
-            "default benchmark behavior."
+            "Seconds to observe host/process memory after a lifecycle operation. "
+            "The deprecated --post-wake-observation-s spelling is retained as an alias."
         ),
     )
     parser.add_argument(
@@ -110,14 +170,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.error("--iterations must be at least 1")
     if (args.expect_release is not None or args.expect_reuse) and args.iterations < 2:
         parser.error("release/reuse assertions require --iterations at least 2")
-    if args.post_wake_observation_s < 0:
-        parser.error("--post-wake-observation-s must be non-negative")
+    if args.post_release_observation_s < 0:
+        parser.error("--post-release-observation-s must be non-negative")
     if args.min_worker_rss_reclaim_bytes < 0:
         parser.error("--min-worker-rss-reclaim-bytes must be non-negative")
     if args.expect_release is not True and args.min_worker_rss_reclaim_bytes > 0:
         parser.error("--min-worker-rss-reclaim-bytes requires --expect-release")
     if args.expect_release is True and args.expect_reuse:
         parser.error("--expect-release and --expect-reuse are mutually exclusive")
+    coordinator_identity = (args.coordinator_repo, args.coordinator_config)
+    if args.coordinator_url and not all(coordinator_identity):
+        parser.error("--coordinator-url requires --coordinator-repo and --coordinator-config")
+    if not args.coordinator_url and any(coordinator_identity):
+        parser.error("--coordinator-repo and --coordinator-config require --coordinator-url")
     model_names = [model.name for model in args.models]
     if len(model_names) != len(set(model_names)):
         parser.error("--models names must be unique")
@@ -174,6 +239,9 @@ def record_memory_snapshot(step: dict[str, Any], prefix: str, pid: int | None) -
     for name in ("MemTotal", "MemAvailable", "MemFree", "Unevictable", "Mlocked"):
         if name in host:
             step[f"{prefix}_host_{name.lower()}_bytes"] = host[name]
+    tree_rss = process_tree_rss_bytes(os.getpid())
+    if tree_rss is not None:
+        step[f"{prefix}_process_tree_rss_bytes"] = tree_rss
     if pid is None:
         return
     step[f"{prefix}_worker_pid"] = pid
@@ -350,6 +418,32 @@ def wait_for_run_coordinator_stats(
         time.sleep(0.1)
 
 
+def record_coordinator_snapshot(
+    step: dict[str, Any],
+    prefix: str,
+    base_url: str,
+    run_id: str,
+    timeout_s: float,
+) -> None:
+    """Record run-local counters at a physical observation boundary."""
+    stats = fetch_run_coordinator_stats(base_url, run_id, timeout_s)
+    for key in (
+        "requested_release_bytes_total",
+        "released_bytes_total",
+        "pending_release_bytes",
+    ):
+        step[f"{prefix}_coordinator_{key}"] = int(stats[key])
+
+
+def wake_reclaim_delta(step: dict[str, Any]) -> int:
+    """Return bytes the coordinator observed as released across one wake window."""
+    before = step.get("pre_wake_coordinator_released_bytes_total")
+    after = step.get("post_wake_coordinator_released_bytes_total")
+    if before is None or after is None:
+        return 0
+    return int(after) - int(before)
+
+
 def git_metadata(path: Path) -> dict[str, Any]:
     def run(*args: str) -> str | None:
         try:
@@ -378,10 +472,17 @@ def git_metadata(path: Path) -> dict[str, Any]:
 
 
 def module_repo_metadata(module_name: str) -> dict[str, Any] | None:
-    """Return repository metadata for this installed package without dynamic imports."""
-    if module_name.split(".", 1)[0] != "llm_switch_bench":
+    """Return the imported module path and enclosing Git checkout, when available."""
+    spec = importlib.util.find_spec(module_name)
+    if spec is None or spec.origin is None:
         return None
-    return git_metadata(repository_root())
+    module_path = Path(spec.origin).resolve()
+    for candidate in (module_path.parent, *module_path.parents):
+        if (candidate / ".git").exists():
+            metadata = git_metadata(candidate)
+            metadata["module_path"] = str(module_path)
+            return metadata
+    return {"module_path": str(module_path), "git_commit": None}
 
 
 def validate_results(
@@ -450,18 +551,30 @@ def validate_results(
         if not reuse_steps:
             failures.append("expected backup reuse with zero D2H time but observed none")
     if args.min_worker_rss_reclaim_bytes > 0:
-        if not release_steps:
-            failures.append("RSS reclaim assertion requires at least one release step")
-        for step in release_steps:
-            before = step.get("pre_wake_worker_vmrss_bytes")
-            after = step.get("post_wake_worker_vmrss_bytes")
-            if before is None or after is None:
-                failures.append("release step is missing worker VmRSS snapshots")
+        reclaim_steps = [step for step in steps if wake_reclaim_delta(step) > 0]
+        if not reclaim_steps:
+            failures.append(
+                "physical reclaim assertion requires a wake window with a positive "
+                "coordinator release delta"
+            )
+        for step in reclaim_steps:
+            before = step.get("pre_wake_process_tree_rss_bytes")
+            after = step.get("post_wake_process_tree_rss_bytes")
+            mem_before = step.get("pre_wake_host_memavailable_bytes")
+            mem_after = step.get("post_wake_host_memavailable_bytes")
+            if before is None or after is None or mem_before is None or mem_after is None:
+                failures.append("release settlement window is missing physical-memory snapshots")
                 continue
             reclaimed = int(before) - int(after)
             if reclaimed < args.min_worker_rss_reclaim_bytes:
                 failures.append(
                     f"worker RSS reclaimed {reclaimed} bytes, below required "
+                    f"{args.min_worker_rss_reclaim_bytes}"
+                )
+            available_delta = int(mem_after) - int(mem_before)
+            if available_delta < args.min_worker_rss_reclaim_bytes:
+                failures.append(
+                    f"host MemAvailable increased {available_delta} bytes, below required "
                     f"{args.min_worker_rss_reclaim_bytes}"
                 )
     return failures
@@ -474,11 +587,21 @@ def model_load_kwargs(args: argparse.Namespace, model: ModelSpec) -> dict[str, A
         "max_model_len": args.max_model_len,
         "dtype": args.dtype,
         "enable_sleep_mode": True,
+        "enforce_eager": args.enforce_eager,
     }
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv)
+    values = list(argv) if argv is not None else sys.argv[1:]
+    args = parse_args(values)
+    normalize_invocation_paths(args)
+    reexec_with_python(
+        args.python,
+        "llm_switch_bench.experiments.backup_reuse_reclaim.run",
+        values,
+        workdir=args.vllm_repo,
+        import_root=args.vllm_repo,
+    )
     prepend_python_bin_to_path()
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
     os.environ["VLLM_USE_V1"] = "1"
@@ -497,6 +620,23 @@ def main(argv: list[str] | None = None) -> int:
         os.environ.pop("VLLM_CPU_BACKUP_COORDINATOR_URL", None)
         os.environ.pop("VLLM_CPU_BACKUP_COORDINATOR_TIMEOUT_S", None)
 
+    vllm_repo = module_repo_metadata("vllm")
+    imported_vllm = None if vllm_repo is None else vllm_repo.get("module_path")
+    expected_vllm = args.vllm_repo.resolve(strict=True)
+    if imported_vllm is None or not Path(str(imported_vllm)).is_relative_to(expected_vllm):
+        raise RuntimeError(
+            f"imported vLLM from {imported_vllm}, outside --vllm-repo {expected_vllm}"
+        )
+
+    coordinator_provenance = None
+    if args.coordinator_url:
+        coordinator_repo = args.coordinator_repo.resolve(strict=True)
+        coordinator_config = args.coordinator_config.resolve(strict=True)
+        coordinator_provenance = {
+            "repo": git_metadata(coordinator_repo),
+            "config": file_metadata(coordinator_config),
+        }
+
     summary: dict[str, Any] = {
         "run_id": run_id,
         "models": [{"name": model.name, "path": model.path} for model in args.models],
@@ -506,10 +646,17 @@ def main(argv: list[str] | None = None) -> int:
             "gpu_memory_utilization": args.gpu_memory_utilization,
             "max_model_len": args.max_model_len,
             "dtype": args.dtype,
+            "enforce_eager": args.enforce_eager,
             "prompt": args.prompt,
             "coordinator_url": args.coordinator_url,
+            "coordinator_repo": (
+                str(args.coordinator_repo.resolve()) if args.coordinator_repo else None
+            ),
+            "coordinator_config": (
+                str(args.coordinator_config.resolve()) if args.coordinator_config else None
+            ),
             "coordinator_timeout_s": args.coordinator_timeout_s,
-            "post_wake_observation_s": args.post_wake_observation_s,
+            "post_release_observation_s": args.post_release_observation_s,
             "expect_release": args.expect_release,
             "expect_reuse": args.expect_reuse,
             "min_worker_rss_reclaim_bytes": args.min_worker_rss_reclaim_bytes,
@@ -521,7 +668,8 @@ def main(argv: list[str] | None = None) -> int:
             "ninja": command_output(["which", "ninja"]),
             "platform": platform.platform(),
             "benchmark_repo": git_metadata(repository_root()),
-            "vllm_repo": module_repo_metadata("vllm"),
+            "vllm_repo": vllm_repo,
+            "coordinator": coordinator_provenance,
             "gpu": command_output(
                 [
                     "nvidia-smi",
@@ -578,6 +726,14 @@ def main(argv: list[str] | None = None) -> int:
                             llm = engines[model.name]
                             worker_pid = engine_pids.get(model.name)
                             record_memory_snapshot(step, "pre_wake", worker_pid)
+                            if args.coordinator_url:
+                                record_coordinator_snapshot(
+                                    step,
+                                    "pre_wake",
+                                    args.coordinator_url,
+                                    run_id,
+                                    args.coordinator_timeout_s,
+                                )
                             activate_started = time.perf_counter()
                             llm.wake_up()
                             wake_ended = time.perf_counter()
@@ -604,9 +760,20 @@ def main(argv: list[str] | None = None) -> int:
                             step["activate_type"] = "wake"
                             step["wake_latency_s"] = activate_latency_s
                             step["activate_latency_s"] = activate_latency_s
-                            if args.post_wake_observation_s > 0:
-                                time.sleep(args.post_wake_observation_s)
+                            if args.post_release_observation_s > 0:
+                                time.sleep(args.post_release_observation_s)
                             record_memory_snapshot(step, "post_wake", worker_pid)
+                            if args.coordinator_url:
+                                record_coordinator_snapshot(
+                                    step,
+                                    "post_wake",
+                                    args.coordinator_url,
+                                    run_id,
+                                    args.coordinator_timeout_s,
+                                )
+                                step["wake_coordinator_release_delta_bytes"] = wake_reclaim_delta(
+                                    step
+                                )
 
                         llm = engines[model.name]
                         infer_started = time.perf_counter()
@@ -624,6 +791,8 @@ def main(argv: list[str] | None = None) -> int:
                             output.text,
                         )
 
+                        worker_pid = engine_pids.get(model.name)
+                        record_memory_snapshot(step, "pre_sleep", worker_pid)
                         sleep_started = time.perf_counter()
                         llm.sleep(level=1)
                         sleep_ended = time.perf_counter()
@@ -649,6 +818,9 @@ def main(argv: list[str] | None = None) -> int:
                         )
                         if allocator_sleep is not None and "pid" in allocator_sleep:
                             engine_pids[model.name] = int(allocator_sleep["pid"])
+                        if args.post_release_observation_s > 0:
+                            time.sleep(args.post_release_observation_s)
+                        record_memory_snapshot(step, "post_sleep", engine_pids.get(model.name))
                         step["ok"] = True
                     except Exception as exc:
                         step["ok"] = False
@@ -701,4 +873,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(main())

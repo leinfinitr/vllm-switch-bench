@@ -5,7 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from llm_switch_bench.artifacts import exact_disk_summary
+from llm_switch_bench.experiments.exact_disk.artifacts import summary as exact_disk_summary
 from llm_switch_bench.validation.common import (
     default_results_root,
     require,
@@ -32,7 +32,7 @@ REQUIRED_PHASES = {
 
 def validate_family(path: Path | None = None) -> None:
     family = path or default_results_root() / "exact-disk"
-    validate_metadata(family, "exact-disk")
+    family_metadata = validate_metadata(family, "exact-disk")
     raw = family / "raw" / "exact-disk"
     require(
         {item.name for item in raw.iterdir() if item.is_file()} == REQUIRED_RAW_FILES,
@@ -113,8 +113,21 @@ def validate_family(path: Path | None = None) -> None:
     )
 
     allocator_sleeps = [event for event in events if event.get("phase") == "allocator_sleep"]
-    require(len(allocator_sleeps) == 1, "exact-disk: expected one allocator sleep")
-    sleep = allocator_sleeps[0]
+    if family_metadata["status"] == "local-rerun":
+        require(bool(allocator_sleeps), "exact-disk: expected allocator sleep evidence")
+        sleep = next(
+            (
+                event
+                for event in allocator_sleeps
+                if int(event.get("cpu_backup_release_bytes", 0)) == payload_bytes
+            ),
+            None,
+        )
+        require(sleep is not None, "exact-disk: host-backup release evidence is missing")
+        assert sleep is not None
+    else:
+        require(len(allocator_sleeps) == 1, "exact-disk: expected one allocator sleep")
+        sleep = allocator_sleeps[0]
     require(
         int(sleep.get("backup_bytes", 0))
         == int(sleep.get("cpu_backup_release_bytes", -1))
@@ -129,13 +142,24 @@ def validate_family(path: Path | None = None) -> None:
     )
 
     metadata = json.loads((raw / "run-metadata.json").read_text(encoding="utf-8"))
-    require(
-        metadata.get("engine", {}).get("collection_commit"), "exact-disk: engine commit missing"
-    )
-    require(
-        metadata.get("model") and metadata.get("launch_parameters"),
-        "exact-disk: run config missing",
-    )
+    if family_metadata["status"] == "local-rerun":
+        require(
+            metadata.get("environment", {}).get("vllm_repo", {}).get("commit"),
+            "exact-disk: engine commit missing",
+        )
+        require(
+            metadata.get("model") and metadata.get("command"),
+            "exact-disk: run config missing",
+        )
+    else:
+        require(
+            metadata.get("engine", {}).get("collection_commit"),
+            "exact-disk: engine commit missing",
+        )
+        require(
+            metadata.get("model") and metadata.get("launch_parameters"),
+            "exact-disk: run config missing",
+        )
     output = json.loads((raw / "output_observation.json").read_text(encoding="utf-8"))
     require(output.get("before") == output.get("after"), "exact-disk: output differs after restore")
     demotions = output.get("demotion", {}).get("results", [])

@@ -6,13 +6,13 @@ import json
 import math
 from pathlib import Path
 
-from llm_switch_bench.artifacts import (
-    EXTERNAL_CONTRACTS,
+from llm_switch_bench.experiments.lifecycle_latency.artifacts import (
     MODELS,
     PHASES,
     RAW_MAP,
     SYSTEMS,
-    lifecycle_summary_rows,
+    external_contracts,
+    summary_rows,
 )
 from llm_switch_bench.validation.common import (
     default_results_root,
@@ -24,8 +24,13 @@ from llm_switch_bench.validation.common import (
 def validate_family(path: Path | None = None) -> None:
     family = path or default_results_root() / "lifecycle-latency"
     metadata = validate_metadata(family, "lifecycle-latency")
+    if metadata["status"] == "local-rerun":
+        require(
+            metadata["config"] == ["config/campaign.json", "config/swapserve-local-compat.patch"],
+            "lifecycle: local SwapServe compatibility contract is missing",
+        )
     require(
-        metadata.get("external_artifacts") == EXTERNAL_CONTRACTS,
+        metadata.get("external_artifacts") == external_contracts(family),
         "lifecycle: external binary contracts mismatch",
     )
     summary = json.loads((family / "summary.json").read_text(encoding="utf-8"))["lifecycle"]
@@ -103,8 +108,18 @@ def validate_family(path: Path | None = None) -> None:
                         all(float(item.get("sleep_gpu_mib", -1)) == 0 for item in rows),
                         f"lifecycle: SwapServeLLM did not physically release GPU memory for {model}",
                     )
+                    image = data.get("environment", {}).get("container_image", {})
+                    require(
+                        isinstance(image.get("id"), str) and bool(image["id"]),
+                        f"lifecycle: SwapServeLLM image ID is missing for {model}",
+                    )
+                    require(
+                        isinstance(image.get("digest"), str)
+                        and image["digest"].startswith("sha256:"),
+                        f"lifecycle: SwapServeLLM image digest is missing for {model}",
+                    )
 
-    require(summary == lifecycle_summary_rows(family), "lifecycle: raw recomputation differs")
+    require(summary == summary_rows(family), "lifecycle: raw recomputation differs")
     csv_rows = list(csv.DictReader((family / "summary.csv").open(encoding="utf-8", newline="")))
     require(len(csv_rows) == 30, "lifecycle: summary.csv must contain 30 rows")
     normalized_csv = [
