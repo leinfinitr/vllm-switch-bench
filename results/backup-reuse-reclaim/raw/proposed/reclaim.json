@@ -231,7 +231,13 @@
             "exact-disk-accounting-v1",
             "process-incarnation-v1",
             "released-bytes-total-v1"
-          ]
+          ],
+          "build": {
+            "fork": "vLLM Switch",
+            "fork_version": "0.2.0.dev0",
+            "upstream_version": "0.22.1",
+            "upstream_commit": "0decac0d96c42b49572498019f0a0e3600f50398"
+          }
         }
       }
     }

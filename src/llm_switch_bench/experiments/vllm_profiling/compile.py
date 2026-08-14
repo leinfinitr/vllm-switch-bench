@@ -260,7 +260,7 @@ def compile_profiles(
             "heterogeneous_conditions": [
                 "Cold/L1/L2 launch fresh service processes; CPU and disk use same-process cycles."
             ],
-            "prohibited_claim": "Do not infer a controlled cross-system ranking.",
+            "prohibited_claim": "Do not infer a release-matched system ranking.",
         },
     }
     aggregate_profiles(document)
