@@ -49,7 +49,7 @@ def write_family_metadata(
     config: list[str],
     validation: dict[str, Any],
     extra: dict[str, Any] | None = None,
-    status: str = "retained-evidence",
+    status: str = "retained-local-observation",
     collected_at: str = "2026-08-04",
     provenance_note: str = "No additional provenance note was recorded.",
 ) -> None:
