@@ -90,6 +90,7 @@ def test_start_vllm_preserves_virtualenv_bin_on_path(tmp_path, monkeypatch):
 
 
 def test_start_vllm_makes_relative_python_path_absolute(tmp_path, monkeypatch):
+    monkeypatch.delenv("CUDA_HOME", raising=False)
     args = bench.parse_args(
         [
             "--model",
@@ -116,7 +117,7 @@ def test_start_vllm_makes_relative_python_path_absolute(tmp_path, monkeypatch):
 
     expected_python = tmp_path / "venv" / "bin" / "python"
     assert captured["command"][0] == str(expected_python)
-    assert captured["env"]["PATH"].split(os.pathsep)[1] == str(expected_python.parent)
+    assert captured["env"]["PATH"].split(os.pathsep)[0] == str(expected_python.parent)
 
 
 def test_dry_run_metadata_preserves_virtualenv_python_path(tmp_path, monkeypatch):
