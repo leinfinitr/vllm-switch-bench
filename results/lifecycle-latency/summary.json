@@ -7,7 +7,7 @@
       "phase": "sleep",
       "q1_s": 0.05201727896928787,
       "q3_s": 0.052185908891260624,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.132161864079535,
@@ -16,7 +16,7 @@
       "phase": "wake",
       "q1_s": 0.132123158313334,
       "q3_s": 0.13219556771218777,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.0878215804696083,
@@ -97,7 +97,7 @@
       "phase": "sleep",
       "q1_s": 0.07702914252877235,
       "q3_s": 0.07741895131766796,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.24240529164671898,
@@ -106,7 +106,7 @@
       "phase": "wake",
       "q1_s": 0.24234991800040007,
       "q3_s": 0.24269506987184286,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.17960895877331495,
@@ -187,7 +187,7 @@
       "phase": "sleep",
       "q1_s": 0.15533919259905815,
       "q3_s": 0.15564483869820833,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.48143413197249174,
@@ -196,7 +196,7 @@
       "phase": "wake",
       "q1_s": 0.4808776304125786,
       "q3_s": 0.4867751142010093,
-      "system": "Proposed"
+      "system": "vllm-switch"
     },
     {
       "median_s": 0.35415261425077915,

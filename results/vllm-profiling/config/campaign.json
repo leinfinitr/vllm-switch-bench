@@ -9,8 +9,8 @@
     "Exact disk"
   ],
   "display_labels": {
-    "CPU backup": "Proposed CPU backup",
-    "Exact disk": "Proposed exact disk"
+    "CPU backup": "vllm-switch CPU backup",
+    "Exact disk": "vllm-switch exact disk"
   },
   "samples_per_method": 5,
   "dtype": "float16",

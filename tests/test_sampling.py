@@ -5,8 +5,8 @@ import sys
 import time
 
 
-from llm_switch_bench.common.schema import JsonlLogger
-from llm_switch_bench.common.sampling import Sampler, make_event, run_cmd
+from vllm_switch_bench.common.schema import JsonlLogger
+from vllm_switch_bench.common.sampling import Sampler, make_event, run_cmd
 
 
 def test_run_cmd_captures_stdout():
@@ -16,11 +16,11 @@ def test_run_cmd_captures_stdout():
 
 def test_make_event_uses_context_and_metrics(monkeypatch):
     monkeypatch.setattr(
-        "llm_switch_bench.common.sampling.query_gpu",
+        "vllm_switch_bench.common.sampling.query_gpu",
         lambda: {"gpu_used_mib": 10, "gpu_free_mib": 20, "gpu_util_pct": 30},
     )
     monkeypatch.setattr(
-        "llm_switch_bench.common.sampling.query_cpu",
+        "vllm_switch_bench.common.sampling.query_cpu",
         lambda pid: {
             "cpu_used_mib": 40,
             "cpu_available_mib": 50,

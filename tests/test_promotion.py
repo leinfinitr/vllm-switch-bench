@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from llm_switch_bench.experiments.vllm_profiling.compile import compile_profiles
-from llm_switch_bench.promotion import parse_args
+from vllm_switch_bench.experiments.vllm_profiling.compile import compile_profiles
+from vllm_switch_bench.promotion import parse_args
 
 
 def test_family_help_includes_family_specific_inputs(capsys) -> None:
@@ -86,9 +86,9 @@ def _cpu_source(tmp_path: Path) -> Path:
         "environment": {
             "benchmark_repo": _repo("/benchmark", "b" * 40),
             "vllm_repo": _repo(
-                "/runtime/proposed",
+                "/runtime/vllm-switch",
                 "p" * 40,
-                module_path="/runtime/proposed/vllm/__init__.py",
+                module_path="/runtime/vllm-switch/vllm/__init__.py",
             ),
             "python": "3.12",
             "python_executable": "/runtime/python",
@@ -121,9 +121,9 @@ def _exact_source(tmp_path: Path) -> Path:
             "model": {"name": "model", "path": "/models/model"},
             "environment": {
                 "benchmark_repo": _repo("/benchmark", "b" * 40),
-                "vllm_repo": _repo("/runtime/proposed", "p" * 40),
+                "vllm_repo": _repo("/runtime/vllm-switch", "p" * 40),
                 "runtime": {
-                    "vllm_import_path": "/runtime/proposed/vllm/__init__.py",
+                    "vllm_import_path": "/runtime/vllm-switch/vllm/__init__.py",
                     "model_config_sha256": "c" * 64,
                 },
                 "platform": "test-platform",
@@ -155,7 +155,7 @@ def _exact_source(tmp_path: Path) -> Path:
 def test_compile_profiles_accepts_a_complete_local_campaign(tmp_path: Path) -> None:
     compiled = compile_profiles(
         _service_source(tmp_path, "cold", ["cold_reload"]),
-        _service_source(tmp_path, "stock", ["sleep_l1", "sleep_l2"]),
+        _service_source(tmp_path, "vllm", ["sleep_l1", "sleep_l2"]),
         _cpu_source(tmp_path),
         _exact_source(tmp_path),
     )

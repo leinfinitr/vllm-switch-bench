@@ -4,8 +4,8 @@ import csv
 import json
 
 
-from llm_switch_bench.common.http import parse_openai_stream_response
-from llm_switch_bench.common.schema import Event, JsonlLogger, PROMPTS, write_summary_csv
+from vllm_switch_bench.common.http import parse_openai_stream_response
+from vllm_switch_bench.common.schema import Event, JsonlLogger, PROMPTS, write_summary_csv
 
 
 class FakeResponse:

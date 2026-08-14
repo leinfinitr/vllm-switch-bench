@@ -5,7 +5,7 @@
   "scheduled_interval_s": 1.5,
   "models": ["qwen-1.5b", "qwen-3b"],
   "max_tokens": 32,
-  "systems": ["Proposed", "llama-swap"],
+  "systems": ["vllm-switch", "llama-swap"],
   "request_ids": {
     "prefix": "w1-",
     "range": [0, 19],

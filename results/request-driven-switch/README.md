@@ -3,7 +3,7 @@
 Question: what completion latency was observed for the frozen 20-request alternating-model schedule?
 
 - Configuration: [`config/workload.json`](config/workload.json)
-- Raw evidence: Proposed and llama-swap JSONL rows plus sibling runtime manifests under [`raw/`](raw/)
+- Raw evidence: vllm-switch and llama-swap JSONL rows plus sibling runtime manifests under [`raw/`](raw/)
 - Summary: [`summary.json`](summary.json)
 - Figure: [`figures/request-timeline.pdf`](figures/request-timeline.pdf) ([PNG](figures/request-timeline.png))
 - Method and limitations: [`../../docs/experiments/request-driven-switch/README.md`](../../docs/experiments/request-driven-switch/README.md)

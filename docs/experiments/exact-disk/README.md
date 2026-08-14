@@ -31,7 +31,7 @@ is `4aec04d7b5d1a8a9ace300e239bc65381955b058f2dab0326b8a44dc3afbbdbb`.
 
 ## Reproduce the measurement
 
-Use a compatible Proposed checkout that exposes exact-disk environment variables, the
+Use a compatible vllm-switch checkout that exposes exact-disk environment variables, the
 demotion RPC, profile phases, and sleep/wake developer endpoints. Run from the benchmark root
 on an idle GPU. The backup root must be empty so disk growth belongs to this run.
 
@@ -41,11 +41,11 @@ uv sync --frozen --group dev
 BENCH_ROOT=$PWD
 RUN_ROOT="$BENCH_ROOT/results/tmp/exact-disk/run-001"
 BACKUP_ROOT="$BENCH_ROOT/runtime/exact-disk-backups/run-001"
-PROPOSED_REPO=/path/to/vllm-switch
-PROPOSED_PYTHON="$PROPOSED_REPO/.venv/bin/python"
+VLLM_SWITCH_REPO=/path/to/vllm-switch
+VLLM_SWITCH_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
 MODEL=/path/to/Qwen2.5-0.5B-Instruct
 
-"$PROPOSED_PYTHON" -m pip install -e . --no-deps
+"$VLLM_SWITCH_PYTHON" -m pip install -e . --no-deps
 
 mkdir -p "$RUN_ROOT" "$(dirname "$BACKUP_ROOT")"
 
@@ -55,15 +55,15 @@ then
   exit 1
 fi
 
-export LLM_SWITCH_BENCH_VLLM_REPO="$PROPOSED_REPO"
-export LLM_SWITCH_BENCH_VLLM_PYTHON="$PROPOSED_PYTHON"
-export LLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
-  PYTHONPATH="$PROPOSED_REPO" "$PROPOSED_PYTHON" -c 'import vllm; print(vllm.__file__)'
+export VLLM_SWITCH_BENCH_VLLM_REPO="$VLLM_SWITCH_REPO"
+export VLLM_SWITCH_BENCH_VLLM_PYTHON="$VLLM_SWITCH_PYTHON"
+export VLLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
+  PYTHONPATH="$VLLM_SWITCH_REPO" "$VLLM_SWITCH_PYTHON" -c 'import vllm; print(vllm.__file__)'
 )
-export LLM_SWITCH_BENCH_MODEL_REVISION=local-files
-export LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$MODEL/config.json" | cut -d' ' -f1)
-export LLM_SWITCH_BENCH_BACKUP_FILESYSTEM=$(df -T "$(dirname "$BACKUP_ROOT")" | tail -n 1)
-export LLM_SWITCH_BENCH_GPU_IDENTITY=$(
+export VLLM_SWITCH_BENCH_MODEL_REVISION=local-files
+export VLLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$MODEL/config.json" | cut -d' ' -f1)
+export VLLM_SWITCH_BENCH_BACKUP_FILESYSTEM=$(df -T "$(dirname "$BACKUP_ROOT")" | tail -n 1)
+export VLLM_SWITCH_BENCH_GPU_IDENTITY=$(
   nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader,nounits
 )
@@ -85,8 +85,8 @@ export no_proxy=127.0.0.1,localhost
 export NO_PROXY=127.0.0.1,localhost
 
 /path/to/vllm-switch/.venv/bin/python -m vllm.entrypoints.openai.api_server \
-  --model "$LLM_SWITCH_BENCH_MODEL_PATH" \
-  --served-model-name "$LLM_SWITCH_BENCH_MODEL_NAME" \
+  --model "$VLLM_SWITCH_BENCH_MODEL_PATH" \
+  --served-model-name "$VLLM_SWITCH_BENCH_MODEL_NAME" \
   --host 127.0.0.1 \
   --port 19700 \
   --enable-sleep-mode \
@@ -98,14 +98,14 @@ server_pid=$!
 trap 'kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
 /path/to/vllm-switch/.venv/bin/python \
-  -m llm_switch_bench.experiments.exact_disk.lifecycle_driver \
+  -m vllm_switch_bench.experiments.exact_disk.lifecycle_driver \
   --base-url http://127.0.0.1:19700 \
-  --served-model-name "$LLM_SWITCH_BENCH_MODEL_NAME" \
+  --served-model-name "$VLLM_SWITCH_BENCH_MODEL_NAME" \
   --ready-timeout-s 360 \
   --cycles 6
 
-mkdir -p "$LLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"
-cp -a "$VLLM_EXACT_DISK_BACKUP_DIR"/. "$LLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"/
+mkdir -p "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"
+cp -a "$VLLM_EXACT_DISK_BACKUP_DIR"/. "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"/
 ```
 
 Run the evidence owner. It exports output/profile/backup paths to the child, samples resources,
@@ -151,7 +151,7 @@ scripts/promote.sh exact-disk \
   --run "$RUN_ROOT/run"
 
 scripts/build_all.sh exact-disk
-uv run python -m llm_switch_bench.validation.exact_disk.validate
+uv run python -m vllm_switch_bench.validation.exact_disk.validate
 git diff -- results/exact-disk
 ```
 

@@ -40,8 +40,8 @@ profile.write_text(
     }) + "\\n",
     encoding="utf-8",
 )
-output = Path(os.environ["LLM_SWITCH_BENCH_OUTPUT_OBSERVATION"])
-assert Path(os.environ["LLM_SWITCH_BENCH_OUT_DIR"]).is_absolute()
+output = Path(os.environ["VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION"])
+assert Path(os.environ["VLLM_SWITCH_BENCH_OUT_DIR"]).is_absolute()
 output.write_text(json.dumps({
     "schema_version": 1,
     "before": {"token_ids": [1], "text": "ok"},
@@ -64,7 +64,7 @@ print("synthetic benchmark complete")
 
 def run_script(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, "-m", "llm_switch_bench.experiments.exact_disk.run", *args],
+        [sys.executable, "-m", "vllm_switch_bench.experiments.exact_disk.run", *args],
         cwd=ROOT,
         env={**os.environ, **(env or {})},
         capture_output=True,
@@ -130,12 +130,12 @@ def test_dry_run_records_selected_runtime_provenance(tmp_path: Path):
         "fake.py",
         env={
             "VLLM_EXACT_DISK_BACKUP_DIRECT_IO": "1",
-            "LLM_SWITCH_BENCH_VLLM_PYTHON": "/venv/bin/python",
-            "LLM_SWITCH_BENCH_VLLM_IMPORT_PATH": "/repo/vllm/__init__.py",
-            "LLM_SWITCH_BENCH_MODEL_REVISION": "revision-a",
-            "LLM_SWITCH_BENCH_MODEL_CONFIG_SHA256": "a" * 64,
-            "LLM_SWITCH_BENCH_BACKUP_FILESYSTEM": "ext4 /dev/nvme0n1",
-            "LLM_SWITCH_BENCH_GPU_IDENTITY": "gpu-a",
+            "VLLM_SWITCH_BENCH_VLLM_PYTHON": "/venv/bin/python",
+            "VLLM_SWITCH_BENCH_VLLM_IMPORT_PATH": "/repo/vllm/__init__.py",
+            "VLLM_SWITCH_BENCH_MODEL_REVISION": "revision-a",
+            "VLLM_SWITCH_BENCH_MODEL_CONFIG_SHA256": "a" * 64,
+            "VLLM_SWITCH_BENCH_BACKUP_FILESYSTEM": "ext4 /dev/nvme0n1",
+            "VLLM_SWITCH_BENCH_GPU_IDENTITY": "gpu-a",
         },
     )
 

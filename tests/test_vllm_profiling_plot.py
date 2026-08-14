@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from llm_switch_bench.experiments.vllm_profiling.plot import (
+from vllm_switch_bench.experiments.vllm_profiling.plot import (
     METHOD_ORDER,
     RAW_METHOD_ORDER,
     aggregate_profiles,

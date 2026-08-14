@@ -1,0 +1,71 @@
+models:
+  qwen-1.5b:
+    backend_url: http://127.0.0.1:19301
+    served_model_name: qwen-1.5b
+    sleep_level: 1
+    wake_tags: null
+    cwd: /absolute/path/to/vllm-switch
+    env:
+      VLLM_SERVER_DEV_MODE: "1"
+      PYTHONPATH: /absolute/path/to/vllm-switch
+      PATH: /absolute/path/to/vllm-switch/.venv/bin:/usr/local/bin:/usr/bin:/bin
+    launch_command:
+      - /absolute/path/to/vllm-switch/.venv/bin/python
+      - -m
+      - vllm.entrypoints.openai.api_server
+      - --model
+      - /absolute/path/to/models/Qwen2.5-1.5B-Instruct
+      - --host
+      - 127.0.0.1
+      - --port
+      - "19301"
+      - --served-model-name
+      - qwen-1.5b
+      - --enable-sleep-mode
+      - --enable-request-id-headers
+      - --gpu-memory-utilization
+      - "0.80"
+      - --max-model-len
+      - "1024"
+      - --enforce-eager
+      - --dtype
+      - half
+  qwen-3b:
+    backend_url: http://127.0.0.1:19302
+    served_model_name: qwen-3b
+    sleep_level: 1
+    wake_tags: null
+    cwd: /absolute/path/to/vllm-switch
+    env:
+      VLLM_SERVER_DEV_MODE: "1"
+      PYTHONPATH: /absolute/path/to/vllm-switch
+      PATH: /absolute/path/to/vllm-switch/.venv/bin:/usr/local/bin:/usr/bin:/bin
+    launch_command:
+      - /absolute/path/to/vllm-switch/.venv/bin/python
+      - -m
+      - vllm.entrypoints.openai.api_server
+      - --model
+      - /absolute/path/to/models/Qwen2.5-3B-Instruct
+      - --host
+      - 127.0.0.1
+      - --port
+      - "19302"
+      - --served-model-name
+      - qwen-3b
+      - --enable-sleep-mode
+      - --enable-request-id-headers
+      - --gpu-memory-utilization
+      - "0.80"
+      - --max-model-len
+      - "1024"
+      - --enforce-eager
+      - --dtype
+      - half
+controller:
+  host: 127.0.0.1
+  port: 19300
+  policy: always_sleep_previous
+  startup_awake_model: qwen-1.5b
+  request_timeout_s: 600
+  switch_timeout_s: 600
+  metrics_path: /absolute/run/root/vllm-switch/controller-events.jsonl

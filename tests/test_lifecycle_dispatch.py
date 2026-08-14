@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from llm_switch_bench.experiments.lifecycle_latency import run
+from vllm_switch_bench.experiments.lifecycle_latency import run
 
 
 def test_dispatch_forwards_adapter_arguments(monkeypatch) -> None:

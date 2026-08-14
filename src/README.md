@@ -1,6 +1,6 @@
 # Installed source package
 
-`src/llm_switch_bench/` is the single home for reusable Python code. Install the package;
+`src/vllm_switch_bench/` is the single home for reusable Python code. Install the package;
 do not run source files by path or rely on an implicit `PYTHONPATH`.
 
 ## Package map
@@ -24,14 +24,14 @@ CLI help, and package imports remain usable in CPU environments.
 ## Console commands
 
 ```text
-llm-switch-build-all
-llm-switch-validate-all
-llm-switch-check-docs
-llm-switch-lifecycle
-llm-switch-vllm-profiling
-llm-switch-request-driven-switch
-llm-switch-backup-reuse-reclaim
-llm-switch-exact-disk
+vllm-switch-bench-build-all
+vllm-switch-bench-validate-all
+vllm-switch-bench-check-docs
+vllm-switch-bench-lifecycle
+vllm-switch-bench-vllm-profiling
+vllm-switch-bench-request-driven-switch
+vllm-switch-bench-backup-reuse-reclaim
+vllm-switch-bench-exact-disk
 ```
 
 The first three operate on retained repository artifacts. The five experiment commands can

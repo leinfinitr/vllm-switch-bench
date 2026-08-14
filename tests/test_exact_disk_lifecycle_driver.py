@@ -4,12 +4,12 @@ import json
 import sys
 from pathlib import Path
 
-from llm_switch_bench.experiments.exact_disk import lifecycle_driver
+from vllm_switch_bench.experiments.exact_disk import lifecycle_driver
 
 
 def test_lifecycle_driver_records_repeated_cycle_latencies(monkeypatch, tmp_path: Path):
     observation = tmp_path / "observation.json"
-    monkeypatch.setenv("LLM_SWITCH_BENCH_OUTPUT_OBSERVATION", str(observation))
+    monkeypatch.setenv("VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION", str(observation))
     monkeypatch.setattr(
         sys,
         "argv",
@@ -59,7 +59,7 @@ def test_lifecycle_driver_records_repeated_cycle_latencies(monkeypatch, tmp_path
 
 
 def test_lifecycle_driver_rejects_non_positive_cycles(monkeypatch, tmp_path: Path):
-    monkeypatch.setenv("LLM_SWITCH_BENCH_OUTPUT_OBSERVATION", str(tmp_path / "observation.json"))
+    monkeypatch.setenv("VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION", str(tmp_path / "observation.json"))
     monkeypatch.setattr(sys, "argv", ["lifecycle_driver", "--cycles", "0"])
 
     try:

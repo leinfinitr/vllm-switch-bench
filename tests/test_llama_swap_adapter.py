@@ -5,8 +5,8 @@ from unittest import mock
 
 import requests
 
-from llm_switch_bench.adapters import llama_swap_lifecycle
-from llm_switch_bench.adapters import swapservellm_lifecycle
+from vllm_switch_bench.adapters import llama_swap_lifecycle
+from vllm_switch_bench.adapters import swapservellm_lifecycle
 
 
 def test_running_models_retries_transient_router_error() -> None:

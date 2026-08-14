@@ -1,12 +1,12 @@
-# LLM Switch Bench
+# vllm-switch-bench
 
-LLM Switch Bench is an experiment-oriented Python package for studying
+vllm-switch-bench is an experiment-oriented Python package for studying
 
 - LLM lifecycle latency
 - vLLM activation profiling
 - request-driven model switching
 
-and evaluating the following runtime capabilities with [vLLM-Switch](https://github.com/leinfinitr/vllm-switch):
+and evaluating the following runtime capabilities with [vllm-switch](https://github.com/leinfinitr/vllm-switch):
 
 - reusable CPU weight backups
 - physical host-memory reclaim
@@ -17,7 +17,7 @@ and evaluating the following runtime capabilities with [vLLM-Switch](https://git
 | Family | Question | Primary metric | Current figure |
 |---|---|---|---|
 | [Lifecycle latency](docs/experiments/lifecycle-latency/README.md) | How long do sleep and wake boundaries take? | Median and IQR seconds per phase | [PNG](results/lifecycle-latency/figures/lifecycle-latency.png) · [PDF](results/lifecycle-latency/figures/lifecycle-latency.pdf) |
-| [vLLM profiling](docs/experiments/vllm-profiling/README.md) | Which phases dominate vLLM L1/L2 and Proposed CPU/disk backup activation? | Median activation seconds, range, and phase breakdown | [PNG](results/vllm-profiling/figures/vllm-profiling.png) · [PDF](results/vllm-profiling/figures/vllm-profiling.pdf) |
+| [vLLM profiling](docs/experiments/vllm-profiling/README.md) | Which phases dominate vLLM L1/L2 and vllm-switch CPU/disk backup activation? | Median activation seconds, range, and phase breakdown | [PNG](results/vllm-profiling/figures/vllm-profiling.png) · [PDF](results/vllm-profiling/figures/vllm-profiling.pdf) |
 | [Request-driven switch](docs/experiments/request-driven-switch/README.md) | What latency does an alternating model trace observe? | Per-request completion latency and failures | [PNG](results/request-driven-switch/figures/request-timeline.png) · [PDF](results/request-driven-switch/figures/request-timeline.pdf) |
 | [Backup reuse and reclaim](docs/experiments/backup-reuse-reclaim/README.md) | Are exact CPU backups reused, and can pressure reclaim them physically? | Reused/released bytes, D2H time, RSS and `MemAvailable` | [PNG](results/backup-reuse-reclaim/figures/backup-reuse.png) · [PDF](results/backup-reuse-reclaim/figures/backup-reuse.pdf) |
 | [Exact disk](docs/experiments/exact-disk/README.md) | Can exact runtime bytes survive CPU-backup release and restore from disk? | Spill/read/release bytes, payload integrity, output equality | [PNG](results/exact-disk/figures/exact-disk.png) · [PDF](results/exact-disk/figures/exact-disk.pdf) |
@@ -32,7 +32,7 @@ configs/                    Experiment and runtime configuration templates
 docs/                       Documentation and experiment writeups
 results/                    Exactly five current evidence families
 scripts/                    Thin shell wrappers around package modules
-src/llm_switch_bench/       Installed runners, adapters, builders, and validators
+src/vllm_switch_bench/       Installed runners, adapters, builders, and validators
 tests/                      CPU unit, integration, and semantic-validator tests
 ```
 
@@ -42,7 +42,7 @@ Install [uv](https://docs.astral.sh/uv/) and Python 3.12, then run from the repo
 
 ```bash
 uv sync --frozen --group dev
-uv run python -c 'import llm_switch_bench'
+uv run python -c 'import vllm_switch_bench'
 uv run pytest tests -q
 uv run ruff check src tests
 uv run ruff format --check src tests

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "models": ["qwen-0.5b", "qwen-1.5b", "qwen-3b"],
-  "systems": ["Proposed", "vLLM L1", "vLLM L2", "SwapServeLLM", "llama-swap"],
+  "systems": ["vllm-switch", "vLLM L1", "vLLM L2", "SwapServeLLM", "llama-swap"],
   "phases": ["sleep", "wake"],
   "samples_per_cell": 5,
   "aggregation": {

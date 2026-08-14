@@ -27,11 +27,11 @@ process-tree RSS fell `1,847,525,376` bytes and `MemAvailable` rose `1,916,854,2
 - [PNG figure](../../../results/backup-reuse-reclaim/figures/backup-reuse.png)
 - [PDF figure](../../../results/backup-reuse-reclaim/figures/backup-reuse.pdf)
 - [JSON summary](../../../results/backup-reuse-reclaim/summary.json)
-- [Reclaim evidence](../../../results/backup-reuse-reclaim/raw/proposed/reclaim.json)
+- [Reclaim evidence](../../../results/backup-reuse-reclaim/raw/vllm-switch/reclaim.json)
 
 ## Reproduce the measurement
 
-Run from the repository root on an idle GPU with a compatible Proposed checkout. The runner
+Run from the repository root on an idle GPU with a compatible vllm-switch checkout. The runner
 requires `--vllm-repo` and rejects an imported module outside that checkout.
 
 ```bash
@@ -39,11 +39,11 @@ uv sync --frozen --group dev
 
 BENCH_ROOT=$PWD
 RUN_ROOT="$BENCH_ROOT/results/tmp/backup-reuse-reclaim/run-001"
-PROPOSED_REPO=/path/to/vllm-switch
-PROPOSED_PYTHON="$PROPOSED_REPO/.venv/bin/python"
+VLLM_SWITCH_REPO=/path/to/vllm-switch
+VLLM_SWITCH_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
 MODEL_ROOT=/path/to/models
 
-"$PROPOSED_PYTHON" -m pip install -e . --no-deps
+"$VLLM_SWITCH_PYTHON" -m pip install -e . --no-deps
 ```
 
 Run one no-pressure control per model. Five iterations are retained, and eager mode removes
@@ -61,8 +61,8 @@ do
   utilization=${spec##*:}
 
   scripts/backup-reuse-reclaim.sh \
-    --python "$PROPOSED_PYTHON" \
-    --vllm-repo "$PROPOSED_REPO" \
+    --python "$VLLM_SWITCH_PYTHON" \
+    --vllm-repo "$VLLM_SWITCH_REPO" \
     --models "$name=$MODEL_ROOT/$directory" \
     --iterations 5 \
     --no-expect-release \
@@ -117,8 +117,8 @@ host allocator flush to settle.
 
 ```bash
 scripts/backup-reuse-reclaim.sh \
-  --python "$PROPOSED_PYTHON" \
-  --vllm-repo "$PROPOSED_REPO" \
+  --python "$VLLM_SWITCH_PYTHON" \
+  --vllm-repo "$VLLM_SWITCH_REPO" \
   --models qwen-0.5b="$MODEL_ROOT/Qwen2.5-0.5B-Instruct" \
   --iterations 2 \
   --coordinator-url http://127.0.0.1:19400 \
@@ -175,7 +175,7 @@ scripts/promote.sh backup-reuse-reclaim \
   --reclaim "$RECLAIM"
 
 scripts/build_all.sh backup-reuse-reclaim
-uv run python -m llm_switch_bench.validation.backup_reuse_reclaim.validate
+uv run python -m vllm_switch_bench.validation.backup_reuse_reclaim.validate
 git diff -- results/backup-reuse-reclaim
 ```
 

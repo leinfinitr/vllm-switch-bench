@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from vllm_switch_bench.families import FAMILY_NAMES
+from vllm_switch_bench.publication import default_results_root, family_files
+
+
+def read_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def validate_metadata(
+    family_dir: Path,
+    experiment: str,
+    *,
+    expected_status: str | None = None,
+) -> dict[str, Any]:
+    metadata = read_json(family_dir / "metadata.json")
+    require(metadata.get("schema_version") == 1, f"{experiment}: schema_version must be 1")
+    require(metadata.get("experiment") == experiment, f"{experiment}: metadata identity mismatch")
+    allowed_status = {
+        "migrated-historical-evidence",
+        "retained-local-observation",
+        "local-rerun",
+    }
+    status = metadata.get("status")
+    require(status in allowed_status, f"{experiment}: result status mismatch")
+    if expected_status is not None:
+        require(status == expected_status, f"{experiment}: result status mismatch")
+    migration = metadata.get("provenance_note", metadata.get("migration"))
+    require(
+        isinstance(migration, str) and bool(migration.strip()),
+        f"{experiment}: provenance note is missing",
+    )
+    declared = sorted(metadata.get("files", []))
+    actual = family_files(family_dir)
+    require(declared == actual, f"{experiment}: metadata file closure does not match the tree")
+    require("README.md" in declared, f"{experiment}: result README is missing")
+    require("summary.json" in declared, f"{experiment}: canonical summary is missing")
+    configs = metadata.get("config")
+    require(
+        isinstance(configs, list) and len(configs) > 0,
+        f"{experiment}: config declaration is missing",
+    )
+    assert isinstance(configs, list)
+    for relative in configs:
+        require(
+            isinstance(relative, str) and not Path(relative).is_absolute(),
+            f"{experiment}: config path must be relative",
+        )
+        config_path = (family_dir / relative).resolve()
+        if not config_path.is_file() and ".." in Path(relative).parts:
+            config_path = (default_results_root() / experiment / relative).resolve()
+        require(
+            config_path.is_file(),
+            f"{experiment}: declared config does not exist: {relative}",
+        )
+    require(
+        any(path.startswith("config/") for path in declared),
+        f"{experiment}: family config is missing",
+    )
+    return metadata
+
+
+def validate_top_level_results(results_root: Path | None = None) -> None:
+    root = results_root or default_results_root()
+    expected = {"README.md", *FAMILY_NAMES}
+    # results/tmp is the reserved ignored destination for live local runs. It is not a
+    # publication family, so validate the curated namespace while leaving local evidence in
+    # place. Any other ad hoc top-level entry still fails closed.
+    actual = {path.name for path in root.iterdir() if path.name != "tmp"}
+    require(actual == expected, f"unexpected top-level results entries: {sorted(actual)}")

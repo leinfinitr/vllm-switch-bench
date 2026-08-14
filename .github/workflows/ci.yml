@@ -53,16 +53,16 @@ jobs:
         run: |
           uv venv --python 3.12 .venv-wheel
           uv pip install --python .venv-wheel/bin/python dist/*.whl
-          .venv-wheel/bin/python -c 'import llm_switch_bench'
+          .venv-wheel/bin/python -c 'import vllm_switch_bench'
           for command in \
-            llm-switch-build-all \
-            llm-switch-validate-all \
-            llm-switch-check-docs \
-            llm-switch-lifecycle \
-            llm-switch-vllm-profiling \
-            llm-switch-request-driven-switch \
-            llm-switch-backup-reuse-reclaim \
-            llm-switch-exact-disk; do
+            vllm-switch-bench-build-all \
+            vllm-switch-bench-validate-all \
+            vllm-switch-bench-check-docs \
+            vllm-switch-bench-lifecycle \
+            vllm-switch-bench-vllm-profiling \
+            vllm-switch-bench-request-driven-switch \
+            vllm-switch-bench-backup-reuse-reclaim \
+            vllm-switch-bench-exact-disk; do
             ".venv-wheel/bin/$command" --help >/dev/null
           done
       - name: Git whitespace

@@ -4,7 +4,7 @@ import math
 import pytest
 
 
-from llm_switch_bench.common.traces import load_manifest, validate_manifest
+from vllm_switch_bench.common.traces import load_manifest, validate_manifest
 
 
 def test_validate_manifest_rejects_duplicate_ids_and_non_monotonic_arrivals():

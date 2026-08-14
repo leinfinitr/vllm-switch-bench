@@ -14,16 +14,19 @@ both lifecycle operations return, the runtime-specific sleep postcondition holds
 post-wake output equals the reference output. Failed attempts stay under `results/tmp/` and
 must not be promoted.
 
+Unqualified `vLLM` denotes the upstream project/baseline. Use `vllm-switch` for the fork,
+including the CPU-backup and exact-disk mechanisms formerly labeled Proposed.
+
 The frozen matrix is three Qwen2.5 Instruct models (0.5B, 1.5B, and 3B) and five mechanisms:
-Proposed, stock vLLM L1, stock vLLM L2, SwapServeLLM, and instrumented llama-swap. See the
+vllm-switch, vLLM L1, vLLM L2, SwapServeLLM, and instrumented llama-swap. See the
 [campaign contract](../../../results/lifecycle-latency/config/campaign.json). Native
 boundaries are not identical: llama-swap observes process unload/cold start, while
 SwapServeLLM includes its checkpoint/container control path.
 
 ## Retained result
 
-The 2026-08-13 local rerun used an RTX 3080. Proposed median sleep/wake was approximately
-`0.052/0.132 s`, `0.077/0.242 s`, and `0.155/0.481 s` for 0.5B, 1.5B, and 3B. Stock vLLM L2
+The 2026-08-13 local rerun used an RTX 3080. vllm-switch median sleep/wake was approximately
+`0.052/0.132 s`, `0.077/0.242 s`, and `0.155/0.481 s` for 0.5B, 1.5B, and 3B. vLLM L2
 median wake increased from `0.267 s` to `1.584 s`. Instrumented llama-swap wake was about
 `11.3-13.3 s`. Every retained post-wake output matched its reference.
 
@@ -43,17 +46,17 @@ uv sync --frozen --group dev
 
 BENCH_ROOT=$PWD
 RUN_ROOT="$BENCH_ROOT/results/tmp/lifecycle-latency/run-001"
-PROPOSED_REPO=/path/to/vllm-switch
-PROPOSED_PYTHON="$PROPOSED_REPO/.venv/bin/python"
-STOCK_REPO=/path/to/vllm-upstream
-STOCK_PYTHON="$STOCK_REPO/.venv/bin/python"
+VLLM_SWITCH_REPO=/path/to/vllm-switch
+VLLM_SWITCH_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+VLLM_REPO=/path/to/vllm
+VLLM_PYTHON="$VLLM_REPO/.venv/bin/python"
 MODEL_ROOT=/path/to/models
 
-"$PROPOSED_PYTHON" -m pip install -e . --no-deps
-"$STOCK_PYTHON" -m pip install -e . --no-deps
+"$VLLM_SWITCH_PYTHON" -m pip install -e . --no-deps
+"$VLLM_PYTHON" -m pip install -e . --no-deps
 ```
 
-Collect Proposed and stock vLLM L1/L2. The 3B model uses `0.80` GPU utilization; the smaller
+Collect vllm-switch and vLLM L1/L2. The 3B model uses `0.80` GPU utilization; the smaller
 models use `0.45`.
 
 ```bash
@@ -68,23 +71,23 @@ do
   utilization=${spec##*:}
 
   scripts/lifecycle-latency.sh vllm \
-    --python "$PROPOSED_PYTHON" \
-    --vllm-repo "$PROPOSED_REPO" \
+    --python "$VLLM_SWITCH_PYTHON" \
+    --vllm-repo "$VLLM_SWITCH_REPO" \
     --sleep-level 1 \
     --model "$MODEL_ROOT/$directory" \
     --model-name "$name" \
-    --system-name Proposed \
+    --system-name vllm-switch \
     --cycles 5 \
     --gpu-memory-utilization "$utilization" \
     --max-model-len 1024 \
     --dtype float16 \
-    --output "$RUN_ROOT/proposed/$name.json"
+    --output "$RUN_ROOT/vllm-switch/$name.json"
 
   for level in 1 2
   do
     scripts/lifecycle-latency.sh vllm \
-      --python "$STOCK_PYTHON" \
-      --vllm-repo "$STOCK_REPO" \
+      --python "$VLLM_PYTHON" \
+      --vllm-repo "$VLLM_REPO" \
       --sleep-level "$level" \
       --model "$MODEL_ROOT/$directory" \
       --model-name "$name" \
@@ -105,7 +108,7 @@ maximum length, and `0.80` utilization unchanged. Build the binary from the pinn
 
 ```bash
 LLAMA_REPO=/path/to/llama-swap
-STOCK_REPO=/path/to/vllm-upstream
+VLLM_REPO=/path/to/vllm
 LLAMA_CONFIG="$RUN_ROOT/llama-swap/config.yaml"
 LLAMA_BINARY="$LLAMA_REPO/build/llama-swap"
 LLAMA_PROFILE="$RUN_ROOT/llama-swap/profile.jsonl"
@@ -115,7 +118,7 @@ cp docs/experiments/lifecycle-latency/llama-swap.example.yaml "$LLAMA_CONFIG"
 $EDITOR "$LLAMA_CONFIG"
 
 git -C "$LLAMA_REPO" status --short --branch
-git -C "$STOCK_REPO" status --short --branch
+git -C "$VLLM_REPO" status --short --branch
 (
   cd "$LLAMA_REPO"
   go build -o "$LLAMA_BINARY" .
@@ -249,7 +252,7 @@ already exist.
 scripts/promote.sh lifecycle-latency \
   --candidate-root "$RUN_ROOT/candidate-dry" \
   --collected-at YYYY-MM-DD \
-  --proposed "$RUN_ROOT/proposed" \
+  --vllm-switch "$RUN_ROOT/vllm-switch" \
   --vllm-l1 "$RUN_ROOT/vllm-l1" \
   --vllm-l2 "$RUN_ROOT/vllm-l2" \
   --swapserve "$RUN_ROOT/swapserve" \
@@ -263,14 +266,14 @@ scripts/promote.sh lifecycle-latency \
   --apply \
   --candidate-root "$RUN_ROOT/candidate-apply" \
   --collected-at YYYY-MM-DD \
-  --proposed "$RUN_ROOT/proposed" \
+  --vllm-switch "$RUN_ROOT/vllm-switch" \
   --vllm-l1 "$RUN_ROOT/vllm-l1" \
   --vllm-l2 "$RUN_ROOT/vllm-l2" \
   --swapserve "$RUN_ROOT/swapserve" \
   --llama-swap "$RUN_ROOT/llama-swap/lifecycle.json"
 
 scripts/build_all.sh lifecycle-latency
-uv run python -m llm_switch_bench.validation.lifecycle_latency.validate
+uv run python -m vllm_switch_bench.validation.lifecycle_latency.validate
 git diff -- results/lifecycle-latency
 ```
 

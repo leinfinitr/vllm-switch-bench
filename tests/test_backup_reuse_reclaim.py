@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from llm_switch_bench.experiments.backup_reuse_reclaim import run as repeated
+from vllm_switch_bench.experiments.backup_reuse_reclaim import run as repeated
 
 
 def test_module_repo_metadata_records_import_path_and_checkout(monkeypatch, tmp_path: Path):

@@ -5,7 +5,7 @@ import csv
 import os
 from pathlib import Path
 
-from llm_switch_bench.experiments.vllm_profiling import run as bench
+from vllm_switch_bench.experiments.vllm_profiling import run as bench
 
 ROOT = Path(__file__).resolve().parents[1]
 

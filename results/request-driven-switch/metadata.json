@@ -13,8 +13,8 @@
     "provenance.json",
     "raw/llama-swap/e2e-alternating.jsonl",
     "raw/llama-swap/e2e-alternating.run.json",
-    "raw/proposed/e2e-alternating.jsonl",
-    "raw/proposed/e2e-alternating.run.json",
+    "raw/vllm-switch/e2e-alternating.jsonl",
+    "raw/vllm-switch/e2e-alternating.run.json",
     "summary.json"
   ],
   "provenance_note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",

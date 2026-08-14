@@ -1,16 +1,16 @@
 # Contributing
 
-Thank you for improving LLM Switch Bench. Contributions should keep reusable package code,
+Thank you for improving vllm-switch-bench. Contributions should keep reusable package code,
 GPU/runtime measurement, retained evidence, and deterministic publication transforms
 separate.
 
 ## Development setup
 
-LLM Switch Bench requires Python 3.12 and is installed from `src/llm_switch_bench`.
+vllm-switch-bench requires Python 3.12 and is installed from `src/vllm_switch_bench`.
 
 ```bash
 uv sync --frozen --group dev
-uv run python -c 'import llm_switch_bench'
+uv run python -c 'import vllm_switch_bench'
 ```
 
 The lockfile is authoritative for CPU development, tests, validation, analysis, plotting,
@@ -19,7 +19,7 @@ are experiment inputs and must be identified by run metadata.
 
 ## Choose the right home
 
-- Put reusable Python behavior in `src/llm_switch_bench/` and add focused tests in `tests/`.
+- Put reusable Python behavior in `src/vllm_switch_bench/` and add focused tests in `tests/`.
 - Keep `scripts/` to thin `.sh` wrappers that execute package modules. Do not add Python
   implementations or embed benchmark logic in shell.
 - Put the current protocol for a family in `docs/experiments/<family>/README.md`.

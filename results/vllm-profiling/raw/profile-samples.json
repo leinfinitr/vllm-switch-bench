@@ -87,7 +87,7 @@
         "GPU remap": 0.14303704164922237
       },
       "sample_index": 1,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.20606025028973818
     },
     {
@@ -98,7 +98,7 @@
         "GPU remap": 0.15326240938156843
       },
       "sample_index": 2,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.21681718342006207
     },
     {
@@ -109,7 +109,7 @@
         "GPU remap": 0.1404977533966303
       },
       "sample_index": 3,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.20359886717051268
     },
     {
@@ -120,7 +120,7 @@
         "GPU remap": 0.14785046130418777
       },
       "sample_index": 4,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.21142088528722525
     },
     {
@@ -131,7 +131,7 @@
         "GPU remap": 0.15317057818174362
       },
       "sample_index": 5,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.21565219853073359
     },
     {
@@ -143,7 +143,7 @@
         "KV-cache remap": 0.1364150457084179
       },
       "sample_index": 1,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.35863585863262415
     },
     {
@@ -155,7 +155,7 @@
         "KV-cache remap": 0.1333609353750944
       },
       "sample_index": 2,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.3560887575149536
     },
     {
@@ -167,7 +167,7 @@
         "KV-cache remap": 0.13527622818946838
       },
       "sample_index": 3,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.3548606149852276
     },
     {
@@ -179,7 +179,7 @@
         "KV-cache remap": 0.1341772237792611
       },
       "sample_index": 4,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.3510670540854335
     },
     {
@@ -191,7 +191,7 @@
         "KV-cache remap": 0.1311754398047924
       },
       "sample_index": 5,
-      "source": "stock-profile-run",
+      "source": "vllm-profile-run",
       "total_s": 0.352801569737494
     },
     {
@@ -470,7 +470,7 @@
         "vllm_python": "/home/ljl/research-systems/vllm/.venv/bin/python"
       }
     },
-    "stock-profile-run": {
+    "vllm-profile-run": {
       "behavior_config": {
         "cuda_home": "/home/ljl/cuda-13.0",
         "cuda_visible_devices": "0",
@@ -546,7 +546,7 @@
   },
   "sources": [
     "cold-run",
-    "stock-profile-run",
+    "vllm-profile-run",
     "proposed-cpu-run",
     "proposed-exact-disk-run"
   ],

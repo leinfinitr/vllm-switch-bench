@@ -4,7 +4,7 @@ import sys
 import os
 from pathlib import Path
 
-from llm_switch_bench.common import environment
+from vllm_switch_bench.common import environment
 
 
 def test_reexec_skips_current_python(monkeypatch) -> None:

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from llm_switch_bench.experiments.exact_disk.evidence import (
+from vllm_switch_bench.experiments.exact_disk.evidence import (
     ExactDiskRequirements,
     build_curated_artifacts,
     parse_exact_disk_profile,
@@ -210,7 +210,7 @@ def test_collect_cli_builds_curated_artifacts_from_existing_raw_run(tmp_path: Pa
         [
             sys.executable,
             "-m",
-            "llm_switch_bench.experiments.exact_disk.collect",
+            "vllm_switch_bench.experiments.exact_disk.collect",
             "--raw-dir",
             str(raw_dir),
             "--curated-dir",

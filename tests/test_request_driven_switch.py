@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from httpx import ASGITransport
 
 
-from llm_switch_bench.experiments.request_driven_switch.run import (
+from vllm_switch_bench.experiments.request_driven_switch.run import (
     _dispatch_one,
     failed_record,
     parse_sse_events,

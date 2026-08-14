@@ -1,12 +1,12 @@
 # Project Context
 
-LLM Switch Bench is an installed `src`-layout Python package. The default branch presents
+vllm-switch-bench is an installed `src`-layout Python package. The default branch presents
 five experiment families and the deterministic CPU workflow that rebuilds and validates
 their retained artifacts.
 
 ## Ownership by directory
 
-- `src/llm_switch_bench/`: all reusable Python runners, adapters, analysis, plotting,
+- `src/vllm_switch_bench/`: all reusable Python runners, adapters, analysis, plotting,
   family-owned artifact builders, validators, provenance helpers, and CLI implementations.
 - `scripts/`: thin executable `.sh` wrappers only. A wrapper may locate the repository,
   select the locked `uv` environment, and `exec` a package module; it must not contain
@@ -25,7 +25,7 @@ The only current result families are:
 4. `backup-reuse-reclaim`
 5. `exact-disk`
 
-`src/llm_switch_bench/families.py` is the authoritative registry. Do not add another
+`src/vllm_switch_bench/families.py` is the authoritative registry. Do not add another
 top-level result directory without changing the scientific scope, documentation, builder,
 validator, tests, and result index together.
 

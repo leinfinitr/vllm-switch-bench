@@ -7,7 +7,7 @@ unloadTimeout: 30
 models:
   qwen-1.5b:
     cmd: >-
-      /absolute/path/to/vllm-upstream/.venv/bin/python
+      /absolute/path/to/vllm/.venv/bin/python
       -m vllm.entrypoints.openai.api_server
       --model /absolute/path/to/models/Qwen2.5-1.5B-Instruct
       --served-model-name qwen-1.5b
@@ -17,10 +17,10 @@ models:
     proxy: http://127.0.0.1:${PORT}
     checkEndpoint: /health
     env:
-      - PATH=/absolute/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PATH=/absolute/path/to/vllm/.venv/bin:/usr/local/bin:/usr/bin:/bin
   qwen-3b:
     cmd: >-
-      /absolute/path/to/vllm-upstream/.venv/bin/python
+      /absolute/path/to/vllm/.venv/bin/python
       -m vllm.entrypoints.openai.api_server
       --model /absolute/path/to/models/Qwen2.5-3B-Instruct
       --served-model-name qwen-3b
@@ -30,4 +30,4 @@ models:
     proxy: http://127.0.0.1:${PORT}
     checkEndpoint: /health
     env:
-      - PATH=/absolute/path/to/vllm-upstream/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PATH=/absolute/path/to/vllm/.venv/bin:/usr/local/bin:/usr/bin:/bin

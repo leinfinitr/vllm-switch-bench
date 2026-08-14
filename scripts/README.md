@@ -2,7 +2,7 @@
 
 Shell files in this directory are thin wrappers around installed package modules. They may
 locate the checkout and select `uv`, but experiment and publication logic belongs under
-`src/llm_switch_bench/`.
+`src/vllm_switch_bench/`.
 
 ## Live experiments
 

@@ -7,34 +7,34 @@ from pathlib import Path
 
 import pytest
 
-from llm_switch_bench import check_docs, tracked_ignore
-from llm_switch_bench.artifacts import build_all
-from llm_switch_bench.experiments.lifecycle_latency.artifacts import (
+from vllm_switch_bench import check_docs, tracked_ignore
+from vllm_switch_bench.artifacts import build_all
+from vllm_switch_bench.experiments.lifecycle_latency.artifacts import (
     EXTERNAL_CONTRACTS,
     build as build_lifecycle,
     summary_rows as lifecycle_summary_rows,
 )
-from llm_switch_bench.experiments.request_driven_switch.artifacts import summary as e2e_summary
-from llm_switch_bench.experiments.vllm_profiling.artifacts import (
+from vllm_switch_bench.experiments.request_driven_switch.artifacts import summary as e2e_summary
+from vllm_switch_bench.experiments.vllm_profiling.artifacts import (
     build as build_vllm_profiling,
 )
-from llm_switch_bench.families import FAMILY_NAMES
-from llm_switch_bench.validation.backup_reuse_reclaim.validate import (
+from vllm_switch_bench.families import FAMILY_NAMES
+from vllm_switch_bench.validation.backup_reuse_reclaim.validate import (
     validate_family as validate_backup,
 )
-from llm_switch_bench.validation.exact_disk.validate import validate_family as validate_exact_disk
-from llm_switch_bench.validation.lifecycle_latency.validate import (
+from vllm_switch_bench.validation.exact_disk.validate import validate_family as validate_exact_disk
+from vllm_switch_bench.validation.lifecycle_latency.validate import (
     validate_family as validate_lifecycle,
 )
-from llm_switch_bench.validation.request_driven_switch.validate import (
+from vllm_switch_bench.validation.request_driven_switch.validate import (
     validate_family as validate_request,
 )
-from llm_switch_bench.validation.vllm_profiling.validate import (
+from vllm_switch_bench.validation.vllm_profiling.validate import (
     validate_family as validate_vllm_profiling,
 )
-from llm_switch_bench.validation import validate_all as validate_all_module
-from llm_switch_bench.validation.common import validate_top_level_results
-from llm_switch_bench.validation.validate_all import validate_all
+from vllm_switch_bench.validation import validate_all as validate_all_module
+from vllm_switch_bench.validation.common import validate_top_level_results
+from vllm_switch_bench.validation.validate_all import validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
@@ -44,12 +44,12 @@ FAMILIES = set(FAMILY_NAMES)
 def test_family_registry_matches_publication_tree() -> None:
     experiment_packages = {
         path.name
-        for path in (ROOT / "src" / "llm_switch_bench" / "experiments").iterdir()
+        for path in (ROOT / "src" / "vllm_switch_bench" / "experiments").iterdir()
         if path.is_dir() and not path.name.startswith("__")
     }
     validation_packages = {
         path.name.replace("_", "-")
-        for path in (ROOT / "src" / "llm_switch_bench" / "validation").iterdir()
+        for path in (ROOT / "src" / "vllm_switch_bench" / "validation").iterdir()
         if path.is_dir() and not path.name.startswith("__")
     }
     result_families = {
@@ -170,14 +170,14 @@ def test_external_assets_are_contracts_not_tracked_binaries() -> None:
 def test_builder_failure_does_not_delete_family_raw_evidence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    raw = RESULTS / "lifecycle-latency" / "raw" / "proposed" / "qwen-0.5b.json"
+    raw = RESULTS / "lifecycle-latency" / "raw" / "vllm-switch" / "qwen-0.5b.json"
     before = raw.read_bytes()
 
     def fail(*_args: object, **_kwargs: object) -> None:
         raise RuntimeError("synthetic plot failure")
 
     monkeypatch.setattr(
-        "llm_switch_bench.experiments.lifecycle_latency.artifacts.write_figure", fail
+        "vllm_switch_bench.experiments.lifecycle_latency.artifacts.write_figure", fail
     )
 
     with pytest.raises(RuntimeError, match="synthetic plot failure"):
@@ -195,7 +195,7 @@ def test_vllm_profiling_builder_failure_does_not_delete_raw_evidence(
         raise RuntimeError("synthetic profile plot failure")
 
     monkeypatch.setattr(
-        "llm_switch_bench.experiments.vllm_profiling.artifacts.write_artifacts", fail
+        "vllm_switch_bench.experiments.vllm_profiling.artifacts.write_artifacts", fail
     )
     with pytest.raises(RuntimeError, match="synthetic profile plot failure"):
         build_vllm_profiling()
@@ -216,7 +216,7 @@ def test_vllm_profiling_validator_rejects_non_closing_phase_accounting(
 
 def test_lifecycle_validator_rejects_output_mismatch(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "lifecycle-latency")
-    raw = target / "raw" / "proposed" / "qwen-0.5b.json"
+    raw = target / "raw" / "vllm-switch" / "qwen-0.5b.json"
     data = json.loads(raw.read_text())
     data["rows"][0]["output_match"] = False
     raw.write_text(json.dumps(data), encoding="utf-8")
@@ -226,7 +226,7 @@ def test_lifecycle_validator_rejects_output_mismatch(tmp_path: Path) -> None:
 
 def test_lifecycle_validator_rejects_non_positive_raw_phase(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "lifecycle-latency")
-    raw = target / "raw" / "proposed" / "qwen-0.5b.json"
+    raw = target / "raw" / "vllm-switch" / "qwen-0.5b.json"
     data = json.loads(raw.read_text())
     data["rows"][0]["sleep_s"] = -1.0
     raw.write_text(json.dumps(data), encoding="utf-8")
@@ -256,7 +256,7 @@ def test_lifecycle_validator_rejects_failed_gpu_postcondition(tmp_path: Path) ->
 
 def test_request_validator_rejects_changed_dispatch_semantics(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "request-driven-switch")
-    raw = target / "raw" / "proposed" / "e2e-alternating.jsonl"
+    raw = target / "raw" / "vllm-switch" / "e2e-alternating.jsonl"
     rows = [json.loads(line) for line in raw.read_text().splitlines()]
     rows[0]["max_tokens"] = 64
     raw.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
@@ -276,7 +276,7 @@ def test_request_validator_rejects_semantically_empty_success(tmp_path: Path) ->
 
 def test_backup_validator_requires_material_os_reclaim(tmp_path: Path) -> None:
     target = copy_family(tmp_path, "backup-reuse-reclaim")
-    raw = target / "raw" / "proposed" / "reclaim.json"
+    raw = target / "raw" / "vllm-switch" / "reclaim.json"
     data = json.loads(raw.read_text())
     settled = next(step for step in data["steps"] if step.get("pre_wake_host_memavailable_bytes"))
     settled["post_wake_host_memavailable_bytes"] = settled["pre_wake_host_memavailable_bytes"] + 1

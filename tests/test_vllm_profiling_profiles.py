@@ -4,11 +4,11 @@ import json
 
 import pytest
 
-from llm_switch_bench.experiments.vllm_profiling import run as bench
+from vllm_switch_bench.experiments.vllm_profiling import run as bench
 
 
 def test_vllm_harness_uses_shared_prompt_catalog():
-    from llm_switch_bench.common.schema import PROMPTS
+    from vllm_switch_bench.common.schema import PROMPTS
 
     assert bench.PROMPTS is PROMPTS
 
