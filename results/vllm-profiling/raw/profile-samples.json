@@ -202,7 +202,7 @@
         "GPU remap": 0.18503049574792385
       },
       "sample_index": 1,
-      "source": "proposed-cpu-run",
+      "source": "vllm-switch-cpu-run",
       "total_s": 0.3008827855810523
     },
     {
@@ -213,7 +213,7 @@
         "GPU remap": 0.17415185365825891
       },
       "sample_index": 2,
-      "source": "proposed-cpu-run",
+      "source": "vllm-switch-cpu-run",
       "total_s": 0.2921218080446124
     },
     {
@@ -224,7 +224,7 @@
         "GPU remap": 0.18269554805010557
       },
       "sample_index": 3,
-      "source": "proposed-cpu-run",
+      "source": "vllm-switch-cpu-run",
       "total_s": 0.2977032298222184
     },
     {
@@ -235,7 +235,7 @@
         "GPU remap": 0.18380328360944986
       },
       "sample_index": 4,
-      "source": "proposed-cpu-run",
+      "source": "vllm-switch-cpu-run",
       "total_s": 0.2989024166017771
     },
     {
@@ -246,7 +246,7 @@
         "GPU remap": 0.18486700486391783
       },
       "sample_index": 5,
-      "source": "proposed-cpu-run",
+      "source": "vllm-switch-cpu-run",
       "total_s": 0.29859695211052895
     },
     {
@@ -257,7 +257,7 @@
         "GPU remap": 0.23485705349594355
       },
       "sample_index": 1,
-      "source": "proposed-exact-disk-run",
+      "source": "vllm-switch-exact-disk-run",
       "total_s": 0.7404618989676237
     },
     {
@@ -268,7 +268,7 @@
         "GPU remap": 0.24806960206478834
       },
       "sample_index": 2,
-      "source": "proposed-exact-disk-run",
+      "source": "vllm-switch-exact-disk-run",
       "total_s": 0.7504893159493804
     },
     {
@@ -279,7 +279,7 @@
         "GPU remap": 0.23586646374315023
       },
       "sample_index": 3,
-      "source": "proposed-exact-disk-run",
+      "source": "vllm-switch-exact-disk-run",
       "total_s": 0.738429787568748
     },
     {
@@ -290,7 +290,7 @@
         "GPU remap": 0.25061357021331787
       },
       "sample_index": 4,
-      "source": "proposed-exact-disk-run",
+      "source": "vllm-switch-exact-disk-run",
       "total_s": 0.7521089799702168
     },
     {
@@ -301,7 +301,7 @@
         "GPU remap": 0.23910570982843637
       },
       "sample_index": 5,
-      "source": "proposed-exact-disk-run",
+      "source": "vllm-switch-exact-disk-run",
       "total_s": 0.7415911313146353
     }
   ],
@@ -379,7 +379,7 @@
         "revision": null
       }
     },
-    "proposed-cpu-run": {
+    "vllm-switch-cpu-run": {
       "behavior_config": {
         "coordinator_timeout_s": 0.05,
         "coordinator_url": null,
@@ -427,7 +427,7 @@
         "python_executable": "/home/ljl/research-systems/vllm/.venv/bin/python"
       }
     },
-    "proposed-exact-disk-run": {
+    "vllm-switch-exact-disk-run": {
       "benchmark_repo": {
         "branch": "refactor/open-source-quality",
         "commit": "229a79ec2b0a4b37516fab8d38278ba9849054ee",
@@ -547,8 +547,8 @@
   "sources": [
     "cold-run",
     "vllm-profile-run",
-    "proposed-cpu-run",
-    "proposed-exact-disk-run"
+    "vllm-switch-cpu-run",
+    "vllm-switch-exact-disk-run"
   ],
   "stability_rule": {
     "center": "median of five retained samples",

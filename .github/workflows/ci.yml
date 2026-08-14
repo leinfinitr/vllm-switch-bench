@@ -58,6 +58,7 @@ jobs:
             vllm-switch-bench-build-all \
             vllm-switch-bench-validate-all \
             vllm-switch-bench-check-docs \
+            vllm-switch-bench-promote \
             vllm-switch-bench-lifecycle \
             vllm-switch-bench-vllm-profiling \
             vllm-switch-bench-request-driven-switch \

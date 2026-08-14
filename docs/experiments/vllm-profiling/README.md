@@ -11,7 +11,9 @@ The stacked bar is one real sample nearest the median, with sample index as the 
 Its disjoint phase durations must close to total latency. Exact-disk read, hashing, and H2D
 copy overlap, so the plot uses pipeline wall time rather than summing concurrent work.
 
-The [frozen campaign](../../../results/vllm-profiling/config/campaign.json) is
+Unqualified `vLLM` refers to the upstream baseline, currently vLLM `v0.22.1`; fork-specific
+mechanisms are named `vllm-switch`. The
+[frozen campaign](../../../results/vllm-profiling/config/campaign.json) is
 Qwen2.5-0.5B-Instruct, float16, max model length 1024, eager execution, 0.80 GPU memory
 utilization, and one RTX 3080. Cold/L1/L2 launch fresh service processes; vllm-switch CPU and
 disk measurements use same-process cycles. Engine revisions differ, so this is a descriptive
@@ -78,7 +80,7 @@ scripts/vllm-profiling.sh \
   --max-model-len 1024 \
   --dtype float16 \
   --enforce-eager \
-  --out-dir "$RUN_ROOT/stock"
+  --out-dir "$RUN_ROOT/vllm"
 ```
 
 Collect vllm-switch CPU backup. The generated timestamp directory contains
@@ -113,7 +115,7 @@ Set the timestamp directories produced above, then stage a dry candidate:
 
 ```bash
 COLD_SUMMARY="$RUN_ROOT/cold/<timestamp>/summary.json"
-VLLM_SUMMARY="$RUN_ROOT/stock/<timestamp>/summary.json"
+VLLM_SUMMARY="$RUN_ROOT/vllm/<timestamp>/summary.json"
 CPU_SUMMARY="$RUN_ROOT/cpu/<timestamp>/repeated_sleep_l1_summary.json"
 EXACT_RUN="$RUN_ROOT/exact"
 

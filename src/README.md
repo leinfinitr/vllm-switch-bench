@@ -27,6 +27,7 @@ CLI help, and package imports remain usable in CPU environments.
 vllm-switch-bench-build-all
 vllm-switch-bench-validate-all
 vllm-switch-bench-check-docs
+vllm-switch-bench-promote
 vllm-switch-bench-lifecycle
 vllm-switch-bench-vllm-profiling
 vllm-switch-bench-request-driven-switch
@@ -34,8 +35,9 @@ vllm-switch-bench-backup-reuse-reclaim
 vllm-switch-bench-exact-disk
 ```
 
-The first three operate on retained repository artifacts. The five experiment commands can
-launch or contact runtime services; use their `--help` output and the corresponding
+The build, validation, documentation, and promotion commands operate on retained or staged
+repository artifacts. The five experiment commands can launch or contact runtime services;
+use their `--help` output and the corresponding
 [`docs/experiments/`](../docs/experiments/) protocol.
 
 ## Design rules

@@ -80,7 +80,7 @@
       },
       "representative_sample_index": 5,
       "representative_total_s": 0.29859695211052895,
-      "source": "proposed-cpu-run"
+      "source": "vllm-switch-cpu-run"
     },
     {
       "max_s": 0.7521089799702168,
@@ -95,7 +95,7 @@
       },
       "representative_sample_index": 5,
       "representative_total_s": 0.7415911313146353,
-      "source": "proposed-exact-disk-run"
+      "source": "vllm-switch-exact-disk-run"
     }
   ],
   "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded.",
@@ -113,8 +113,8 @@
   "sources": [
     "cold-run",
     "vllm-profile-run",
-    "proposed-cpu-run",
-    "proposed-exact-disk-run"
+    "vllm-switch-cpu-run",
+    "vllm-switch-exact-disk-run"
   ],
   "stability_rule": {
     "center": "median of five retained samples",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Profile model lifecycle transitions for local vLLM and vLLM-Switch tests.
+"""Profile model lifecycle transitions for local vLLM and vllm-switch tests.
 
 The harness is intentionally self-contained and conservative for the shared IPADS
 server: it does not drop Linux page cache, does not change system-wide settings,
