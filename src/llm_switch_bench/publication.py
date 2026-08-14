@@ -52,7 +52,6 @@ def write_family_metadata(
     status: str = "retained-evidence",
     collected_at: str = "2026-08-04",
     provenance_note: str = "No additional provenance note was recorded.",
-    source_commits: dict[str, str] | None = None,
 ) -> None:
     provenance_path = family_dir / "provenance.json"
     if provenance_path.is_file():
@@ -60,14 +59,13 @@ def write_family_metadata(
         status = str(provenance["status"])
         collected_at = str(provenance["collected_at"])
         provenance_note = str(provenance["note"])
-        source_commits = dict(provenance.get("source_commits", {}))
+
     metadata: dict[str, Any] = {
         "schema_version": 1,
         "experiment": family,
         "status": status,
         "collected_at": collected_at,
         "provenance_note": provenance_note,
-        "source_commits": {} if source_commits is None else source_commits,
         "config": config,
         "validation": validation,
         "files": family_files(family_dir),

@@ -62,9 +62,6 @@
   ],
   "provenance_note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",
   "schema_version": 1,
-  "source_commits": {
-    "benchmark": "229a79ec2b0a4b37516fab8d38278ba9849054ee"
-  },
   "status": "local-rerun",
   "validation": {
     "aggregate_cells": 30,

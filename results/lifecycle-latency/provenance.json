@@ -10,8 +10,5 @@
     "working_tree_sha256": "0df9fed754376a3d8dcda1647b9121ccc34667814299a4fac223af99b226cfef"
   },
   "schema_version": 1,
-  "source_commits": {
-    "benchmark": "229a79ec2b0a4b37516fab8d38278ba9849054ee"
-  },
   "status": "local-rerun"
 }

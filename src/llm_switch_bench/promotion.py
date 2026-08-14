@@ -178,7 +178,6 @@ def _write_provenance(family: Path, collected_at: str) -> None:
                 "Local GPU rerun promoted from validator-approved results/tmp evidence. "
                 "Per-run raw metadata is authoritative for runtime identity."
             ),
-            "source_commits": {"benchmark": str(benchmark["commit"])},
             "promotion_benchmark": benchmark,
         },
     )
