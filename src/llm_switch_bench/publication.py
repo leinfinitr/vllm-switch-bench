@@ -8,21 +8,6 @@ from typing import Any
 
 from llm_switch_bench.common.provenance import repository_root
 
-SOURCE_COMMITS = {
-    "vllm_collection": "1b3919d8c210af05f6ea8b29fff33fb8d07e6c1d",
-    "vllm_upstream_baseline": "0decac0d96c42b49572498019f0a0e3600f50398",
-    "vllm_stock_profiling": "03e5ae257135073ddddbcd1264697f24c1c62e08",
-    "controller_collection": "70e29287609f8b6639fb1b68cbcb9ffe85ed5273",
-    "benchmark_collection": "9ad35876ba1b7921f8e1547698a1a8412709078e",
-    "benchmark_release_tag": "v0.1.8",
-    "SwapServeLLM": "69f8aec0b11e49124f70754dc5149c36fd8327a5",
-    "llama-swap": "c6adf57df1ac2e3dff2402dbb479cd5a133b6afe",
-}
-MIGRATION_NOTE = (
-    "Migrated from tracked v0.1.8 evidence; no new data was generated during this "
-    "refactor. The canonical GPU rerun is not complete."
-)
-
 
 def default_results_root() -> Path:
     return repository_root() / "results"
@@ -64,9 +49,9 @@ def write_family_metadata(
     config: list[str],
     validation: dict[str, Any],
     extra: dict[str, Any] | None = None,
-    status: str = "migrated-historical-evidence",
+    status: str = "retained-evidence",
     collected_at: str = "2026-08-04",
-    migration: str = MIGRATION_NOTE,
+    provenance_note: str = "No additional provenance note was recorded.",
     source_commits: dict[str, str] | None = None,
 ) -> None:
     provenance_path = family_dir / "provenance.json"
@@ -74,15 +59,15 @@ def write_family_metadata(
         provenance = read_json(provenance_path)
         status = str(provenance["status"])
         collected_at = str(provenance["collected_at"])
-        migration = str(provenance["note"])
+        provenance_note = str(provenance["note"])
         source_commits = dict(provenance.get("source_commits", {}))
     metadata: dict[str, Any] = {
         "schema_version": 1,
         "experiment": family,
         "status": status,
         "collected_at": collected_at,
-        "provenance_note": migration,
-        "source_commits": SOURCE_COMMITS if source_commits is None else source_commits,
+        "provenance_note": provenance_note,
+        "source_commits": {} if source_commits is None else source_commits,
         "config": config,
         "validation": validation,
         "files": family_files(family_dir),

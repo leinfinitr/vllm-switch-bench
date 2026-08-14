@@ -15,7 +15,7 @@ The [frozen campaign](../../../results/vllm-profiling/config/campaign.json) is
 Qwen2.5-0.5B-Instruct, float16, max model length 1024, eager execution, 0.80 GPU memory
 utilization, and one RTX 3080. Cold/L1/L2 launch fresh service processes; Proposed CPU and
 disk measurements use same-process cycles. Engine revisions differ, so this is a descriptive
-mechanism profile, not a release-matched ranking.
+mechanism profile, not a controlled cross-system ranking.
 
 ## Retained result
 

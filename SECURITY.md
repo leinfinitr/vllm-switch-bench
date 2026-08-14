@@ -1,13 +1,9 @@
 # Security Policy
 
-## Supported versions
+## Supported code
 
-Security fixes are applied to the latest release line and the default branch.
-
-| Version | Supported |
-|---|---|
-| 0.1.x | Yes |
-| Historical research branches | No |
+Security fixes are applied to the default branch. Historical research branches are not
+maintained.
 
 ## Reporting a vulnerability
 

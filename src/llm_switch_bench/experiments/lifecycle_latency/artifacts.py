@@ -30,17 +30,10 @@ RAW_MAP = {
 }
 EXTERNAL_CONTRACTS = {
     "SwapServeLLM": {
-        "asset_url": (
-            "https://github.com/leinfinitr/llm-switch-bench/releases/download/v0.1.8/SwapServeLLM"
-        ),
         "size_bytes": 54_774_096,
         "sha256": "7d463c42e3d0c965cba078d77a2abb053ba02f2a27a2303d32e5dccecffae091",
     },
     "llama-swap-profiled": {
-        "asset_url": (
-            "https://github.com/leinfinitr/llm-switch-bench/releases/download/"
-            "v0.1.8/llama-swap-profiled"
-        ),
         "size_bytes": 20_973_543,
         "sha256": "196148236fad99b32cb86c04d9297cfe0eaca68d204c920e3aeff290d04a024b",
     },

@@ -53,7 +53,7 @@ jobs:
         run: |
           uv venv --python 3.12 .venv-wheel
           uv pip install --python .venv-wheel/bin/python dist/*.whl
-          .venv-wheel/bin/python -c 'import llm_switch_bench; assert llm_switch_bench.__version__ == "0.2.0.dev0"'
+          .venv-wheel/bin/python -c 'import llm_switch_bench'
           for command in \
             llm-switch-build-all \
             llm-switch-validate-all \

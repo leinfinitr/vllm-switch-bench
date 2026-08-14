@@ -99,4 +99,5 @@ a model server or require a GPU.
 - Stage an explicit path allowlist; never use `git add -A` in a shared worktree.
 - Keep protocol/metric changes separate from retained-data changes and state whether a GPU
   rerun is required.
-- Do not amend, force-push, rewrite the immutable tag, or push without explicit direction.
+- Do not change package versions, publish artifacts, amend, force-push, or push without
+  explicit maintainer direction.

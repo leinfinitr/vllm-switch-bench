@@ -42,7 +42,7 @@ Install [uv](https://docs.astral.sh/uv/) and Python 3.12, then run from the repo
 
 ```bash
 uv sync --frozen --group dev
-uv run python -c 'import llm_switch_bench; print(llm_switch_bench.__version__)'
+uv run python -c 'import llm_switch_bench'
 uv run pytest tests -q
 uv run ruff check src tests
 uv run ruff format --check src tests
@@ -73,5 +73,5 @@ requires `git ls-files -ci --exclude-standard` to be empty.
 
 ## License and citation
 
-Code is released under the [Apache License 2.0](LICENSE). Citation metadata is in
+Code is licensed under the [Apache License 2.0](LICENSE). Citation metadata is in
 [`CITATION.cff`](CITATION.cff).

@@ -10,7 +10,7 @@ LLM Switch Bench requires Python 3.12 and is installed from `src/llm_switch_benc
 
 ```bash
 uv sync --frozen --group dev
-uv run python -c 'import llm_switch_bench; print(llm_switch_bench.__version__)'
+uv run python -c 'import llm_switch_bench'
 ```
 
 The lockfile is authoritative for CPU development, tests, validation, analysis, plotting,
@@ -40,7 +40,7 @@ matrix, or evidence requirement. A reviewable experiment change must state:
 6. how raw evidence is promoted and how the semantic validator will fail on invalid data.
 
 A live run must bind the benchmark commit/dirty state, engine and controller commits,
-actually imported package path/version, behavior-affecting configuration or digest, model
+actually imported package path and repository state, behavior-affecting configuration or digest, model
 revision, workload, external executable or image digest, and hardware/software environment.
 Do not infer runtime identity from a nearby checkout or from `uv.lock`.
 

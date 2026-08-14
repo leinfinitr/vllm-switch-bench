@@ -52,4 +52,4 @@ Use `results/tmp/<experiment>/<run-id>/` for live or exploratory output. Do not 
 weights, runtime payloads, credentials, broad logs, caches, or unrelated failed runs. Do not
 silently edit retained raw evidence to make a validator pass. Use `scripts/promote.sh` to
 stage a complete candidate, review it, and atomically replace one validated family. Promotion
-keeps the previous family under the ignored candidate root; preserve the immutable tag.
+keeps the previous family under the ignored candidate root.

@@ -3,7 +3,7 @@
   "config": [
     "config/campaign.json"
   ],
-  "evidence_label": "descriptive local mechanism comparison; not a release-matched system ranking",
+  "evidence_label": "descriptive local mechanism comparison; not a controlled cross-system ranking",
   "experiment": "vllm-profiling",
   "files": [
     "README.md",
