@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "model": "Qwen2.5-0.5B-Instruct",
   "methods": [
     "Cold load",
@@ -22,5 +22,8 @@
     "spread": "minimum and maximum",
     "representative_profile": "retained sample nearest the median; ties use sample_index"
   },
-  "metric_boundary": "Activation begins immediately before process start or wake API call and ends when the health/wake response returns; request generation is excluded."
+  "metric_boundary": {
+    "sleep": "Sleep begins immediately before process termination or the sleep API call and ends when process exit or the sleep response returns.",
+    "wake": "Wake begins immediately before process start or the wake API call and ends when health readiness or the wake response returns; request generation is excluded."
+  }
 }

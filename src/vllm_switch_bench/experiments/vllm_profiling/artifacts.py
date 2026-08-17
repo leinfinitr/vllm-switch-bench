@@ -14,7 +14,7 @@ from vllm_switch_bench.publication import (
 
 RESULT_README = """# vLLM profiling
 
-Question: which activation phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk backup restoration under the retained local scope?
+Question: which sleep and wake phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk mechanisms under the retained local scope?
 
 - Configuration: [`config/campaign.json`](config/campaign.json)
 - Raw evidence: [`raw/profile-samples.json`](raw/profile-samples.json)
@@ -35,7 +35,12 @@ def build(results_root: Path | None = None) -> None:
         "vllm-profiling",
         family,
         config=["config/campaign.json"],
-        validation={"methods": 5, "samples_per_method": 5, "phase_accounting": True},
+        validation={
+            "methods": 5,
+            "samples_per_method": 5,
+            "operations": ["sleep", "wake"],
+            "phase_accounting": True,
+        },
         extra={
             "evidence_label": (
                 "descriptive local mechanism comparison; not a release-matched system ranking"

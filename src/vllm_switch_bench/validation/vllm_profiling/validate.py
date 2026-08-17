@@ -8,6 +8,7 @@ from pathlib import Path
 from vllm_switch_bench.experiments.vllm_profiling.plot import (
     METHOD_LABELS,
     METHOD_ORDER,
+    PROFILE_OPERATIONS,
     RAW_METHOD_ORDER,
     aggregate_profiles,
 )
@@ -24,8 +25,8 @@ def validate_family(path: Path | None = None) -> None:
     )
     document = json.loads((raw_dir / "profile-samples.json").read_text(encoding="utf-8"))
     config = json.loads((family / "config" / "campaign.json").read_text(encoding="utf-8"))
-    require(document.get("schema_version") == 1, "vllm-profiling: raw schema mismatch")
-    require(config.get("schema_version") == 1, "vllm-profiling: config schema mismatch")
+    require(document.get("schema_version") == 2, "vllm-profiling: raw schema mismatch")
+    require(config.get("schema_version") == 2, "vllm-profiling: config schema mismatch")
     require(document.get("model") == config.get("model"), "vllm-profiling: model mismatch")
     scope = document.get("frozen_scope", {})
     for field in ("dtype", "max_model_len", "gpu_memory_utilization", "engine_mode"):
@@ -79,23 +80,33 @@ def validate_family(path: Path | None = None) -> None:
             f"vllm-profiling: {method} sample indexes mismatch",
         )
         for row in rows:
-            total = float(row["total_s"])
-            phases = row.get("phases_s", {})
-            require(math.isfinite(total) and total > 0, "vllm-profiling: invalid total")
-            require(isinstance(phases, dict) and phases, "vllm-profiling: phases missing")
-            require(
-                all(math.isfinite(float(value)) and float(value) >= 0 for value in phases.values()),
-                "vllm-profiling: invalid phase value",
-            )
-            require(
-                math.isclose(
-                    sum(float(value) for value in phases.values()),
-                    total,
-                    rel_tol=1e-6,
-                    abs_tol=1e-6,
-                ),
-                "vllm-profiling: phase accounting does not close",
-            )
+            for operation in PROFILE_OPERATIONS:
+                total = float(row[f"{operation}_total_s"])
+                phases = row.get(f"{operation}_phases_s", {})
+                require(
+                    math.isfinite(total) and total > 0,
+                    f"vllm-profiling: invalid {operation} total",
+                )
+                require(
+                    isinstance(phases, dict) and phases,
+                    f"vllm-profiling: {operation} phases missing",
+                )
+                require(
+                    all(
+                        math.isfinite(float(value)) and float(value) >= 0
+                        for value in phases.values()
+                    ),
+                    f"vllm-profiling: invalid {operation} phase value",
+                )
+                require(
+                    math.isclose(
+                        sum(float(value) for value in phases.values()),
+                        total,
+                        rel_tol=1e-6,
+                        abs_tol=1e-6,
+                    ),
+                    f"vllm-profiling: {operation} phase accounting does not close",
+                )
             source = row.get("source")
             require(
                 isinstance(source, str) and source in sources and not Path(source).is_absolute(),

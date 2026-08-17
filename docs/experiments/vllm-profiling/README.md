@@ -2,14 +2,18 @@
 
 ## Research question and metric
 
-Which activation phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk restoration?
-Activation latency is seconds from process start or wake invocation through readiness or
-completed wake; inference after readiness is excluded. Six observations are collected and
-index zero is discarded. The result reports the median and min/max of the remaining five.
+Which sleep and wake phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk mechanisms?
 
-The stacked bar is one real sample nearest the median, with sample index as the tie-breaker.
-Its disjoint phase durations must close to total latency. Exact-disk read, hashing, and H2D
-copy overlap, so the plot uses pipeline wall time rather than summing concurrent work.
+Sleep latency is seconds from process termination or sleep invocation through process exit or
+completed sleep. Wake latency is seconds from process start or wake invocation through
+readiness or completed wake; inference after readiness is excluded. Six paired observations
+are collected and index zero is discarded. The result reports the median and min/max of the
+remaining five for each operation.
+
+Each stacked bar is one real sample nearest its operation median, with sample index as the
+tie-breaker; sleep and wake may select different representative samples. Its disjoint phase
+durations must close to total latency. Exact-disk read, hashing, and H2D copy overlap, so the
+wake plot uses pipeline wall time rather than summing concurrent work.
 
 Unqualified `vLLM` refers to the upstream baseline, currently vLLM `v0.22.1`; fork-specific
 mechanisms are named `vllm-switch`. The
@@ -21,10 +25,13 @@ mechanism profile, not a release-matched ranking.
 
 ## Retained result
 
-The 2026-08-13 median activation times are `11.534 s` cold load, `0.211 s` vLLM L1,
-`0.355 s` vLLM L2, `0.299 s` vllm-switch CPU backup, and `0.742 s` vllm-switch exact disk.
+The median sleep times are `0.364 s` cold-process shutdown, `0.430 s` vLLM L1,
+`0.075 s` vLLM L2, `0.064 s` vllm-switch CPU backup, and `0.069 s` vllm-switch exact disk.
+The paired median wake times are `11.534 s`, `0.211 s`, `0.355 s`, `0.299 s`, and `0.742 s`,
+respectively.
 
-- [PNG figure](../../../results/vllm-profiling/figures/vllm-profiling.png)
+![PNG figure](../../../results/vllm-profiling/figures/vllm-profiling.png)
+
 - [PDF figure](../../../results/vllm-profiling/figures/vllm-profiling.pdf)
 - [JSON summary](../../../results/vllm-profiling/summary.json)
 - [Compact retained samples](../../../results/vllm-profiling/raw/profile-samples.json)
@@ -128,9 +135,9 @@ scripts/promote.sh vllm-profiling \
   --exact-run "$EXACT_RUN"
 ```
 
-Promotion compiles machine-local sources into stable compact samples and validates sample
-count, warm-up removal, eager scope, phase closure, and source identity. Review the candidate,
-then repeat with a new root and `--apply`:
+Promotion compiles machine-local sources into stable compact sleep/wake samples and validates
+sample count, warm-up removal, eager scope, both operations' phase closure, and source
+identity. Review the candidate, then repeat with a new root and `--apply`:
 
 ```bash
 scripts/promote.sh vllm-profiling \
@@ -153,6 +160,6 @@ Repeat build/validation and require no second-pass diff. The previous family is 
 ## Threats and limitations
 
 This is one model, host, GPU, and five post-warm-up samples per method. Page cache, allocator
-history, filesystem behavior, JIT state, and process reuse affect totals and phase shares.
+history, filesystem behavior, JIT state, and process reuse affect totals and phase breakdowns.
 Different engine commits implement the mechanisms. The result does not establish throughput,
 capacity, tail latency, or system superiority.

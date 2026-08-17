@@ -1,4 +1,4 @@
-"""Aggregate and plot the retained vLLM activation-latency profiles."""
+"""Aggregate and plot the retained vLLM sleep- and wake-latency profiles."""
 
 from __future__ import annotations
 
@@ -30,7 +30,12 @@ METHOD_LABELS = {
     "Exact disk": "vllm-switch exact disk",
 }
 METHOD_ORDER = tuple(METHOD_LABELS[method] for method in RAW_METHOD_ORDER)
+PROFILE_OPERATIONS = ("sleep", "wake")
 PHASE_ORDER = (
+    "Process shutdown",
+    "CPU backup allocation",
+    "GPU→CPU copy",
+    "GPU unmap + release",
     "Process + engine startup",
     "CPU→GPU copy",
     "GPU remap",
@@ -40,6 +45,10 @@ PHASE_ORDER = (
     "Control overhead",
 )
 PHASE_COLORS = {
+    "Process shutdown": "#374151",
+    "CPU backup allocation": "#F0E442",
+    "GPU→CPU copy": "#D55E00",
+    "GPU unmap + release": "#8A9A2A",
     "Process + engine startup": "#6B7280",
     "CPU→GPU copy": "#E69F00",
     "GPU remap": "#009E73",
@@ -60,7 +69,7 @@ def _number(value: Any, *, name: str) -> float:
 
 
 def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
-    """Select one real median-nearest profile and preserve total-latency spread."""
+    """Aggregate sleep and wake independently using real median-nearest profiles."""
 
     samples = document.get("samples")
     if not isinstance(samples, list):
@@ -72,32 +81,35 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
         method = raw.get("method")
         if method not in grouped:
             raise ValueError(f"unknown method: {method!r}")
-        total = _number(raw.get("total_s"), name=f"samples[{index}].total_s")
-        phases = raw.get("phases_s")
-        if not isinstance(phases, dict) or not phases:
-            raise ValueError(f"samples[{index}].phases_s must be a non-empty object")
-        normalized_phases: dict[str, float] = {}
-        for phase, value in phases.items():
-            if phase not in PHASE_ORDER:
-                raise ValueError(f"unknown phase: {phase!r}")
-            normalized_phases[phase] = _number(value, name=f"samples[{index}].phases_s[{phase!r}]")
-        phase_sum = sum(normalized_phases.values())
-        if not math.isclose(phase_sum, total, rel_tol=1e-6, abs_tol=1e-6):
-            raise ValueError(
-                f"sample {method!r}/{raw.get('sample_index')!r} phases sum to "
-                f"{phase_sum}, not total {total}"
-            )
         sample_index = raw.get("sample_index")
         if isinstance(sample_index, bool) or not isinstance(sample_index, int):
             raise ValueError(f"samples[{index}].sample_index must be an integer")
-        grouped[method].append(
-            {
-                "sample_index": sample_index,
-                "total_s": total,
-                "phases_s": normalized_phases,
-                "source": raw.get("source"),
-            }
-        )
+        sample: dict[str, Any] = {
+            "sample_index": sample_index,
+            "source": raw.get("source"),
+        }
+        for operation in PROFILE_OPERATIONS:
+            total_field = f"{operation}_total_s"
+            phases_field = f"{operation}_phases_s"
+            total = _number(raw.get(total_field), name=f"samples[{index}].{total_field}")
+            phases = raw.get(phases_field)
+            if not isinstance(phases, dict) or not phases:
+                raise ValueError(f"samples[{index}].{phases_field} must be a non-empty object")
+            normalized_phases: dict[str, float] = {}
+            for phase, value in phases.items():
+                if phase not in PHASE_ORDER:
+                    raise ValueError(f"unknown phase: {phase!r}")
+                normalized_phases[phase] = _number(
+                    value, name=f"samples[{index}].{phases_field}[{phase!r}]"
+                )
+            phase_sum = sum(normalized_phases.values())
+            if not math.isclose(phase_sum, total, rel_tol=1e-6, abs_tol=1e-6):
+                raise ValueError(
+                    f"sample {method!r}/{sample_index!r} {operation} phases sum to "
+                    f"{phase_sum}, not total {total}"
+                )
+            sample[operation] = {"total_s": total, "phases_s": normalized_phases}
+        grouped[method].append(sample)
 
     rows: list[dict[str, Any]] = []
     expected_count = int(document.get("frozen_scope", {}).get("sample_count_per_method", 5))
@@ -107,28 +119,34 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
             raise ValueError(
                 f"method {method!r} has {len(method_samples)} samples; expected {expected_count}"
             )
-        totals = [sample["total_s"] for sample in method_samples]
-        median = statistics.median(totals)
-        representative = min(
-            method_samples,
-            key=lambda sample: (abs(sample["total_s"] - median), sample["sample_index"]),
-        )
-        rows.append(
-            {
-                "method": METHOD_LABELS[method],
-                "n": len(method_samples),
+        row: dict[str, Any] = {
+            "method": METHOD_LABELS[method],
+            "n": len(method_samples),
+            "source": method_samples[0]["source"],
+        }
+        for operation in PROFILE_OPERATIONS:
+            totals = [sample[operation]["total_s"] for sample in method_samples]
+            median = statistics.median(totals)
+            representative = min(
+                method_samples,
+                key=lambda sample: (
+                    abs(sample[operation]["total_s"] - median),
+                    sample["sample_index"],
+                ),
+            )
+            row[operation] = {
                 "median_s": median,
                 "min_s": min(totals),
                 "max_s": max(totals),
                 "representative_sample_index": representative["sample_index"],
-                "representative_total_s": representative["total_s"],
-                "representative_phases_s": representative["phases_s"],
-                "source": representative["source"],
+                "representative_total_s": representative[operation]["total_s"],
+                "representative_phases_s": representative[operation]["phases_s"],
             }
-        )
+        rows.append(row)
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
+        "title": document.get("title"),
         "evidence_label": document.get("evidence_label"),
         "comparability": document.get("comparability"),
         "metric_boundary": document.get("metric_boundary"),
@@ -145,6 +163,7 @@ def _draw_panel(
     ax,
     rows: list[Mapping[str, Any]],
     *,
+    operation: str,
     seconds: bool,
     title: str,
 ) -> None:
@@ -153,7 +172,10 @@ def _draw_panel(
     bottoms = np.zeros(len(rows), dtype=float)
     for phase in PHASE_ORDER:
         values = np.asarray(
-            [float(row["representative_phases_s"].get(phase, 0.0)) * scale for row in rows]
+            [
+                float(row[operation]["representative_phases_s"].get(phase, 0.0)) * scale
+                for row in rows
+            ]
         )
         if not np.any(values > 0):
             continue
@@ -170,9 +192,9 @@ def _draw_panel(
         )
         bottoms += values
 
-    medians = np.asarray([float(row["median_s"]) * scale for row in rows])
-    lower = medians - np.asarray([float(row["min_s"]) * scale for row in rows])
-    upper = np.asarray([float(row["max_s"]) * scale for row in rows]) - medians
+    medians = np.asarray([float(row[operation]["median_s"]) * scale for row in rows])
+    lower = medians - np.asarray([float(row[operation]["min_s"]) * scale for row in rows])
+    upper = np.asarray([float(row[operation]["max_s"]) * scale for row in rows]) - medians
     ax.errorbar(
         x,
         medians,
@@ -188,7 +210,7 @@ def _draw_panel(
         zorder=4,
     )
     for position, row, top in zip(x, rows, bottoms, strict=True):
-        value = float(row["median_s"])
+        value = float(row[operation]["median_s"])
         label = f"{value:.3f} s" if seconds else f"{value * 1000:.0f} ms"
         ax.annotate(
             label,
@@ -201,78 +223,57 @@ def _draw_panel(
         )
     ax.set_title(title, y=1.07)
     ax.set_xticks(x, [str(row["method"]) for row in rows], rotation=15, ha="right")
-    ax.set_ylabel("Activation latency (s)" if seconds else "Activation latency (ms)")
+    unit = "s" if seconds else "ms"
+    ax.set_ylabel(f"{operation.title()} latency ({unit})")
     ax.set_axisbelow(True)
     ax.grid(axis="x", visible=False)
     ax.set_ylim(bottom=0)
 
 
-def _draw_share_panel(ax, rows: list[Mapping[str, Any]]) -> None:
-    """Show normalized shares without sacrificing the absolute-latency panel."""
-
-    x = np.arange(len(rows), dtype=float)
-    bottoms = np.zeros(len(rows), dtype=float)
-    for phase in PHASE_ORDER:
-        values = np.asarray(
-            [
-                float(row["representative_phases_s"].get(phase, 0.0))
-                / float(row["representative_total_s"])
-                * 100.0
-                for row in rows
-            ]
-        )
-        if not np.any(values > 0):
-            continue
-        ax.bar(
-            x,
-            values,
-            bottom=bottoms,
-            width=0.68,
-            color=PHASE_COLORS[phase],
-            edgecolor="black",
-            linewidth=0.35,
-            zorder=2,
-        )
-        for position, bottom, value in zip(x, bottoms, values, strict=True):
-            if value >= 8.0:
-                ax.text(
-                    position,
-                    bottom + value / 2.0,
-                    f"{value:.0f}%",
-                    ha="center",
-                    va="center",
-                    fontsize=6.5,
-                    color="black",
-                )
-        bottoms += values
-    ax.set_title("(c) Phase share")
-    ax.set_xticks(x, [str(row["method"]) for row in rows], rotation=15, ha="right")
-    ax.set_ylabel("Share of activation latency (%)")
-    ax.set_yticks([0, 25, 50, 75, 100])
-    ax.set_ylim(0, 100)
-    ax.set_axisbelow(True)
-    ax.grid(axis="x", visible=False)
-
-
 def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
-    """Plot cold load separately so sub-second phase proportions remain visible."""
+    """Plot sleep above wake while preserving a readable cold-process wake scale."""
 
     apply_paper_style()
     rows = list(summary["methods"])
     cold = [row for row in rows if row["method"] == "Cold load"]
     warm = [row for row in rows if row["method"] != "Cold load"]
-    fig = plt.figure(figsize=(7.2, 5.15))
-    grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.9], width_ratios=[1.0, 3.3])
-    cold_ax = fig.add_subplot(grid[0, 0])
-    warm_ax = fig.add_subplot(grid[0, 1])
-    share_ax = fig.add_subplot(grid[1, :])
-    _draw_panel(cold_ax, cold, seconds=True, title="(a) Cold process")
-    _draw_panel(warm_ax, warm, seconds=False, title="(b) In-process activation")
-    _draw_share_panel(share_ax, rows)
+    fig = plt.figure(figsize=(7.6, 6.3))
+    grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], width_ratios=[1.0, 3.3])
+    sleep_ax = fig.add_subplot(grid[0, :])
+    cold_ax = fig.add_subplot(grid[1, 0])
+    warm_ax = fig.add_subplot(grid[1, 1])
+    _draw_panel(
+        sleep_ax,
+        rows,
+        operation="sleep",
+        seconds=False,
+        title="(a) Sleep Latency Profiling",
+    )
+    _draw_panel(
+        cold_ax,
+        cold,
+        operation="wake",
+        seconds=True,
+        title="(b) Cold process",
+    )
+    _draw_panel(
+        warm_ax,
+        warm,
+        operation="wake",
+        seconds=False,
+        title="(c) In-process",
+    )
 
     handles, labels = warm_ax.get_legend_handles_labels()
     cold_handles, cold_labels = cold_ax.get_legend_handles_labels()
-    by_label = dict(zip(cold_labels + labels, cold_handles + handles, strict=False))
+    sleep_handles, sleep_labels = sleep_ax.get_legend_handles_labels()
+    by_label = dict(
+        zip(
+            sleep_labels + cold_labels + labels,
+            sleep_handles + cold_handles + handles,
+            strict=False,
+        )
+    )
     ordered = [phase for phase in PHASE_ORDER if phase in by_label]
     if "Median [min, max]" in by_label:
         ordered.append("Median [min, max]")
@@ -280,12 +281,21 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
         [by_label[label] for label in ordered],
         ordered,
         loc="upper center",
-        bbox_to_anchor=(0.5, 0.85),
+        bbox_to_anchor=(0.5, 0.94),
         ncol=4,
         frameon=False,
     )
-    fig.suptitle(f"Local activation profiles — {summary['model']}", y=0.9)
-    fig.tight_layout(rect=(0, 0.045, 1, 0.82))
+    fig.suptitle(f"Local sleep and wake profiles — {summary['model']}", y=0.995)
+    fig.tight_layout(rect=(0, 0.035, 1, 0.79), h_pad=3.0)
+    wake_top = max(cold_ax.get_position().y1, warm_ax.get_position().y1)
+    fig.text(
+        0.5,
+        wake_top + 0.055,
+        "Wake Latency Profiling",
+        ha="center",
+        va="bottom",
+        fontsize=plt.rcParams["axes.titlesize"],
+    )
     return save_figure(fig, output_base)
 
 

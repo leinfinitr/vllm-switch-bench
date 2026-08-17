@@ -56,7 +56,19 @@ def _service_source(tmp_path: Path, name: str, methods: list[str]) -> Path:
     rows = []
     for method in methods:
         for index in range(6):
+            evict: dict[str, object] = {"latency_s": 0.5 + index / 100}
             restore: dict[str, object] = {"latency_s": 1.0 + index / 100}
+            if method in {"sleep_l1", "sleep_l2"}:
+                evict["sleep_profile"] = {
+                    "events": [
+                        {
+                            "phase": "allocator_sleep",
+                            "cpu_backup_alloc_s": 0.1 if method == "sleep_l1" else 0.0,
+                            "copy_d2h_s": 0.1 if method == "sleep_l1" else 0.0,
+                            "unmap_release_s": 0.2,
+                        }
+                    ]
+                }
             if method == "sleep_l1":
                 restore["sleep_profile"] = {
                     "events": [
@@ -73,7 +85,15 @@ def _service_source(tmp_path: Path, name: str, methods: list[str]) -> Path:
                     "reload_weights": {"latency_s": 0.5},
                     "wake_kv_cache": {"latency_s": 0.2},
                 }
-            rows.append({"method": method, "ok": True, "repeat_index": index, "restore": restore})
+            rows.append(
+                {
+                    "method": method,
+                    "ok": True,
+                    "repeat_index": index,
+                    "evict": evict,
+                    "restore": restore,
+                }
+            )
     summary = root / "summary.json"
     _write_json(summary, rows)
     return summary
@@ -100,6 +120,10 @@ def _cpu_source(tmp_path: Path) -> Path:
         "steps": [
             {
                 "iteration": index,
+                "sleep_latency_s": 0.5,
+                "sleep_allocator_cpu_backup_alloc_s": 0.1,
+                "sleep_allocator_copy_d2h_s": 0.1,
+                "sleep_allocator_unmap_release_s": 0.2,
                 "wake_latency_s": 1.0,
                 "wake_allocator_create_map_s": 0.4,
                 "wake_allocator_copy_h2d_s": 0.5,
@@ -132,12 +156,23 @@ def _exact_source(tmp_path: Path) -> Path:
     )
     _write_json(
         raw / "output_observation.json",
-        {"cycles": [{"cycle_index": index, "wake_latency_s": 1.0} for index in range(6)]},
+        {
+            "cycles": [
+                {"cycle_index": index, "sleep_latency_s": 0.5, "wake_latency_s": 1.0}
+                for index in range(6)
+            ]
+        },
     )
     profile_rows = []
     for _ in range(6):
         profile_rows.extend(
             [
+                {
+                    "phase": "allocator_sleep",
+                    "cpu_backup_alloc_s": 0.0,
+                    "copy_d2h_s": 0.0,
+                    "unmap_release_s": 0.4,
+                },
                 {"phase": "exact_disk_restore", "disk_pipeline_wall_s": 0.5},
                 {
                     "phase": "allocator_wake_up",
@@ -161,6 +196,9 @@ def test_compile_profiles_accepts_a_complete_local_campaign(tmp_path: Path) -> N
     )
 
     assert len(compiled["samples"]) == 25
+    assert compiled["schema_version"] == 2
+    assert all("sleep_phases_s" in sample for sample in compiled["samples"])
+    assert all("wake_phases_s" in sample for sample in compiled["samples"])
     assert set(compiled["source_provenance"]) == set(compiled["sources"])
     assert {sample["method"] for sample in compiled["samples"]} == {
         "Cold load",

@@ -1,6 +1,6 @@
 # vLLM profiling
 
-Question: which activation phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk backup restoration under the retained local scope?
+Question: which sleep and wake phases dominate vLLM L1/L2 and vllm-switch CPU/exact-disk mechanisms under the retained local scope?
 
 - Configuration: [`config/campaign.json`](config/campaign.json)
 - Raw evidence: [`raw/profile-samples.json`](raw/profile-samples.json)

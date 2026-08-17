@@ -208,9 +208,9 @@ def test_vllm_profiling_validator_rejects_non_closing_phase_accounting(
     target = copy_family(tmp_path, "vllm-profiling")
     raw = target / "raw" / "profile-samples.json"
     data = json.loads(raw.read_text())
-    data["samples"][0]["phases_s"]["Process + engine startup"] -= 1
+    data["samples"][0]["wake_phases_s"]["Process + engine startup"] -= 1
     raw.write_text(json.dumps(data), encoding="utf-8")
-    with pytest.raises(ValueError, match="phase accounting"):
+    with pytest.raises(ValueError, match="wake phase accounting"):
         validate_vllm_profiling(target)
 
 

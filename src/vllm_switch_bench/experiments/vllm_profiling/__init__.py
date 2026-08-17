@@ -1,1 +1,1 @@
-"""vLLM lifecycle and backup activation profiling."""
+"""vLLM lifecycle sleep and wake profiling."""

@@ -19,6 +19,10 @@
   "status": "local-rerun",
   "validation": {
     "methods": 5,
+    "operations": [
+      "sleep",
+      "wake"
+    ],
     "phase_accounting": true,
     "samples_per_method": 5
   }
