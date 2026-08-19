@@ -3,11 +3,11 @@
   "note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",
   "promotion_benchmark": {
     "branch": "master",
-    "commit": "bf74ce73c47a928803cecd8ea60a049d5fe39a2c",
+    "commit": "3b9f48d1e8a328344d8d8b16c54681eb4aaa71e1",
     "dirty": true,
     "path": "/home/ljl/research-systems/vllm-switch-bench",
-    "status_porcelain": "M results/vllm-profiling/figures/vllm-profiling.pdf\n M results/vllm-profiling/figures/vllm-profiling.png\n M results/vllm-profiling/provenance.json\n M results/vllm-profiling/raw/profile-samples.json\n M results/vllm-profiling/summary.json\n M src/vllm_switch_bench/experiments/vllm_profiling/block_driver.py\n M src/vllm_switch_bench/experiments/vllm_profiling/compile.py\n M src/vllm_switch_bench/experiments/vllm_profiling/run.py\n M src/vllm_switch_bench/validation/vllm_profiling/validate.py\n M tests/test_promotion.py\n M tests/test_vllm_profiling_run.py",
-    "working_tree_sha256": "5b6210fa7b592c49bc195f0d3b583eb1919f6ca5fa484fba23fb8285d9837397"
+    "status_porcelain": "M README.md",
+    "working_tree_sha256": "086482d40242eb4b52ec0b286b32ca5d34aed3260886f8eae69e8ab77ec57488"
   },
   "schema_version": 1,
   "status": "local-rerun"
