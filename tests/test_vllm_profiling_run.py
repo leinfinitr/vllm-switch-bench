@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import csv
 import os
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from vllm_switch_bench.experiments.vllm_profiling import run as bench
 
@@ -59,6 +62,7 @@ def test_parse_args_defaults_to_three_blocks_and_cycles():
 
     assert args.repeats == 3
     assert args.cycles_per_process == 3
+    assert args.prompts == ["short_short"]
 
 
 def test_parse_args_rejects_non_three_cycle_blocks():
@@ -69,6 +73,72 @@ def test_parse_args_rejects_non_three_cycle_blocks():
             assert exc.code == 2
         else:
             raise AssertionError("parse_args should require exactly three cycles per process")
+
+
+def test_block_driver_command_forwards_resolved_model_options(tmp_path, monkeypatch):
+    args = bench.parse_args(
+        [
+            "--model",
+            "dummy",
+            "--model-revision",
+            "revision",
+            "--load-format",
+            "safetensors",
+            "--quantization",
+            "fp8",
+            "--extra-vllm-arg=skip_mm_profiling=true",
+            "--out-dir",
+            str(tmp_path),
+        ]
+    )
+    captured = {}
+
+    class Process:
+        pid = 123
+
+        def wait(self, timeout):
+            captured["timeout"] = timeout
+            return 0
+
+    def fake_popen(command, **kwargs):
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+        return Process()
+
+    monkeypatch.setattr(bench.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(bench, "_engine_environment", lambda _args: {})
+    bench._run_block_driver(args, "sleep_l1", 0, tmp_path)
+
+    command = captured["command"]
+    assert command[command.index("--model-revision") + 1] == "revision"
+    assert command[command.index("--load-format") + 1] == "safetensors"
+    assert command[command.index("--quantization") + 1] == "fp8"
+    assert command[command.index("--extra-vllm-arg") + 1] == "skip_mm_profiling=true"
+    assert captured["kwargs"]["start_new_session"] is True
+
+
+def test_block_driver_timeout_terminates_process_group(tmp_path, monkeypatch):
+    args = bench.parse_args(["--model", "dummy", "--out-dir", str(tmp_path)])
+    signals = []
+
+    class Process:
+        pid = 456
+        waits = 0
+
+        def wait(self, timeout):
+            self.waits += 1
+            if self.waits == 1:
+                raise subprocess.TimeoutExpired("block", timeout)
+            return 0
+
+    monkeypatch.setattr(bench.subprocess, "Popen", lambda *args, **kwargs: Process())
+    monkeypatch.setattr(bench, "_engine_environment", lambda _args: {})
+    monkeypatch.setattr(bench.os, "killpg", lambda pid, sig: signals.append((pid, sig)))
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        bench._run_block_driver(args, "sleep_l1", 0, tmp_path)
+
+    assert signals == [(456, bench.signal.SIGTERM)]
 
 
 def test_start_vllm_preserves_virtualenv_bin_on_path(tmp_path, monkeypatch):

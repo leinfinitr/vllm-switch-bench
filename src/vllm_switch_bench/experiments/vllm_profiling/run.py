@@ -9,10 +9,12 @@ and records enough metadata for later manual inspection.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import csv
 import hashlib
 import json
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -759,6 +761,12 @@ def _run_block_driver(
         str(args.max_model_len),
         "--dtype",
         args.dtype,
+        "--model-revision",
+        args.model_revision or "",
+        "--load-format",
+        args.load_format,
+        "--quantization",
+        args.quantization,
         "--idle-s",
         str(args.idle_s),
         "--out-dir",
@@ -776,17 +784,28 @@ def _run_block_driver(
         command.extend(["--extra-vllm-arg", extra])
     if args.enforce_eager:
         command.append("--enforce-eager")
-    completed = subprocess.run(
+    process = subprocess.Popen(
         command,
         cwd=args.workdir,
         env=_engine_environment(args),
         text=True,
-        timeout=args.ready_timeout_s + 900,
-        check=False,
+        start_new_session=True,
     )
-    if completed.returncode != 0:
+    try:
+        return_code = process.wait(timeout=args.ready_timeout_s + 900)
+    except BaseException:
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(process.pid, signal.SIGTERM)
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            with contextlib.suppress(ProcessLookupError):
+                os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=10)
+        raise
+    if return_code != 0:
         raise RuntimeError(
-            f"{method} process block {block_index} failed with code {completed.returncode}; "
+            f"{method} process block {block_index} failed with code {return_code}; "
             f"summary={block_dir / 'block-summary.json'}"
         )
 
@@ -831,7 +850,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         default=["cold_reload", "sleep_l1", "sleep_l2"],
         choices=["cold_reload", "sleep_l1", "sleep_l2", "cpu_backup", "exact_disk"],
     )
-    parser.add_argument("--prompts", nargs="+", default=["short_short", "long_short", "short_long"])
+    parser.add_argument("--prompts", nargs="+", default=["short_short"])
     parser.add_argument(
         "--repeats",
         type=int,
@@ -892,6 +911,9 @@ def read_gpu_metadata() -> str:
 
 def main(argv: Iterable[str] | None = None) -> int:
     args = parse_args(argv)
+    block_methods = {"sleep_l1", "sleep_l2", "cpu_backup", "exact_disk"}
+    if any(method in block_methods for method in args.methods) and len(args.prompts) != 1:
+        raise ValueError("repeated sleep/wake profiling requires exactly one prompt")
     out_dir = Path(args.out_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir.mkdir(parents=True, exist_ok=True)
     config = behavior_config(args)
@@ -924,9 +946,6 @@ def main(argv: Iterable[str] | None = None) -> int:
         print(out_dir)
         return 0
 
-    block_methods = {"sleep_l1", "sleep_l2", "cpu_backup", "exact_disk"}
-    if any(method in block_methods for method in args.methods) and len(args.prompts) != 1:
-        raise ValueError("repeated sleep/wake profiling requires exactly one prompt")
     rows: list[dict[str, Any]] = []
     for method in args.methods:
         if method in block_methods:

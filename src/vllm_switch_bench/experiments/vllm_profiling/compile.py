@@ -157,8 +157,15 @@ def _residual(total: float, phases: dict[str, float]) -> dict[str, float]:
     return phases
 
 
+def _single_phase_event(profile: dict[str, Any], phase: str) -> dict[str, Any]:
+    matching = [event for event in profile["events"] if event.get("phase") == phase]
+    if len(matching) != 1:
+        raise ValueError(f"expected exactly one {phase!r} event, found {len(matching)}")
+    return matching[0]
+
+
 def _allocator_event(profile: dict[str, Any], phase: str) -> dict[str, Any]:
-    return next(event for event in profile["events"] if event.get("phase") == phase)
+    return _single_phase_event(profile, phase)
 
 
 def _sleep_phases(cycle: dict[str, Any]) -> dict[str, float]:
@@ -173,24 +180,33 @@ def _sleep_phases(cycle: dict[str, Any]) -> dict[str, float]:
 def _wake_phases(cycle: dict[str, Any], method: str) -> dict[str, float]:
     if method == "vLLM L2 Cold" or method == "vLLM L2 Warm":
         steps = cycle["restore"]["steps"]
+        weight_event = _allocator_event(steps["wake_weights"]["sleep_profile"], "allocator_wake_up")
+        reload_event = _single_phase_event(
+            steps["reload_weights"]["sleep_profile"], "reload_weights"
+        )
+        kv_event = _allocator_event(steps["wake_kv_cache"]["sleep_profile"], "allocator_wake_up")
         return {
-            "GPU remap": float(steps["wake_weights"]["latency_s"]),
-            "Checkpoint load": float(steps["reload_weights"]["latency_s"]),
-            "KV-cache remap": float(steps["wake_kv_cache"]["latency_s"]),
+            "GPU remap": float(weight_event["create_map_s"]),
+            "Checkpoint load": float(reload_event["latency_s"]),
+            "KV-cache remap": float(kv_event["create_map_s"]),
         }
     event = _allocator_event(cycle["restore"]["sleep_profile"], "allocator_wake_up")
     phases = {"GPU remap": float(event["create_map_s"])}
     if not method.startswith("Exact disk"):
         phases["CPU→GPU copy"] = float(event["copy_h2d_s"])
         return phases
-    restore_events = [
-        event
-        for event in cycle["restore"]["sleep_profile"]["events"]
-        if event.get("phase") == "exact_disk_restore"
-    ]
-    if len(restore_events) != 1:
-        raise ValueError("exact disk: expected one restore pipeline event per cycle")
-    phases["Disk read + hash + H2D pipeline"] = float(restore_events[0]["disk_pipeline_wall_s"])
+    restore_event = _single_phase_event(cycle["restore"]["sleep_profile"], "exact_disk_restore")
+    disk_bytes = int(event.get("disk_restored_bytes_by_tag", {}).get("weights", 0))
+    if (
+        restore_event.get("source_medium") != "disk"
+        or restore_event.get("fallback") is not False
+        or int(restore_event.get("disk_read_bytes", 0)) <= 0
+        or disk_bytes <= 0
+        or int(event.get("cpu_restored_bytes_by_tag", {}).get("weights", 0)) != 0
+        or float(event.get("copy_h2d_s", 0.0)) != 0.0
+    ):
+        raise ValueError("exact disk: restore mechanism evidence is invalid")
+    phases["Disk read + hash + H2D pipeline"] = float(restore_event["disk_pipeline_wall_s"])
     return phases
 
 
@@ -230,6 +246,36 @@ def _compact_sample(
         "wake_phases_s": _residual(wake_total, mean_phases("wake")),
         "source": source,
     }
+    if method in {"vLLM L2 Cold", "vLLM L2 Warm"}:
+        active = statistics.mean(float(cycle["restore"]["active_latency_s"]) for cycle in cycles)
+        gap = statistics.mean(float(cycle["restore"]["inter_step_gap_s"]) for cycle in cycles)
+        if abs(wake_total - active - gap) > 1e-6:
+            raise ValueError(f"{method}: continuous wake envelope does not close")
+        row["wake_active_s"] = active
+        row["wake_inter_step_gap_s"] = gap
+    if method.startswith("Exact disk"):
+        allocator_events = [
+            _allocator_event(cycle["restore"]["sleep_profile"], "allocator_wake_up")
+            for cycle in cycles
+        ]
+        restore_events = [
+            _single_phase_event(cycle["restore"]["sleep_profile"], "exact_disk_restore")
+            for cycle in cycles
+        ]
+        row["mechanism_evidence"] = {
+            "source_medium": "disk",
+            "fallback": False,
+            "disk_read_bytes": statistics.mean(
+                int(event["disk_read_bytes"]) for event in restore_events
+            ),
+            "disk_restored_weight_bytes": statistics.mean(
+                int(event["disk_restored_bytes_by_tag"]["weights"]) for event in allocator_events
+            ),
+            "cpu_restored_weight_bytes": statistics.mean(
+                int(event.get("cpu_restored_bytes_by_tag", {}).get("weights", 0))
+                for event in allocator_events
+            ),
+        }
     caches = [cycle.get("cache_observation") for cycle in cycles]
     if any(cache is not None for cache in caches):
         if any(cache is None or cache.get("valid") is not True for cache in caches):

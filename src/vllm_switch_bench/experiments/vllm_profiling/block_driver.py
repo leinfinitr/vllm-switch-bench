@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import atexit
+import contextlib
 import json
 import os
 import platform
@@ -11,6 +13,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+import psutil
 
 from vllm_switch_bench.common.provenance import git_metadata
 from vllm_switch_bench.common.resources import (
@@ -45,6 +49,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.8)
     parser.add_argument("--max-model-len", type=int, default=1024)
     parser.add_argument("--dtype", default="float16")
+    parser.add_argument("--model-revision")
+    parser.add_argument("--load-format", default="")
+    parser.add_argument("--quantization", default="")
     parser.add_argument("--enforce-eager", action="store_true")
     parser.add_argument("--extra-vllm-arg", action="append", default=[])
     parser.add_argument("--idle-s", type=float, default=0.0)
@@ -56,8 +63,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.process_block < 0:
         parser.error("--process-block must be non-negative")
-    if args.cycles < 2:
-        parser.error("--cycles must be at least two")
+    if args.cycles != 3:
+        parser.error("--cycles must be exactly three")
     return args
 
 
@@ -163,6 +170,16 @@ def _l2_restore(llm, profile_path: Path) -> dict[str, Any]:
     }
 
 
+def _shutdown_llm(llm: Any) -> None:
+    """Best-effort explicit engine shutdown on normal and exceptional exits."""
+
+    engine = getattr(llm, "llm_engine", None)
+    core = getattr(engine, "engine_core", None)
+    if core is not None:
+        with contextlib.suppress(Exception):
+            core.shutdown(timeout=10)
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     gpu_used_before_mib = query_gpu_memory_used_mib()
     if gpu_used_before_mib is not None and gpu_used_before_mib > 32:
@@ -204,15 +221,32 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 except ValueError:
                     parsed = text
         extra_kwargs[normalized] = parsed
-    llm = LLM(
-        model=args.model,
-        gpu_memory_utilization=args.gpu_memory_utilization,
-        max_model_len=args.max_model_len,
-        dtype=args.dtype,
-        enable_sleep_mode=True,
-        enforce_eager=args.enforce_eager,
-        **extra_kwargs,
-    )
+    model_revision = args.model_revision or None
+    try:
+        llm = LLM(
+            model=args.model,
+            revision=model_revision,
+            gpu_memory_utilization=args.gpu_memory_utilization,
+            max_model_len=args.max_model_len,
+            dtype=args.dtype,
+            load_format=args.load_format or "auto",
+            quantization=args.quantization or None,
+            enable_sleep_mode=True,
+            enforce_eager=args.enforce_eager,
+            **extra_kwargs,
+        )
+    except BaseException:
+        for child in psutil.Process(os.getpid()).children(recursive=True):
+            with contextlib.suppress(psutil.Error):
+                child.terminate()
+        _, alive = psutil.wait_procs(
+            psutil.Process(os.getpid()).children(recursive=True), timeout=10
+        )
+        for child in alive:
+            with contextlib.suppress(psutil.Error):
+                child.kill()
+        raise
+    atexit.register(_shutdown_llm, llm)
     load_latency = time.perf_counter() - load_started
     before = _infer(llm, sampling_params, prompt)
     expected = (before["token_ids"], before["text"])
@@ -350,6 +384,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "gpu_memory_utilization": args.gpu_memory_utilization,
             "max_model_len": args.max_model_len,
             "dtype": args.dtype,
+            "model_revision": model_revision,
+            "load_format": args.load_format or "auto",
+            "quantization": args.quantization,
+            "extra_vllm_args": list(args.extra_vllm_arg),
             "enforce_eager": args.enforce_eager,
             "idle_s": args.idle_s,
             "cold_max_resident_ratio": args.cold_max_resident_ratio,

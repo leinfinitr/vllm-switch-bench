@@ -3,11 +3,11 @@
   "note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",
   "promotion_benchmark": {
     "branch": "master",
-    "commit": "e07e6473f06503aadf92e7925747b6ef60238465",
+    "commit": "bf74ce73c47a928803cecd8ea60a049d5fe39a2c",
     "dirty": true,
     "path": "/home/ljl/research-systems/vllm-switch-bench",
-    "status_porcelain": "M docs/experiments/vllm-profiling/README.md\n M results/vllm-profiling/README.md\n M results/vllm-profiling/config/campaign.json\n M results/vllm-profiling/figures/vllm-profiling.pdf\n M results/vllm-profiling/figures/vllm-profiling.png\n M results/vllm-profiling/metadata.json\n M results/vllm-profiling/provenance.json\n M results/vllm-profiling/raw/profile-samples.json\n M results/vllm-profiling/summary.json\n M src/vllm_switch_bench/experiments/vllm_profiling/artifacts.py\n M src/vllm_switch_bench/experiments/vllm_profiling/compile.py\n M src/vllm_switch_bench/experiments/vllm_profiling/plot.py\n M src/vllm_switch_bench/experiments/vllm_profiling/run.py\n M src/vllm_switch_bench/promotion.py\n M src/vllm_switch_bench/validation/vllm_profiling/validate.py\n M tests/test_promotion.py\n M tests/test_vllm_profiling_plot.py\n M tests/test_vllm_profiling_profiles.py\n M tests/test_vllm_profiling_run.py\n?? src/vllm_switch_bench/experiments/vllm_profiling/block_driver.py\n?? src/vllm_switch_bench/experiments/vllm_profiling/page_cache.py",
-    "working_tree_sha256": "bdaf2b24cf9c8cb59fd763c9c5b2e59c2e03e2709ba1dd4544e3216853c3e5cf"
+    "status_porcelain": "M results/vllm-profiling/figures/vllm-profiling.pdf\n M results/vllm-profiling/figures/vllm-profiling.png\n M results/vllm-profiling/provenance.json\n M results/vllm-profiling/raw/profile-samples.json\n M results/vllm-profiling/summary.json\n M src/vllm_switch_bench/experiments/vllm_profiling/block_driver.py\n M src/vllm_switch_bench/experiments/vllm_profiling/compile.py\n M src/vllm_switch_bench/experiments/vllm_profiling/run.py\n M src/vllm_switch_bench/validation/vllm_profiling/validate.py\n M tests/test_promotion.py\n M tests/test_vllm_profiling_run.py",
+    "working_tree_sha256": "5b6210fa7b592c49bc195f0d3b583eb1919f6ca5fa484fba23fb8285d9837397"
   },
   "schema_version": 1,
   "status": "local-rerun"

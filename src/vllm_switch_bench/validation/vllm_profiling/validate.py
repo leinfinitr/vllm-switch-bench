@@ -113,6 +113,16 @@ def validate_family(path: Path | None = None) -> None:
                 "vllm-profiling: invalid sample source",
             )
             if method in {"vLLM L2 Cold", "vLLM L2 Warm"}:
+                require(
+                    math.isclose(
+                        float(row.get("wake_active_s", -1))
+                        + float(row.get("wake_inter_step_gap_s", -1)),
+                        float(row["wake_total_s"]),
+                        rel_tol=1e-6,
+                        abs_tol=1e-6,
+                    ),
+                    f"vllm-profiling: {method} wake envelope does not close",
+                )
                 cache = row.get("cache_evidence", {})
                 require(cache, f"vllm-profiling: {method} cache evidence missing")
                 resident = float(cache.get("resident_ratio_before_wake", -1))
@@ -131,6 +141,16 @@ def validate_family(path: Path | None = None) -> None:
                         and read_ratio <= 0.10,
                         "vllm-profiling: warm L2 cache evidence is invalid",
                     )
+            if method in {"Exact disk First", "Exact disk Steady"}:
+                evidence = row.get("mechanism_evidence", {})
+                require(
+                    evidence.get("source_medium") == "disk"
+                    and evidence.get("fallback") is False
+                    and float(evidence.get("disk_read_bytes", 0)) > 0
+                    and float(evidence.get("disk_restored_weight_bytes", 0)) > 0
+                    and float(evidence.get("cpu_restored_weight_bytes", -1)) == 0,
+                    f"vllm-profiling: {method} mechanism evidence is invalid",
+                )
 
     comparability = document.get("comparability", {})
     require(

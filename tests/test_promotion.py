@@ -144,10 +144,27 @@ def _block_source(tmp_path: Path, name: str, methods: list[str]) -> Path:
                     condition = "cold" if cycle == cold_index else "warm"
                     restore = {
                         "latency_s": 1.0,
+                        "active_latency_s": 0.9,
+                        "inter_step_gap_s": 0.1,
                         "steps": {
-                            "wake_weights": {"latency_s": 0.2},
-                            "reload_weights": {"latency_s": 0.5},
-                            "wake_kv_cache": {"latency_s": 0.2},
+                            "wake_weights": {
+                                "latency_s": 0.2,
+                                "sleep_profile": {
+                                    "events": [{"phase": "allocator_wake_up", "create_map_s": 0.19}]
+                                },
+                            },
+                            "reload_weights": {
+                                "latency_s": 0.5,
+                                "sleep_profile": {
+                                    "events": [{"phase": "reload_weights", "latency_s": 0.49}]
+                                },
+                            },
+                            "wake_kv_cache": {
+                                "latency_s": 0.2,
+                                "sleep_profile": {
+                                    "events": [{"phase": "allocator_wake_up", "create_map_s": 0.19}]
+                                },
+                            },
                         },
                     }
                     cold = condition == "cold"
@@ -167,9 +184,22 @@ def _block_source(tmp_path: Path, name: str, methods: list[str]) -> Path:
                     restore["sleep_profile"] = {
                         "events": [
                             allocator_wake,
-                            {"phase": "exact_disk_restore", "disk_pipeline_wall_s": 0.5},
+                            {
+                                "phase": "exact_disk_restore",
+                                "disk_pipeline_wall_s": 0.5,
+                                "source_medium": "disk",
+                                "fallback": False,
+                                "disk_read_bytes": 1000,
+                            },
                         ]
                     }
+                    allocator_wake.update(
+                        {
+                            "copy_h2d_s": 0.0,
+                            "disk_restored_bytes_by_tag": {"weights": 1000},
+                            "cpu_restored_bytes_by_tag": {},
+                        }
+                    )
                 cycles.append(
                     {
                         "cycle_index": cycle,

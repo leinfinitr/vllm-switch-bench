@@ -32,267 +32,267 @@
       "method": "Cold load",
       "n": 3,
       "sleep": {
-        "max_s": 0.31398567399992316,
-        "median_s": 0.2642232839998542,
-        "min_s": 0.26385766600014904,
+        "max_s": 0.26425151199873653,
+        "median_s": 0.26407845900030225,
+        "min_s": 0.26406517200121016,
         "representative_phases_s": {
-          "Process shutdown": 0.2642232839998542
+          "Process shutdown": 0.26407845900030225
         },
-        "representative_sample_index": 1,
-        "representative_total_s": 0.2642232839998542
+        "representative_sample_index": 2,
+        "representative_total_s": 0.26407845900030225
       },
       "source": "cold-run",
       "wake": {
-        "max_s": 11.520408258000316,
-        "median_s": 11.520069629000318,
-        "min_s": 11.01970982399962,
+        "max_s": 11.518832039999324,
+        "median_s": 11.018610050999996,
+        "min_s": 11.017956891999347,
         "representative_phases_s": {
-          "Process + engine startup": 11.520069629000318
+          "Process + engine startup": 11.018610050999996
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 11.520069629000318
+        "representative_sample_index": 1,
+        "representative_total_s": 11.018610050999996
       }
     },
     {
       "method": "vLLM L1 first",
       "n": 3,
       "sleep": {
-        "max_s": 0.4268081930003973,
-        "median_s": 0.42509638000046834,
-        "min_s": 0.42410937800013926,
+        "max_s": 0.422819856001297,
+        "median_s": 0.4213018270002067,
+        "min_s": 0.4197659470009967,
         "representative_phases_s": {
-          "CPU backup allocation": 0.32218453099903854,
-          "Control overhead": 0.008038655000746076,
-          "GPU unmap + release": 0.040040272001533594,
-          "GPU\u2192CPU copy": 0.05483292199915013
+          "CPU backup allocation": 0.3181930850023491,
+          "Control overhead": 0.008546748997105169,
+          "GPU unmap + release": 0.039969433995793224,
+          "GPU\u2192CPU copy": 0.054592559004959185
         },
-        "representative_sample_index": 1,
-        "representative_total_s": 0.42509638000046834
+        "representative_sample_index": 2,
+        "representative_total_s": 0.4213018270002067
       },
       "source": "vllm-process-blocks",
       "wake": {
-        "max_s": 0.3177234060003684,
-        "median_s": 0.31762265499946807,
-        "min_s": 0.3124148510005398,
+        "max_s": 0.31428355800017016,
+        "median_s": 0.310108093000963,
+        "min_s": 0.3091262429989001,
         "representative_phases_s": {
-          "CPU\u2192GPU copy": 0.11159910199512524,
-          "Control overhead": 0.001618693006093963,
-          "GPU remap": 0.20440485999824887
+          "CPU\u2192GPU copy": 0.11258240300048783,
+          "Control overhead": 0.001280079006392043,
+          "GPU remap": 0.1962456109940831
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 0.31762265499946807
+        "representative_sample_index": 3,
+        "representative_total_s": 0.310108093000963
       }
     },
     {
       "method": "vLLM L1 steady",
       "n": 3,
       "sleep": {
-        "max_s": 0.0992248589996052,
-        "median_s": 0.0992010474997187,
-        "min_s": 0.09912374949999503,
+        "max_s": 0.09934808799971506,
+        "median_s": 0.09924150749975524,
+        "min_s": 0.09919796749909437,
         "representative_phases_s": {
-          "CPU backup allocation": 6.647200279985555e-05,
-          "Control overhead": 0.0033095914945988625,
-          "GPU unmap + release": 0.04251527700353108,
-          "GPU\u2192CPU copy": 0.0533097069987889
+          "CPU backup allocation": 6.571749872819055e-05,
+          "Control overhead": 0.003339670495734026,
+          "GPU unmap + release": 0.04250468100053695,
+          "GPU\u2192CPU copy": 0.05333143850475608
         },
         "representative_sample_index": 1,
-        "representative_total_s": 0.0992010474997187
+        "representative_total_s": 0.09924150749975524
       },
       "source": "vllm-process-blocks",
       "wake": {
-        "max_s": 0.30628441250019023,
-        "median_s": 0.30621477600061553,
-        "min_s": 0.30611772849988483,
+        "max_s": 0.3014198844994098,
+        "median_s": 0.3003402604990697,
+        "min_s": 0.297722115000397,
         "representative_phases_s": {
-          "CPU\u2192GPU copy": 0.11161029699997016,
-          "Control overhead": 0.0011733029987226473,
-          "GPU remap": 0.19343117600192272
+          "CPU\u2192GPU copy": 0.11155998849153548,
+          "Control overhead": 0.0013467115068124258,
+          "GPU remap": 0.1874335605007218
         },
         "representative_sample_index": 1,
-        "representative_total_s": 0.30621477600061553
+        "representative_total_s": 0.3003402604990697
       }
     },
     {
       "method": "vLLM L2 cold",
       "n": 3,
       "sleep": {
-        "max_s": 0.07595298400065076,
-        "median_s": 0.06813124899963441,
-        "min_s": 0.06713085599949409,
+        "max_s": 0.07192866299919842,
+        "median_s": 0.06696158999875479,
+        "min_s": 0.06695997200040438,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.007105113998477464,
-          "GPU unmap + release": 0.061026135001156945,
+          "Control overhead": 0.006132720996902208,
+          "GPU unmap + release": 0.06082886900185258,
           "GPU\u2192CPU copy": 0.0
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 0.06813124899963441
+        "representative_sample_index": 3,
+        "representative_total_s": 0.06696158999875479
       },
       "source": "vllm-process-blocks",
       "wake": {
-        "max_s": 0.9432149679996655,
-        "median_s": 0.9255339709998225,
-        "min_s": 0.9226951910004573,
+        "max_s": 0.9170036469986371,
+        "median_s": 0.916927954998755,
+        "min_s": 0.90617246399961,
         "representative_phases_s": {
-          "Checkpoint load": 0.7420499230001951,
-          "Control overhead": 5.139991117175668e-07,
-          "GPU remap": 0.049734483000065666,
-          "KV-cache remap": 0.13374905100044998
+          "Checkpoint load": 0.7354577550013346,
+          "Control overhead": 0.006708315004289034,
+          "GPU remap": 0.045298712995645474,
+          "KV-cache remap": 0.12946317199748592
         },
         "representative_sample_index": 2,
-        "representative_total_s": 0.9255339709998225
+        "representative_total_s": 0.916927954998755
       }
     },
     {
       "method": "vLLM L2 warm",
       "n": 3,
       "sleep": {
-        "max_s": 0.07033218699962163,
-        "median_s": 0.06993130399996517,
-        "min_s": 0.06870394399993529,
+        "max_s": 0.06883944700075517,
+        "median_s": 0.06881046699982107,
+        "min_s": 0.06797135199940385,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.008763251501932245,
-          "GPU unmap + release": 0.06116805249803292,
+          "Control overhead": 0.007942258494040288,
+          "GPU unmap + release": 0.060868208505780785,
           "GPU\u2192CPU copy": 0.0
         },
-        "representative_sample_index": 3,
-        "representative_total_s": 0.06993130399996517
+        "representative_sample_index": 2,
+        "representative_total_s": 0.06881046699982107
       },
       "source": "vllm-process-blocks",
       "wake": {
-        "max_s": 0.4321457674996054,
-        "median_s": 0.42923610250045385,
-        "min_s": 0.3866170854998927,
+        "max_s": 0.3892370834992107,
+        "median_s": 0.3875501329994222,
+        "min_s": 0.38751528400007373,
         "representative_phases_s": {
-          "Checkpoint load": 0.24113896950029812,
-          "Control overhead": 5.315005182637833e-07,
-          "GPU remap": 0.04925182799979666,
-          "KV-cache remap": 0.1388447734998408
+          "Checkpoint load": 0.19813716400039993,
+          "Control overhead": 0.006868507497529208,
+          "GPU remap": 0.04507678900336032,
+          "KV-cache remap": 0.13746767249813274
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 0.42923610250045385
+        "representative_sample_index": 1,
+        "representative_total_s": 0.3875501329994222
       }
     },
     {
       "method": "vllm-switch CPU first",
       "n": 3,
       "sleep": {
-        "max_s": 0.06836618300076225,
-        "median_s": 0.06835736100038048,
-        "min_s": 0.06830519899995124,
+        "max_s": 0.06872223400023358,
+        "median_s": 0.06849411800067173,
+        "min_s": 0.068448055000772,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.007709518004958227,
-          "GPU unmap + release": 0.06064784299542225,
+          "Control overhead": 0.007661022000320372,
+          "GPU unmap + release": 0.06083309600035136,
           "GPU\u2192CPU copy": 0.0
         },
-        "representative_sample_index": 1,
-        "representative_total_s": 0.06835736100038048
+        "representative_sample_index": 2,
+        "representative_total_s": 0.06849411800067173
       },
       "source": "vllm-switch-process-blocks",
       "wake": {
-        "max_s": 0.30952635599987843,
-        "median_s": 0.3083332070000324,
-        "min_s": 0.3039210719998664,
+        "max_s": 0.31881166899984237,
+        "median_s": 0.312412969999059,
+        "min_s": 0.3083650970002054,
         "representative_phases_s": {
-          "CPU\u2192GPU copy": 0.11485337799967965,
-          "Control overhead": 0.0012690439989455626,
-          "GPU remap": 0.1922107850014072
+          "CPU\u2192GPU copy": 0.11367104300916253,
+          "Control overhead": 0.0010725529882620322,
+          "GPU remap": 0.19766937400163442
         },
         "representative_sample_index": 2,
-        "representative_total_s": 0.3083332070000324
+        "representative_total_s": 0.312412969999059
       }
     },
     {
       "method": "vllm-switch CPU steady",
       "n": 3,
       "sleep": {
-        "max_s": 0.06401974150003298,
-        "median_s": 0.06393943199964269,
-        "min_s": 0.06369705199949749,
+        "max_s": 0.06452525649910967,
+        "median_s": 0.06418102350016852,
+        "min_s": 0.06411539599957905,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.0032459685035064467,
-          "GPU unmap + release": 0.060693463496136246,
+          "Control overhead": 0.003341093000017281,
+          "GPU unmap + release": 0.06083993050015124,
           "GPU\u2192CPU copy": 0.0
         },
-        "representative_sample_index": 3,
-        "representative_total_s": 0.06393943199964269
+        "representative_sample_index": 2,
+        "representative_total_s": 0.06418102350016852
       },
       "source": "vllm-switch-process-blocks",
       "wake": {
-        "max_s": 0.3025269114996263,
-        "median_s": 0.3013847610004632,
-        "min_s": 0.2988379615003396,
+        "max_s": 0.30616041099983704,
+        "median_s": 0.30568786899948464,
+        "min_s": 0.30552411149983527,
         "representative_phases_s": {
-          "CPU\u2192GPU copy": 0.11042441950257853,
-          "Control overhead": 0.0011706229993251327,
-          "GPU remap": 0.18978971849855952
+          "CPU\u2192GPU copy": 0.11266965550385066,
+          "Control overhead": 0.0012283664918868453,
+          "GPU remap": 0.19178984700374713
         },
-        "representative_sample_index": 1,
-        "representative_total_s": 0.3013847610004632
+        "representative_sample_index": 3,
+        "representative_total_s": 0.30568786899948464
       }
     },
     {
       "method": "vllm-switch disk first",
       "n": 3,
       "sleep": {
-        "max_s": 0.07822034400032862,
-        "median_s": 0.07404065700029605,
-        "min_s": 0.0735405780005749,
+        "max_s": 0.07385871599944949,
+        "median_s": 0.07362303799891379,
+        "min_s": 0.07343433599999116,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.013169451001886046,
-          "GPU unmap + release": 0.060871205998410005,
+          "Control overhead": 0.013299656993694953,
+          "GPU unmap + release": 0.060323381005218835,
           "GPU\u2192CPU copy": 0.0
         },
         "representative_sample_index": 2,
-        "representative_total_s": 0.07404065700029605
+        "representative_total_s": 0.07362303799891379
       },
       "source": "vllm-switch-process-blocks",
       "wake": {
-        "max_s": 1.626633478000258,
-        "median_s": 0.7919426090002162,
-        "min_s": 0.7831088769999042,
+        "max_s": 1.6039714439993986,
+        "median_s": 0.7739103650001198,
+        "min_s": 0.7733868159994017,
         "representative_phases_s": {
-          "Control overhead": 0.01076249000561802,
-          "Disk read + hash + H2D pipeline": 0.49677177000012307,
-          "GPU remap": 0.2844083489944751
+          "Control overhead": 0.010896363013671362,
+          "Disk read + hash + H2D pipeline": 0.5047922639987519,
+          "GPU remap": 0.25822173798769654
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 0.7919426090002162
+        "representative_sample_index": 1,
+        "representative_total_s": 0.7739103650001198
       }
     },
     {
       "method": "vllm-switch disk steady",
       "n": 3,
       "sleep": {
-        "max_s": 0.06966189850027149,
-        "median_s": 0.06951483649982038,
-        "min_s": 0.06940148550029335,
+        "max_s": 0.06977128650032682,
+        "median_s": 0.06956734449886426,
+        "min_s": 0.06952641400039283,
         "representative_phases_s": {
           "CPU backup allocation": 0.0,
-          "Control overhead": 0.009362499002691038,
-          "GPU unmap + release": 0.06015233749712934,
+          "Control overhead": 0.009221690494996437,
+          "GPU unmap + release": 0.06034565400386782,
           "GPU\u2192CPU copy": 0.0
         },
-        "representative_sample_index": 2,
-        "representative_total_s": 0.06951483649982038
+        "representative_sample_index": 1,
+        "representative_total_s": 0.06956734449886426
       },
       "source": "vllm-switch-process-blocks",
       "wake": {
-        "max_s": 0.7560267439998825,
-        "median_s": 0.7473663019995911,
-        "min_s": 0.7448973685000055,
+        "max_s": 0.756656065000243,
+        "median_s": 0.747549543999412,
+        "min_s": 0.7463207360005981,
         "representative_phases_s": {
-          "Control overhead": 0.010745126502115454,
-          "Disk read + hash + H2D pipeline": 0.49732014549999803,
-          "GPU remap": 0.2393010299974776
+          "Control overhead": 0.010829494990503008,
+          "Disk read + hash + H2D pipeline": 0.49855490249956347,
+          "GPU remap": 0.2381651465093455
         },
         "representative_sample_index": 1,
-        "representative_total_s": 0.7473663019995911
+        "representative_total_s": 0.747549543999412
       }
     }
   ],
