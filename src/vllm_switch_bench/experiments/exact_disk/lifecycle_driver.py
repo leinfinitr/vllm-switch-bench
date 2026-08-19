@@ -82,10 +82,10 @@ def main() -> int:
     if args.cycles <= 0:
         parser.error("--cycles must be positive")
 
-    output_path_value = os.environ.get("VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION")
-    if not output_path_value:
+    output_file_value = os.environ.get("VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION")
+    if not output_file_value:
         raise RuntimeError("VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION is required")
-    output_path = Path(output_path_value)
+    output_file = Path(output_file_value)
 
     wait_ready(args.base_url, args.ready_timeout_s)
     before = infer(args.base_url, args.served_model_name, args.prompt, 120.0)
@@ -140,7 +140,7 @@ def main() -> int:
         "demotion_latency_s": demotion_latency_s,
         "cycles": cycles,
     }
-    output_path.write_text(
+    output_file.write_text(
         json.dumps(observation, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )

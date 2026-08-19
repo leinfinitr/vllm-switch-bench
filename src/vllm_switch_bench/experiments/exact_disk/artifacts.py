@@ -12,7 +12,6 @@ from vllm_switch_bench.plotting.style import (
     apply_paper_style,
     save_figure,
     system_color,
-    system_hatch,
 )
 from vllm_switch_bench.publication import (
     default_results_root,
@@ -71,8 +70,7 @@ def write_figure(data: dict[str, Any], family_dir: Path) -> None:
     axis.bar(
         ("Spill", "Release", "Restore"),
         [data[field] / (1024**3) for field in fields],
-        color=system_color("exact-disk"),
-        hatch=system_hatch("exact-disk"),
+        color=system_color("exact-disk")
     )
     axis.set_ylabel("Data volume (GiB)")
     axis.set_title("Exact-disk lifecycle evidence")

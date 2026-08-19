@@ -8,6 +8,9 @@ import pytest
 from vllm_switch_bench.experiments.vllm_profiling.plot import (
     METHOD_ORDER,
     RAW_METHOD_ORDER,
+    WAKE_PHASE_ORDER,
+    _display_phases,
+    _plotted_rows,
     aggregate_profiles,
     main,
 )
@@ -77,6 +80,38 @@ def test_aggregate_profiles_rejects_missing_samples():
 
     with pytest.raises(ValueError, match="has 2 samples"):
         aggregate_profiles(payload)
+
+
+def test_wake_display_combines_and_renames_phases():
+    phases = _display_phases(
+        {
+            "GPU remap": 0.2,
+            "KV-cache remap": 0.3,
+            "CPU→GPU copy": 0.6,
+            "Disk read + hash + H2D pipeline": 0.4,
+            "Control overhead": 0.1,
+        },
+        "wake",
+    )
+
+    assert phases == {
+        "GPU remap": pytest.approx(0.5),
+        "CPU-GPU copy": pytest.approx(0.6),
+        "Checkpoint load": pytest.approx(0.4),
+        "Control overhead": pytest.approx(0.1),
+    }
+    assert WAKE_PHASE_ORDER == (
+        "GPU remap",
+        "CPU-GPU copy",
+        "Checkpoint load",
+        "Control overhead",
+    )
+
+
+def test_plot_rows_exclude_cold_load():
+    rows = _plotted_rows(aggregate_profiles(document()))
+
+    assert [row["method"] for row in rows] == list(METHOD_ORDER[1:])
 
 
 def test_main_writes_summary_png_and_pdf(tmp_path: Path):

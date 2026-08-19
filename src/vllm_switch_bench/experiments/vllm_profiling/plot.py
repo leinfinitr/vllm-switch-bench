@@ -52,6 +52,38 @@ PHASE_ORDER = (
     "Disk read + hash + H2D pipeline",
     "Control overhead",
 )
+SLEEP_PHASE_ORDER = (
+    "Process shutdown",
+    "CPU backup allocation",
+    "GPU→CPU copy",
+    "GPU unmap + release",
+    "Control overhead",
+)
+WAKE_PHASE_ORDER = (
+    "GPU remap",
+    "CPU-GPU copy",
+    "Checkpoint load",
+    "Control overhead",
+)
+DISPLAY_PHASE_ORDER = {
+    "sleep": SLEEP_PHASE_ORDER,
+    "wake": WAKE_PHASE_ORDER,
+}
+WAKE_PHASE_LABELS = {
+    "CPU→GPU copy": "CPU-GPU copy",
+    "KV-cache remap": "GPU remap",
+    "Disk read + hash + H2D pipeline": "Checkpoint load",
+}
+LEGEND_PHASE_ORDER = (
+    "Process shutdown",
+    "CPU backup allocation",
+    "GPU→CPU copy",
+    "GPU unmap + release",
+    "GPU remap",
+    "CPU-GPU copy",
+    "Checkpoint load",
+    "Control overhead",
+)
 PHASE_COLORS = {
     "Process shutdown": "#374151",
     "CPU backup allocation": "#F0E442",
@@ -59,6 +91,7 @@ PHASE_COLORS = {
     "GPU unmap + release": "#8A9A2A",
     "Process + engine startup": "#6B7280",
     "CPU→GPU copy": "#E69F00",
+    "CPU-GPU copy": "#E69F00",
     "GPU remap": "#009E73",
     "Checkpoint load": "#CC79A7",
     "KV-cache remap": "#0072B2",
@@ -167,6 +200,19 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _display_phases(phases: Mapping[str, Any], operation: str) -> dict[str, float]:
+    labels = WAKE_PHASE_LABELS if operation == "wake" else {}
+    displayed: dict[str, float] = {}
+    for phase, value in phases.items():
+        label = labels.get(phase, phase)
+        displayed[label] = displayed.get(label, 0.0) + float(value)
+    return displayed
+
+
+def _plotted_rows(summary: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+    return [row for row in summary["methods"] if row["method"] != "Cold load"]
+
+
 def _draw_panel(
     ax,
     rows: list[Mapping[str, Any]],
@@ -178,13 +224,11 @@ def _draw_panel(
     x = np.arange(len(rows), dtype=float)
     scale = 1.0 if seconds else 1000.0
     bottoms = np.zeros(len(rows), dtype=float)
-    for phase in PHASE_ORDER:
-        values = np.asarray(
-            [
-                float(row[operation]["representative_phases_s"].get(phase, 0.0)) * scale
-                for row in rows
-            ]
-        )
+    displayed_phases = [
+        _display_phases(row[operation]["representative_phases_s"], operation) for row in rows
+    ]
+    for phase in DISPLAY_PHASE_ORDER[operation]:
+        values = np.asarray([float(phases.get(phase, 0.0)) * scale for phases in displayed_phases])
         if not np.any(values > 0):
             continue
         ax.bar(
@@ -247,17 +291,11 @@ def _draw_panel(
 
 
 def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
-    """Plot sleep above wake while preserving a readable cold-process wake scale."""
+    """Plot the in-process sleep and wake phase breakdowns."""
 
     apply_paper_style()
-    rows = list(summary["methods"])
-    cold = [row for row in rows if row["method"] == "Cold load"]
-    warm = [row for row in rows if row["method"] != "Cold load"]
-    fig = plt.figure(figsize=(10.2, 7.0))
-    grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], width_ratios=[1.0, 5.8])
-    sleep_ax = fig.add_subplot(grid[0, :])
-    cold_ax = fig.add_subplot(grid[1, 0])
-    warm_ax = fig.add_subplot(grid[1, 1])
+    rows = _plotted_rows(summary)
+    fig, (sleep_ax, wake_ax) = plt.subplots(2, 1, figsize=(10.2, 7.0))
     _draw_panel(
         sleep_ax,
         rows,
@@ -266,31 +304,23 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
         title="(a) Sleep Latency Profiling",
     )
     _draw_panel(
-        cold_ax,
-        cold,
-        operation="wake",
-        seconds=True,
-        title="(b) Cold process",
-    )
-    _draw_panel(
-        warm_ax,
-        warm,
+        wake_ax,
+        rows,
         operation="wake",
         seconds=False,
-        title="(c) In-process",
+        title="(b) Wake Latency Profiling",
     )
 
-    handles, labels = warm_ax.get_legend_handles_labels()
-    cold_handles, cold_labels = cold_ax.get_legend_handles_labels()
+    wake_handles, wake_labels = wake_ax.get_legend_handles_labels()
     sleep_handles, sleep_labels = sleep_ax.get_legend_handles_labels()
     by_label = dict(
         zip(
-            sleep_labels + cold_labels + labels,
-            sleep_handles + cold_handles + handles,
+            sleep_labels + wake_labels,
+            sleep_handles + wake_handles,
             strict=False,
         )
     )
-    ordered = [phase for phase in PHASE_ORDER if phase in by_label]
+    ordered = [phase for phase in LEGEND_PHASE_ORDER if phase in by_label]
     if "Median [min, max]" in by_label:
         ordered.append("Median [min, max]")
     fig.legend(
@@ -302,16 +332,7 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
         frameon=False,
     )
     fig.suptitle(f"Local sleep and wake profiles — {summary['model']}", y=0.995)
-    fig.tight_layout(rect=(0, 0.035, 1, 0.80), h_pad=3.0)
-    wake_top = max(cold_ax.get_position().y1, warm_ax.get_position().y1)
-    fig.text(
-        0.5,
-        wake_top + 0.055,
-        "Wake Latency Profiling",
-        ha="center",
-        va="bottom",
-        fontsize=plt.rcParams["axes.titlesize"],
-    )
+    fig.tight_layout(rect=(0, 0.035, 1, 0.87), h_pad=2.5)
     return save_figure(fig, output_base)
 
 

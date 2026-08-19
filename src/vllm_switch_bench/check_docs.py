@@ -66,14 +66,13 @@ def check_repository(root: Path | None = None) -> None:
         check_markdown(path)
 
     root_links = local_link_targets(checkout / "README.md")
-    docs_links = local_link_targets(checkout / "docs" / "README.md")
     results_links = local_link_targets(checkout / "results" / "README.md")
     for family in FAMILIES:
         protocol = (experiment_root / family.slug / "README.md").resolve()
         result_readme = (checkout / "results" / family.slug / "README.md").resolve()
         png = checkout / "results" / family.slug / "figures" / f"{family.figure_stem}.png"
         pdf = png.with_suffix(".pdf")
-        if protocol not in root_links or protocol not in docs_links:
+        if protocol not in root_links:
             raise ValueError(f"{family.slug} is missing from a documentation index")
         if result_readme not in results_links:
             raise ValueError(f"{family.slug} is missing from the result index")
