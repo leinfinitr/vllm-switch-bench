@@ -20,19 +20,18 @@ samples. The retained run used Qwen2.5-0.5B-Instruct and one RTX 3080.
 
 ## Retained result
 
-The 2026-08-13 run spilled and released `1,048,576,000` bytes. Six restores read
-`6,291,456,000` bytes in total, and deterministic output matched. The omitted payload SHA-256
-is `4aec04d7b5d1a8a9ace300e239bc65381955b058f2dab0326b8a44dc3afbbdbb`.
+The retained run spilled and released `1,048,576,000` bytes. Six restores read
+`6,291,456,000` bytes in total, and deterministic output matched.
 
-- [PNG figure](../../../results/exact-disk/figures/exact-disk.png)
+![PNG figure](../../../results/exact-disk/figures/exact-disk.png)
+
 - [PDF figure](../../../results/exact-disk/figures/exact-disk.pdf)
 - [JSON summary](../../../results/exact-disk/summary.json)
 - [Runtime manifest](../../../results/exact-disk/raw/exact-disk/bundle-manifest.json)
 
 ## Reproduce the measurement
 
-Use a compatible vllm-switch checkout that exposes exact-disk environment variables, the
-demotion RPC, profile phases, and sleep/wake developer endpoints. Run from the benchmark root
+Run from the benchmark root
 on an idle GPU. The backup root must be empty so disk growth belongs to this run.
 
 ```bash
@@ -43,9 +42,8 @@ RUN_ROOT="$BENCH_ROOT/results/tmp/exact-disk/run-001"
 BACKUP_ROOT="$BENCH_ROOT/runtime/exact-disk-backups/run-001"
 VLLM_SWITCH_REPO=/path/to/vllm-switch
 VLLM_SWITCH_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
-MODEL=/path/to/Qwen2.5-0.5B-Instruct
-
-"$VLLM_SWITCH_PYTHON" -m pip install -e . --no-deps
+VLLM_SWITCH_BENCH_MODEL_PATH=/path/to/Qwen2.5-0.5B-Instruct
+VLLM_SWITCH_BENCH_MODEL_NAME=qwen-0.5b
 
 mkdir -p "$RUN_ROOT" "$(dirname "$BACKUP_ROOT")"
 
@@ -61,12 +59,13 @@ export VLLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
   PYTHONPATH="$VLLM_SWITCH_REPO" "$VLLM_SWITCH_PYTHON" -c 'import vllm; print(vllm.__file__)'
 )
 export VLLM_SWITCH_BENCH_MODEL_REVISION=local-files
-export VLLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$MODEL/config.json" | cut -d' ' -f1)
+export VLLM_SWITCH_BENCH_MODEL_CONFIG_SHA256=$(sha256sum "$VLLM_SWITCH_BENCH_MODEL_PATH/config.json" | cut -d' ' -f1)
 export VLLM_SWITCH_BENCH_BACKUP_FILESYSTEM=$(df -T "$(dirname "$BACKUP_ROOT")" | tail -n 1)
 export VLLM_SWITCH_BENCH_GPU_IDENTITY=$(
   nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader,nounits
 )
+export VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION="$RUN_ROOT/output_observation.json"
 export VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES=16777216
 export VLLM_EXACT_DISK_BACKUP_DIRECT_IO=1
 ```
@@ -97,15 +96,12 @@ export NO_PROXY=127.0.0.1,localhost
 server_pid=$!
 trap 'kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
-/path/to/vllm-switch/.venv/bin/python \
+/path/to/vllm-switch-bench/.venv/bin/python \
   -m vllm_switch_bench.experiments.exact_disk.lifecycle_driver \
   --base-url http://127.0.0.1:19700 \
   --served-model-name "$VLLM_SWITCH_BENCH_MODEL_NAME" \
   --ready-timeout-s 360 \
   --cycles 6
-
-mkdir -p "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"
-cp -a "$VLLM_EXACT_DISK_BACKUP_DIR"/. "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"/
 ```
 
 Run the evidence owner. It exports output/profile/backup paths to the child, samples resources,

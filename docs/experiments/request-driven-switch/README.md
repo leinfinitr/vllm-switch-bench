@@ -2,8 +2,10 @@
 
 ## Research question and metric
 
-What request-visible completion latency occurs when a frozen open-loop trace alternates
-between two models and drives model switching? `completion_latency_ms` starts at scheduled
+**What request-visible completion latency occurs when a frozen open-loop trace alternates
+between two models and drives model switching?**
+
+`completion_latency_ms` starts at scheduled
 client dispatch and ends at the complete streamed response. Dispatch lag, first byte,
 semantic TTFT, and TPOT remain separate raw fields; the summary does not label any of them as
 standalone wake time.
@@ -21,12 +23,13 @@ defines the retained cardinality and success predicate.
 
 ## Retained result
 
-All 20 requests succeeded for both systems in the 2026-08-13 local rerun. vllm-switch median
+The retained results used an RTX 3080. vllm-switch median
 completion latency was `0.842 s` (range `0.287-1.077 s`); llama-swap median was `44.574 s`
 (range `24.742-64.351 s`). The latter accumulated substantial open-loop queueing and must not
 be read as a native lifecycle wake latency.
 
-- [PNG figure](../../../results/request-driven-switch/figures/request-timeline.png)
+![PNG figure](../../../results/request-driven-switch/figures/request-timeline.png)
+
 - [PDF figure](../../../results/request-driven-switch/figures/request-timeline.pdf)
 - [JSON summary](../../../results/request-driven-switch/summary.json)
 - [vllm-switch rows](../../../results/request-driven-switch/raw/vllm-switch/e2e-alternating.jsonl)
@@ -53,10 +56,6 @@ VLLM_SWITCH_PID_FILE="$RUN_ROOT/vllm-switch/pids.json"
 mkdir -p "$RUN_ROOT/vllm-switch"
 cp docs/experiments/request-driven-switch/vllm-switch.example.yaml "$VLLM_SWITCH_CONFIG"
 $EDITOR "$VLLM_SWITCH_CONFIG"
-
-git -C "$CONTROLLER_REPO" status --short --branch
-git -C "$VLLM_SWITCH_REPO" status --short --branch
-sha256sum "$VLLM_SWITCH_CONFIG" "$VLLM_SWITCH_EXECUTABLE"
 ```
 
 Start the controller, then use its ownership-aware launcher to prepare both backends. Do not
@@ -108,13 +107,10 @@ mkdir -p "$RUN_ROOT/llama-swap"
 cp docs/experiments/request-driven-switch/llama-swap.example.yaml "$LLAMA_CONFIG"
 $EDITOR "$LLAMA_CONFIG"
 
-git -C "$LLAMA_REPO" status --short --branch
-git -C "$VLLM_REPO" status --short --branch
 (
   cd "$LLAMA_REPO"
   go build -o "$LLAMA_BINARY" .
 )
-sha256sum "$LLAMA_CONFIG" "$LLAMA_BINARY"
 
 "$LLAMA_BINARY" \
   --config "$LLAMA_CONFIG" \
@@ -179,6 +175,4 @@ Repeat build/validation and require no second-pass diff. The previous result rem
 
 This is one host/GPU, one trace, one prompt shape, and one pass. It does not cover other
 arrival rates, concurrency, model counts, or failure recovery. Completion latency combines
-queueing, routing, activation, and inference. The benchmark checkout was dirty during
-collection, though its exact state fingerprint is retained. Model files are identified by
-path/config metadata rather than a registry revision.
+queueing, routing, activation, and inference.

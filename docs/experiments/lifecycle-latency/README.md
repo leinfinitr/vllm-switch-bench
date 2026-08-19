@@ -2,20 +2,25 @@
 
 ## Research question and metric
 
-How long do explicit model sleep and wake operations take across the frozen model/runtime
-matrix? `sleep_s` starts immediately before the native sleep or unload operation and ends
-when that operation returns. `wake_s` starts immediately before native wake or load and ends
-when the runtime reports ready. Both are seconds. Request queueing and inference are excluded,
-and sleep and wake are never added into a synthetic switch metric.
+**How long do explicit model sleep and wake operations take?** 
 
-Each of the 30 model/system/phase cells contains five successful cycles. The summary reports
-the median and the second/fourth order statistics as Q1/Q3. A cycle is successful only when
-both lifecycle operations return, the runtime-specific sleep postcondition holds, and
-post-wake output equals the reference output. Failed attempts stay under `results/tmp/` and
-must not be promoted.
+- `sleep_s` starts immediately before the native sleep or unload operation and ends
+when that operation returns. 
+- `wake_s` starts immediately before native wake or load and ends
+when the runtime reports ready. 
 
-Unqualified `vLLM` denotes the upstream project/baseline. Use `vllm-switch` for the fork,
-including the CPU-backup and exact-disk mechanisms formerly labeled Proposed.
+Request queueing and inference are excluded.
+
+Each of the model/system/phase cells contains five successful cycles. The summary reports
+the median and the second/fourth order statistics as Q1/Q3. 
+
+A cycle is successful only when:
+
+- both lifecycle operations return
+- the runtime-specific sleep postcondition holds
+- post-wake output equals the reference output.
+
+Failed attempts stay under `results/tmp/` and must not be promoted.
 
 The frozen matrix is three Qwen2.5 Instruct models (0.5B, 1.5B, and 3B) and five mechanisms:
 vllm-switch, vLLM L1, vLLM L2, SwapServeLLM, and instrumented llama-swap. See the
@@ -25,21 +30,17 @@ SwapServeLLM includes its checkpoint/container control path.
 
 ## Retained result
 
-The 2026-08-13 local rerun used an RTX 3080. vllm-switch median sleep/wake was approximately
-`0.052/0.132 s`, `0.077/0.242 s`, and `0.155/0.481 s` for 0.5B, 1.5B, and 3B. vLLM L2
-median wake increased from `0.267 s` to `1.584 s`. Instrumented llama-swap wake was about
-`11.3-13.3 s`. Every retained post-wake output matched its reference.
+The retained results used an RTX 3080. The detailed statistics are in the [JSON summary](../../../results/lifecycle-latency/summary.json) and [CSV summary](../../../results/lifecycle-latency/summary.csv). The figure shows the median and interquartile range of the five cycles per model/system/phase cell.
 
-- [PNG figure](../../../results/lifecycle-latency/figures/lifecycle-latency.png)
+![PNG figure](../../../results/lifecycle-latency/figures/lifecycle-latency.png)
+
 - [PDF figure](../../../results/lifecycle-latency/figures/lifecycle-latency.pdf)
 - [JSON summary](../../../results/lifecycle-latency/summary.json)
 - [CSV summary](../../../results/lifecycle-latency/summary.csv)
 
 ## Reproduce the measurement
 
-Run from the benchmark repository root on an idle GPU. Install this package in both vLLM
-environments, and use clean, pinned runtime checkouts. The runner rejects a vLLM import that
-does not come from the declared `--vllm-repo`.
+Run from the benchmark repository root on an idle GPU.
 
 ```bash
 uv sync --frozen --group dev
@@ -102,7 +103,7 @@ done
 ```
 
 The external adapters consume already running services; they do not own those processes.
-Use a profiling-enabled llama-swap checkout, copy the complete template, and replace every
+Use a [profiling-enabled llama-swap checkout](https://github.com/leinfinitr/llama-swap/tree/research/profiling), copy the complete template, and replace every
 `/absolute/path/...` placeholder. Keep the model names, ports, timeouts, eager mode, dtype,
 maximum length, and `0.80` utilization unchanged. Build the binary from the pinned checkout:
 
@@ -117,18 +118,13 @@ mkdir -p "$RUN_ROOT/llama-swap"
 cp docs/experiments/lifecycle-latency/llama-swap.example.yaml "$LLAMA_CONFIG"
 $EDITOR "$LLAMA_CONFIG"
 
-git -C "$LLAMA_REPO" status --short --branch
-git -C "$VLLM_REPO" status --short --branch
 (
   cd "$LLAMA_REPO"
   go build -o "$LLAMA_BINARY" .
 )
-sha256sum "$LLAMA_CONFIG" "$LLAMA_BINARY"
 ```
 
-Start llama-swap in this shell, retain its PID, and wait for the router. The selected
-llama-swap revision must implement `LLAMA_SWAP_LIFECYCLE_PROFILE_PATH`; an ordinary upstream
-build cannot produce the unload/load boundary consumed by this adapter.
+Start llama-swap in this shell, retain its PID, and wait for the router.
 
 ```bash
 LLAMA_SWAP_LIFECYCLE_PROFILE_PATH="$LLAMA_PROFILE" \
@@ -156,11 +152,8 @@ wait "$LLAMA_PID" || true
 ```
 
 SwapServeLLM requires Podman, NVIDIA CDI, `cuda-checkpoint`, and a compatible vLLM image.
-Its source dispatches on the literal image key `docker.io/vllm/vllm-openai:latest`; therefore
-resolve that tag to a deliberately selected immutable image before the run and retain the
-inspection output. Do not treat the tag itself as image identity.
 
-Apply the retained compatibility patch to a clean pinned checkout. It fixes lifecycle HTTP
+It is recommended to use [modified SwapServeLLM](https://github.com/leinfinitr/SwapServeLLM). It fixes lifecycle HTTP
 status handling, fixes maximum model length at 1024, and mounts the host model root read-only.
 Build one binary and record its digest:
 
@@ -171,11 +164,6 @@ CUDA_CHECKPOINT=/absolute/path/to/cuda-checkpoint
 SWAPSERVE_HOST_MODEL_ROOT=/absolute/path/to/models
 
 mkdir -p "$RUN_ROOT/swapserve"
-git -C "$SWAPSERVE_REPO" status --short --branch
-git -C "$SWAPSERVE_REPO" apply --check \
-  "$BENCH_ROOT/results/lifecycle-latency/config/swapserve-local-compat.patch"
-git -C "$SWAPSERVE_REPO" apply \
-  "$BENCH_ROOT/results/lifecycle-latency/config/swapserve-local-compat.patch"
 (
   cd "$SWAPSERVE_REPO"
   go build -mod=vendor -o "$SWAPSERVE_BINARY" .
@@ -201,7 +189,6 @@ SWAPSERVE_CONFIG="$SWAPSERVE_RUN/config.json"
 mkdir -p "$SWAPSERVE_RUN/logs" "$SWAPSERVE_RUN/runtime" "$SWAPSERVE_RUN/hf-cache"
 cp docs/experiments/lifecycle-latency/swapserve.example.json "$SWAPSERVE_CONFIG"
 $EDITOR "$SWAPSERVE_CONFIG"
-sha256sum "$SWAPSERVE_CONFIG"
 
 (
   cd "$SWAPSERVE_RUN/runtime"
@@ -282,13 +269,7 @@ and validator again and require no second-pass diff before committing.
 
 ## Threats and limitations
 
-This is one host/GPU and five observations per cell. Page cache, allocator history, CUDA
-graph state, storage, and external startup affect the boundaries. The benchmark checkout was
-dirty during collection, although its commit, status, and working-tree fingerprint are
-retained. Cross-runtime values describe native operations and do not prove semantically
-identical work, throughput, capacity, or tail behavior. SwapServe still requires a literal
-`latest` configuration key, but the adapter resolves it to and retains the local image ID,
-manifest digest, repository digests, and embedded vLLM build identity used for the run. The
-retained local vLLM rows identify model directories by path but predate model-config digest
-capture; a future rerun should close that portability gap rather than treating the path as a
-registry revision.
+This is one host/GPU and five observations per cell. **Page cache, allocator history, CUDA
+graph state, storage, and external startup affect the boundaries.** Cross-runtime values 
+describe native operations and do not prove semantically identical work, throughput, capacity, 
+or tail behavior.

@@ -24,7 +24,8 @@ The 2026-08-13 reuse runs contain five zero-D2H events per model. Minimum reused
 `2,097,152,000` bytes with zero pending obligation. In the attributed settlement window,
 process-tree RSS fell `1,847,525,376` bytes and `MemAvailable` rose `1,916,854,272` bytes.
 
-- [PNG figure](../../../results/backup-reuse-reclaim/figures/backup-reuse.png)
+![PNG figure](../../../results/backup-reuse-reclaim/figures/backup-reuse.png)
+
 - [PDF figure](../../../results/backup-reuse-reclaim/figures/backup-reuse.pdf)
 - [JSON summary](../../../results/backup-reuse-reclaim/summary.json)
 - [Reclaim evidence](../../../results/backup-reuse-reclaim/raw/vllm-switch/reclaim.json)
