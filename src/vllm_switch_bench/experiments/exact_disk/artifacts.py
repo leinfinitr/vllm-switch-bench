@@ -32,7 +32,7 @@ Question: does exact disk spill, restore, and physically release a 1 GiB exact-r
 - Figure: [`figures/exact-disk.pdf`](figures/exact-disk.pdf) ([PNG](figures/exact-disk.png))
 - Method and limitations: [`../../docs/experiments/exact-disk/README.md`](../../docs/experiments/exact-disk/README.md)
 
-The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, no fallback, size/hash/chunk/manifest-commit consistency, material footprint, completed host-cache release and demotion, actual restore reads, run identity/config metadata, and equal output for the 2026-08-13 local run.
+The payload is intentionally omitted. Its SHA-256 and runtime bundle/chunk checksums remain correctness evidence. The validator checks phase coverage, no fallback, size/hash/chunk/manifest-commit consistency, material footprint, completed host-cache release and demotion, actual restore reads, run identity/config metadata, and equal output for the retained local run. Provenance records its collection date.
 """
 
 
@@ -70,7 +70,7 @@ def write_figure(data: dict[str, Any], family_dir: Path) -> None:
     axis.bar(
         ("Spill", "Release", "Restore"),
         [data[field] / (1024**3) for field in fields],
-        color=system_color("exact-disk")
+        color=system_color("exact-disk"),
     )
     axis.set_ylabel("Data volume (GiB)")
     axis.set_title("Exact-disk lifecycle evidence")

@@ -55,6 +55,7 @@ fi
 
 export VLLM_SWITCH_BENCH_VLLM_REPO="$VLLM_SWITCH_REPO"
 export VLLM_SWITCH_BENCH_VLLM_PYTHON="$VLLM_SWITCH_PYTHON"
+export VLLM_SWITCH_BENCH_PYTHON="$BENCH_ROOT/.venv/bin/python"
 export VLLM_SWITCH_BENCH_VLLM_IMPORT_PATH=$(
   PYTHONPATH="$VLLM_SWITCH_REPO" "$VLLM_SWITCH_PYTHON" -c 'import vllm; print(vllm.__file__)'
 )
@@ -65,7 +66,8 @@ export VLLM_SWITCH_BENCH_GPU_IDENTITY=$(
   nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader,nounits
 )
-export VLLM_SWITCH_BENCH_OUTPUT_OBSERVATION="$RUN_ROOT/output_observation.json"
+export VLLM_SERVER_DEV_MODE=1
+export VLLM_EXACT_DISK_BACKUP_ENABLED=1
 export VLLM_EXACT_DISK_BACKUP_CHUNK_BYTES=16777216
 export VLLM_EXACT_DISK_BACKUP_DIRECT_IO=1
 ```
@@ -77,13 +79,13 @@ The runtime bundle must be copied before server teardown removes its working sta
 #!/usr/bin/env bash
 set -euo pipefail
 
-export PATH="/path/to/vllm-switch/.venv/bin:$PATH"
-export PYTHONPATH=/path/to/vllm-switch
+export PATH="$(dirname "$VLLM_SWITCH_BENCH_VLLM_PYTHON"):$PATH"
+export PYTHONPATH="$VLLM_SWITCH_BENCH_VLLM_REPO"
 export VLLM_SERVER_DEV_MODE=1
 export no_proxy=127.0.0.1,localhost
 export NO_PROXY=127.0.0.1,localhost
 
-/path/to/vllm-switch/.venv/bin/python -m vllm.entrypoints.openai.api_server \
+"$VLLM_SWITCH_BENCH_VLLM_PYTHON" -m vllm.entrypoints.openai.api_server \
   --model "$VLLM_SWITCH_BENCH_MODEL_PATH" \
   --served-model-name "$VLLM_SWITCH_BENCH_MODEL_NAME" \
   --host 127.0.0.1 \
@@ -96,12 +98,16 @@ export NO_PROXY=127.0.0.1,localhost
 server_pid=$!
 trap 'kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
-/path/to/vllm-switch-bench/.venv/bin/python \
+"$VLLM_SWITCH_BENCH_PYTHON" \
   -m vllm_switch_bench.experiments.exact_disk.lifecycle_driver \
   --base-url http://127.0.0.1:19700 \
   --served-model-name "$VLLM_SWITCH_BENCH_MODEL_NAME" \
   --ready-timeout-s 360 \
   --cycles 6
+
+mkdir -p "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"
+cp -a "$VLLM_EXACT_DISK_BACKUP_DIR"/. \
+  "$VLLM_SWITCH_BENCH_OUT_DIR/runtime-bundle"/
 ```
 
 Run the evidence owner. It exports output/profile/backup paths to the child, samples resources,
@@ -111,7 +117,7 @@ verifies the command, builds curated assertions, and writes an evidence manifest
 chmod +x "$RUN_ROOT/lifecycle-command.sh"
 
 scripts/exact-disk.sh \
-  --model qwen-0.5b="$MODEL" \
+  --model "$VLLM_SWITCH_BENCH_MODEL_NAME=$VLLM_SWITCH_BENCH_MODEL_PATH" \
   --backup-root "$BACKUP_ROOT" \
   --out-dir "$RUN_ROOT/run" \
   --sample-interval-s 0.25 \
