@@ -25,8 +25,8 @@ def validate_family(path: Path | None = None) -> None:
     )
     document = json.loads((raw_dir / "profile-samples.json").read_text(encoding="utf-8"))
     config = json.loads((family / "config" / "campaign.json").read_text(encoding="utf-8"))
-    require(document.get("schema_version") == 2, "vllm-profiling: raw schema mismatch")
-    require(config.get("schema_version") == 2, "vllm-profiling: config schema mismatch")
+    require(document.get("schema_version") == 3, "vllm-profiling: raw schema mismatch")
+    require(config.get("schema_version") == 3, "vllm-profiling: config schema mismatch")
     require(document.get("model") == config.get("model"), "vllm-profiling: model mismatch")
     scope = document.get("frozen_scope", {})
     for field in ("dtype", "max_model_len", "gpu_memory_utilization", "engine_mode"):
@@ -40,7 +40,7 @@ def validate_family(path: Path | None = None) -> None:
         "vllm-profiling: display labels mismatch",
     )
     sample_count = int(config["samples_per_method"])
-    require(sample_count == 5, "vllm-profiling: retained sample count must be five")
+    require(sample_count == 3, "vllm-profiling: retained sample count must be three")
     require(
         config.get("metric_boundary") == document.get("metric_boundary"),
         "vllm-profiling: metric boundary mismatch",
@@ -112,11 +112,30 @@ def validate_family(path: Path | None = None) -> None:
                 isinstance(source, str) and source in sources and not Path(source).is_absolute(),
                 "vllm-profiling: invalid sample source",
             )
+            if method in {"vLLM L2 Cold", "vLLM L2 Warm"}:
+                cache = row.get("cache_evidence", {})
+                require(cache, f"vllm-profiling: {method} cache evidence missing")
+                resident = float(cache.get("resident_ratio_before_wake", -1))
+                read_ratio = float(cache.get("storage_read_ratio", -1))
+                if method == "vLLM L2 Cold":
+                    require(
+                        cache.get("treatment") == "posix_fadvise_dontneed"
+                        and resident <= 0.05
+                        and read_ratio >= 0.90,
+                        "vllm-profiling: cold L2 cache evidence is invalid",
+                    )
+                else:
+                    require(
+                        cache.get("treatment") == "none"
+                        and resident >= 0.90
+                        and read_ratio <= 0.10,
+                        "vllm-profiling: warm L2 cache evidence is invalid",
+                    )
 
     comparability = document.get("comparability", {})
     require(
-        comparability.get("heterogeneous_conditions"),
-        "vllm-profiling: heterogeneous conditions missing",
+        comparability.get("shared_conditions") and comparability.get("cache_conditions"),
+        "vllm-profiling: comparison controls missing",
     )
     require(
         comparability.get("prohibited_claim"),

@@ -57,7 +57,16 @@ def git_metadata(path: Path) -> dict[str, Any]:
 def _engine_environment(args: argparse.Namespace) -> dict[str, str]:
     env = os.environ.copy()
     workdir = str(Path(args.workdir).resolve())
-    env["PYTHONPATH"] = workdir + os.pathsep + env.get("PYTHONPATH", "")
+    benchmark_root = repository_root()
+    benchmark_src = str(benchmark_root / "src")
+    env["VLLM_SWITCH_BENCH_ROOT"] = str(benchmark_root)
+    pythonpath = [workdir, benchmark_src]
+    pythonpath.extend(
+        entry
+        for entry in env.get("PYTHONPATH", "").split(os.pathsep)
+        if entry and entry not in pythonpath
+    )
+    env["PYTHONPATH"] = os.pathsep.join(pythonpath)
     python_bin_dir = str(Path(args.python).absolute().parent)
     env["PATH"] = python_bin_dir + os.pathsep + env.get("PATH", "")
     env.setdefault("CUDA_VISIBLE_DEVICES", args.cuda_visible_devices)
@@ -160,10 +169,15 @@ def behavior_config(args: argparse.Namespace) -> dict[str, Any]:
             "methods",
             "prompts",
             "repeats",
+            "cycles_per_process",
             "ready_timeout_s",
             "idle_s",
             "sample_interval_s",
             "sleep_cpu_backup_pin_memory",
+            "cold_max_resident_ratio",
+            "cold_min_read_ratio",
+            "warm_min_resident_ratio",
+            "warm_max_read_ratio",
         )
     }
 
@@ -422,11 +436,23 @@ def call_with_sleep_profile(args: argparse.Namespace, operation: str, fn) -> dic
     return result
 
 
-def combine_restore_steps(*steps: dict[str, Any]) -> dict[str, Any]:
+def combine_restore_steps(
+    *steps: dict[str, Any],
+    started_monotonic_s: float | None = None,
+    ended_monotonic_s: float | None = None,
+) -> dict[str, Any]:
+    active_latency_s = sum(float(step.get("latency_s") or 0.0) for step in steps)
+    envelope_latency_s = (
+        ended_monotonic_s - started_monotonic_s
+        if started_monotonic_s is not None and ended_monotonic_s is not None
+        else active_latency_s
+    )
     combined = {
         "ok": all(bool(step.get("ok")) for step in steps),
         "status": "+".join(str(step.get("status", "error")) for step in steps),
-        "latency_s": sum(float(step.get("latency_s") or 0.0) for step in steps),
+        "latency_s": envelope_latency_s,
+        "active_latency_s": active_latency_s,
+        "inter_step_gap_s": max(0.0, envelope_latency_s - active_latency_s),
     }
     profiles = [step.get("sleep_profile") for step in steps if step.get("sleep_profile")]
     if profiles:
@@ -575,7 +601,7 @@ def run_one(
             args.port = find_free_port(args.host)
         dynamic_port_mode = original_port == 0
         summary["port"] = args.port
-        args.enable_sleep_mode = method.startswith("sleep_l")
+        args.enable_sleep_mode = method.startswith("sleep_l") or method == "cpu_backup"
         args.sleep_profile_path = (
             str(sleep_profile_path.resolve()) if args.enable_sleep_mode else ""
         )
@@ -707,6 +733,64 @@ def run_one(
     return summary
 
 
+def _run_block_driver(
+    args: argparse.Namespace, method: str, block_index: int, out_dir: Path
+) -> None:
+    block_dir = out_dir / method / f"block-{block_index}"
+    command = [
+        str(Path(args.python).absolute()),
+        "-m",
+        "vllm_switch_bench.experiments.vllm_profiling.block_driver",
+        "--model",
+        args.model,
+        "--served-model-name",
+        args.served_model_name,
+        "--method",
+        method,
+        "--process-block",
+        str(block_index),
+        "--cycles",
+        str(args.cycles_per_process),
+        "--prompt",
+        args.prompts[0],
+        "--gpu-memory-utilization",
+        str(args.gpu_memory_utilization),
+        "--max-model-len",
+        str(args.max_model_len),
+        "--dtype",
+        args.dtype,
+        "--idle-s",
+        str(args.idle_s),
+        "--out-dir",
+        str(block_dir),
+        "--cold-max-resident-ratio",
+        str(args.cold_max_resident_ratio),
+        "--cold-min-read-ratio",
+        str(args.cold_min_read_ratio),
+        "--warm-min-resident-ratio",
+        str(args.warm_min_resident_ratio),
+        "--warm-max-read-ratio",
+        str(args.warm_max_read_ratio),
+    ]
+    for extra in args.extra_vllm_arg:
+        command.extend(["--extra-vllm-arg", extra])
+    if args.enforce_eager:
+        command.append("--enforce-eager")
+    completed = subprocess.run(
+        command,
+        cwd=args.workdir,
+        env=_engine_environment(args),
+        text=True,
+        timeout=args.ready_timeout_s + 900,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"{method} process block {block_index} failed with code {completed.returncode}; "
+            f"summary={block_dir / 'block-summary.json'}"
+        )
+
+
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True)
@@ -741,12 +825,27 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         help="Additional raw argument(s) appended to the vLLM API server command. Repeatable; split on whitespace.",
     )
     parser.add_argument("--endpoint", choices=["completion", "chat"], default="completion")
-    parser.add_argument("--methods", nargs="+", default=["cold_reload", "sleep_l1", "sleep_l2"])
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        default=["cold_reload", "sleep_l1", "sleep_l2"],
+        choices=["cold_reload", "sleep_l1", "sleep_l2", "cpu_backup", "exact_disk"],
+    )
     parser.add_argument("--prompts", nargs="+", default=["short_short", "long_short", "short_long"])
-    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument(
+        "--repeats",
+        type=int,
+        default=3,
+        help="Independent process blocks per method and prompt.",
+    )
+    parser.add_argument("--cycles-per-process", type=int, default=3)
     parser.add_argument("--ready-timeout-s", type=float, default=240)
     parser.add_argument("--idle-s", type=float, default=2)
     parser.add_argument("--sample-interval-s", type=float, default=0.5)
+    parser.add_argument("--cold-max-resident-ratio", type=float, default=0.05)
+    parser.add_argument("--cold-min-read-ratio", type=float, default=0.90)
+    parser.add_argument("--warm-min-resident-ratio", type=float, default=0.90)
+    parser.add_argument("--warm-max-read-ratio", type=float, default=0.10)
     parser.add_argument(
         "--sleep-cpu-backup-pin-memory",
         choices=["auto", "true", "false", "1", "0"],
@@ -759,6 +858,18 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     args.sleep_profile_path = ""
     if args.repeats <= 0:
         parser.error("--repeats must be positive")
+    if args.cycles_per_process != 3:
+        parser.error("--cycles-per-process must be exactly three for first/steady profiling")
+    if any(
+        value < 0 or value > 1
+        for value in (
+            args.cold_max_resident_ratio,
+            args.cold_min_read_ratio,
+            args.warm_min_resident_ratio,
+            args.warm_max_read_ratio,
+        )
+    ):
+        parser.error("page-cache validation ratios must be between zero and one")
     unknown_prompts = sorted(set(args.prompts) - set(PROMPTS))
     if unknown_prompts:
         raise SystemExit(f"unknown prompts: {unknown_prompts}; available={sorted(PROMPTS)}")
@@ -813,8 +924,15 @@ def main(argv: Iterable[str] | None = None) -> int:
         print(out_dir)
         return 0
 
+    block_methods = {"sleep_l1", "sleep_l2", "cpu_backup", "exact_disk"}
+    if any(method in block_methods for method in args.methods) and len(args.prompts) != 1:
+        raise ValueError("repeated sleep/wake profiling requires exactly one prompt")
     rows: list[dict[str, Any]] = []
     for method in args.methods:
+        if method in block_methods:
+            for block_index in range(args.repeats):
+                _run_block_driver(args, method, block_index, out_dir)
+            continue
         for prompt_name in args.prompts:
             for repeat_index in range(args.repeats):
                 row = run_one(args, method, prompt_name, repeat_index, out_dir)
@@ -826,7 +944,13 @@ def main(argv: Iterable[str] | None = None) -> int:
                 write_sleep_profile_summary_csv(out_dir / "sleep_profile_summary.csv", rows)
 
     print(out_dir)
-    return 0 if all(row.get("ok") for row in rows) else 2
+    if not rows:
+        block_summaries = list(out_dir.glob("*/block-*/block-summary.json"))
+        if not block_summaries:
+            raise RuntimeError("profiling campaign produced no summary artifacts")
+        block_rows = [json.loads(path.read_text(encoding="utf-8")) for path in block_summaries]
+        return 0 if all(row.get("ok") is True for row in block_rows) else 2
+    return 0 if all(row.get("ok") is True for row in rows) else 2
 
 
 if __name__ == "__main__":

@@ -17,17 +17,25 @@ from vllm_switch_bench.plotting.style import apply_paper_style, save_figure
 
 RAW_METHOD_ORDER = (
     "Cold load",
-    "vLLM L1",
-    "vLLM L2",
-    "CPU backup",
-    "Exact disk",
+    "vLLM L1 First",
+    "vLLM L1 Steady",
+    "vLLM L2 Cold",
+    "vLLM L2 Warm",
+    "CPU backup First",
+    "CPU backup Steady",
+    "Exact disk First",
+    "Exact disk Steady",
 )
 METHOD_LABELS = {
     "Cold load": "Cold load",
-    "vLLM L1": "vLLM L1",
-    "vLLM L2": "vLLM L2",
-    "CPU backup": "vllm-switch CPU backup",
-    "Exact disk": "vllm-switch exact disk",
+    "vLLM L1 First": "vLLM L1 first",
+    "vLLM L1 Steady": "vLLM L1 steady",
+    "vLLM L2 Cold": "vLLM L2 cold",
+    "vLLM L2 Warm": "vLLM L2 warm",
+    "CPU backup First": "vllm-switch CPU first",
+    "CPU backup Steady": "vllm-switch CPU steady",
+    "Exact disk First": "vllm-switch disk first",
+    "Exact disk Steady": "vllm-switch disk steady",
 }
 METHOD_ORDER = tuple(METHOD_LABELS[method] for method in RAW_METHOD_ORDER)
 PROFILE_OPERATIONS = ("sleep", "wake")
@@ -112,7 +120,7 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
         grouped[method].append(sample)
 
     rows: list[dict[str, Any]] = []
-    expected_count = int(document.get("frozen_scope", {}).get("sample_count_per_method", 5))
+    expected_count = int(document.get("frozen_scope", {}).get("sample_count_per_method", 3))
     for method in RAW_METHOD_ORDER:
         method_samples = grouped[method]
         if len(method_samples) != expected_count:
@@ -145,7 +153,7 @@ def aggregate_profiles(document: Mapping[str, Any]) -> dict[str, Any]:
         rows.append(row)
 
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "title": document.get("title"),
         "evidence_label": document.get("evidence_label"),
         "comparability": document.get("comparability"),
@@ -212,14 +220,22 @@ def _draw_panel(
     for position, row, top in zip(x, rows, bottoms, strict=True):
         value = float(row[operation]["median_s"])
         label = f"{value:.3f} s" if seconds else f"{value * 1000:.0f} ms"
+        spread = float(row[operation]["max_s"]) - float(row[operation]["median_s"])
+        lower_spread = float(row[operation]["median_s"]) - float(row[operation]["min_s"])
+        large_spread = max(spread, lower_spread) > max(0.04, value * 0.15)
         ax.annotate(
             label,
             (position, top),
-            xytext=(0, 4),
+            xytext=(-8 if large_spread else 0, 4),
             textcoords="offset points",
-            ha="center",
+            ha="right" if large_spread else "center",
             va="bottom",
             fontsize=6.5,
+            bbox=(
+                {"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 0.4}
+                if large_spread
+                else None
+            ),
         )
     ax.set_title(title, y=1.07)
     ax.set_xticks(x, [str(row["method"]) for row in rows], rotation=15, ha="right")
@@ -237,8 +253,8 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
     rows = list(summary["methods"])
     cold = [row for row in rows if row["method"] == "Cold load"]
     warm = [row for row in rows if row["method"] != "Cold load"]
-    fig = plt.figure(figsize=(7.6, 6.3))
-    grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], width_ratios=[1.0, 3.3])
+    fig = plt.figure(figsize=(10.2, 7.0))
+    grid = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], width_ratios=[1.0, 5.8])
     sleep_ax = fig.add_subplot(grid[0, :])
     cold_ax = fig.add_subplot(grid[1, 0])
     warm_ax = fig.add_subplot(grid[1, 1])
@@ -286,7 +302,7 @@ def plot_profiles(summary: Mapping[str, Any], output_base: Path) -> list[Path]:
         frameon=False,
     )
     fig.suptitle(f"Local sleep and wake profiles — {summary['model']}", y=0.995)
-    fig.tight_layout(rect=(0, 0.035, 1, 0.79), h_pad=3.0)
+    fig.tight_layout(rect=(0, 0.035, 1, 0.80), h_pad=3.0)
     wake_top = max(cold_ax.get_position().y1, warm_ax.get_position().y1)
     fig.text(
         0.5,

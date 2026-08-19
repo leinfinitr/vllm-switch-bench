@@ -1,8 +1,9 @@
-"""Compile validated live-run outputs into the retained profiling sample schema."""
+"""Compile local process-block outputs into compact retained profiling samples."""
 
 from __future__ import annotations
 
 import json
+import statistics
 from pathlib import Path
 from typing import Any
 
@@ -14,21 +15,21 @@ PHASE_SEMANTICS = {
     "GPU→CPU copy": "Synchronous GPU weights backup to CPU memory.",
     "GPU unmap + release": "Allocator unmap and GPU allocation release during sleep.",
     "Process + engine startup": "Fresh process creation through API health readiness.",
-    "GPU remap": "Allocator mapping/create time.",
+    "GPU remap": "Allocator mapping/create time across all restored tags.",
     "CPU→GPU copy": "Synchronous pinned CPU backup to GPU copy.",
-    "Checkpoint load": "vLLM L2 reload_weights HTTP step.",
+    "Checkpoint load": "vLLM L2 reload_weights active step.",
     "KV-cache remap": "vLLM L2 wake of the KV-cache tag.",
     "Disk read + hash + H2D pipeline": "Overlapped exact-disk restore pipeline wall time.",
-    "Control overhead": "Measured total minus the disjoint instrumented phases.",
+    "Control overhead": "Continuous operation wall time minus disjoint instrumented phases.",
 }
 METRIC_BOUNDARY = {
     "sleep": (
-        "Sleep begins immediately before process termination or the sleep API call and ends "
-        "when process exit or the sleep response returns."
+        "Sleep begins immediately before process termination or the sleep call and ends when "
+        "process exit or sleep returns."
     ),
     "wake": (
-        "Wake begins immediately before process start or the wake API call and ends when "
-        "health readiness or the wake response returns; request generation is excluded."
+        "Wake begins immediately before process start or the first restore call and ends after "
+        "all required restore stages return; request generation and cache treatment are excluded."
     ),
 }
 
@@ -38,8 +39,6 @@ def _json(path: Path) -> Any:
 
 
 def _git_identity(data: dict[str, Any]) -> dict[str, Any]:
-    """Keep stable repository identity while excluding verbose status listings."""
-
     return {
         "path": data.get("path", data.get("repo_path")),
         "commit": data.get("commit", data.get("git_commit")),
@@ -47,6 +46,7 @@ def _git_identity(data: dict[str, Any]) -> dict[str, Any]:
         "dirty": data.get("dirty", data.get("git_dirty")),
         "tracked_dirty": data.get("tracked_dirty", data.get("git_tracked_dirty")),
         "tree": data.get("tree"),
+        "working_tree_sha256": data.get("working_tree_sha256"),
         "module_path": data.get("module_path"),
     }
 
@@ -65,44 +65,88 @@ def _service_provenance(summary: Path) -> dict[str, Any]:
     }
 
 
-def _cpu_provenance(summary: Path) -> dict[str, Any]:
-    data = _json(summary)
-    environment = data["environment"]
-    return {
-        "kind": "same-process-vllm-switch-cpu-backup",
-        "benchmark_repo": _git_identity(environment["benchmark_repo"]),
-        "engine_repo": _git_identity(environment["vllm_repo"]),
-        "runtime": {
-            "python": environment["python"],
-            "python_executable": environment["python_executable"],
-            "platform": environment["platform"],
-        },
-        "model_identity": data["models"],
-        "behavior_config": data["parameters"],
-        "gpu": environment["gpu"],
+def _block_files(root: Path, method: str) -> list[Path]:
+    files = sorted((root / method).glob("block-*/block-summary.json"))
+    if not files:
+        if root.name == method and (root / "block-summary.json").is_file():
+            files = [root / "block-summary.json"]
+        elif (root / "block-summary.json").is_file():
+            files = [root / "block-summary.json"]
+    return files
+
+
+def _blocks(root: Path, method: str, expected: int = 3) -> list[dict[str, Any]]:
+    rows = [_json(path) for path in _block_files(root, method)]
+    rows = sorted(rows, key=lambda row: int(row["process_block"]))
+    if len(rows) != expected:
+        raise ValueError(f"{method}: expected {expected} process blocks, found {len(rows)}")
+    if [int(row["process_block"]) for row in rows] != list(range(expected)):
+        raise ValueError(f"{method}: process block indexes must be 0..{expected - 1}")
+    if not all(row.get("method") == method for row in rows):
+        raise ValueError(f"{method}: source block method identity mismatch")
+    if not all(row.get("ok") is True for row in rows):
+        raise ValueError(f"{method}: source blocks include failed or invalid cycles")
+    if not all(len(row.get("cycles", [])) == 3 for row in rows):
+        raise ValueError(f"{method}: every block must contain exactly three cycles")
+
+    expected_cycle_classes = ["first", "steady", "steady"]
+    expected_cache_conditions = {
+        "sleep_l1": [None, None, None],
+        "sleep_l2": None,
+        "cpu_backup": [None, None, None],
+        "exact_disk": [None, None, None],
     }
+    for row in rows:
+        cycles = row["cycles"]
+        if [int(cycle.get("cycle_index", -1)) for cycle in cycles] != [0, 1, 2]:
+            raise ValueError(f"{method}: cycle indexes must be 0, 1, 2")
+        if [cycle.get("cycle_class") for cycle in cycles] != expected_cycle_classes:
+            raise ValueError(f"{method}: cycle classes must be first, steady, steady")
+        if not all(cycle.get("ok") is True for cycle in cycles):
+            raise ValueError(f"{method}: every cycle must succeed")
+        conditions = [cycle.get("cache_condition") for cycle in cycles]
+        if method == "sleep_l2":
+            expected_conditions = ["warm", "warm", "warm"]
+            expected_conditions[int(row["process_block"]) % 3] = "cold"
+            if conditions != expected_conditions:
+                raise ValueError(
+                    f"{method}: block {row['process_block']} cache schedule must be "
+                    f"{expected_conditions}, found {conditions}"
+                )
+        elif conditions != expected_cache_conditions[method]:
+            raise ValueError(f"{method}: only L2 cycles may carry cache conditions")
+    return rows
 
 
-def _exact_provenance(run: Path) -> dict[str, Any]:
-    data = _json(run / "raw" / "run.json")
-    environment = data["environment"]
+def _same_across_blocks(blocks: list[dict[str, Any]], path: str) -> Any:
+    keys = path.split(".")
+    values = []
+    for block in blocks:
+        value: Any = block
+        for key in keys:
+            value = value[key]
+        values.append(value)
+    if any(value != values[0] for value in values[1:]):
+        raise ValueError(f"process blocks disagree on {path}")
+    return values[0]
+
+
+def _block_provenance(blocks: list[dict[str, Any]], *, kind: str) -> dict[str, Any]:
+    benchmark_repo = _same_across_blocks(blocks, "environment.benchmark_repo")
+    engine_repo = _same_across_blocks(blocks, "environment.vllm_repo")
+    runtime = _same_across_blocks(blocks, "environment.runtime")
+    model = _same_across_blocks(blocks, "model")
+    parameters = _same_across_blocks(blocks, "parameters")
     return {
-        "kind": "same-process-vllm-switch-exact-disk",
-        "benchmark_repo": _git_identity(environment["benchmark_repo"]),
-        "engine_repo": _git_identity(environment["vllm_repo"]),
-        "runtime": environment["runtime"],
-        "model_identity": data["model"],
-        "command_return_code": data["command_return_code"],
-        "platform": environment["platform"],
+        "kind": kind,
+        "benchmark_repo": _git_identity(benchmark_repo),
+        "engine_repo": _git_identity(engine_repo),
+        "engine_runtime": runtime,
+        "model_identity": {"identity": model},
+        "behavior_config": parameters,
+        "process_block_count": len(blocks),
+        "cycles_per_process": len(blocks[0]["cycles"]),
     }
-
-
-def _rows(path: Path, method: str) -> list[dict[str, Any]]:
-    rows = [row for row in _json(path) if row.get("method") == method and row.get("ok") is True]
-    retained = [row for row in rows if int(row["repeat_index"]) > 0]
-    if len(retained) != 5:
-        raise ValueError(f"{method}: expected five successful post-warm-up samples")
-    return sorted(retained, key=lambda row: int(row["repeat_index"]))
 
 
 def _residual(total: float, phases: dict[str, float]) -> dict[str, float]:
@@ -113,7 +157,12 @@ def _residual(total: float, phases: dict[str, float]) -> dict[str, float]:
     return phases
 
 
-def _sleep_phases(event: dict[str, Any]) -> dict[str, float]:
+def _allocator_event(profile: dict[str, Any], phase: str) -> dict[str, Any]:
+    return next(event for event in profile["events"] if event.get("phase") == phase)
+
+
+def _sleep_phases(cycle: dict[str, Any]) -> dict[str, float]:
+    event = _allocator_event(cycle["sleep"]["sleep_profile"], "allocator_sleep")
     return {
         "CPU backup allocation": float(event["cpu_backup_alloc_s"]),
         "GPU→CPU copy": float(event["copy_d2h_s"]),
@@ -121,153 +170,239 @@ def _sleep_phases(event: dict[str, Any]) -> dict[str, float]:
     }
 
 
-def compile_profiles(
-    cold_summary: Path,
-    vllm_summary: Path,
-    cpu_summary: Path,
-    exact_run: Path,
+def _wake_phases(cycle: dict[str, Any], method: str) -> dict[str, float]:
+    if method == "vLLM L2 Cold" or method == "vLLM L2 Warm":
+        steps = cycle["restore"]["steps"]
+        return {
+            "GPU remap": float(steps["wake_weights"]["latency_s"]),
+            "Checkpoint load": float(steps["reload_weights"]["latency_s"]),
+            "KV-cache remap": float(steps["wake_kv_cache"]["latency_s"]),
+        }
+    event = _allocator_event(cycle["restore"]["sleep_profile"], "allocator_wake_up")
+    phases = {"GPU remap": float(event["create_map_s"])}
+    if not method.startswith("Exact disk"):
+        phases["CPU→GPU copy"] = float(event["copy_h2d_s"])
+        return phases
+    restore_events = [
+        event
+        for event in cycle["restore"]["sleep_profile"]["events"]
+        if event.get("phase") == "exact_disk_restore"
+    ]
+    if len(restore_events) != 1:
+        raise ValueError("exact disk: expected one restore pipeline event per cycle")
+    phases["Disk read + hash + H2D pipeline"] = float(restore_events[0]["disk_pipeline_wall_s"])
+    return phases
+
+
+def _compact_sample(
+    *,
+    method: str,
+    block: dict[str, Any],
+    cycles: list[dict[str, Any]],
+    source: str,
 ) -> dict[str, Any]:
-    sources = {
-        "cold": "cold-run",
-        "vllm": "vllm-profile-run",
-        "cpu": "vllm-switch-cpu-run",
-        "exact": "vllm-switch-exact-disk-run",
+    if not cycles:
+        raise ValueError(f"{method}: block observation has no cycles")
+    sleep_total = statistics.mean(float(cycle["sleep"]["latency_s"]) for cycle in cycles)
+    wake_total = statistics.mean(float(cycle["restore"]["latency_s"]) for cycle in cycles)
+
+    def mean_phases(operation: str) -> dict[str, float]:
+        breakdowns = [
+            _sleep_phases(cycle) if operation == "sleep" else _wake_phases(cycle, method)
+            for cycle in cycles
+        ]
+        names = set().union(*(breakdown.keys() for breakdown in breakdowns))
+        return {
+            name: statistics.mean(float(breakdown.get(name, 0.0)) for breakdown in breakdowns)
+            for name in names
+        }
+
+    row = {
+        "method": method,
+        "sample_index": int(block["process_block"]) + 1,
+        "process_block": int(block["process_block"]),
+        "cycle_indices": [int(cycle["cycle_index"]) for cycle in cycles],
+        "cycle_class": cycles[0]["cycle_class"],
+        "cache_condition": cycles[0].get("cache_condition"),
+        "sleep_total_s": sleep_total,
+        "sleep_phases_s": _residual(sleep_total, mean_phases("sleep")),
+        "wake_total_s": wake_total,
+        "wake_phases_s": _residual(wake_total, mean_phases("wake")),
+        "source": source,
     }
-    samples: list[dict[str, Any]] = []
-    for row in _rows(cold_summary, "cold_reload"):
+    caches = [cycle.get("cache_observation") for cycle in cycles]
+    if any(cache is not None for cache in caches):
+        if any(cache is None or cache.get("valid") is not True for cache in caches):
+            failures = [None if cache is None else cache.get("failures") for cache in caches]
+            raise ValueError(f"{method}: cache-state validation failed: {failures}")
+        valid_caches: list[dict[str, Any]] = [cache for cache in caches if cache is not None]
+        row["cache_evidence"] = {
+            "treatment": valid_caches[0]["treatment"],
+            "resident_ratio_before_wake": statistics.mean(
+                float(cache["before_wake"]["resident_ratio"]) for cache in valid_caches
+            ),
+            "storage_read_bytes": statistics.mean(
+                int(cache["io_delta"]["read_bytes"]) for cache in valid_caches
+            ),
+            "storage_read_ratio": statistics.mean(
+                float(cache["storage_read_ratio"]) for cache in valid_caches
+            ),
+            "major_faults": statistics.mean(
+                int(cache["io_delta"]["major_faults"]) for cache in valid_caches
+            ),
+        }
+    return row
+
+
+def _steady_cycles(block: dict[str, Any]) -> list[dict[str, Any]]:
+    return [cycle for cycle in block["cycles"] if cycle["cycle_class"] == "steady"]
+
+
+def _service_rows(path: Path, method: str, expected: int) -> list[dict[str, Any]]:
+    rows = [row for row in _json(path) if row.get("method") == method and row.get("ok") is True]
+    if len(rows) != expected:
+        raise ValueError(f"{method}: expected {expected} successful samples")
+    return sorted(rows, key=lambda row: int(row["repeat_index"]))
+
+
+def _compile_cold(path: Path, source: str) -> list[dict[str, Any]]:
+    samples = []
+    for row in _service_rows(path, "cold_reload", 3):
         sleep_total = float(row["evict"]["latency_s"])
         wake_total = float(row["restore"]["latency_s"])
         samples.append(
             {
                 "method": "Cold load",
-                "sample_index": int(row["repeat_index"]),
+                "sample_index": int(row["repeat_index"]) + 1,
+                "process_block": int(row["repeat_index"]),
+                "cycle_index": None,
+                "cycle_class": "cold_process",
+                "cache_condition": None,
                 "sleep_total_s": sleep_total,
                 "sleep_phases_s": {"Process shutdown": sleep_total},
                 "wake_total_s": wake_total,
                 "wake_phases_s": {"Process + engine startup": wake_total},
-                "source": sources["cold"],
+                "source": source,
             }
         )
+    return samples
 
-    for row in _rows(vllm_summary, "sleep_l1"):
-        sleep_total = float(row["evict"]["latency_s"])
-        sleep_events = row["evict"]["sleep_profile"]["events"]
-        sleep_allocator = next(
-            item for item in sleep_events if item.get("phase") == "allocator_sleep"
-        )
-        wake_total = float(row["restore"]["latency_s"])
-        wake_events = row["restore"]["sleep_profile"]["events"]
-        wake_allocator = next(
-            item for item in wake_events if item.get("phase") == "allocator_wake_up"
-        )
-        wake_phases = {
-            "GPU remap": float(wake_allocator["create_map_s"]),
-            "CPU→GPU copy": float(wake_allocator["copy_h2d_s"]),
-        }
+
+def compile_profiles(
+    cold_summary: Path,
+    vllm_blocks: Path,
+    switch_blocks: Path,
+) -> dict[str, Any]:
+    sources = {
+        "cold": "cold-run",
+        "vllm": "vllm-process-blocks",
+        "switch": "vllm-switch-process-blocks",
+    }
+    samples = _compile_cold(cold_summary, sources["cold"])
+    l1_blocks = _blocks(vllm_blocks, "sleep_l1")
+    l2_blocks = _blocks(vllm_blocks, "sleep_l2")
+    cpu_blocks = _blocks(switch_blocks, "cpu_backup")
+    disk_blocks = _blocks(switch_blocks, "exact_disk")
+
+    for block in l1_blocks:
         samples.append(
-            {
-                "method": "vLLM L1",
-                "sample_index": int(row["repeat_index"]),
-                "sleep_total_s": sleep_total,
-                "sleep_phases_s": _residual(sleep_total, _sleep_phases(sleep_allocator)),
-                "wake_total_s": wake_total,
-                "wake_phases_s": _residual(wake_total, wake_phases),
-                "source": sources["vllm"],
-            }
+            _compact_sample(
+                method="vLLM L1 First",
+                block=block,
+                cycles=[block["cycles"][0]],
+                source=sources["vllm"],
+            )
         )
-
-    for row in _rows(vllm_summary, "sleep_l2"):
-        sleep_total = float(row["evict"]["latency_s"])
-        sleep_events = row["evict"]["sleep_profile"]["events"]
-        sleep_allocator = next(
-            item for item in sleep_events if item.get("phase") == "allocator_sleep"
-        )
-        wake_total = float(row["restore"]["latency_s"])
-        steps = row["restore"]["steps"]
-        wake_phases = {
-            "GPU remap": float(steps["wake_weights"]["latency_s"]),
-            "Checkpoint load": float(steps["reload_weights"]["latency_s"]),
-            "KV-cache remap": float(steps["wake_kv_cache"]["latency_s"]),
-        }
         samples.append(
-            {
-                "method": "vLLM L2",
-                "sample_index": int(row["repeat_index"]),
-                "sleep_total_s": sleep_total,
-                "sleep_phases_s": _residual(sleep_total, _sleep_phases(sleep_allocator)),
-                "wake_total_s": wake_total,
-                "wake_phases_s": _residual(wake_total, wake_phases),
-                "source": sources["vllm"],
-            }
+            _compact_sample(
+                method="vLLM L1 Steady",
+                block=block,
+                cycles=_steady_cycles(block),
+                source=sources["vllm"],
+            )
         )
+    for condition, method in (("cold", "vLLM L2 Cold"), ("warm", "vLLM L2 Warm")):
+        for block in l2_blocks:
+            matching = [cycle for cycle in block["cycles"] if cycle["cache_condition"] == condition]
+            samples.append(
+                _compact_sample(
+                    method=method,
+                    block=block,
+                    cycles=matching,
+                    source=sources["vllm"],
+                )
+            )
+    for blocks, first_method, steady_method in (
+        (cpu_blocks, "CPU backup First", "CPU backup Steady"),
+        (disk_blocks, "Exact disk First", "Exact disk Steady"),
+    ):
+        for block in blocks:
+            samples.append(
+                _compact_sample(
+                    method=first_method,
+                    block=block,
+                    cycles=[block["cycles"][0]],
+                    source=sources["switch"],
+                )
+            )
+            samples.append(
+                _compact_sample(
+                    method=steady_method,
+                    block=block,
+                    cycles=_steady_cycles(block),
+                    source=sources["switch"],
+                )
+            )
 
-    cpu = _json(cpu_summary)
-    if cpu.get("ok") is not True:
-        raise ValueError("CPU backup source run did not pass its assertions")
-    cpu_steps = [step for step in cpu["steps"] if int(step["iteration"]) > 0]
-    if len(cpu_steps) != 5:
-        raise ValueError("CPU backup: expected five post-warm-up wake samples")
-    for step in cpu_steps:
-        sleep_total = float(step["sleep_latency_s"])
-        sleep_phases = {
-            "CPU backup allocation": float(step["sleep_allocator_cpu_backup_alloc_s"]),
-            "GPU→CPU copy": float(step["sleep_allocator_copy_d2h_s"]),
-            "GPU unmap + release": float(step["sleep_allocator_unmap_release_s"]),
-        }
-        wake_total = float(step["wake_latency_s"])
-        wake_phases = {
-            "GPU remap": float(step["wake_allocator_create_map_s"]),
-            "CPU→GPU copy": float(step["wake_allocator_copy_h2d_s"]),
-        }
-        samples.append(
-            {
-                "method": "CPU backup",
-                "sample_index": int(step["iteration"]),
-                "sleep_total_s": sleep_total,
-                "sleep_phases_s": _residual(sleep_total, sleep_phases),
-                "wake_total_s": wake_total,
-                "wake_phases_s": _residual(wake_total, wake_phases),
-                "source": sources["cpu"],
-            }
-        )
+    vllm_runtime = l1_blocks[0]["environment"]["runtime"]
+    switch_runtime = cpu_blocks[0]["environment"]["runtime"]
+    if vllm_runtime.get("python_version") != switch_runtime.get("python_version"):
+        raise ValueError("vLLM and vllm-switch must use the same Python version")
+    if vllm_runtime.get("torch_version") != switch_runtime.get("torch_version"):
+        raise ValueError("vLLM and vllm-switch must use the same Torch version")
+    if vllm_runtime.get("torch_cuda_version") != switch_runtime.get("torch_cuda_version"):
+        raise ValueError("vLLM and vllm-switch must use the same Torch CUDA version")
 
-    output_path = exact_run / "raw" / "output_observation.json"
-    profile_path = exact_run / "raw" / "exact_disk_profile.jsonl"
-    output = _json(output_path)
-    cycles = [cycle for cycle in output["cycles"] if int(cycle["cycle_index"]) > 0]
-    profile_events = [
-        json.loads(line) for line in profile_path.read_text(encoding="utf-8").splitlines() if line
-    ]
-    sleeps = [item for item in profile_events if item.get("phase") == "allocator_sleep"][-5:]
-    restores = [item for item in profile_events if item.get("phase") == "exact_disk_restore"][-5:]
-    wakes = [
-        item
-        for item in profile_events
-        if item.get("phase") == "allocator_wake_up" and item.get("disk_restored_bytes_by_tag")
-    ][-5:]
-    if not (len(cycles) == len(sleeps) == len(restores) == len(wakes) == 5):
-        raise ValueError("exact disk: expected five post-warm-up cycles and profile triplets")
-    for cycle, sleep, restore, wake in zip(cycles, sleeps, restores, wakes, strict=True):
-        sleep_total = float(cycle["sleep_latency_s"])
-        wake_total = float(cycle["wake_latency_s"])
-        wake_phases = {
-            "Disk read + hash + H2D pipeline": float(restore["disk_pipeline_wall_s"]),
-            "GPU remap": float(wake["create_map_s"]),
-        }
-        samples.append(
-            {
-                "method": "Exact disk",
-                "sample_index": int(cycle["cycle_index"]),
-                "sleep_total_s": sleep_total,
-                "sleep_phases_s": _residual(sleep_total, _sleep_phases(sleep)),
-                "wake_total_s": wake_total,
-                "wake_phases_s": _residual(wake_total, wake_phases),
-                "source": sources["exact"],
-            }
-        )
+    cold_provenance = _service_provenance(cold_summary)
+    cold_runtime = cold_provenance["engine_runtime"]
+    for field, label in (
+        ("python_version", "Python"),
+        ("torch_version", "Torch"),
+        ("torch_cuda_version", "Torch CUDA"),
+    ):
+        values = {cold_runtime.get(field), vllm_runtime.get(field), switch_runtime.get(field)}
+        if len(values) != 1:
+            raise ValueError(f"cold/vLLM/vllm-switch must use the same {label} version")
 
+    source_provenance = {
+        sources["cold"]: cold_provenance,
+        sources["vllm"]: {
+            "kind": "same-process-native-vllm-blocks",
+            "methods": {
+                "sleep_l1": _block_provenance(l1_blocks, kind="same-process-native-vllm-l1"),
+                "sleep_l2": _block_provenance(l2_blocks, kind="same-process-native-vllm-l2"),
+            },
+            "benchmark_repo": _git_identity(l1_blocks[0]["environment"]["benchmark_repo"]),
+            "engine_repo": _git_identity(l1_blocks[0]["environment"]["vllm_repo"]),
+            "engine_runtime": l1_blocks[0]["environment"]["runtime"],
+            "model_identity": {"identity": l1_blocks[0]["model"]},
+        },
+        sources["switch"]: {
+            "kind": "same-process-vllm-switch-blocks",
+            "methods": {
+                "cpu_backup": _block_provenance(cpu_blocks, kind="same-process-vllm-switch-cpu"),
+                "exact_disk": _block_provenance(
+                    disk_blocks, kind="same-process-vllm-switch-exact-disk"
+                ),
+            },
+            "benchmark_repo": _git_identity(cpu_blocks[0]["environment"]["benchmark_repo"]),
+            "engine_repo": _git_identity(cpu_blocks[0]["environment"]["vllm_repo"]),
+            "engine_runtime": cpu_blocks[0]["environment"]["runtime"],
+            "model_identity": {"identity": cpu_blocks[0]["model"]},
+        },
+    }
     document = {
-        "schema_version": 2,
+        "schema_version": 3,
         "title": "Qwen2.5-0.5B sleep and wake latency profiling",
         "metric_boundary": METRIC_BOUNDARY,
         "model": "Qwen2.5-0.5B-Instruct",
@@ -277,26 +412,27 @@ def compile_profiles(
             "max_model_len": 1024,
             "gpu_memory_utilization": 0.8,
             "engine_mode": "eager",
-            "sample_count_per_method": 5,
+            "process_blocks_per_method": 3,
+            "cycles_per_process": 3,
+            "sample_count_per_method": 3,
         },
         "stability_rule": {
-            "warmup": "Discard sample/cycle index 0 for every method.",
-            "center": "median of five retained samples",
-            "spread": "minimum and maximum of five retained samples",
-            "profile": (
-                "for each operation, real sample nearest the median; ties use sample_index"
+            "process_block": "three independent engine processes per mechanism",
+            "first": "cycle index zero in each process block",
+            "steady": "arithmetic mean of the two steady cycles within each process block",
+            "l2_cache": (
+                "one validated cold cycle and the arithmetic mean of two validated warm cycles "
+                "within each block"
             ),
+            "center": "median of three process-block observations",
+            "spread": "minimum and maximum of three process-block observations",
+            "profile": "real process-block sample nearest the operation median",
         },
         "phase_semantics": PHASE_SEMANTICS,
         "sources": list(sources.values()),
-        "source_provenance": {
-            sources["cold"]: _service_provenance(cold_summary),
-            sources["vllm"]: _service_provenance(vllm_summary),
-            sources["cpu"]: _cpu_provenance(cpu_summary),
-            sources["exact"]: _exact_provenance(exact_run),
-        },
+        "source_provenance": source_provenance,
         "samples": samples,
-        "evidence_label": "descriptive local mechanism comparison",
+        "evidence_label": "controlled local mechanism comparison",
         "comparability": {
             "shared_conditions": [
                 "Qwen2.5-0.5B-Instruct",
@@ -305,11 +441,21 @@ def compile_profiles(
                 "max_model_len=1024",
                 "gpu_memory_utilization=0.80",
                 "eager execution",
+                "three independent process blocks with three cycles each",
+                "continuous wake envelope and identical phase accounting",
             ],
-            "heterogeneous_conditions": [
-                "Cold/L1/L2 launch fresh service processes; CPU and disk use same-process cycles."
-            ],
-            "prohibited_claim": "Do not infer a release-matched system ranking.",
+            "cache_conditions": {
+                "vLLM L2 Cold": (
+                    "per-file POSIX_FADV_DONTNEED before untimed mincore validation; "
+                    "near-checkpoint physical reads required during timed wake"
+                ),
+                "vLLM L2 Warm": (
+                    "no eviction; high mincore residency and negligible physical reads required"
+                ),
+            },
+            "prohibited_claim": (
+                "Do not treat cycles within one process as independent observations."
+            ),
         },
     }
     aggregate_profiles(document)

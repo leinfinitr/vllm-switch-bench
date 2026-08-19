@@ -1,9 +1,9 @@
 {
-  "collected_at": "2026-08-13",
+  "collected_at": "2026-08-19",
   "config": [
     "config/campaign.json"
   ],
-  "evidence_label": "descriptive local mechanism comparison; not a release-matched system ranking",
+  "evidence_label": "controlled local mechanism comparison with process-block and cache-state controls",
   "experiment": "vllm-profiling",
   "files": [
     "README.md",
@@ -18,12 +18,15 @@
   "schema_version": 1,
   "status": "local-rerun",
   "validation": {
-    "methods": 5,
+    "cycles_per_process": 3,
+    "l2_cache_state_validation": true,
+    "methods": 9,
     "operations": [
       "sleep",
       "wake"
     ],
     "phase_accounting": true,
-    "samples_per_method": 5
+    "process_blocks_per_method": 3,
+    "samples_per_method": 3
   }
 }

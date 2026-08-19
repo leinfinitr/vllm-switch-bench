@@ -1,29 +1,54 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "model": "Qwen2.5-0.5B-Instruct",
   "methods": [
     "Cold load",
-    "vLLM L1",
-    "vLLM L2",
-    "CPU backup",
-    "Exact disk"
+    "vLLM L1 First",
+    "vLLM L1 Steady",
+    "vLLM L2 Cold",
+    "vLLM L2 Warm",
+    "CPU backup First",
+    "CPU backup Steady",
+    "Exact disk First",
+    "Exact disk Steady"
   ],
   "display_labels": {
-    "CPU backup": "vllm-switch CPU backup",
-    "Exact disk": "vllm-switch exact disk"
+    "vLLM L1 First": "vLLM L1 first",
+    "vLLM L1 Steady": "vLLM L1 steady",
+    "vLLM L2 Cold": "vLLM L2 cold",
+    "vLLM L2 Warm": "vLLM L2 warm",
+    "CPU backup First": "vllm-switch CPU first",
+    "CPU backup Steady": "vllm-switch CPU steady",
+    "Exact disk First": "vllm-switch disk first",
+    "Exact disk Steady": "vllm-switch disk steady"
   },
-  "samples_per_method": 5,
+  "process_blocks_per_method": 3,
+  "cycles_per_process": 3,
+  "samples_per_method": 3,
   "dtype": "float16",
   "max_model_len": 1024,
   "gpu_memory_utilization": 0.8,
   "engine_mode": "eager",
+  "l2_cache_validation": {
+    "cold_max_resident_ratio": 0.05,
+    "cold_min_storage_read_ratio": 0.9,
+    "warm_min_resident_ratio": 0.9,
+    "warm_max_storage_read_ratio": 0.1,
+    "cold_schedule": [
+      ["cold", "warm", "warm"],
+      ["warm", "cold", "warm"],
+      ["warm", "warm", "cold"]
+    ]
+  },
   "aggregation": {
+    "independent_unit": "process block",
     "center": "median",
     "spread": "minimum and maximum",
-    "representative_profile": "retained sample nearest the median; ties use sample_index"
+    "steady_cycle": "arithmetic mean of the two steady cycles within each process block",
+    "representative_profile": "retained block sample nearest the across-block median"
   },
   "metric_boundary": {
-    "sleep": "Sleep begins immediately before process termination or the sleep API call and ends when process exit or the sleep response returns.",
-    "wake": "Wake begins immediately before process start or the wake API call and ends when health readiness or the wake response returns; request generation is excluded."
+    "sleep": "Sleep begins immediately before process termination or the sleep call and ends when process exit or sleep returns.",
+    "wake": "Wake begins immediately before process start or the first restore call and ends after all required restore stages return; request generation and cache treatment are excluded."
   }
 }

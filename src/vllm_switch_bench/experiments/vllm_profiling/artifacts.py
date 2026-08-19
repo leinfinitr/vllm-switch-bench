@@ -22,7 +22,9 @@ Question: which sleep and wake phases dominate vLLM L1/L2 and vllm-switch CPU/ex
 - Figure: [`figures/vllm-profiling.pdf`](figures/vllm-profiling.pdf) ([PNG](figures/vllm-profiling.png))
 - Method and limitations: [`../../docs/experiments/vllm-profiling/README.md`](../../docs/experiments/vllm-profiling/README.md)
 
-The retained comparison contains five post-warm-up samples collected on 2026-08-13 for a cold-load reference, vLLM L1/L2, vllm-switch CPU backup, and vllm-switch exact-disk restore. Engine revisions and process-reuse conditions differ, so this is a descriptive local mechanism profile rather than a release-matched ranking.
+The retained comparison uses three independent process blocks with three cycles per block.
+It separates first and steady L1/CPU/exact-disk behavior, and validates cold versus warm
+page-cache state for vLLM L2 using residency and physical-read evidence.
 """
 
 
@@ -36,14 +38,17 @@ def build(results_root: Path | None = None) -> None:
         family,
         config=["config/campaign.json"],
         validation={
-            "methods": 5,
-            "samples_per_method": 5,
+            "methods": 9,
+            "samples_per_method": 3,
+            "process_blocks_per_method": 3,
+            "cycles_per_process": 3,
             "operations": ["sleep", "wake"],
             "phase_accounting": True,
+            "l2_cache_state_validation": True,
         },
         extra={
             "evidence_label": (
-                "descriptive local mechanism comparison; not a release-matched system ranking"
+                "controlled local mechanism comparison with process-block and cache-state controls"
             )
         },
     )

@@ -54,6 +54,23 @@ def test_parse_args_rejects_non_positive_repeats():
         raise AssertionError("parse_args should reject non-positive repeats")
 
 
+def test_parse_args_defaults_to_three_blocks_and_cycles():
+    args = bench.parse_args(["--model", "dummy"])
+
+    assert args.repeats == 3
+    assert args.cycles_per_process == 3
+
+
+def test_parse_args_rejects_non_three_cycle_blocks():
+    for cycles in (1, 2, 4):
+        try:
+            bench.parse_args(["--model", "dummy", "--cycles-per-process", str(cycles)])
+        except SystemExit as exc:
+            assert exc.code == 2
+        else:
+            raise AssertionError("parse_args should require exactly three cycles per process")
+
+
 def test_start_vllm_preserves_virtualenv_bin_on_path(tmp_path, monkeypatch):
     base_python = tmp_path / "base" / "python3"
     base_python.parent.mkdir()

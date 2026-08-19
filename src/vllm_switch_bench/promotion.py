@@ -70,9 +70,8 @@ def _stage_lifecycle(args: argparse.Namespace, raw: Path) -> None:
 def _stage_profiling(args: argparse.Namespace, raw: Path) -> None:
     document = compile_profiles(
         args.cold_summary,
-        args.vllm_summary,
-        args.cpu_summary,
-        args.exact_run,
+        args.vllm_blocks,
+        args.switch_blocks,
     )
     _write_json(raw / "profile-samples.json", document)
 
@@ -238,9 +237,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.add_argument("--llama-swap", type=Path, required=True)
     elif known.family == "vllm-profiling":
         parser.add_argument("--cold-summary", type=Path, required=True)
-        parser.add_argument("--vllm-summary", type=Path, required=True)
-        parser.add_argument("--cpu-summary", type=Path, required=True)
-        parser.add_argument("--exact-run", type=Path, required=True)
+        parser.add_argument("--vllm-blocks", type=Path, required=True)
+        parser.add_argument("--switch-blocks", type=Path, required=True)
     elif known.family == "request-driven-switch":
         parser.add_argument("--vllm-switch", type=Path, required=True)
         parser.add_argument("--llama-swap", type=Path, required=True)

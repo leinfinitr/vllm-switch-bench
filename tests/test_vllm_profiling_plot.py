@@ -36,13 +36,13 @@ def sample(method: str, index: int, total: float, phase: float | None = None) ->
 def document() -> dict:
     samples = []
     for method in RAW_METHOD_ORDER:
-        for index, total in enumerate([1.0, 1.1, 1.2, 1.3, 1.4], start=1):
+        for index, total in enumerate([1.0, 1.1, 1.2], start=1):
             samples.append(sample(method, index, total, total * 0.75))
     return {
         "schema_version": 2,
         "metric_boundary": {"sleep": "sleep begin to done", "wake": "wake begin to ready"},
         "model": "model-a",
-        "frozen_scope": {"sample_count_per_method": 5},
+        "frozen_scope": {"sample_count_per_method": 3},
         "stability_rule": {},
         "phase_semantics": {},
         "sources": [],
@@ -55,12 +55,12 @@ def test_aggregate_profiles_selects_real_median_sample_and_spread():
 
     assert [row["method"] for row in summary["methods"]] == list(METHOD_ORDER)
     row = summary["methods"][0]
-    assert row["sleep"]["median_s"] == pytest.approx(0.6)
-    assert row["wake"]["median_s"] == pytest.approx(1.2)
+    assert row["sleep"]["median_s"] == pytest.approx(0.55)
+    assert row["wake"]["median_s"] == pytest.approx(1.1)
     assert row["wake"]["min_s"] == pytest.approx(1.0)
-    assert row["wake"]["max_s"] == pytest.approx(1.4)
-    assert row["wake"]["representative_sample_index"] == 3
-    assert sum(row["wake"]["representative_phases_s"].values()) == pytest.approx(1.2)
+    assert row["wake"]["max_s"] == pytest.approx(1.2)
+    assert row["wake"]["representative_sample_index"] == 2
+    assert sum(row["wake"]["representative_phases_s"].values()) == pytest.approx(1.1)
 
 
 def test_aggregate_profiles_rejects_non_closing_breakdown():
@@ -75,7 +75,7 @@ def test_aggregate_profiles_rejects_missing_samples():
     payload = document()
     payload["samples"].pop()
 
-    with pytest.raises(ValueError, match="has 4 samples"):
+    with pytest.raises(ValueError, match="has 2 samples"):
         aggregate_profiles(payload)
 
 

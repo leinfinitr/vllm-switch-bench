@@ -5,6 +5,12 @@ import json
 import pytest
 
 from vllm_switch_bench.experiments.vllm_profiling import run as bench
+from vllm_switch_bench.experiments.vllm_profiling.page_cache import (
+    evict_page_cache,
+    l2_cache_schedule,
+    measure_page_cache,
+    validate_cache_observation,
+)
 
 
 def test_vllm_harness_uses_shared_prompt_catalog():
@@ -129,3 +135,61 @@ def test_write_sleep_profile_summary_csv_flattens_nested_profiles(tmp_path):
     assert "cpu_backup_alloc_s" in text
     assert "0.25" in text
     assert '""weights"": 1024' in text
+
+
+def test_combine_restore_steps_uses_continuous_envelope():
+    combined = bench.combine_restore_steps(
+        {"ok": True, "status": 200, "latency_s": 0.2},
+        {"ok": True, "status": 200, "latency_s": 0.5},
+        {"ok": True, "status": 200, "latency_s": 0.2},
+        started_monotonic_s=10.0,
+        ended_monotonic_s=11.1,
+    )
+
+    assert combined["latency_s"] == pytest.approx(1.1)
+    assert combined["active_latency_s"] == pytest.approx(0.9)
+    assert combined["inter_step_gap_s"] == pytest.approx(0.2)
+
+
+def test_l2_cache_schedule_rotates_cold_cycle():
+    assert l2_cache_schedule(0, 3) == ["cold", "warm", "warm"]
+    assert l2_cache_schedule(1, 3) == ["warm", "cold", "warm"]
+    assert l2_cache_schedule(2, 3) == ["warm", "warm", "cold"]
+
+
+def test_page_cache_measure_and_evict_are_file_scoped(tmp_path):
+    payload = tmp_path / "model.safetensors"
+    payload.write_bytes(b"x" * (2 * 1024 * 1024))
+    payload.read_bytes()
+
+    before = measure_page_cache([payload])
+    treatment = evict_page_cache([payload])
+
+    assert before["total_bytes"] == payload.stat().st_size
+    assert treatment["ok"] is True
+    assert treatment["after"]["resident_ratio"] <= treatment["before"]["resident_ratio"]
+
+
+@pytest.mark.parametrize(
+    ("condition", "resident", "read_bytes", "valid"),
+    [
+        ("cold", 0.01, 950, True),
+        ("cold", 0.20, 950, False),
+        ("warm", 0.99, 0, True),
+        ("warm", 0.99, 500, False),
+    ],
+)
+def test_validate_cache_observation(condition, resident, read_bytes, valid):
+    observed, failures = validate_cache_observation(
+        condition,
+        before_wake={"resident_ratio": resident},
+        io_delta={"read_bytes": read_bytes},
+        checkpoint_bytes=1000,
+        cold_max_resident_ratio=0.05,
+        cold_min_read_ratio=0.90,
+        warm_min_resident_ratio=0.90,
+        warm_max_read_ratio=0.10,
+    )
+
+    assert observed is valid
+    assert bool(failures) is (not valid)
