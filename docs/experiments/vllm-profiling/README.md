@@ -86,7 +86,22 @@ VLLM_REPO=/path/to/native-vllm-profiling
 VLLM_PYTHON=/path/to/native-vllm-python
 VLLM_SWITCH_REPO=/path/to/vllm-switch
 VLLM_SWITCH_PYTHON="$VLLM_SWITCH_REPO/.venv/bin/python"
+export CUDA_HOME=/path/to/cuda
 ```
+
+Both engine checkouts must be runnable source trees, not source-only clones. In particular,
+the selected Python environment must provide ABI-compatible compiled vLLM extension modules.
+Check the imported source and extension paths before starting the GPU run:
+
+```bash
+PYTHONPATH="$VLLM_REPO" "$VLLM_PYTHON" -c \
+  'import pathlib, vllm, vllm._C; print(pathlib.Path(vllm.__file__).resolve()); print(pathlib.Path(vllm._C.__file__).resolve())'
+PYTHONPATH="$VLLM_SWITCH_REPO" "$VLLM_SWITCH_PYTHON" -c \
+  'import pathlib, vllm, vllm._C; print(pathlib.Path(vllm.__file__).resolve()); print(pathlib.Path(vllm._C.__file__).resolve())'
+```
+
+For each command, verify that the first path belongs to the declared checkout and that the
+extension path identifies the compatible build intended for that checkout.
 
 The cold-process reference uses three independent processes:
 
@@ -149,8 +164,9 @@ scripts/vllm-profiling.sh \
   --out-dir "$RUN_ROOT/vllm-switch"
 ```
 
-Each block must have a `block-summary.json`, `ok=true`, three cycles, equal outputs, and
-passing L2 cache evidence.
+The cold summary must contain exactly three rows with `ok=true`. Each mechanism block must
+have a `block-summary.json`, `ok=true`, three cycles, equal outputs, and passing L2 cache
+evidence.
 
 ## Update `results/`
 
@@ -167,14 +183,36 @@ scripts/promote.sh vllm-profiling \
   --switch-blocks "$SWITCH_BLOCKS"
 ```
 
-After reviewing the candidate, use a new candidate root with `--apply`, then run:
+The promoter builds and semantically validates the candidate before it returns. After
+reviewing that candidate, use a new candidate root to apply it:
+
+```bash
+scripts/promote.sh vllm-profiling \
+  --apply \
+  --candidate-root "$RUN_ROOT/candidate-apply" \
+  --collected-at YYYY-MM-DD \
+  --cold-summary "$COLD_SUMMARY" \
+  --vllm-blocks "$VLLM_BLOCKS" \
+  --switch-blocks "$SWITCH_BLOCKS"
+```
+
+Build and validate twice, recording hashes after each pass. Matching hash manifests show
+that the retained artifacts are stable while still allowing the intentional result update
+to remain visible in `git diff`:
 
 ```bash
 scripts/build_all.sh vllm-profiling
 uv run python -m vllm_switch_bench.validation.vllm_profiling.validate
+find results/vllm-profiling -type f -print0 | sort -z | \
+  xargs -0 sha256sum > "$RUN_ROOT/results-first-pass.sha256"
+
 scripts/build_all.sh vllm-profiling
 uv run python -m vllm_switch_bench.validation.vllm_profiling.validate
-git diff --exit-code -- results
+find results/vllm-profiling -type f -print0 | sort -z | \
+  xargs -0 sha256sum > "$RUN_ROOT/results-second-pass.sha256"
+
+cmp "$RUN_ROOT/results-first-pass.sha256" "$RUN_ROOT/results-second-pass.sha256"
+git diff -- results/vllm-profiling
 ```
 
 ## Threats and limitations
@@ -183,4 +221,7 @@ This experiment covers only one model, one host/GPU, and three independent proce
 The allocator, driver, filesystem, and other activity on the shared server can still affect
 the result. `POSIX_FADV_DONTNEED` is advisory, so cold/warm classification depends on actual
 `mincore` and physical-read evidence rather than the success of the system call alone. The
+retained provenance records the engine commit, Python path/version, Torch/CUDA versions, and
+vLLM source import path, but it does not digest the loaded `vllm._C` shared object; the
+preflight extension-path check remains operator-reviewed rather than retained evidence. The
 result does not establish throughput, capacity, tail latency, or general system superiority.

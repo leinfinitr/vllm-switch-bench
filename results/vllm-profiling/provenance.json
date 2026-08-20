@@ -1,13 +1,13 @@
 {
-  "collected_at": "2026-08-19",
+  "collected_at": "2026-08-20",
   "note": "Local GPU rerun promoted from validator-approved results/tmp evidence. Per-run raw metadata is authoritative for runtime identity.",
   "promotion_benchmark": {
     "branch": "master",
-    "commit": "49dcb4c5973391e70ae4db9e87b54d99178a2a96",
+    "commit": "00eb8c7119a8456426919bfa763d523032cad888",
     "dirty": false,
     "path": "/home/ljl/research-systems/vllm-switch-bench",
     "status_porcelain": "",
-    "working_tree_sha256": "b0b30e2ee86fe8c983082997003e29163275f521b07cc90ab7cbba99f39f6855"
+    "working_tree_sha256": "55a8b1c42a8deff050d029150f764e8888325c9584b18c27f06c61a151ad67cc"
   },
   "schema_version": 1,
   "status": "local-rerun"
