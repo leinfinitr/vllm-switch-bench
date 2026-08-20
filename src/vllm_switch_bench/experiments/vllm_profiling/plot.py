@@ -244,23 +244,23 @@ def _draw_panel(
         )
         bottoms += values
 
-    medians = np.asarray([float(row[operation]["median_s"]) * scale for row in rows])
-    lower = medians - np.asarray([float(row[operation]["min_s"]) * scale for row in rows])
-    upper = np.asarray([float(row[operation]["max_s"]) * scale for row in rows]) - medians
-    ax.errorbar(
-        x,
-        medians,
-        yerr=np.vstack([lower, upper]),
-        fmt="D",
-        markersize=3.2,
-        markerfacecolor="white",
-        markeredgecolor="black",
-        color="black",
-        capsize=2.5,
-        linewidth=0.8,
-        label="Median [min, max]",
-        zorder=4,
-    )
+    # medians = np.asarray([float(row[operation]["median_s"]) * scale for row in rows])
+    # lower = medians - np.asarray([float(row[operation]["min_s"]) * scale for row in rows])
+    # upper = np.asarray([float(row[operation]["max_s"]) * scale for row in rows]) - medians
+    # ax.errorbar(
+    #     x,
+    #     medians,
+    #     yerr=np.vstack([lower, upper]),
+    #     fmt="D",
+    #     markersize=3.2,
+    #     markerfacecolor="white",
+    #     markeredgecolor="black",
+    #     color="black",
+    #     capsize=2.5,
+    #     linewidth=0.8,
+    #     label="Median [min, max]",
+    #     zorder=4,
+    # )
     for position, row, top in zip(x, rows, bottoms, strict=True):
         value = float(row[operation]["median_s"])
         label = f"{value:.3f} s" if seconds else f"{value * 1000:.0f} ms"
